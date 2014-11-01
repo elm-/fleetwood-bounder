@@ -20,9 +20,11 @@ package fleetwood.bounder.instance;
 import java.util.ArrayList;
 import java.util.List;
 
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.CompositeDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
+import fleetwood.bounder.engine.StartActivityInstance;
 import fleetwood.bounder.store.ProcessStore;
 
 
@@ -30,11 +32,12 @@ import fleetwood.bounder.store.ProcessStore;
  * @author Tom Baeyens
  */
 public class CompositeInstance {
-
+  
   protected ProcessStore processStore;
   protected ProcessDefinition processDefinition;
   protected CompositeDefinition compositeDefinition;
   protected ProcessInstance processInstance;
+  protected CompositeInstance parent;
   protected List<ActivityInstance> activityInstances;
 
   public void start() {
@@ -42,7 +45,7 @@ public class CompositeInstance {
     if (startActivityDefinitions!=null) {
       for (ActivityDefinition startActivityDefinition: startActivityDefinitions) {
         ActivityInstance activityInstance = createActivityInstance(startActivityDefinition);
-        activityInstance.execute();
+        processInstance.startActivityInstance(activityInstance);
       }
     }
   }
@@ -52,12 +55,14 @@ public class CompositeInstance {
     activityInstance.setProcessStore(processStore);
     activityInstance.setCompositeDefinition(activityDefinition);
     activityInstance.setProcessInstance(processInstance);
+    activityInstance.setParent(this);
     activityInstance.setActivityDefinition(activityDefinition);
     if (activityInstances==null) {
       activityInstances = new ArrayList<>();
     }
     activityInstance.setId(processStore.createActivityInstanceId(activityInstance));
     activityInstances.add(activityInstance);
+    ProcessEngine.log.debug("Created "+activityInstance);
     return activityInstance;
   }
   
@@ -120,5 +125,13 @@ public class CompositeInstance {
 
   public boolean hasActivityInstances() {
     return activityInstances!=null && !activityInstances.isEmpty();
+  }
+  
+  public CompositeInstance getParent() {
+    return parent;
+  }
+  
+  public void setParent(CompositeInstance parent) {
+    this.parent = parent;
   }
 }

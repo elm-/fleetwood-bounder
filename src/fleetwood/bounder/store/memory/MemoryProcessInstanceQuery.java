@@ -22,7 +22,6 @@ import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.CompositeInstance;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.store.ProcessInstanceQuery;
-import fleetwood.bounder.util.Exceptions;
 
 
 /**

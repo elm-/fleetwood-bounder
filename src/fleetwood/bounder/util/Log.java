@@ -26,8 +26,8 @@ import java.util.Date;
  */
 public class Log {
   
-  static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS"); 
-
+  static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
+  
   public void debug(String msg) {
     System.err.println(simpleDateFormat.format(new Date())+" | "+msg);
   }

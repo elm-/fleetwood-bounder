@@ -15,28 +15,12 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine;
-
-import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.util.Time;
+package fleetwood.bounder.instance;
 
 
 /**
  * @author tbaeyens
  */
-public class ExecuteActivityInstance implements Operation {
+public class ProcessInstanceUpdates {
 
-  protected ActivityInstance activityInstance;
-  
-  public ExecuteActivityInstance(ActivityInstance activityInstance) {
-    this.activityInstance = activityInstance;
-  }
-
-  @Override
-  public void execute() {
-    activityInstance.setStart(Time.now());
-    ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
-    activityDefinition.execute(activityInstance);
-  }
 }

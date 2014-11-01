@@ -17,12 +17,10 @@
 
 package fleetwood.bounder.instance;
 
-import java.util.Map;
-
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
-import fleetwood.bounder.definition.TransitionDefinitionId;
-import fleetwood.bounder.engine.ExecuteActivityInstance;
+import fleetwood.bounder.engine.StartActivityInstance;
 import fleetwood.bounder.util.Time;
 
 
@@ -36,23 +34,30 @@ public class ActivityInstance extends CompositeInstance {
   protected Long start;
   protected Long end;
   
-  protected void execute() {
-    processInstance.addOperation(new ExecuteActivityInstance(this));
-  }
-
   public void signal() {
   }
 
   public void onwards() {
-    this.end = Time.now();
+    ProcessEngine.log.debug("Ended "+this);
+    end();
     if (activityDefinition.hasTransitionDefinitions()) {
       for (TransitionDefinition transitionDefinition: activityDefinition.getTransitionDefinitions().values()) {
-        ActivityDefinition to = transitionDefinition.getTo();
-        if (to!=null) {
-          ActivityInstance activityInstance = createActivityInstance(to);
-          processInstance.addOperation(new ExecuteActivityInstance(activityInstance));
-        }  
+        takeTransition(transitionDefinition);  
       }
+    }
+  }
+
+  public void end() {
+    if (this.end==null) {
+      this.end = Time.now();
+    }
+  }
+
+  public void takeTransition(TransitionDefinition transitionDefinition) {
+    ActivityDefinition to = transitionDefinition.getTo();
+    if (to!=null) {
+      ActivityInstance activityInstance = getParent().createActivityInstance(to);
+      processInstance.addOperation(new StartActivityInstance(activityInstance));
     }
   }
   
@@ -98,5 +103,9 @@ public class ActivityInstance extends CompositeInstance {
   
   public void setEnd(Long end) {
     this.end = end;
+  }
+  
+  public String toString() {
+    return "["+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+"|"+activityDefinition.getClass().getSimpleName()+"]";
   }
 }

@@ -15,25 +15,30 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder;
+package fleetwood.bounder.engine;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.util.Time;
 
 
 /**
- * @author Tom Baeyens
+ * @author tbaeyens
  */
-public class Go extends ActivityDefinition {
+public class StartActivityInstance implements Operation {
+
+  protected ActivityInstance activityInstance;
   
-  protected List<ActivityInstance> activityInstances = new ArrayList<>();
+  public StartActivityInstance(ActivityInstance activityInstance) {
+    this.activityInstance = activityInstance;
+  }
 
   @Override
-  public void start(ActivityInstance activityInstance) {
-    activityInstances.add(activityInstance);
-    activityInstance.onwards();
+  public void execute() {
+    activityInstance.setStart(Time.now());
+    ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
+    ProcessEngine.log.debug("Starting "+activityInstance);
+    activityDefinition.start(activityInstance);
   }
 }

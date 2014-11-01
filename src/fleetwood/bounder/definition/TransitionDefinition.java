@@ -17,13 +17,17 @@
 
 package fleetwood.bounder.definition;
 
+import fleetwood.bounder.store.ProcessStore;
+
 
 /**
  * @author Tom Baeyens
  */
 public class TransitionDefinition {
 
+  protected ProcessStore processStore;
   protected TransitionDefinitionId id;
+  protected CompositeDefinition parent;
   protected ActivityDefinition from;
   protected ActivityDefinition to;
 
@@ -53,5 +57,25 @@ public class TransitionDefinition {
   
   public void setTo(ActivityDefinition to) {
     this.to = to;
+  }
+
+  
+  public ProcessStore getProcessStore() {
+    return processStore;
+  }
+
+  
+  public void setProcessStore(ProcessStore processStore) {
+    this.processStore = processStore;
+  }
+
+  
+  public CompositeDefinition getParent() {
+    return parent;
+  }
+
+  
+  public void setParent(CompositeDefinition parent) {
+    this.parent = parent;
   }
 }

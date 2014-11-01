@@ -17,6 +17,9 @@
 
 package fleetwood.bounder.definition;
 
+import fleetwood.bounder.instance.ProcessInstance;
+import fleetwood.bounder.instance.ProcessInstanceId;
+
 
 /**
  * @author Tom Baeyens
@@ -31,5 +34,21 @@ public class ProcessDefinition extends CompositeDefinition {
   
   public void setId(ProcessDefinitionId id) {
     this.id = id;
+  }
+
+  public String toString() {
+    return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
+  }
+
+  public ProcessInstance createProcessInstance(ProcessInstanceId processInstanceId) {
+    ProcessInstance processInstance = processStore.newProcessInstance();
+    processInstance.setProcessStore(processStore);
+    processInstance.setProcessDefinition(this);
+    processInstance.setCompositeDefinition(this);
+    processInstance.setProcessInstance(processInstance);
+    if (processInstance.getId() == null) {
+      processInstance.setId(processStore.createProcessInstanceId(processInstance));
+    }
+    return processInstance;
   }
 }

@@ -21,21 +21,21 @@ import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
+import fleetwood.bounder.definition.TransitionDefinition;
+import fleetwood.bounder.definition.TransitionDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
 import fleetwood.bounder.definition.VariableDefinitionId;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
-import fleetwood.bounder.util.Log;
+import fleetwood.bounder.instance.ProcessInstanceUpdates;
 
 /**
  * @author Tom Baeyens
  */
 public abstract class ProcessStore {
   
-  public Log log = new Log();
-
   public ProcessDefinition createProcessDefinition(ProcessDefinitionId id) {
     ProcessDefinition processDefinition = newProcessDefinition();
     processDefinition.setProcessStore(this);
@@ -46,43 +46,40 @@ public abstract class ProcessStore {
     return processDefinition;
   }
 
-  protected ProcessDefinition newProcessDefinition() {
-    return new ProcessDefinition();
-  }
-
   public abstract void saveProcessDefinition(ProcessDefinition processDefinition);
 
   public abstract ProcessDefinitionQuery createProcessDefinitionQuery();
 
-  public ProcessInstance createProcessInstance(ProcessDefinition processDefinition, ProcessInstanceId id) {
-    ProcessInstance processInstance = newProcessInstance();
-    processInstance.setProcessStore(this);
-    processInstance.setProcessDefinition(processDefinition);
-    processInstance.setCompositeDefinition(processDefinition);
-    processInstance.setProcessInstance(processInstance);
-    if (id == null) {
-      id = createProcessInstanceId(processInstance);
-    }
-    processInstance.setId(id);
-    return processInstance;
+  protected ProcessDefinition newProcessDefinition() {
+    return new ProcessDefinition();
   }
 
-  protected ProcessInstance newProcessInstance() {
+  public ProcessInstance newProcessInstance() {
     return new ProcessInstance();
+  }
+
+  public TransitionDefinition newTransitionDefinition() {
+    return new TransitionDefinition();
   }
 
   public abstract ProcessInstanceQuery createProcessInstanceQuery();
 
-  public abstract void saveProcessInstance(ProcessInstance processInstance);
-
   public abstract ProcessDefinitionId createProcessDefinitionId(ProcessDefinition processDefinition);
 
   public abstract ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition);
+
+  public abstract TransitionDefinitionId createTransitionDefinitionId(TransitionDefinition transition);
 
   public abstract VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition);
 
   public abstract ProcessInstanceId createProcessInstanceId(ProcessInstance processInstance);
   
   public abstract ActivityInstanceId createActivityInstanceId(ActivityInstance activityInstance);
+
+  public abstract void saveProcessInstance(ProcessInstance processInstance);
+
+  public abstract void flushUpdates(ProcessInstanceUpdates processInstanceUpdates);
+
+  public abstract void flushUpdatesAndUnlock(ProcessInstanceUpdates processInstanceUpdates);
 
 }

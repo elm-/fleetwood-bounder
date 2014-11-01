@@ -35,5 +35,9 @@ public abstract class ActivityDefinition extends CompositeDefinition {
     this.id = id;
   }
   
-  public abstract void execute(ActivityInstance activityInstance);
+  public abstract void start(ActivityInstance activityInstance);
+
+  public String toString() {
+    return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
+  }
 }

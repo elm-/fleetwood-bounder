@@ -20,7 +20,9 @@ package fleetwood.bounder.instance;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.engine.Operation;
+import fleetwood.bounder.engine.StartActivityInstance;
 
 
 
@@ -31,32 +33,36 @@ import fleetwood.bounder.engine.Operation;
 public class ProcessInstance extends CompositeInstance {
   
   protected ProcessInstanceId id;
+  protected ProcessInstanceUpdates processInstanceUpdates;
   
   protected Queue<Operation> operations;
   
-  public void save() {
-    processStore.saveProcessInstance(this);
-  }
-  
   @Override
   public void start() {
+    ProcessEngine.log.debug("Starting "+this);
     super.start();
     executeOperations();
   }
   
-  protected void addOperation(Operation operation) {
+  void startActivityInstance(ActivityInstance activityInstance) {
+    addOperation(new StartActivityInstance(activityInstance));
+  }
+
+  void addOperation(Operation operation) {
     if (operations==null) {
       operations = new LinkedList<>();
     }
     operations.add(operation);
   }
 
-  protected void executeOperations() {
+  void executeOperations() {
     if (operations!=null) {
       while (!operations.isEmpty()) {
+        processStore.flushUpdates(processInstanceUpdates);
         operations.remove().execute();
       }
     }
+    processStore.flushUpdatesAndUnlock(processInstanceUpdates);
   }
 
   public ProcessInstanceId getId() {
@@ -65,5 +71,13 @@ public class ProcessInstance extends CompositeInstance {
 
   public void setId(ProcessInstanceId id) {
     this.id = id;
+  }
+
+  public String toString() {
+    return "("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+")";
+  }
+
+  public void save() {
+    processStore.saveProcessInstance(processInstance);
   }
 }

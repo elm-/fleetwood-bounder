@@ -147,11 +147,22 @@ public class CompositeDefinition {
     return this;
   }
   
+  public void addTransitionDefinition(ActivityDefinition from, ActivityDefinition to) {
+    TransitionDefinition transitionDefinition = processStore.newTransitionDefinition();
+    transitionDefinition.setFrom(from);
+    transitionDefinition.setTo(to);
+    addTransitionDefinition(transitionDefinition);
+  }
+
   public CompositeDefinition addTransitionDefinition(TransitionDefinition transition) {
     Exceptions.checkNotNull(transition, "transition");
-    Exceptions.checkNotNull(transition.id, "transition.id");
+    transition.processStore = processStore;
+    transition.parent = this;
     if (transitionDefinitions==null)  {
       transitionDefinitions = new LinkedHashMap<>();
+    }
+    if (transition.id==null) {
+      transition.id = processStore.createTransitionDefinitionId(transition);
     }
     transitionDefinitions.put(transition.id, transition);
     return this;

@@ -34,6 +34,8 @@ import fleetwood.bounder.util.Log;
  */
 public class ProcessEngine {
   
+  public static Log log = new Log();
+
   ProcessStore processStore;
 
   public ProcessDefinition createNewProcessDefinition() {
@@ -62,7 +64,7 @@ public class ProcessEngine {
     ProcessDefinition processDefinition = createProcessDefinitionQuery()
       .id(processDefinitionId)
       .get();
-    return processStore.createProcessInstance(processDefinition, processInstanceId);
+    return processDefinition.createProcessInstance(processInstanceId);
   }
 
   public ProcessInstanceQuery createProcessInstanceQuery() {

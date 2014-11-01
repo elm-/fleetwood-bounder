@@ -32,7 +32,7 @@ public class Wait extends ActivityDefinition {
   protected List<ActivityInstance> activityInstances = new ArrayList<>();
 
   @Override
-  public void execute(ActivityInstance activityInstance) {
+  public void start(ActivityInstance activityInstance) {
     activityInstances.add(activityInstance);
   }
 }

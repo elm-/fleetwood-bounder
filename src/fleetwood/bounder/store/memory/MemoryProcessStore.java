@@ -27,12 +27,15 @@ import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
+import fleetwood.bounder.definition.TransitionDefinition;
+import fleetwood.bounder.definition.TransitionDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
 import fleetwood.bounder.definition.VariableDefinitionId;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.instance.ProcessInstanceUpdates;
 import fleetwood.bounder.store.ProcessDefinitionQuery;
 import fleetwood.bounder.store.ProcessInstanceQuery;
 import fleetwood.bounder.store.ProcessStore;
@@ -48,7 +51,8 @@ public class MemoryProcessStore extends ProcessStore {
   protected Map<ProcessInstanceId, ProcessInstance> processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstance>());
   protected Set<ProcessInstanceId> lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
   protected long processDefinitionsCreated = 0;
-  protected long processInstanceCreated = 0;
+  protected long processInstancesCreated = 0;
+  protected long activityInstancesCreated = 0;
   
   @Override
   public void saveProcessDefinition(ProcessDefinition processDefinition) {
@@ -67,17 +71,6 @@ public class MemoryProcessStore extends ProcessStore {
   }
 
   @Override
-  public void saveProcessInstance(ProcessInstance processInstance) {
-    processInstances.put(processInstance.getId(), processInstance);
-  }
-
-  @Override
-  public synchronized ProcessDefinitionId createProcessDefinitionId(ProcessDefinition processDefinition) {
-    processDefinitionsCreated++;
-    return new ProcessDefinitionId("pd"+processDefinitionsCreated);
-  }
-
-  @Override
   public ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition) {
     String idState = getNextIdState("ad", activityDefinition.getParent().getActivityDefinitions().keySet());
     return new ActivityDefinitionId(idState);
@@ -90,15 +83,27 @@ public class MemoryProcessStore extends ProcessStore {
   }
 
   @Override
-  public ProcessInstanceId createProcessInstanceId(ProcessInstance processInstance) {
-    processInstanceCreated++;
-    return new ProcessInstanceId("pi"+processInstanceCreated);
+  public synchronized TransitionDefinitionId createTransitionDefinitionId(TransitionDefinition transitionDefinition) {
+    String idState = getNextIdState("tr", transitionDefinition.getParent().getTransitionDefinitions().keySet());
+    return new TransitionDefinitionId(idState);
   }
 
   @Override
-  public ActivityInstanceId createActivityInstanceId(ActivityInstance activityInstance) {
-    processInstanceCreated++;
-    return new ActivityInstanceId("pi"+processInstanceCreated);
+  public synchronized ProcessDefinitionId createProcessDefinitionId(ProcessDefinition processDefinition) {
+    processDefinitionsCreated++;
+    return new ProcessDefinitionId("pd"+processDefinitionsCreated);
+  }
+
+  @Override
+  public synchronized ProcessInstanceId createProcessInstanceId(ProcessInstance processInstance) {
+    processInstancesCreated++;
+    return new ProcessInstanceId("pi"+processInstancesCreated);
+  }
+
+  @Override
+  public synchronized ActivityInstanceId createActivityInstanceId(ActivityInstance activityInstance) {
+    activityInstancesCreated++;
+    return new ActivityInstanceId("ai"+activityInstancesCreated);
   }
 
   private String getNextIdState(String prefix, Set<? extends Id> existingIds) {
@@ -124,5 +129,18 @@ public class MemoryProcessStore extends ProcessStore {
       throw new RuntimeException("ProcessInstance "+id+" is already locked");
     }
     lockedProcessInstances.add(id);
+  }
+
+  @Override
+  public void saveProcessInstance(ProcessInstance processInstance) {
+    processInstances.put(processInstance.getId(), processInstance);
+  }
+
+  @Override
+  public void flushUpdates(ProcessInstanceUpdates processInstanceUpdates) {
+  }
+
+  @Override
+  public void flushUpdatesAndUnlock(ProcessInstanceUpdates processInstanceUpdates) {
   }
 }

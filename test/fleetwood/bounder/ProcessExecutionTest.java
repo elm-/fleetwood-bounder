@@ -51,6 +51,10 @@ public class ProcessExecutionTest {
     processDefinition.addActivityDefinition(go);
     Wait wait = new Wait();
     processDefinition.addActivityDefinition(wait);
+    Wait wait2 = new Wait();
+    processDefinition.addActivityDefinition(wait2);
+    
+    processDefinition.addTransitionDefinition(wait, wait2);
 
     VariableDefinition variable = new TextVariableDefinition();
     variable.setName("v");
@@ -60,10 +64,11 @@ public class ProcessExecutionTest {
     
     ProcessInstance processInstance = processEngine.createProcessInstance(processDefinitionId);
     processInstance.setVariableByName("v", new Object());
-    processInstance.start();
     processInstance.save();
+    processInstance.start();
     ProcessInstanceId processInstanceId = processInstance.getId();
     assertNotNull(processInstanceId);
+    assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
     
     assertEquals(1, go.activityInstances.size());
     assertTrue(go.activityInstances.get(0).isEnded());
@@ -79,8 +84,6 @@ public class ProcessExecutionTest {
     ActivityInstance activityInstance = processInstance.findActivityInstance(waitActivityInstanceId);
     activityInstance.setVariableByName("v", new Object());
     activityInstance.signal();
-    
-    processInstance.save();
   }
   
   // static process variables
