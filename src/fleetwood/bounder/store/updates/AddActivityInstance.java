@@ -15,15 +15,21 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.types;
+package fleetwood.bounder.store.updates;
 
-import fleetwood.bounder.instance.VariableInstance;
+import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.instance.Update;
 
 
 /**
- * @author Walter White
+ * @author tbaeyens
  */
-public class TextVariableInstance extends VariableInstance {
+public class AddActivityInstance implements Update {
 
-  protected String text;
+  ActivityInstance activityInstance;
+  
+  public AddActivityInstance(ActivityInstance activityInstance) {
+    this.activityInstance = activityInstance;
+  }
+
 }

@@ -21,6 +21,7 @@ import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.json.Json;
 import fleetwood.bounder.store.ProcessDefinitionQuery;
 import fleetwood.bounder.store.ProcessInstanceQuery;
 import fleetwood.bounder.store.ProcessStore;
@@ -30,25 +31,21 @@ import fleetwood.bounder.util.Log;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class ProcessEngine {
   
   public static Log log = new Log();
 
   ProcessStore processStore;
+  Json json;
 
-  public ProcessDefinition createNewProcessDefinition() {
-    return createNewProcessDefinition(null);
-  }
-
-  public ProcessDefinition createNewProcessDefinition(ProcessDefinitionId id) {
-    return processStore.createProcessDefinition(id);
-  }
-
-  public void saveProcessDefinition(ProcessDefinition processDefinition) {
+  /** potentially changes the passed processDefinition (assigning ids) 
+   * and returns the same object as a way to indicate it may have changed. */
+  public ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition) {
     Exceptions.checkNotNull(processDefinition, "processDefinition");
     processStore.saveProcessDefinition(processDefinition);
+    return processDefinition;
   }
   
   public ProcessDefinitionQuery createProcessDefinitionQuery() {
@@ -77,5 +74,14 @@ public class ProcessEngine {
   
   public void setProcessStore(ProcessStore processStore) {
     this.processStore = processStore;
+    this.processStore.setProcessEngine(this);
+  }
+
+  public Json getJson() {
+    return json;
+  }
+
+  public void setJson(Json json) {
+    this.json = json;
   }
 }

@@ -17,6 +17,8 @@
 
 package fleetwood.bounder.instance;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
@@ -25,14 +27,16 @@ import fleetwood.bounder.util.Time;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class ActivityInstance extends CompositeInstance {
   
   protected ActivityInstanceId id;
-  protected ActivityDefinition activityDefinition;
   protected Long start;
   protected Long end;
+  
+  @JsonIgnore
+  protected ActivityDefinition activityDefinition;
   
   public void signal() {
   }
@@ -41,7 +45,7 @@ public class ActivityInstance extends CompositeInstance {
     ProcessEngine.log.debug("Ended "+this);
     end();
     if (activityDefinition.hasTransitionDefinitions()) {
-      for (TransitionDefinition transitionDefinition: activityDefinition.getTransitionDefinitions().values()) {
+      for (TransitionDefinition transitionDefinition: activityDefinition.getTransitionDefinitions()) {
         takeTransition(transitionDefinition);  
       }
     }

@@ -18,8 +18,9 @@
 package fleetwood.bounder.engine;
 
 
+
 /**
- * @author tbaeyens
+ * @author Walter White
  */
 public interface Operation {
 

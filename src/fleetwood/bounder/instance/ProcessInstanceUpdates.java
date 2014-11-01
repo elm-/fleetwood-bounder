@@ -17,10 +17,66 @@
 
 package fleetwood.bounder.instance;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
 public class ProcessInstanceUpdates {
 
+  @JsonIgnore
+  protected ProcessInstance processInstance;
+  
+  protected List<ActivityInstance> activityInstancesAdded;
+  
+  protected Boolean operationsChanged;
+  
+  public void addActivityInstance(ActivityInstance activityInstance) {
+    if (activityInstancesAdded==null) {
+      activityInstancesAdded = new ArrayList<>();
+    }
+    activityInstancesAdded.add(activityInstance);
+  }
+
+  public String toJson() {
+    return processInstance.processStore.getProcessEngine().getJson().toJsonString(this);
+  }
+  
+  public ProcessInstance getProcessInstance() {
+    return processInstance;
+  }
+
+  public void setProcessInstance(ProcessInstance processInstance) {
+    this.processInstance = processInstance;
+  }
+
+  public void operationsChanged() {
+    this.operationsChanged = true;
+  }
+
+  public static final ProcessInstanceUpdates IGNORE = new ProcessInstanceUpdates() {
+    @Override
+    public void addActivityInstance(ActivityInstance activityInstance) {
+    }
+    @Override
+    public String toJson() {
+      return null;
+    }
+    @Override
+    public ProcessInstance getProcessInstance() {
+      return null;
+    }
+
+    @Override
+    public void setProcessInstance(ProcessInstance processInstance) {
+    }
+
+    @Override
+    public void operationsChanged() {
+    }
+  };
 }

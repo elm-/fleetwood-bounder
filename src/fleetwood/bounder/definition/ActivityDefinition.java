@@ -21,7 +21,7 @@ import fleetwood.bounder.instance.ActivityInstance;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public abstract class ActivityDefinition extends CompositeDefinition {
 

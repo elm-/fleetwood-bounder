@@ -21,7 +21,7 @@ import fleetwood.bounder.definition.VariableDefinition;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class TextVariableDefinition extends VariableDefinition {
 

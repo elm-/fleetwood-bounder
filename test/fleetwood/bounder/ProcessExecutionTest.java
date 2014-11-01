@@ -31,21 +31,18 @@ import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.json.JacksonJson;
 import fleetwood.bounder.store.memory.MemoryProcessStore;
 import fleetwood.bounder.types.TextVariableDefinition;
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class ProcessExecutionTest {
   
   @Test
   public void testOne() {
-    ProcessEngine processEngine = new ProcessEngine();
-    processEngine.setProcessStore(new MemoryProcessStore());
-    
-    ProcessDefinition processDefinition = processEngine.createNewProcessDefinition();
-    ProcessDefinitionId processDefinitionId = processDefinition.getId();
+    ProcessDefinition processDefinition = new ProcessDefinition();
     
     Go go = new Go();
     processDefinition.addActivityDefinition(go);
@@ -60,11 +57,14 @@ public class ProcessExecutionTest {
     variable.setName("v");
     processDefinition.addVariableDefinition(variable);
 
-    processEngine.saveProcessDefinition(processDefinition);
+    ProcessEngine processEngine = new ProcessEngine();
+    processEngine.setProcessStore(new MemoryProcessStore());
+    processEngine.setJson(new JacksonJson());
+    processDefinition = processEngine.saveProcessDefinition(processDefinition);
+    ProcessDefinitionId processDefinitionId = processDefinition.getId();
     
     ProcessInstance processInstance = processEngine.createProcessInstance(processDefinitionId);
     processInstance.setVariableByName("v", new Object());
-    processInstance.save();
     processInstance.start();
     ProcessInstanceId processInstanceId = processInstance.getId();
     assertNotNull(processInstanceId);

@@ -21,7 +21,7 @@ import fleetwood.bounder.util.Id;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class ActivityDefinitionId extends Id {
 

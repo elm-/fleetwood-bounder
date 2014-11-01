@@ -17,8 +17,10 @@
 
 package fleetwood.bounder.store;
 
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
+import fleetwood.bounder.definition.CompositeDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.definition.TransitionDefinition;
@@ -29,38 +31,54 @@ import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
-import fleetwood.bounder.instance.ProcessInstanceUpdates;
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public abstract class ProcessStore {
   
-  public ProcessDefinition createProcessDefinition(ProcessDefinitionId id) {
-    ProcessDefinition processDefinition = newProcessDefinition();
-    processDefinition.setProcessStore(this);
-    if (id == null) {
-      id = createProcessDefinitionId(processDefinition);
-    }
-    processDefinition.setId(id);
-    return processDefinition;
+  protected ProcessEngine processEngine;
+  
+  public void saveProcessDefinition(ProcessDefinition processDefinition) {
+    identifyProcessDefinition(processDefinition);
+    storeProcessDefinition(processDefinition);
   }
 
-  public abstract void saveProcessDefinition(ProcessDefinition processDefinition);
+  protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
+    if (processDefinition.getId()==null) {
+      processDefinition.setId(createProcessDefinitionId(processDefinition));
+    }
+    identifyComposite(processDefinition);
+  }
+
+  protected void identifyComposite(CompositeDefinition compositeDefinition) {
+    if (compositeDefinition.hasActivityDefinitions()) {
+      for (ActivityDefinition activityDefinition: compositeDefinition.getActivityDefinitions()) {
+        if (activityDefinition.getId()==null) {
+          activityDefinition.setId(createActivityDefinitionId(activityDefinition));
+        }
+        identifyComposite(activityDefinition);
+      }
+    }
+    if (compositeDefinition.hasTransitionDefinitions()) {
+      for (TransitionDefinition transitionDefinition: compositeDefinition.getTransitionDefinitions()) {
+        if (transitionDefinition.getId()==null) {
+          transitionDefinition.setId(createTransitionDefinitionId(transitionDefinition));
+        }
+      }
+    }
+    if (compositeDefinition.hasVariableDefinitions()) {
+      for (VariableDefinition variableDefinition: compositeDefinition.getVariableDefinitions()) {
+        if (variableDefinition.getId()==null) {
+          variableDefinition.setId(createVariableDefinitionId(variableDefinition));
+        }
+      }
+    }
+  }
+
+  protected abstract void storeProcessDefinition(ProcessDefinition processDefinition);
 
   public abstract ProcessDefinitionQuery createProcessDefinitionQuery();
-
-  protected ProcessDefinition newProcessDefinition() {
-    return new ProcessDefinition();
-  }
-
-  public ProcessInstance newProcessInstance() {
-    return new ProcessInstance();
-  }
-
-  public TransitionDefinition newTransitionDefinition() {
-    return new TransitionDefinition();
-  }
 
   public abstract ProcessInstanceQuery createProcessInstanceQuery();
 
@@ -78,8 +96,15 @@ public abstract class ProcessStore {
 
   public abstract void saveProcessInstance(ProcessInstance processInstance);
 
-  public abstract void flushUpdates(ProcessInstanceUpdates processInstanceUpdates);
+  public abstract void flushUpdates(ProcessInstance processInstance);
 
-  public abstract void flushUpdatesAndUnlock(ProcessInstanceUpdates processInstanceUpdates);
+  public abstract void flushUpdatesAndUnlock(ProcessInstance processInstance);
 
+  public ProcessEngine getProcessEngine() {
+    return processEngine;
+  }
+
+  public void setProcessEngine(ProcessEngine processEngine) {
+    this.processEngine = processEngine;
+  }
 }

@@ -18,18 +18,23 @@
 package fleetwood.bounder.definition;
 
 import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.util.Identifyable;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
-public class VariableDefinition {
+public class VariableDefinition implements Identifyable {
 
   protected ProcessStore processStore;
+  protected ProcessDefinition processDefinition;  
   protected CompositeDefinition parent;
   protected VariableDefinitionId id;
   protected String name;
   
+  public void prepare() {
+  }
+
   public ProcessStore getProcessStore() {
     return processStore;
   }
@@ -61,5 +66,13 @@ public class VariableDefinition {
   public VariableDefinition setName(String name) {
     this.name = name;
     return this;
+  }
+  
+  public ProcessDefinition getProcessDefinition() {
+    return processDefinition;
+  }
+  
+  public void setProcessDefinition(ProcessDefinition processDefinition) {
+    this.processDefinition = processDefinition;
   }
 }

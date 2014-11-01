@@ -15,15 +15,21 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.types;
+package fleetwood.bounder.store.updates;
 
-import fleetwood.bounder.instance.VariableInstance;
+import fleetwood.bounder.engine.Operation;
+import fleetwood.bounder.instance.Update;
 
 
 /**
- * @author Walter White
+ * @author tbaeyens
  */
-public class TextVariableInstance extends VariableInstance {
+public class RemoveOperation implements Update {
 
-  protected String text;
+  Operation operation;
+  
+  public RemoveOperation(Operation operation) {
+    this.operation = operation;
+  }
+
 }

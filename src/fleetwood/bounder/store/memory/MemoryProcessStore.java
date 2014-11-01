@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.ProcessDefinition;
@@ -35,15 +36,13 @@ import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
-import fleetwood.bounder.instance.ProcessInstanceUpdates;
 import fleetwood.bounder.store.ProcessDefinitionQuery;
 import fleetwood.bounder.store.ProcessInstanceQuery;
 import fleetwood.bounder.store.ProcessStore;
-import fleetwood.bounder.util.Id;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class MemoryProcessStore extends ProcessStore {
   
@@ -51,13 +50,17 @@ public class MemoryProcessStore extends ProcessStore {
   protected Map<ProcessInstanceId, ProcessInstance> processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstance>());
   protected Set<ProcessInstanceId> lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
   protected long processDefinitionsCreated = 0;
+  protected long activityDefinitionsCreated = 0;
+  protected long transitionDefinitionsCreated = 0;
+  protected long variableDefinitionsCreated = 0;
   protected long processInstancesCreated = 0;
   protected long activityInstancesCreated = 0;
   
   @Override
-  public void saveProcessDefinition(ProcessDefinition processDefinition) {
-    processDefinition.prepare();
+  protected void storeProcessDefinition(ProcessDefinition processDefinition) {
     processDefinitions.put(processDefinition.getId(), processDefinition);
+    processDefinition.setProcessStore(this);
+    processDefinition.prepare();
   }
 
   @Override
@@ -69,23 +72,28 @@ public class MemoryProcessStore extends ProcessStore {
   public ProcessInstanceQuery createProcessInstanceQuery() {
     return new MemoryProcessInstanceQuery(this);
   }
-
+  
   @Override
-  public ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition) {
-    String idState = getNextIdState("ad", activityDefinition.getParent().getActivityDefinitions().keySet());
-    return new ActivityDefinitionId(idState);
+  protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
+    super.identifyProcessDefinition(processDefinition);
   }
 
   @Override
-  public VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition) {
-    String idState = getNextIdState("vd", variableDefinition.getParent().getVariableDefinitions().keySet());
-    return new VariableDefinitionId(idState);
+  public synchronized ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition) {
+    activityDefinitionsCreated++;
+    return new ActivityDefinitionId("ad"+activityDefinitionsCreated);
+  }
+
+  @Override
+  public synchronized VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition) {
+    variableDefinitionsCreated++;
+    return new VariableDefinitionId("vd"+variableDefinitionsCreated);
   }
 
   @Override
   public synchronized TransitionDefinitionId createTransitionDefinitionId(TransitionDefinition transitionDefinition) {
-    String idState = getNextIdState("tr", transitionDefinition.getParent().getTransitionDefinitions().keySet());
-    return new TransitionDefinitionId(idState);
+    transitionDefinitionsCreated++;
+    return new TransitionDefinitionId("td"+transitionDefinitionsCreated);
   }
 
   @Override
@@ -106,23 +114,6 @@ public class MemoryProcessStore extends ProcessStore {
     return new ActivityInstanceId("ai"+activityInstancesCreated);
   }
 
-  private String getNextIdState(String prefix, Set<? extends Id> existingIds) {
-    if (existingIds==null || existingIds.isEmpty()) {
-      return prefix+1L;
-    }
-    Set<String> idStates = new HashSet<>();
-    for (Id existingId: existingIds) {
-      idStates.add((String)existingId.getState());
-    }
-    long index = existingIds.size()+1;
-    String idState = prefix+index;
-    while (idStates.contains(idState)) {
-      index++;
-      idState = prefix+index;
-    }
-    return idState;
-  }
-
   public synchronized void lock(ProcessInstance processInstance, long maxWaitInMillis) {
     ProcessInstanceId id = processInstance.getId();
     if (lockedProcessInstances.contains(id)) {
@@ -134,13 +125,17 @@ public class MemoryProcessStore extends ProcessStore {
   @Override
   public void saveProcessInstance(ProcessInstance processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
+    ProcessEngine.log.debug("Saving: "+processInstance.toJson());
   }
 
   @Override
-  public void flushUpdates(ProcessInstanceUpdates processInstanceUpdates) {
+  public void flushUpdates(ProcessInstance processInstance) {
+    ProcessEngine.log.debug("Flushing: "+processInstance.getUpdates());
   }
 
   @Override
-  public void flushUpdatesAndUnlock(ProcessInstanceUpdates processInstanceUpdates) {
+  public void flushUpdatesAndUnlock(ProcessInstance processInstance) {
+    ProcessEngine.log.debug("Flushing+unlock: "+processInstance.getUpdates());
+    ProcessEngine.log.debug("Process instance: "+processInstance.toJson());
   }
 }

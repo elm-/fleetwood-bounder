@@ -18,45 +18,73 @@
 package fleetwood.bounder.definition;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import fleetwood.bounder.store.ProcessStore;
 import fleetwood.bounder.util.Exceptions;
+import fleetwood.bounder.util.Identifyable;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
-public class CompositeDefinition {
+public abstract class CompositeDefinition implements Identifyable {
 
   protected ProcessStore processStore;
   protected ProcessDefinition processDefinition;
-  protected Map<ActivityDefinitionId, ActivityDefinition> activityDefinitions;
   protected CompositeDefinition parent;
-  protected Map<VariableDefinitionId, VariableDefinition> variableDefinitions;
-  protected Map<TransitionDefinitionId, TransitionDefinition> transitionDefinitions;
+  protected List<ActivityDefinition> activityDefinitions;
+  protected Map<ActivityDefinitionId, ActivityDefinition> activityDefinitionsMap;
+  protected List<VariableDefinition> variableDefinitions;
+  protected Map<VariableDefinitionId, VariableDefinition> variableDefinitionsMap;
+  protected List<TransitionDefinition> transitionDefinitions;
+  protected Map<TransitionDefinitionId, TransitionDefinition> transitionDefinitionsMap;
+
+  @JsonIgnore
   protected List<ActivityDefinition> startActivityDefinitions;
   
   /** performs initializations after the activity is constructed and before the process is used in execution.
    * eg calculating the start activities */ 
   public void prepare() {
-    startActivityDefinitions = null;
     if (activityDefinitions!=null) {
-      startActivityDefinitions = new ArrayList<>(activityDefinitions.values());
+      startActivityDefinitions = new ArrayList<>(activityDefinitions);
+      activityDefinitionsMap = new HashMap<>();
+      for (ActivityDefinition activityDefinition: activityDefinitions) {
+        activityDefinition.setProcessStore(processStore);
+        activityDefinition.setProcessDefinition(processDefinition);
+        activityDefinition.setParent(this);
+        Exceptions.checkNotNull(activityDefinition.getId(), "activityDefinition.id");
+        activityDefinitionsMap.put(activityDefinition.getId(), activityDefinition);
+        activityDefinition.prepare();
+      }
     }
     if (transitionDefinitions!=null) {
-      for (TransitionDefinition transition: transitionDefinitions.values()) {
-        startActivityDefinitions.remove(transition.getTo());
-      }
-      if (startActivityDefinitions.isEmpty()) {
-        startActivityDefinitions = null;
+      transitionDefinitionsMap = new HashMap<>();
+      for (TransitionDefinition transitionDefinition: transitionDefinitions) {
+        if (startActivityDefinitions!=null) {
+          startActivityDefinitions.remove(transitionDefinition.getTo());
+        }
+        transitionDefinition.setProcessStore(processStore);
+        transitionDefinition.setProcessDefinition(processDefinition);
+        transitionDefinition.setParent(this);
+        Exceptions.checkNotNull(transitionDefinition.getId(), "transitionDefinition.id");
+        transitionDefinitionsMap.put(transitionDefinition.getId(), transitionDefinition);
+        transitionDefinition.prepare();
       }
     }
-    if (activityDefinitions!=null) {
-      for (ActivityDefinition activityDefinition: activityDefinitions.values()) {
-        activityDefinition.prepare();
+    if (variableDefinitions!=null) {
+      variableDefinitionsMap = new HashMap<>();
+      for (VariableDefinition variableDefinition: variableDefinitions) {
+        variableDefinition.setProcessStore(processStore);
+        variableDefinition.setProcessDefinition(processDefinition);
+        variableDefinition.setParent(this);
+        Exceptions.checkNotNull(variableDefinition.getId(), "variableDefinition.id");
+        variableDefinitionsMap.put(variableDefinition.getId(), variableDefinition);
+        variableDefinition.prepare();
       }
     }
   } 
@@ -85,16 +113,8 @@ public class CompositeDefinition {
     this.processDefinition = processDefinition;
   }
   
-  public Map<ActivityDefinitionId, ActivityDefinition> getActivityDefinitions() {
-    return activityDefinitions;
-  }
-  
   public ActivityDefinition getActivityDefinition(ActivityDefinitionId id) {
-    return activityDefinitions!=null ? activityDefinitions.get(id) : null;
-  }
-  
-  public void setActivityDefinitions(Map<ActivityDefinitionId, ActivityDefinition> activityDefinitions) {
-    this.activityDefinitions = activityDefinitions;
+    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(id) : null;
   }
   
   public CompositeDefinition getParent() {
@@ -104,84 +124,122 @@ public class CompositeDefinition {
   public void setParent(CompositeDefinition parent) {
     this.parent = parent;
   }
+  
+  public boolean isProcessDefinition() {
+    return parent!=null;
+  }
 
   public CompositeDefinition addActivityDefinition(ActivityDefinition activityDefinition) {
     Exceptions.checkNotNull(activityDefinition, "activityDefinition");
-    activityDefinition.processStore = processStore;
-    activityDefinition.processDefinition = processDefinition;
-    activityDefinition.parent = this;
     if (activityDefinitions==null)  {
-      activityDefinitions = new LinkedHashMap<>();
+      activityDefinitions = new ArrayList<>();
     }
-    if (activityDefinition.id==null) {
-      activityDefinition.id = processStore.createActivityDefinitionId(activityDefinition);
-    }
-    activityDefinitions.put(activityDefinition.id, activityDefinition);
+    activityDefinitions.add(activityDefinition);
     return this;
   }
   
-  public Map<VariableDefinitionId, VariableDefinition> getVariableDefinitions() {
-    return variableDefinitions;
-  }
-  
-  public VariableDefinition getVariableDefinition(VariableDefinitionId id) {
-    return variableDefinitions!=null ? variableDefinitions.get(id) : null;
-  }
-  
-  public CompositeDefinition setVariableDefinitions(Map<VariableDefinitionId, VariableDefinition> variables) {
-    this.variableDefinitions = variables;
-    return this;
+  public boolean hasActivityDefinitions() {
+    return activityDefinitions!=null && !activityDefinitions.isEmpty();
   }
 
+  public VariableDefinition getVariableDefinition(VariableDefinitionId id) {
+    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(id) : null;
+  }
+  
   public CompositeDefinition addVariableDefinition(VariableDefinition variableDefinition) {
     Exceptions.checkNotNull(variableDefinition, "variableDefinition");
-    variableDefinition.processStore = processStore;
-    variableDefinition.parent = this;
     if (variableDefinitions==null)  {
-      variableDefinitions = new LinkedHashMap<>();
+      variableDefinitions = new ArrayList<>();
     }
-    if (variableDefinition.id==null) {
-      variableDefinition.id = processStore.createVariableDefinitionId(variableDefinition);
-    }
-    variableDefinitions.put(variableDefinition.id, variableDefinition);
+    variableDefinitions.add(variableDefinition);
     return this;
   }
   
+  public boolean hasVariableDefinitions() {
+    return variableDefinitions!=null && !variableDefinitions.isEmpty();
+  }
+
   public void addTransitionDefinition(ActivityDefinition from, ActivityDefinition to) {
-    TransitionDefinition transitionDefinition = processStore.newTransitionDefinition();
+    TransitionDefinition transitionDefinition = new TransitionDefinition();
     transitionDefinition.setFrom(from);
     transitionDefinition.setTo(to);
     addTransitionDefinition(transitionDefinition);
   }
 
-  public CompositeDefinition addTransitionDefinition(TransitionDefinition transition) {
-    Exceptions.checkNotNull(transition, "transition");
-    transition.processStore = processStore;
-    transition.parent = this;
+  public CompositeDefinition addTransitionDefinition(TransitionDefinition transitionDefinition) {
+    Exceptions.checkNotNull(transitionDefinition, "transitionDefinition");
     if (transitionDefinitions==null)  {
-      transitionDefinitions = new LinkedHashMap<>();
+      transitionDefinitions = new ArrayList<>();
     }
-    if (transition.id==null) {
-      transition.id = processStore.createTransitionDefinitionId(transition);
-    }
-    transitionDefinitions.put(transition.id, transition);
+    transitionDefinitions.add(transitionDefinition);
     return this;
-  }
-  
-  public Map<TransitionDefinitionId, TransitionDefinition> getTransitionDefinitions() {
-    return transitionDefinitions;
   }
   
   public boolean hasTransitionDefinitions() {
     return transitionDefinitions!=null && !transitionDefinitions.isEmpty();
   } 
   
-  public CompositeDefinition setTransitionDefinitions(Map<TransitionDefinitionId, TransitionDefinition> transitions) {
-    this.transitionDefinitions = transitions;
-    return this;
-  }
-  
   public TransitionDefinition getTransitionDefinition(TransitionDefinitionId id) {
-    return transitionDefinitions!=null ? transitionDefinitions.get(id) : null;
+    return transitionDefinitionsMap!=null ? transitionDefinitionsMap.get(id) : null;
+  }
+
+  
+  public List<ActivityDefinition> getActivityDefinitions() {
+    return activityDefinitions;
+  }
+
+  
+  public void setActivityDefinitions(List<ActivityDefinition> activityDefinitions) {
+    this.activityDefinitions = activityDefinitions;
+  }
+
+  
+  public Map<ActivityDefinitionId, ActivityDefinition> getActivityDefinitionsMap() {
+    return activityDefinitionsMap;
+  }
+
+  
+  public void setActivityDefinitionsMap(Map<ActivityDefinitionId, ActivityDefinition> activityDefinitionsMap) {
+    this.activityDefinitionsMap = activityDefinitionsMap;
+  }
+
+  
+  public List<VariableDefinition> getVariableDefinitions() {
+    return variableDefinitions;
+  }
+
+  
+  public void setVariableDefinitions(List<VariableDefinition> variableDefinitions) {
+    this.variableDefinitions = variableDefinitions;
+  }
+
+  
+  public Map<VariableDefinitionId, VariableDefinition> getVariableDefinitionsMap() {
+    return variableDefinitionsMap;
+  }
+
+  
+  public void setVariableDefinitionsMap(Map<VariableDefinitionId, VariableDefinition> variableDefinitionsMap) {
+    this.variableDefinitionsMap = variableDefinitionsMap;
+  }
+
+  
+  public List<TransitionDefinition> getTransitionDefinitions() {
+    return transitionDefinitions;
+  }
+
+  
+  public void setTransitionDefinitions(List<TransitionDefinition> transitionDefinitions) {
+    this.transitionDefinitions = transitionDefinitions;
+  }
+
+  
+  public Map<TransitionDefinitionId, TransitionDefinition> getTransitionDefinitionsMap() {
+    return transitionDefinitionsMap;
+  }
+
+  
+  public void setTransitionDefinitionsMap(Map<TransitionDefinitionId, TransitionDefinition> transitionDefinitionsMap) {
+    this.transitionDefinitionsMap = transitionDefinitionsMap;
   }
 }

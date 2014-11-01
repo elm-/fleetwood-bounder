@@ -22,7 +22,7 @@ import fleetwood.bounder.instance.ProcessInstance;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public interface ProcessInstanceQuery {
 

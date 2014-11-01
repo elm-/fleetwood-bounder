@@ -20,23 +20,30 @@ package fleetwood.bounder.instance;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.CompositeDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
-import fleetwood.bounder.engine.StartActivityInstance;
 import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.store.updates.AddActivityInstance;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class CompositeInstance {
   
+  @JsonIgnore
   protected ProcessStore processStore;
+  @JsonIgnore
   protected ProcessDefinition processDefinition;
+  @JsonIgnore
   protected CompositeDefinition compositeDefinition;
+  @JsonIgnore
   protected ProcessInstance processInstance;
+  @JsonIgnore
   protected CompositeInstance parent;
   protected List<ActivityInstance> activityInstances;
 
@@ -63,6 +70,7 @@ public class CompositeInstance {
     activityInstance.setId(processStore.createActivityInstanceId(activityInstance));
     activityInstances.add(activityInstance);
     ProcessEngine.log.debug("Created "+activityInstance);
+    processInstance.addUpdate(new AddActivityInstance(activityInstance));
     return activityInstance;
   }
   

@@ -15,15 +15,12 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.types;
-
-import fleetwood.bounder.instance.VariableInstance;
+package fleetwood.bounder.instance;
 
 
 /**
  * @author Walter White
  */
-public class TextVariableInstance extends VariableInstance {
+public interface Update {
 
-  protected String text;
 }

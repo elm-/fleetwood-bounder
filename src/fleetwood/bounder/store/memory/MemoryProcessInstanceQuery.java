@@ -25,7 +25,7 @@ import fleetwood.bounder.store.ProcessInstanceQuery;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class MemoryProcessInstanceQuery implements ProcessInstanceQuery {
 

@@ -27,7 +27,7 @@ import fleetwood.bounder.store.ProcessDefinitionQuery;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class MemoryProcessDefinitionQuery extends ProcessDefinitionQuery {
   

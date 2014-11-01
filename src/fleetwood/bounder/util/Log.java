@@ -22,7 +22,7 @@ import java.util.Date;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
 public class Log {
   

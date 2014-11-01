@@ -17,16 +17,23 @@
 
 package fleetwood.bounder.definition;
 
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.instance.ProcessInstanceUpdates;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class ProcessDefinition extends CompositeDefinition {
 
   protected ProcessDefinitionId id;
+
+  public void prepare() {
+    this.processDefinition = this;
+    super.prepare();
+  }
 
   public ProcessDefinitionId getId() {
     return id;
@@ -41,14 +48,16 @@ public class ProcessDefinition extends CompositeDefinition {
   }
 
   public ProcessInstance createProcessInstance(ProcessInstanceId processInstanceId) {
-    ProcessInstance processInstance = processStore.newProcessInstance();
+    ProcessInstance processInstance = new ProcessInstance();
     processInstance.setProcessStore(processStore);
     processInstance.setProcessDefinition(this);
     processInstance.setCompositeDefinition(this);
     processInstance.setProcessInstance(processInstance);
-    if (processInstance.getId() == null) {
-      processInstance.setId(processStore.createProcessInstanceId(processInstance));
+    if (processInstanceId == null) {
+      processInstanceId = processStore.createProcessInstanceId(processInstance);
     }
+    processInstance.setId(processInstanceId);
+    ProcessEngine.log.debug("Created "+processInstance);
     return processInstance;
   }
 }

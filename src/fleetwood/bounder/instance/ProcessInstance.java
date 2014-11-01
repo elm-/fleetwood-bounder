@@ -17,30 +17,37 @@
 
 package fleetwood.bounder.instance;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.engine.Operation;
 import fleetwood.bounder.engine.StartActivityInstance;
+import fleetwood.bounder.store.updates.AddOperation;
+import fleetwood.bounder.store.updates.RemoveOperation;
 
 
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class ProcessInstance extends CompositeInstance {
   
   protected ProcessInstanceId id;
-  protected ProcessInstanceUpdates processInstanceUpdates;
-  
+  @JsonIgnore
+  protected List<Update> updates;
   protected Queue<Operation> operations;
   
   @Override
   public void start() {
     ProcessEngine.log.debug("Starting "+this);
     super.start();
+    save();
     executeOperations();
   }
   
@@ -53,16 +60,28 @@ public class ProcessInstance extends CompositeInstance {
       operations = new LinkedList<>();
     }
     operations.add(operation);
+    addUpdate(new AddOperation(operation));
+  }
+  
+  protected void addUpdate(Update update) {
+    // we only must capture the updates after the first save
+    // so the collection is initialized after the save by the process store
+    if (updates!=null) {
+      updates.add(update);
+    }
   }
 
   void executeOperations() {
     if (operations!=null) {
       while (!operations.isEmpty()) {
-        processStore.flushUpdates(processInstanceUpdates);
-        operations.remove().execute();
+        processStore.flushUpdates(this);
+        updates = new ArrayList<>();
+        Operation operation = operations.remove();
+        addUpdate(new RemoveOperation(operation));
+        operation.execute();
       }
     }
-    processStore.flushUpdatesAndUnlock(processInstanceUpdates);
+    processStore.flushUpdatesAndUnlock(processInstance);
   }
 
   public ProcessInstanceId getId() {
@@ -79,5 +98,26 @@ public class ProcessInstance extends CompositeInstance {
 
   public void save() {
     processStore.saveProcessInstance(processInstance);
+    updates = new ArrayList<>();
+  }
+
+  public String toJson() {
+    return processStore.getProcessEngine().getJson().toJsonString(this);
+  }
+  
+  public List<Update> getUpdates() {
+    return updates;
+  }
+
+  public void setUpdates(List<Update> updates) {
+    this.updates = updates;
+  }
+
+  public Queue<Operation> getOperations() {
+    return operations;
+  }
+  
+  public void setOperations(Queue<Operation> operations) {
+    this.operations = operations;
   }
 }

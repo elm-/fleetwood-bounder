@@ -17,19 +17,30 @@
 
 package fleetwood.bounder.definition;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.util.Identifyable;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
-public class TransitionDefinition {
+public class TransitionDefinition implements Identifyable {
 
-  protected ProcessStore processStore;
   protected TransitionDefinitionId id;
-  protected CompositeDefinition parent;
   protected ActivityDefinition from;
   protected ActivityDefinition to;
+
+  @JsonIgnore
+  protected ProcessStore processStore;
+  @JsonIgnore
+  protected ProcessDefinition processDefinition;
+  @JsonIgnore
+  protected CompositeDefinition parent;
+
+  public void prepare() {
+  }
 
   public TransitionDefinitionId getId() {
     return id;
@@ -78,4 +89,15 @@ public class TransitionDefinition {
   public void setParent(CompositeDefinition parent) {
     this.parent = parent;
   }
+
+  
+  public ProcessDefinition getProcessDefinition() {
+    return processDefinition;
+  }
+
+  
+  public void setProcessDefinition(ProcessDefinition processDefinition) {
+    this.processDefinition = processDefinition;
+  }
+  
 }

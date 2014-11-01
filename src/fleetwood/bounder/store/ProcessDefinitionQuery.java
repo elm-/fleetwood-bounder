@@ -24,7 +24,7 @@ import fleetwood.bounder.definition.ProcessDefinitionId;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public abstract class ProcessDefinitionQuery {
 

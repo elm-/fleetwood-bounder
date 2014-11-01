@@ -15,30 +15,37 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine;
+package fleetwood.bounder.json;
 
-import fleetwood.bounder.ProcessEngine;
-import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.util.Time;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
  * @author Walter White
  */
-public class StartActivityInstance implements Operation {
-
-  protected ActivityInstance activityInstance;
+public class JacksonJson implements Json {
   
-  public StartActivityInstance(ActivityInstance activityInstance) {
-    this.activityInstance = activityInstance;
+  protected ObjectMapper objectMapper;
+  
+  public JacksonJson() {
+    this.objectMapper = new ObjectMapper();
+    this.objectMapper
+      .setSerializationInclusion(Include.NON_NULL)
+      .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
+      .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
   }
 
   @Override
-  public void execute() {
-    activityInstance.setStart(Time.now());
-    ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
-    ProcessEngine.log.debug("Starting "+activityInstance);
-    activityDefinition.start(activityInstance);
+  public String toJsonString(Object object) {
+    try {
+      return objectMapper.writeValueAsString(object);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
   }
+
 }

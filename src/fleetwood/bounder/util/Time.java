@@ -19,7 +19,7 @@ package fleetwood.bounder.util;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
 public class Time {
 

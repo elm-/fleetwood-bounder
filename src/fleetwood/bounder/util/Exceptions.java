@@ -20,7 +20,7 @@ package fleetwood.bounder.util;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class Exceptions {
 

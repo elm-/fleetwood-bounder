@@ -25,7 +25,7 @@ import fleetwood.bounder.instance.ActivityInstance;
 
 
 /**
- * @author Tom Baeyens
+ * @author Walter White
  */
 public class Go extends ActivityDefinition {
   

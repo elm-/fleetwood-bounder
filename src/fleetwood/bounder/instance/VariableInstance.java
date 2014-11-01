@@ -19,7 +19,7 @@ package fleetwood.bounder.instance;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
 public class VariableInstance {
 
