@@ -21,7 +21,7 @@ package fleetwood.bounder.definition;
 /**
  * @author Tom Baeyens
  */
-public class ProcessDefinition extends Composite {
+public class ProcessDefinition extends CompositeDefinition {
 
   protected ProcessDefinitionId id;
 

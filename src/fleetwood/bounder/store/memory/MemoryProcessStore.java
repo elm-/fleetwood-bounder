@@ -19,19 +19,24 @@ package fleetwood.bounder.store.memory;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
-import fleetwood.bounder.definition.VariableId;
+import fleetwood.bounder.definition.VariableDefinitionId;
+import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
 import fleetwood.bounder.store.ProcessDefinitionQuery;
 import fleetwood.bounder.store.ProcessInstanceQuery;
 import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.util.Id;
 
 
 /**
@@ -40,16 +45,15 @@ import fleetwood.bounder.store.ProcessStore;
 public class MemoryProcessStore extends ProcessStore {
   
   protected Map<ProcessDefinitionId, ProcessDefinition> processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinition>());
-  protected Map<ProcessInstanceId, ProcessInstance> processInstancess = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstance>());
+  protected Map<ProcessInstanceId, ProcessInstance> processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstance>());
+  protected Set<ProcessInstanceId> lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
+  protected long processDefinitionsCreated = 0;
+  protected long processInstanceCreated = 0;
   
   @Override
-  public ProcessDefinitionId saveProcessDefinition(ProcessDefinition processDefinition) {
-    ProcessDefinitionId processDefinitionId = processDefinition.getId();
-    if (processDefinitionId==null) {
-      processDefinitionId = new ProcessDefinitionId();
-      processDefinition.setId(processDefinitionId);
-    }
-    return processDefinitionId;
+  public void saveProcessDefinition(ProcessDefinition processDefinition) {
+    processDefinition.prepare();
+    processDefinitions.put(processDefinition.getId(), processDefinition);
   }
 
   @Override
@@ -58,41 +62,67 @@ public class MemoryProcessStore extends ProcessStore {
   }
 
   @Override
-  public ProcessInstance createNewProcessInstance(ProcessDefinition processDefinition) {
-    ProcessInstance newProcessInstance = new ProcessInstance(this, processDefinition);
-    // It is up to the ProcessStore to decide if the id is assigned now, or at the NewProcessInstance.save() 
-    newProcessInstance.setId(new ProcessInstanceId());
-    return newProcessInstance;
-  }
-
-  @Override
   public ProcessInstanceQuery createProcessInstanceQuery() {
     return new MemoryProcessInstanceQuery(this);
   }
 
   @Override
-  public ProcessInstanceId saveProcessInstance(ProcessInstance processInstance) {
-    ProcessInstanceId processInstanceId = processInstance.getId();
-    if (processInstanceId==null) {
-      processInstanceId = new ProcessInstanceId();
-      processInstance.setId(processInstanceId);
+  public void saveProcessInstance(ProcessInstance processInstance) {
+    processInstances.put(processInstance.getId(), processInstance);
+  }
+
+  @Override
+  public synchronized ProcessDefinitionId createProcessDefinitionId(ProcessDefinition processDefinition) {
+    processDefinitionsCreated++;
+    return new ProcessDefinitionId("pd"+processDefinitionsCreated);
+  }
+
+  @Override
+  public ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition) {
+    String idState = getNextIdState("ad", activityDefinition.getParent().getActivityDefinitions().keySet());
+    return new ActivityDefinitionId(idState);
+  }
+
+  @Override
+  public VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition) {
+    String idState = getNextIdState("vd", variableDefinition.getParent().getVariableDefinitions().keySet());
+    return new VariableDefinitionId(idState);
+  }
+
+  @Override
+  public ProcessInstanceId createProcessInstanceId(ProcessInstance processInstance) {
+    processInstanceCreated++;
+    return new ProcessInstanceId("pi"+processInstanceCreated);
+  }
+
+  @Override
+  public ActivityInstanceId createActivityInstanceId(ActivityInstance activityInstance) {
+    processInstanceCreated++;
+    return new ActivityInstanceId("pi"+processInstanceCreated);
+  }
+
+  private String getNextIdState(String prefix, Set<? extends Id> existingIds) {
+    if (existingIds==null || existingIds.isEmpty()) {
+      return prefix+1L;
     }
-    return processInstanceId;
+    Set<String> idStates = new HashSet<>();
+    for (Id existingId: existingIds) {
+      idStates.add((String)existingId.getState());
+    }
+    long index = existingIds.size()+1;
+    String idState = prefix+index;
+    while (idStates.contains(idState)) {
+      index++;
+      idState = prefix+index;
+    }
+    return idState;
   }
 
-  @Override
-  public ProcessDefinitionId createProcessDefinitionId() {
-    return new ProcessDefinitionId();
-  }
-
-  @Override
-  public ActivityDefinitionId createActivityDefinitionId(ProcessDefinition processDefinition, ActivityDefinition activityDefinition) {
-    return new ActivityDefinitionId();
-  }
-
-  @Override
-  public VariableId createVariableDefinitionId(ProcessDefinition processDefinition, VariableDefinition variableDefinition) {
-    // TODO Auto-generated method stub
-    return null;
+  public synchronized void lock(ProcessInstance processInstance, long maxWaitInMillis) {
+    ProcessInstanceId id = processInstance.getId();
+    if (lockedProcessInstances.contains(id)) {
+      throw new RuntimeException("ProcessInstance "+id+" is already locked");
+    }
+    lockedProcessInstances.add(id);
   }
 }

@@ -17,10 +17,15 @@
 
 package fleetwood.bounder.instance;
 
+import fleetwood.bounder.util.Id;
+
 
 /**
  * @author Tom Baeyens
  */
-public class ActivityInstanceId {
+public class ActivityInstanceId extends Id {
 
+  public ActivityInstanceId(Object state) {
+    super(state);
+  }
 }

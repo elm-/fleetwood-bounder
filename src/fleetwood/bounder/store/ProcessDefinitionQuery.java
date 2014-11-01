@@ -26,12 +26,21 @@ import fleetwood.bounder.definition.ProcessDefinitionId;
 /**
  * @author Tom Baeyens
  */
-public interface ProcessDefinitionQuery {
+public abstract class ProcessDefinitionQuery {
 
-  ProcessDefinitionQuery id(ProcessDefinitionId processDefinitionId);
+  protected ProcessStore processStore;
   
-  ProcessDefinition get();
+  protected ProcessDefinitionId processDefinitionId;
+  
+  public ProcessDefinitionQuery(ProcessStore processStore) {
+    this.processStore = processStore;
+  }
 
-  List<ProcessDefinition> asList();
+  public ProcessDefinitionQuery id(ProcessDefinitionId processDefinitionId) {
+    this.processDefinitionId = processDefinitionId;
+    return this;
+  }
 
+  public abstract ProcessDefinition get();
+  public abstract List<ProcessDefinition> asList();
 }

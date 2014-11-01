@@ -25,10 +25,6 @@ import fleetwood.bounder.util.Id;
  */
 public class ActivityDefinitionId extends Id {
 
-  public ActivityDefinitionId() {
-    super();
-  }
-
   public ActivityDefinitionId(Object state) {
     super(state);
   }

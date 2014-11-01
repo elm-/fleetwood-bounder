@@ -17,8 +17,13 @@
 
 package fleetwood.bounder.instance;
 
+import java.util.Map;
+
 import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.definition.TransitionDefinition;
+import fleetwood.bounder.definition.TransitionDefinitionId;
+import fleetwood.bounder.engine.ExecuteActivityInstance;
+import fleetwood.bounder.util.Time;
 
 
 /**
@@ -28,14 +33,39 @@ public class ActivityInstance extends CompositeInstance {
   
   protected ActivityInstanceId id;
   protected ActivityDefinition activityDefinition;
+  protected Long start;
+  protected Long end;
   
-  public ActivityInstance(ProcessStore processStore, ActivityDefinition activityDefinition) {
-    super(processStore, activityDefinition.getProcessDefinition());
-    this.activityDefinition = activityDefinition;
+  protected void execute() {
+    processInstance.addOperation(new ExecuteActivityInstance(this));
+  }
+
+  public void signal() {
+  }
+
+  public void onwards() {
+    this.end = Time.now();
+    if (activityDefinition.hasTransitionDefinitions()) {
+      for (TransitionDefinition transitionDefinition: activityDefinition.getTransitionDefinitions().values()) {
+        ActivityDefinition to = transitionDefinition.getTo();
+        if (to!=null) {
+          ActivityInstance activityInstance = createActivityInstance(to);
+          processInstance.addOperation(new ExecuteActivityInstance(activityInstance));
+        }  
+      }
+    }
+  }
+  
+  @Override
+  public ActivityInstance findActivityInstance(ActivityInstanceId activityInstanceId) {
+    if (activityInstanceId.equals(this.id)) {
+      return this;
+    }
+    return super.findActivityInstance(activityInstanceId);
   }
 
   public boolean isEnded() {
-    return false;
+    return end!=null;
   }
 
   public ActivityInstanceId getId() {
@@ -45,10 +75,28 @@ public class ActivityInstance extends CompositeInstance {
   public void setId(ActivityInstanceId id) {
     this.id = id;
   }
-
-  public void signal() {
+  
+  public ActivityDefinition getActivityDefinition() {
+    return activityDefinition;
   }
-
-  public void onwards() {
+  
+  public void setActivityDefinition(ActivityDefinition activityDefinition) {
+    this.activityDefinition = activityDefinition;
+  }
+  
+  public Long getStart() {
+    return start;
+  }
+  
+  public void setStart(Long start) {
+    this.start = start;
+  }
+  
+  public Long getEnd() {
+    return end;
+  }
+  
+  public void setEnd(Long end) {
+    this.end = end;
   }
 }

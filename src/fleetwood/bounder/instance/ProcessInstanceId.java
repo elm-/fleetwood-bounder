@@ -25,10 +25,6 @@ import fleetwood.bounder.util.Id;
  */
 public class ProcessInstanceId extends Id {
 
-  public ProcessInstanceId() {
-    super();
-  }
-
   public ProcessInstanceId(Object state) {
     super(state);
   }

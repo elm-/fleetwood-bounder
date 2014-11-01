@@ -20,10 +20,12 @@ package fleetwood.bounder;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.instance.ProcessInstance;
+import fleetwood.bounder.instance.ProcessInstanceId;
 import fleetwood.bounder.store.ProcessDefinitionQuery;
 import fleetwood.bounder.store.ProcessInstanceQuery;
 import fleetwood.bounder.store.ProcessStore;
 import fleetwood.bounder.util.Exceptions;
+import fleetwood.bounder.util.Log;
 
 
 
@@ -39,24 +41,28 @@ public class ProcessEngine {
   }
 
   public ProcessDefinition createNewProcessDefinition(ProcessDefinitionId id) {
-    return processStore.createNewProcessDefinition(id);
+    return processStore.createProcessDefinition(id);
   }
 
-  public ProcessDefinitionId saveProcessDefinition(ProcessDefinition processDefinition) {
+  public void saveProcessDefinition(ProcessDefinition processDefinition) {
     Exceptions.checkNotNull(processDefinition, "processDefinition");
-    return processStore.saveProcessDefinition(processDefinition);
+    processStore.saveProcessDefinition(processDefinition);
   }
   
   public ProcessDefinitionQuery createProcessDefinitionQuery() {
     return processStore.createProcessDefinitionQuery();
   }
 
-  public ProcessInstance createNewProcessInstance(ProcessDefinitionId processDefinitionId) {
+  public ProcessInstance createProcessInstance(ProcessDefinitionId processDefinitionId) {
+    return createProcessInstance(processDefinitionId, null);
+  }
+  
+  public ProcessInstance createProcessInstance(ProcessDefinitionId processDefinitionId, ProcessInstanceId processInstanceId) {
     Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
     ProcessDefinition processDefinition = createProcessDefinitionQuery()
       .id(processDefinitionId)
       .get();
-    return processStore.createNewProcessInstance(processDefinition);
+    return processStore.createProcessInstance(processDefinition, processInstanceId);
   }
 
   public ProcessInstanceQuery createProcessInstanceQuery() {

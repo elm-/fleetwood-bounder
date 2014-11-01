@@ -24,16 +24,15 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
-import fleetwood.bounder.definition.VariableType;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
 import fleetwood.bounder.store.memory.MemoryProcessStore;
+import fleetwood.bounder.types.TextVariableDefinition;
 
 /**
  * @author Tom Baeyens
@@ -46,23 +45,24 @@ public class ProcessExecutionTest {
     processEngine.setProcessStore(new MemoryProcessStore());
     
     ProcessDefinition processDefinition = processEngine.createNewProcessDefinition();
+    ProcessDefinitionId processDefinitionId = processDefinition.getId();
+    
     Go go = new Go();
     processDefinition.addActivityDefinition(go);
     Wait wait = new Wait();
     processDefinition.addActivityDefinition(wait);
 
-    VariableDefinition variable = new VariableDefinition();
+    VariableDefinition variable = new TextVariableDefinition();
     variable.setName("v");
-    variable.setType(VariableType.TEXT);
-    processDefinition.addVariable(variable);
+    processDefinition.addVariableDefinition(variable);
 
-    ProcessDefinitionId processDefinitionId = processEngine.saveProcessDefinition(processDefinition);
+    processEngine.saveProcessDefinition(processDefinition);
     
-    ProcessInstance newProcessInstance = processEngine.createNewProcessInstance(processDefinitionId);
-    newProcessInstance.setVariableByName("v", new Object());
-    newProcessInstance.start();
-    newProcessInstance.save();
-    ProcessInstanceId processInstanceId = newProcessInstance.getId();
+    ProcessInstance processInstance = processEngine.createProcessInstance(processDefinitionId);
+    processInstance.setVariableByName("v", new Object());
+    processInstance.start();
+    processInstance.save();
+    ProcessInstanceId processInstanceId = processInstance.getId();
     assertNotNull(processInstanceId);
     
     assertEquals(1, go.activityInstances.size());
@@ -72,7 +72,7 @@ public class ProcessExecutionTest {
     assertFalse(waitActivityInstance.isEnded());
     
     ActivityInstanceId waitActivityInstanceId = waitActivityInstance.getId();
-    ProcessInstance processInstance = processEngine.createProcessInstanceQuery()
+    processInstance = processEngine.createProcessInstanceQuery()
       .activityInstanceId(waitActivityInstanceId)
       .lock();
     

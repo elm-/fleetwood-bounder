@@ -25,11 +25,8 @@ public class Id {
 
   protected Object state;
   
-  public Id() {
-    this.state = new Object();
-  }
-  
   public Id(Object state) {
+    Exceptions.checkNotNull(state, "state");
     this.state = state;
   }
 
@@ -64,5 +61,10 @@ public class Id {
     } else if (!state.equals(other.state))
       return false;
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return state.toString();
   }
 }

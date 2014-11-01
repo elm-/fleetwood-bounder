@@ -17,8 +17,12 @@
 
 package fleetwood.bounder.instance;
 
-import fleetwood.bounder.definition.ProcessDefinition;
-import fleetwood.bounder.store.ProcessStore;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import fleetwood.bounder.engine.Operation;
+
+
 
 
 /**
@@ -28,12 +32,31 @@ public class ProcessInstance extends CompositeInstance {
   
   protected ProcessInstanceId id;
   
-  public ProcessInstance(ProcessStore processStore, ProcessDefinition processDefinition) {
-    super(processStore, processDefinition);
-  }
-
+  protected Queue<Operation> operations;
+  
   public void save() {
     processStore.saveProcessInstance(this);
+  }
+  
+  @Override
+  public void start() {
+    super.start();
+    executeOperations();
+  }
+  
+  protected void addOperation(Operation operation) {
+    if (operations==null) {
+      operations = new LinkedList<>();
+    }
+    operations.add(operation);
+  }
+
+  protected void executeOperations() {
+    if (operations!=null) {
+      while (!operations.isEmpty()) {
+        operations.remove().execute();
+      }
+    }
   }
 
   public ProcessInstanceId getId() {
@@ -42,8 +65,5 @@ public class ProcessInstance extends CompositeInstance {
 
   public void setId(ProcessInstanceId id) {
     this.id = id;
-  }
-
-  public void start() {
   }
 }

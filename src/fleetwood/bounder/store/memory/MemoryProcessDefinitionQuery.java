@@ -29,20 +29,13 @@ import fleetwood.bounder.store.ProcessDefinitionQuery;
 /**
  * @author Tom Baeyens
  */
-public class MemoryProcessDefinitionQuery implements ProcessDefinitionQuery {
+public class MemoryProcessDefinitionQuery extends ProcessDefinitionQuery {
   
   MemoryProcessStore memoryProcessStore;
   
-  protected ProcessDefinitionId processDefinitionId;
-  
   public MemoryProcessDefinitionQuery(MemoryProcessStore memoryProcessStore) {
+    super(memoryProcessStore);
     this.memoryProcessStore = memoryProcessStore;
-  }
-
-  @Override
-  public ProcessDefinitionQuery id(ProcessDefinitionId processDefinitionId) {
-    this.processDefinitionId = processDefinitionId;
-    return this;
   }
 
   @Override

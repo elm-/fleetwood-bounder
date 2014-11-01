@@ -23,7 +23,7 @@ import fleetwood.bounder.instance.ActivityInstance;
 /**
  * @author Tom Baeyens
  */
-public abstract class ActivityDefinition extends Composite {
+public abstract class ActivityDefinition extends CompositeDefinition {
 
   protected ActivityDefinitionId id;
 
@@ -34,6 +34,6 @@ public abstract class ActivityDefinition extends Composite {
   public void setId(ActivityDefinitionId id) {
     this.id = id;
   }
-
-  public abstract void execute(ActivityInstance activityInstance); 
+  
+  public abstract void execute(ActivityInstance activityInstance);
 }

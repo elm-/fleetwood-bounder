@@ -17,21 +17,40 @@
 
 package fleetwood.bounder.definition;
 
+import fleetwood.bounder.store.ProcessStore;
+
 
 /**
  * @author Tom Baeyens
  */
 public class VariableDefinition {
 
-  protected VariableId id;
+  protected ProcessStore processStore;
+  protected CompositeDefinition parent;
+  protected VariableDefinitionId id;
   protected String name;
-  protected VariableType type;
   
-  public VariableId getId() {
+  public ProcessStore getProcessStore() {
+    return processStore;
+  }
+
+  public void setProcessStore(ProcessStore processStore) {
+    this.processStore = processStore;
+  }
+  
+  public CompositeDefinition getParent() {
+    return parent;
+  }
+
+  public void setParent(CompositeDefinition parent) {
+    this.parent = parent;
+  }
+
+  public VariableDefinitionId getId() {
     return id;
   }
 
-  public void setId(VariableId id) {
+  public void setId(VariableDefinitionId id) {
     this.id = id;
   }
 
@@ -41,15 +60,6 @@ public class VariableDefinition {
   
   public VariableDefinition setName(String name) {
     this.name = name;
-    return this;
-  }
-  
-  public VariableType getType() {
-    return type;
-  }
-  
-  public VariableDefinition setType(VariableType type) {
-    this.type = type;
     return this;
   }
 }
