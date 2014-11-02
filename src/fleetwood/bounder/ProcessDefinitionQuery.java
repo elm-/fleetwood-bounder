@@ -17,32 +17,39 @@
 
 package fleetwood.bounder;
 
-import java.util.List;
-
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
-import fleetwood.bounder.instance.ProcessInstance;
-import fleetwood.bounder.instance.ProcessInstanceId;
-
 
 
 /**
  * @author Walter White
  */
-public interface ProcessEngine {
-  
-  /** potentially changes the passed processDefinition (assigning ids) 
-   * and returns the same object as a way to indicate it may have changed. */
-  ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition);
-  
-  ProcessDefinitionQueryBuilder buildProcessDefinitionQuery();
-  List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
+public class ProcessDefinitionQuery {
 
-  ProcessInstanceQueryBuilder buildProcessInstanceQuery();
-  List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
+  protected ProcessDefinitionId processDefinitionId;
+  protected Integer maxResults;
 
-  ProcessInstance createProcessInstance(ProcessDefinitionId processDefinitionId);
+  public ProcessDefinitionId getProcessDefinitionId() {
+    return processDefinitionId;
+  }
   
-  ProcessInstance createProcessInstance(ProcessDefinitionId processDefinitionId, ProcessInstanceId processInstanceId);
+  public void setProcessDefinitionId(ProcessDefinitionId processDefinitionId) {
+    this.processDefinitionId = processDefinitionId;
+  }
+
+  public void setMaxResults(Integer max) {
+    this.maxResults = max;
+  }
   
+  public Integer getMaxResults() {
+    return maxResults;
+  }
+  
+  public boolean satisfiesCriteria(ProcessDefinition processDefinition) {
+    if ( processDefinitionId!=null
+         && !processDefinitionId.equals(processDefinition.getId()) ) {
+      return false;
+    }
+    return true;
+  }
 }

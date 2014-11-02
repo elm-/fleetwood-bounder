@@ -15,54 +15,50 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store.memory;
+package fleetwood.bounder;
 
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.CompositeInstance;
 import fleetwood.bounder.instance.ProcessInstance;
-import fleetwood.bounder.store.ProcessInstanceQuery;
+import fleetwood.bounder.instance.ProcessInstanceId;
 
 
 /**
  * @author Walter White
  */
-public class MemoryProcessInstanceQuery implements ProcessInstanceQuery {
+public class ProcessInstanceQuery {
 
-  protected MemoryProcessStore memoryProcessStore;
-  
+  protected ProcessInstanceId processInstanceId;
   protected ActivityInstanceId activityInstanceId;
-  
-  public MemoryProcessInstanceQuery(MemoryProcessStore memoryProcessStore) {
-    this.memoryProcessStore = memoryProcessStore;
-  }
+  protected Integer maxResults;
 
-  @Override
-  public ProcessInstanceQuery activityInstanceId(ActivityInstanceId activityInstanceId) {
+  
+  public ActivityInstanceId getActivityInstanceId() {
+    return activityInstanceId;
+  }
+  
+  public void setActivityInstanceId(ActivityInstanceId activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
-    return this;
+  }
+  
+  public ProcessInstanceId getProcessInstanceId() {
+    return processInstanceId;
+  }
+  
+  public void setProcessInstanceId(ProcessInstanceId processInstanceId) {
+    this.processInstanceId = processInstanceId;
+  }
+  
+  public Integer getMaxResults() {
+    return maxResults;
+  }
+  
+  public void setMaxResults(Integer maxResults) {
+    this.maxResults = maxResults;
   }
 
-  @Override
-  public ProcessInstance lock() {
-    ProcessInstance processInstance = get();
-    if (processInstance==null) { // in doubt if we should return null or throw 
-      throw new RuntimeException("Couldn't lock process instance");
-    }
-    memoryProcessStore.lock(processInstance, 100);
-    return processInstance;
-  }
-  
-  public ProcessInstance get() {
-    for (ProcessInstance processInstance: memoryProcessStore.processInstances.values()) {
-      if (satisfiesCriteria(processInstance)) {
-        return processInstance;
-      }
-    }
-    return null;
-  }
-  
-  boolean satisfiesCriteria(ProcessInstance processInstance) {
+  public boolean satisfiesCriteria(ProcessInstance processInstance) {
     if (activityInstanceId!=null && !containsCompositeInstance(processInstance, activityInstanceId)) {
       return false;
     }

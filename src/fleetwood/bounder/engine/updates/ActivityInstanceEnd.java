@@ -15,19 +15,30 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store;
+package fleetwood.bounder.engine.updates;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
-import fleetwood.bounder.instance.ProcessInstance;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessInstanceQuery {
+public class ActivityInstanceEnd extends Update {
 
-  ProcessInstanceQuery activityInstanceId(ActivityInstanceId activityInstanceId);
-
-  ProcessInstance lock();
+  @JsonIgnore
+  protected ActivityInstance activityInstance;
+  protected ActivityInstanceId activityInstanceId;
+  protected Long end;
+  
+  public ActivityInstanceEnd(ProcessEngineImpl processEngine, ActivityInstance activityInstance) {
+    super(processEngine);
+    this.activityInstance = activityInstance;
+    this.activityInstanceId = activityInstance.getId();
+    this.end = activityInstance.getEnd();
+  }
 
 }

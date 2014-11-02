@@ -15,15 +15,21 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.engine.updates;
+
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ActivityInstance;
 
 
 /**
- * @author Walter White
+ * @author tbaeyens
  */
-public interface Json {
-  
-  String toJsonString(Object object);
-  String toJsonStringPretty(Object object);
+public class ActivityInstanceCreate extends Update {
 
+  protected ActivityInstance activityInstance;
+  
+  public ActivityInstanceCreate(ProcessEngineImpl processEngine, ActivityInstance activityInstance) {
+    super(processEngine);
+    this.activityInstance = activityInstance;
+  }
 }

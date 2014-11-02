@@ -19,10 +19,11 @@ package fleetwood.bounder.instance;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
-import fleetwood.bounder.engine.StartActivityInstance;
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.engine.updates.ActivityInstanceEnd;
+import fleetwood.bounder.engine.updates.StateUpdate;
 import fleetwood.bounder.util.Time;
 
 
@@ -32,8 +33,7 @@ import fleetwood.bounder.util.Time;
 public class ActivityInstance extends CompositeInstance {
   
   protected ActivityInstanceId id;
-  protected Long start;
-  protected Long end;
+  protected ActivityInstanceState state;
   
   @JsonIgnore
   protected ActivityDefinition activityDefinition;
@@ -42,7 +42,7 @@ public class ActivityInstance extends CompositeInstance {
   }
 
   public void onwards() {
-    ProcessEngine.log.debug("Ended "+this);
+    ProcessEngineImpl.log.debug("Ended "+this);
     end();
     if (activityDefinition.hasTransitionDefinitions()) {
       for (TransitionDefinition transitionDefinition: activityDefinition.getTransitionDefinitions()) {
@@ -54,6 +54,7 @@ public class ActivityInstance extends CompositeInstance {
   public void end() {
     if (this.end==null) {
       this.end = Time.now();
+      processInstance.addUpdate(new ActivityInstanceEnd(processEngine, this));
     }
   }
 
@@ -61,7 +62,7 @@ public class ActivityInstance extends CompositeInstance {
     ActivityDefinition to = transitionDefinition.getTo();
     if (to!=null) {
       ActivityInstance activityInstance = getParent().createActivityInstance(to);
-      processInstance.addOperation(new StartActivityInstance(activityInstance));
+      processInstance.startActivityInstance(activityInstance);
     }
   }
   
@@ -71,10 +72,6 @@ public class ActivityInstance extends CompositeInstance {
       return this;
     }
     return super.findActivityInstance(activityInstanceId);
-  }
-
-  public boolean isEnded() {
-    return end!=null;
   }
 
   public ActivityInstanceId getId() {
@@ -93,23 +90,33 @@ public class ActivityInstance extends CompositeInstance {
     this.activityDefinition = activityDefinition;
   }
   
-  public Long getStart() {
-    return start;
-  }
-  
-  public void setStart(Long start) {
-    this.start = start;
-  }
-  
-  public Long getEnd() {
-    return end;
-  }
-  
-  public void setEnd(Long end) {
-    this.end = end;
-  }
-  
   public String toString() {
     return "["+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+"|"+activityDefinition.getClass().getSimpleName()+"]";
+  }
+
+  
+  public ActivityInstanceState getState() {
+    return state;
+  }
+  
+  public void setState(ActivityInstanceState state) {
+    this.state = state;
+    processInstance.addUpdate(new StateUpdate(processEngine, this, state));
+  }
+
+  public void setStateCreated() {
+    setState(ActivityInstanceState.CREATED);
+  }
+
+  public void setStateAsync() {
+    setState(ActivityInstanceState.ASYNC);
+  }
+
+  public void setStateStarting() {
+    setState(ActivityInstanceState.STARTING);
+  }
+
+  public void setStateWaiting() {
+    setState(ActivityInstanceState.WAITING);
   }
 }

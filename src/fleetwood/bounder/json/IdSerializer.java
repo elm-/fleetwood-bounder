@@ -15,21 +15,31 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store.updates;
+package fleetwood.bounder.json;
 
-import fleetwood.bounder.engine.Operation;
-import fleetwood.bounder.instance.Update;
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+
+import fleetwood.bounder.util.Id;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
-public class RemoveOperation implements Update {
+public class IdSerializer extends JsonSerializer<Id> {
 
-  Operation operation;
-  
-  public RemoveOperation(Operation operation) {
-    this.operation = operation;
+  @Override
+  public void serialize(Id value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    String idString = value!=null ? value.getIdString() : null;
+    if (idString!=null) {
+      jgen.writeString(idString);
+    } else {
+      jgen.writeNull();
+    }
   }
 
 }

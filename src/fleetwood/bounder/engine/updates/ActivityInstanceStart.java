@@ -15,15 +15,29 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.engine.updates;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.instance.ActivityInstanceId;
 
 
 /**
- * @author Walter White
+ * @author tbaeyens
  */
-public interface Json {
-  
-  String toJsonString(Object object);
-  String toJsonStringPretty(Object object);
+public class ActivityInstanceStart extends Update {
 
+  @JsonIgnore
+  protected ActivityInstance activityInstance;
+  protected ActivityInstanceId activityInstanceId;
+  protected Long start;
+  
+  public ActivityInstanceStart(ProcessEngineImpl processEngine, ActivityInstance activityInstance) {
+    super(processEngine);
+    this.activityInstance = activityInstance;
+    this.activityInstanceId = activityInstance.getId();
+    this.start = activityInstance.getStart();
+  }
 }

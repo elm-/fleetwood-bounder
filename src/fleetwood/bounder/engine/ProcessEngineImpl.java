@@ -15,9 +15,11 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store;
+package fleetwood.bounder.engine;
 
+import fleetwood.bounder.ProcessDefinitionQueryBuilder;
 import fleetwood.bounder.ProcessEngine;
+import fleetwood.bounder.ProcessInstanceQueryBuilder;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.CompositeDefinition;
@@ -31,19 +33,28 @@ import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.json.Json;
+import fleetwood.bounder.util.Exceptions;
+import fleetwood.bounder.util.Log;
 
 /**
  * @author Walter White
  */
-public abstract class ProcessStore {
-  
+public abstract class ProcessEngineImpl implements ProcessEngine {
+
+  public static Log log = new Log();
+
+  protected String id;
   protected ProcessEngine processEngine;
+  protected Json json;
   
-  public void saveProcessDefinition(ProcessDefinition processDefinition) {
+  public ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition) {
+    Exceptions.checkNotNull(processDefinition, "processDefinition");
     identifyProcessDefinition(processDefinition);
     storeProcessDefinition(processDefinition);
+    return processDefinition;
   }
-
+  
   protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
     if (processDefinition.getId()==null) {
       processDefinition.setId(createProcessDefinitionId(processDefinition));
@@ -75,12 +86,30 @@ public abstract class ProcessStore {
       }
     }
   }
+  
+  public ProcessInstance createProcessInstance(ProcessDefinitionId processDefinitionId) {
+    return createProcessInstance(processDefinitionId, null);
+  }
+
+  public ProcessInstance createProcessInstance(ProcessDefinitionId processDefinitionId, ProcessInstanceId processInstanceId) {
+    Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
+    ProcessDefinition processDefinition = buildProcessDefinitionQuery()
+      .processDefinitionId(processDefinitionId)
+      .get();
+    return processDefinition.createProcessInstance(processInstanceId);
+  }
+  
+  @Override
+  public ProcessDefinitionQueryBuilder buildProcessDefinitionQuery() {
+    return new ProcessDefinitionQueryBuilder(this);
+  }
+
+  @Override
+  public ProcessInstanceQueryBuilder buildProcessInstanceQuery() {
+    return new ProcessInstanceQueryBuilder(this);
+  }
 
   protected abstract void storeProcessDefinition(ProcessDefinition processDefinition);
-
-  public abstract ProcessDefinitionQuery createProcessDefinitionQuery();
-
-  public abstract ProcessInstanceQuery createProcessInstanceQuery();
 
   public abstract ProcessDefinitionId createProcessDefinitionId(ProcessDefinition processDefinition);
 
@@ -106,5 +135,21 @@ public abstract class ProcessStore {
 
   public void setProcessEngine(ProcessEngine processEngine) {
     this.processEngine = processEngine;
+  }
+  
+  public Json getJson() {
+    return json;
+  }
+  
+  public void setJson(Json json) {
+    this.json = json;
+  }
+
+  public String getId() {
+    return id;
+  }
+  
+  public void setId(String id) {
+    this.id = id;
   }
 }

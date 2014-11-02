@@ -15,15 +15,18 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store.memory;
+package fleetwood.bounder.engine.memory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fleetwood.bounder.ProcessEngine;
+import fleetwood.bounder.ProcessDefinitionQuery;
+import fleetwood.bounder.ProcessInstanceQuery;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.ProcessDefinition;
@@ -32,19 +35,19 @@ import fleetwood.bounder.definition.TransitionDefinition;
 import fleetwood.bounder.definition.TransitionDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
 import fleetwood.bounder.definition.VariableDefinitionId;
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.engine.updates.Update;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
-import fleetwood.bounder.store.ProcessDefinitionQuery;
-import fleetwood.bounder.store.ProcessInstanceQuery;
-import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.util.Lists;
 
 
 /**
  * @author Walter White
  */
-public class MemoryProcessStore extends ProcessStore {
+public class MemoryProcessEngine extends ProcessEngineImpl {
   
   protected Map<ProcessDefinitionId, ProcessDefinition> processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinition>());
   protected Map<ProcessInstanceId, ProcessInstance> processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstance>());
@@ -63,16 +66,6 @@ public class MemoryProcessStore extends ProcessStore {
     processDefinition.prepare();
   }
 
-  @Override
-  public ProcessDefinitionQuery createProcessDefinitionQuery() {
-    return new MemoryProcessDefinitionQuery(this);
-  }
-
-  @Override
-  public ProcessInstanceQuery createProcessInstanceQuery() {
-    return new MemoryProcessInstanceQuery(this);
-  }
-  
   @Override
   protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
     super.identifyProcessDefinition(processDefinition);
@@ -114,28 +107,73 @@ public class MemoryProcessStore extends ProcessStore {
     return new ActivityInstanceId("ai"+activityInstancesCreated);
   }
 
-  public synchronized void lock(ProcessInstance processInstance, long maxWaitInMillis) {
+  @Override
+  public void saveProcessInstance(ProcessInstance processInstance) {
+    processInstances.put(processInstance.getId(), processInstance);
+    ProcessEngineImpl.log.debug("Saving: "+json.toJsonStringPretty(processInstance));
+  }
+
+  @Override
+  public void flushUpdates(ProcessInstance processInstance) {
+    ProcessEngineImpl.log.debug("Flushing updates: ");
+    for (Update update: processInstance.getUpdates()) {
+      ProcessEngineImpl.log.debug("  "+update);
+    }
+  }
+
+  @Override
+  public void flushUpdatesAndUnlock(ProcessInstance processInstance) {
+    lockedProcessInstances.remove(processInstance.getId());
+    processInstance.removeLock();
+    flushUpdates(processInstance);
+    ProcessEngineImpl.log.debug("Process instance should be: "+json.toJsonStringPretty(processInstance));
+  }
+
+  @Override
+  public List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+    if (processDefinitionQuery.getProcessDefinitionId()!=null) {
+      ProcessDefinition processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
+      return Lists.of(processDefinition);
+    }
+    List<ProcessDefinition> result = new ArrayList<>();
+    for (ProcessDefinition processDefinition: processDefinitions.values()) {
+      if (processDefinitionQuery.satisfiesCriteria(processDefinition)) {
+        result.add(processDefinition);
+      }
+    }
+    return result;
+  }
+  
+  @Override
+  public List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
+    if (processInstanceQuery.getProcessInstanceId()!=null) {
+      ProcessInstance processInstance = processInstances.get(processInstanceQuery.getProcessInstanceId());
+      return Lists.of(processInstance);
+    }
+    List<ProcessInstance> result = new ArrayList<>();
+    for (ProcessInstance processInstance: processInstances.values()) {
+      if (processInstanceQuery.satisfiesCriteria(processInstance)) {
+        result.add(processInstance);
+      }
+    }
+    return result;
+  }
+  
+  public ProcessInstance lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
+    ProcessInstanceQuery processInstanceQuery = buildProcessInstanceQuery()
+      .activityInstanceId(activityInstanceId)
+      .getQuery();
+    processInstanceQuery.setMaxResults(1);
+    List<ProcessInstance> processInstances = findProcessInstances(processInstanceQuery);
+    ProcessInstance processInstance = (!processInstances.isEmpty() ? processInstances.get(0) : null);
+    if (processInstance==null) { 
+      throw new RuntimeException("Couldn't lock process instance");
+    }
     ProcessInstanceId id = processInstance.getId();
     if (lockedProcessInstances.contains(id)) {
       throw new RuntimeException("ProcessInstance "+id+" is already locked");
     }
     lockedProcessInstances.add(id);
-  }
-
-  @Override
-  public void saveProcessInstance(ProcessInstance processInstance) {
-    processInstances.put(processInstance.getId(), processInstance);
-    ProcessEngine.log.debug("Saving: "+processInstance.toJson());
-  }
-
-  @Override
-  public void flushUpdates(ProcessInstance processInstance) {
-    ProcessEngine.log.debug("Flushing: "+processInstance.getUpdates());
-  }
-
-  @Override
-  public void flushUpdatesAndUnlock(ProcessInstance processInstance) {
-    ProcessEngine.log.debug("Flushing+unlock: "+processInstance.getUpdates());
-    ProcessEngine.log.debug("Process instance: "+processInstance.toJson());
+    return processInstance;
   }
 }

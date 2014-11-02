@@ -15,32 +15,24 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store;
+package fleetwood.bounder.engine.updates;
 
-import java.util.List;
-
-import fleetwood.bounder.definition.ProcessDefinition;
-import fleetwood.bounder.definition.ProcessDefinitionId;
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.instance.ActivityInstanceState;
 
 
 /**
  * @author Walter White
  */
-public abstract class ProcessDefinitionQuery {
+public class StateUpdate extends Update {
 
-  protected ProcessStore processStore;
-  
-  protected ProcessDefinitionId processDefinitionId;
-  
-  public ProcessDefinitionQuery(ProcessStore processStore) {
-    this.processStore = processStore;
+  protected ActivityInstance activityInstance;
+  protected ActivityInstanceState state;
+
+  public StateUpdate(ProcessEngineImpl processEngine, ActivityInstance activityInstance, ActivityInstanceState state) {
+    super(processEngine);
+    this.activityInstance = activityInstance;
+    this.state = state;
   }
-
-  public ProcessDefinitionQuery id(ProcessDefinitionId processDefinitionId) {
-    this.processDefinitionId = processDefinitionId;
-    return this;
-  }
-
-  public abstract ProcessDefinition get();
-  public abstract List<ProcessDefinition> asList();
 }

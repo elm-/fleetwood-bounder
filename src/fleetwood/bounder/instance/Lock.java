@@ -15,15 +15,30 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.instance;
 
 
 /**
  * @author Walter White
  */
-public interface Json {
-  
-  String toJsonString(Object object);
-  String toJsonStringPretty(Object object);
+public class Lock {
 
+  protected Long time;
+  protected String owner;
+  
+  public Long getTime() {
+    return time;
+  }
+  
+  public void setTime(Long time) {
+    this.time = time;
+  }
+  
+  public String getOwner() {
+    return owner;
+  }
+  
+  public void setOwner(String owner) {
+    this.owner = owner;
+  }
 }

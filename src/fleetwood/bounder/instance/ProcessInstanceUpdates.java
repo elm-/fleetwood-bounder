@@ -43,7 +43,7 @@ public class ProcessInstanceUpdates {
   }
 
   public String toJson() {
-    return processInstance.processStore.getProcessEngine().getJson().toJsonString(this);
+    return processInstance.processEngine.getJson().toJsonString(this);
   }
   
   public ProcessInstance getProcessInstance() {

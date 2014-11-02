@@ -15,30 +15,27 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine;
+package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.ProcessEngine;
-import fleetwood.bounder.definition.ActivityDefinition;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import fleetwood.bounder.engine.ProcessEngineImpl;
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.util.Time;
+import fleetwood.bounder.instance.ActivityInstanceId;
 
 
 /**
  * @author Walter White
  */
-public class StartActivityInstance implements Operation {
+public class ToStartAdd extends Update {
 
+  @JsonIgnore
   protected ActivityInstance activityInstance;
+  protected ActivityInstanceId activityInstanceId;
   
-  public StartActivityInstance(ActivityInstance activityInstance) {
+  public ToStartAdd(ProcessEngineImpl processEngine, ActivityInstance activityInstance) {
+    super(processEngine);
     this.activityInstance = activityInstance;
-  }
-
-  @Override
-  public void execute() {
-    activityInstance.setStart(Time.now());
-    ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
-    ProcessEngine.log.debug("Starting "+activityInstance);
-    activityDefinition.start(activityInstance);
+    this.activityInstanceId = activityInstance.getId();
   }
 }

@@ -22,21 +22,24 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.CompositeDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
-import fleetwood.bounder.store.ProcessStore;
-import fleetwood.bounder.store.updates.AddActivityInstance;
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.engine.updates.ActivityInstanceCreate;
 
 
 /**
  * @author Walter White
  */
 public class CompositeInstance {
-  
+
+  protected Long start;
+  protected Long end;
+  protected List<ActivityInstance> activityInstances;
+
   @JsonIgnore
-  protected ProcessStore processStore;
+  protected ProcessEngineImpl processEngine;
   @JsonIgnore
   protected ProcessDefinition processDefinition;
   @JsonIgnore
@@ -45,21 +48,10 @@ public class CompositeInstance {
   protected ProcessInstance processInstance;
   @JsonIgnore
   protected CompositeInstance parent;
-  protected List<ActivityInstance> activityInstances;
-
-  public void start() {
-    List<ActivityDefinition> startActivityDefinitions = compositeDefinition.getStartActivityDefinitions();
-    if (startActivityDefinitions!=null) {
-      for (ActivityDefinition startActivityDefinition: startActivityDefinitions) {
-        ActivityInstance activityInstance = createActivityInstance(startActivityDefinition);
-        processInstance.startActivityInstance(activityInstance);
-      }
-    }
-  }
 
   public ActivityInstance createActivityInstance(ActivityDefinition activityDefinition) {
     ActivityInstance activityInstance = new ActivityInstance();
-    activityInstance.setProcessStore(processStore);
+    activityInstance.setProcessStore(processEngine);
     activityInstance.setCompositeDefinition(activityDefinition);
     activityInstance.setProcessInstance(processInstance);
     activityInstance.setParent(this);
@@ -67,10 +59,10 @@ public class CompositeInstance {
     if (activityInstances==null) {
       activityInstances = new ArrayList<>();
     }
-    activityInstance.setId(processStore.createActivityInstanceId(activityInstance));
+    activityInstance.setId(processEngine.createActivityInstanceId(activityInstance));
     activityInstances.add(activityInstance);
-    ProcessEngine.log.debug("Created "+activityInstance);
-    processInstance.addUpdate(new AddActivityInstance(activityInstance));
+    ProcessEngineImpl.log.debug("Created "+activityInstance);
+    processInstance.addUpdate(new ActivityInstanceCreate(processEngine, activityInstance));
     return activityInstance;
   }
   
@@ -91,12 +83,12 @@ public class CompositeInstance {
     return null;
   }
   
-  public ProcessStore getProcessStore() {
-    return processStore;
+  public ProcessEngineImpl getProcessStore() {
+    return processEngine;
   }
 
-  public void setProcessStore(ProcessStore processStore) {
-    this.processStore = processStore;
+  public void setProcessStore(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
   }
 
   public ProcessDefinition getProcessDefinition() {
@@ -141,5 +133,25 @@ public class CompositeInstance {
   
   public void setParent(CompositeInstance parent) {
     this.parent = parent;
+  }
+
+  public Long getStart() {
+    return start;
+  }
+  
+  public void setStart(Long start) {
+    this.start = start;
+  }
+  
+  public Long getEnd() {
+    return end;
+  }
+  
+  public void setEnd(Long end) {
+    this.end = end;
+  }
+  
+  public boolean isEnded() {
+    return end!=null;
   }
 }

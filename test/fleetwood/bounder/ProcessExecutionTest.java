@@ -27,12 +27,12 @@ import org.junit.Test;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
+import fleetwood.bounder.engine.memory.MemoryProcessEngine;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
 import fleetwood.bounder.json.JacksonJson;
-import fleetwood.bounder.store.memory.MemoryProcessStore;
 import fleetwood.bounder.types.TextVariableDefinition;
 
 /**
@@ -57,8 +57,7 @@ public class ProcessExecutionTest {
     variable.setName("v");
     processDefinition.addVariableDefinition(variable);
 
-    ProcessEngine processEngine = new ProcessEngine();
-    processEngine.setProcessStore(new MemoryProcessStore());
+    MemoryProcessEngine processEngine = new MemoryProcessEngine();
     processEngine.setJson(new JacksonJson());
     processDefinition = processEngine.saveProcessDefinition(processDefinition);
     ProcessDefinitionId processDefinitionId = processDefinition.getId();
@@ -77,9 +76,7 @@ public class ProcessExecutionTest {
     assertFalse(waitActivityInstance.isEnded());
     
     ActivityInstanceId waitActivityInstanceId = waitActivityInstance.getId();
-    processInstance = processEngine.createProcessInstanceQuery()
-      .activityInstanceId(waitActivityInstanceId)
-      .lock();
+    processInstance = processEngine.lockProcessInstanceByActivityInstanceId(waitActivityInstanceId);
     
     ActivityInstance activityInstance = processInstance.findActivityInstance(waitActivityInstanceId);
     activityInstance.setVariableByName("v", new Object());

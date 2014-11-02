@@ -15,15 +15,20 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.util;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
  * @author Walter White
  */
-public interface Json {
-  
-  String toJsonString(Object object);
-  String toJsonStringPretty(Object object);
+public class Lists {
+
+  @SafeVarargs
+  public static <T> List<T> of(T... elements) {
+    return Arrays.asList(elements);
+  }
 
 }

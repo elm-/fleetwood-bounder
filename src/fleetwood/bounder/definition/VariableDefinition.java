@@ -17,7 +17,7 @@
 
 package fleetwood.bounder.definition;
 
-import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.engine.ProcessEngineImpl;
 import fleetwood.bounder.util.Identifyable;
 
 
@@ -26,7 +26,7 @@ import fleetwood.bounder.util.Identifyable;
  */
 public class VariableDefinition implements Identifyable {
 
-  protected ProcessStore processStore;
+  protected ProcessEngineImpl processEngine;
   protected ProcessDefinition processDefinition;  
   protected CompositeDefinition parent;
   protected VariableDefinitionId id;
@@ -35,12 +35,12 @@ public class VariableDefinition implements Identifyable {
   public void prepare() {
   }
 
-  public ProcessStore getProcessStore() {
-    return processStore;
+  public ProcessEngineImpl getProcessStore() {
+    return processEngine;
   }
 
-  public void setProcessStore(ProcessStore processStore) {
-    this.processStore = processStore;
+  public void setProcessStore(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
   }
   
   public CompositeDefinition getParent() {

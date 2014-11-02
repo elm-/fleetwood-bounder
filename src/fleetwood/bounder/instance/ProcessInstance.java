@@ -18,17 +18,22 @@
 package fleetwood.bounder.instance;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.ProcessEngine;
-import fleetwood.bounder.engine.Operation;
-import fleetwood.bounder.engine.StartActivityInstance;
-import fleetwood.bounder.store.updates.AddOperation;
-import fleetwood.bounder.store.updates.RemoveOperation;
+import fleetwood.bounder.definition.ActivityDefinition;
+import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.engine.updates.ActivityInstanceStart;
+import fleetwood.bounder.engine.updates.LockRemove;
+import fleetwood.bounder.engine.updates.ToStartAdd;
+import fleetwood.bounder.engine.updates.Update;
+import fleetwood.bounder.util.Time;
 
 
 
@@ -39,28 +44,38 @@ import fleetwood.bounder.store.updates.RemoveOperation;
 public class ProcessInstance extends CompositeInstance {
   
   protected ProcessInstanceId id;
+  protected Lock lock;
+
   @JsonIgnore
   protected List<Update> updates;
-  protected Queue<Operation> operations;
+  @JsonIgnore
+  protected Queue<ActivityInstance> toStart;
+  @JsonIgnore
+  protected Queue<ActivityInstance> async;
   
-  @Override
   public void start() {
-    ProcessEngine.log.debug("Starting "+this);
-    super.start();
+    ProcessEngineImpl.log.debug("Starting "+this);
+    this.start = Time.now();
+    List<ActivityDefinition> startActivityDefinitions = compositeDefinition.getStartActivityDefinitions();
+    if (startActivityDefinitions!=null) {
+      for (ActivityDefinition startActivityDefinition: startActivityDefinitions) {
+        ActivityInstance activityInstance = createActivityInstance(startActivityDefinition);
+        processInstance.startActivityInstance(activityInstance);
+      }
+    }
+    lock = new Lock();
+    lock.setTime(Time.now());
+    lock.setOwner(processEngine.getId());
     save();
     executeOperations();
   }
   
   void startActivityInstance(ActivityInstance activityInstance) {
-    addOperation(new StartActivityInstance(activityInstance));
-  }
-
-  void addOperation(Operation operation) {
-    if (operations==null) {
-      operations = new LinkedList<>();
+    if (toStart==null) {
+      toStart = new LinkedList<>();
     }
-    operations.add(operation);
-    addUpdate(new AddOperation(operation));
+    toStart.add(activityInstance);
+    addUpdate(new ToStartAdd(processEngine, activityInstance));
   }
   
   protected void addUpdate(Update update) {
@@ -72,16 +87,19 @@ public class ProcessInstance extends CompositeInstance {
   }
 
   void executeOperations() {
-    if (operations!=null) {
-      while (!operations.isEmpty()) {
-        processStore.flushUpdates(this);
+    if (toStart!=null) {
+      while (!toStart.isEmpty()) {
+        processEngine.flushUpdates(this);
         updates = new ArrayList<>();
-        Operation operation = operations.remove();
-        addUpdate(new RemoveOperation(operation));
-        operation.execute();
+        ActivityInstance activityInstance = toStart.remove();
+        activityInstance.setStart(Time.now());
+        addUpdate(new ActivityInstanceStart(processEngine, activityInstance));
+        ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
+        ProcessEngineImpl.log.debug("Starting "+activityInstance);
+        activityDefinition.start(activityInstance);
       }
     }
-    processStore.flushUpdatesAndUnlock(processInstance);
+    processEngine.flushUpdatesAndUnlock(processInstance);
   }
 
   public ProcessInstanceId getId() {
@@ -97,12 +115,12 @@ public class ProcessInstance extends CompositeInstance {
   }
 
   public void save() {
-    processStore.saveProcessInstance(processInstance);
+    processEngine.saveProcessInstance(processInstance);
     updates = new ArrayList<>();
   }
 
   public String toJson() {
-    return processStore.getProcessEngine().getJson().toJsonString(this);
+    return processEngine.getJson().toJsonString(this);
   }
   
   public List<Update> getUpdates() {
@@ -113,11 +131,36 @@ public class ProcessInstance extends CompositeInstance {
     this.updates = updates;
   }
 
-  public Queue<Operation> getOperations() {
-    return operations;
+  public void removeLock() {
+    setLock(null);
+  }
+
+  public Lock getLock() {
+    return lock;
+  }
+
+  public void setLock(Lock lock) {
+    if (this.lock!=null && lock==null) {
+      addUpdate(new LockRemove(processEngine));
+    }
+    this.lock = lock;
   }
   
-  public void setOperations(Queue<Operation> operations) {
-    this.operations = operations;
+  @JsonAnyGetter
+  public Map<String , Object> getOtherFields() {
+    if ( (toStart==null || toStart.isEmpty())
+         && (async==null || toStart.isEmpty())
+       ) {
+      return null;
+    }
+    Map<String, Object> otherFields = new HashMap<>();
+    if (toStart!=null && !toStart.isEmpty()) {
+      List<ActivityInstanceId> toStartIds = new ArrayList<>();
+      for (ActivityInstance activityInstance: toStart) {
+        toStartIds.add(activityInstance.id);
+      }
+      otherFields.put("toStart", toStartIds);
+    }
+    return otherFields;
   }
 }

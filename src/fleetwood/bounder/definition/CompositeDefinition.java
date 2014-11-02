@@ -24,7 +24,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.engine.ProcessEngineImpl;
 import fleetwood.bounder.util.Exceptions;
 import fleetwood.bounder.util.Identifyable;
 
@@ -34,7 +34,7 @@ import fleetwood.bounder.util.Identifyable;
  */
 public abstract class CompositeDefinition implements Identifyable {
 
-  protected ProcessStore processStore;
+  protected ProcessEngineImpl processEngine;
   protected ProcessDefinition processDefinition;
   protected CompositeDefinition parent;
   protected List<ActivityDefinition> activityDefinitions;
@@ -54,7 +54,7 @@ public abstract class CompositeDefinition implements Identifyable {
       startActivityDefinitions = new ArrayList<>(activityDefinitions);
       activityDefinitionsMap = new HashMap<>();
       for (ActivityDefinition activityDefinition: activityDefinitions) {
-        activityDefinition.setProcessStore(processStore);
+        activityDefinition.setProcessStore(processEngine);
         activityDefinition.setProcessDefinition(processDefinition);
         activityDefinition.setParent(this);
         Exceptions.checkNotNull(activityDefinition.getId(), "activityDefinition.id");
@@ -68,7 +68,7 @@ public abstract class CompositeDefinition implements Identifyable {
         if (startActivityDefinitions!=null) {
           startActivityDefinitions.remove(transitionDefinition.getTo());
         }
-        transitionDefinition.setProcessStore(processStore);
+        transitionDefinition.setProcessStore(processEngine);
         transitionDefinition.setProcessDefinition(processDefinition);
         transitionDefinition.setParent(this);
         Exceptions.checkNotNull(transitionDefinition.getId(), "transitionDefinition.id");
@@ -79,7 +79,7 @@ public abstract class CompositeDefinition implements Identifyable {
     if (variableDefinitions!=null) {
       variableDefinitionsMap = new HashMap<>();
       for (VariableDefinition variableDefinition: variableDefinitions) {
-        variableDefinition.setProcessStore(processStore);
+        variableDefinition.setProcessStore(processEngine);
         variableDefinition.setProcessDefinition(processDefinition);
         variableDefinition.setParent(this);
         Exceptions.checkNotNull(variableDefinition.getId(), "variableDefinition.id");
@@ -97,12 +97,12 @@ public abstract class CompositeDefinition implements Identifyable {
     this.startActivityDefinitions = startActivityDefinitions;
   }
 
-  public ProcessStore getProcessStore() {
-    return processStore;
+  public ProcessEngineImpl getProcessStore() {
+    return processEngine;
   }
 
-  public void setProcessStore(ProcessStore processStore) {
-    this.processStore = processStore;
+  public void setProcessStore(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
   }
 
   public ProcessDefinition getProcessDefinition() {

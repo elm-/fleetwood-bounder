@@ -15,21 +15,30 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store.updates;
+package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.engine.Operation;
-import fleetwood.bounder.instance.Update;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
+import fleetwood.bounder.engine.ProcessEngineImpl;
 
 
 /**
  * @author Walter White
  */
-public class AddOperation implements Update {
+@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
+public abstract class Update {
 
-  Operation operation;
+  @JsonIgnore
+  ProcessEngineImpl processEngine;
   
-  public AddOperation(Operation operation) {
-    this.operation = operation;
+  public Update(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
   }
 
+  public String toString() {
+    return processEngine.getJson().toJsonString(this);
+  }
 }

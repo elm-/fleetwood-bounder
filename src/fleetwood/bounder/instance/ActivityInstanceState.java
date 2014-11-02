@@ -15,21 +15,18 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.store.updates;
-
-import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.Update;
+package fleetwood.bounder.instance;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
-public class AddActivityInstance implements Update {
+public enum ActivityInstanceState {
 
-  ActivityInstance activityInstance;
-  
-  public AddActivityInstance(ActivityInstance activityInstance) {
-    this.activityInstance = activityInstance;
-  }
-
+  CREATED,
+  STARTING,
+  WAITING,
+  ENDED,
+  ASYNC,
+  JOIN, 
 }

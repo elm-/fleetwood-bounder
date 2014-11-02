@@ -19,7 +19,7 @@ package fleetwood.bounder.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.store.ProcessStore;
+import fleetwood.bounder.engine.ProcessEngineImpl;
 import fleetwood.bounder.util.Identifyable;
 
 
@@ -33,7 +33,7 @@ public class TransitionDefinition implements Identifyable {
   protected ActivityDefinition to;
 
   @JsonIgnore
-  protected ProcessStore processStore;
+  protected ProcessEngineImpl processEngine;
   @JsonIgnore
   protected ProcessDefinition processDefinition;
   @JsonIgnore
@@ -71,13 +71,13 @@ public class TransitionDefinition implements Identifyable {
   }
 
   
-  public ProcessStore getProcessStore() {
-    return processStore;
+  public ProcessEngineImpl getProcessStore() {
+    return processEngine;
   }
 
   
-  public void setProcessStore(ProcessStore processStore) {
-    this.processStore = processStore;
+  public void setProcessStore(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
   }
 
   
