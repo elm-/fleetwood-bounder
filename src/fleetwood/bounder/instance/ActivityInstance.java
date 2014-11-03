@@ -38,9 +38,6 @@ public class ActivityInstance extends CompositeInstance {
   @JsonIgnore
   protected ActivityDefinition activityDefinition;
   
-  public void signal() {
-  }
-
   public void onwards() {
     ProcessEngineImpl.log.debug("Ended "+this);
     end();

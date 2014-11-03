@@ -17,28 +17,33 @@
 
 package fleetwood.bounder;
 
-import java.util.List;
+import java.util.Map;
 
-import fleetwood.bounder.definition.ProcessDefinition;
-import fleetwood.bounder.instance.ProcessInstance;
-
+import fleetwood.bounder.definition.VariableDefinitionId;
+import fleetwood.bounder.instance.VariableInstance;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessEngine {
-  
-  /** potentially changes the passed processDefinition (assigning ids) 
-   * and returns the same object as a way to indicate it may have changed. */
-  ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition);
-  
-  ProcessDefinitionQueryBuilder buildProcessDefinitionQuery();
-  List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
+public class VariableRequest {
 
-  ProcessInstanceQueryBuilder buildProcessInstanceQuery();
-  List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
-
-  ProcessInstance createProcessInstance(CreateProcessInstanceRequest createProcessInstanceRequest);
+  protected Map<VariableDefinitionId,VariableInstance> variablesInstances;
+  protected Map<String,VariableInstance> persistentContext;
   
+  public Map<VariableDefinitionId, VariableInstance> getVariablesInstances() {
+    return variablesInstances;
+  }
+  
+  public void setVariablesInstances(Map<VariableDefinitionId, VariableInstance> variables) {
+    this.variablesInstances = variables;
+  }
+  
+  public Map<String, VariableInstance> getPersistentContext() {
+    return persistentContext;
+  }
+
+  public void setPersistentContext(Map<String, VariableInstance> persistentContext) {
+    this.persistentContext = persistentContext;
+  }
 }

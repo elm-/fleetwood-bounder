@@ -29,7 +29,6 @@ import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
 import fleetwood.bounder.engine.memory.MemoryProcessEngine;
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.ActivityInstanceId;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
 import fleetwood.bounder.json.JacksonJson;
@@ -53,18 +52,19 @@ public class ProcessExecutionTest {
     
     processDefinition.addTransitionDefinition(wait, wait2);
 
-    VariableDefinition variable = new TextVariableDefinition();
-    variable.setName("v");
-    processDefinition.addVariableDefinition(variable);
+    VariableDefinition variableDefinition = new TextVariableDefinition();
+    variableDefinition.setName("v");
+    processDefinition.addVariableDefinition(variableDefinition);
 
     MemoryProcessEngine processEngine = new MemoryProcessEngine();
     processEngine.setJson(new JacksonJson());
     processDefinition = processEngine.saveProcessDefinition(processDefinition);
     ProcessDefinitionId processDefinitionId = processDefinition.getId();
     
-    ProcessInstance processInstance = processEngine.createProcessInstance(processDefinitionId);
-    processInstance.setVariableByName("v", new Object());
-    processInstance.start();
+    CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
+    createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
+    ProcessInstance processInstance = processEngine.createProcessInstance(createProcessInstanceRequest);
+    
     ProcessInstanceId processInstanceId = processInstance.getId();
     assertNotNull(processInstanceId);
     assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
@@ -75,12 +75,10 @@ public class ProcessExecutionTest {
     ActivityInstance waitActivityInstance = wait.activityInstances.get(0);
     assertFalse(waitActivityInstance.isEnded());
     
-    ActivityInstanceId waitActivityInstanceId = waitActivityInstance.getId();
-    processInstance = processEngine.lockProcessInstanceByActivityInstanceId(waitActivityInstanceId);
-    
-    ActivityInstance activityInstance = processInstance.findActivityInstance(waitActivityInstanceId);
-    activityInstance.setVariableByName("v", new Object());
-    activityInstance.signal();
+    SignalRequest signalRequest = new SignalRequest();
+    signalRequest.setActivityInstanceId(waitActivityInstance.getId());
+    // signalRequest.putVariable(variableDefinition.getId(), "hello world");
+    processInstance = processEngine.signal(signalRequest);
   }
   
   // static process variables

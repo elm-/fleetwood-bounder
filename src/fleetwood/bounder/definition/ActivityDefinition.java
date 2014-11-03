@@ -40,4 +40,7 @@ public abstract class ActivityDefinition extends CompositeDefinition {
   public String toString() {
     return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
+
+  public void signal(ActivityInstance activityInstance) {
+  }
 }

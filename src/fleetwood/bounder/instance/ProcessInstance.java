@@ -53,24 +53,7 @@ public class ProcessInstance extends CompositeInstance {
   @JsonIgnore
   protected Queue<ActivityInstance> async;
   
-  public void start() {
-    ProcessEngineImpl.log.debug("Starting "+this);
-    this.start = Time.now();
-    List<ActivityDefinition> startActivityDefinitions = compositeDefinition.getStartActivityDefinitions();
-    if (startActivityDefinitions!=null) {
-      for (ActivityDefinition startActivityDefinition: startActivityDefinitions) {
-        ActivityInstance activityInstance = createActivityInstance(startActivityDefinition);
-        processInstance.startActivityInstance(activityInstance);
-      }
-    }
-    lock = new Lock();
-    lock.setTime(Time.now());
-    lock.setOwner(processEngine.getId());
-    save();
-    executeOperations();
-  }
-  
-  void startActivityInstance(ActivityInstance activityInstance) {
+  public void startActivityInstance(ActivityInstance activityInstance) {
     if (toStart==null) {
       toStart = new LinkedList<>();
     }
@@ -86,7 +69,7 @@ public class ProcessInstance extends CompositeInstance {
     }
   }
 
-  void executeOperations() {
+  public void executeOperations() {
     if (toStart!=null) {
       while (!toStart.isEmpty()) {
         processEngine.flushUpdates(this);
@@ -112,11 +95,6 @@ public class ProcessInstance extends CompositeInstance {
 
   public String toString() {
     return "("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+")";
-  }
-
-  public void save() {
-    processEngine.saveProcessInstance(processInstance);
-    updates = new ArrayList<>();
   }
 
   public String toJson() {

@@ -17,28 +17,21 @@
 
 package fleetwood.bounder;
 
-import java.util.List;
-
-import fleetwood.bounder.definition.ProcessDefinition;
-import fleetwood.bounder.instance.ProcessInstance;
-
+import fleetwood.bounder.definition.VariableDefinitionId;
+import fleetwood.bounder.instance.ActivityInstanceId;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessEngine {
-  
-  /** potentially changes the passed processDefinition (assigning ids) 
-   * and returns the same object as a way to indicate it may have changed. */
-  ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition);
-  
-  ProcessDefinitionQueryBuilder buildProcessDefinitionQuery();
-  List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
+public class SignalRequest extends VariableRequest {
 
-  ProcessInstanceQueryBuilder buildProcessInstanceQuery();
-  List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
-
-  ProcessInstance createProcessInstance(CreateProcessInstanceRequest createProcessInstanceRequest);
+  protected ActivityInstanceId activityInstanceId;
   
+  public ActivityInstanceId getActivityInstanceId() {
+    return activityInstanceId;
+  }
+  public void setActivityInstanceId(ActivityInstanceId activityInstanceId) {
+    this.activityInstanceId = activityInstanceId;
+  }
 }

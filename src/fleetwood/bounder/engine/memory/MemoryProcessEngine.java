@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fleetwood.bounder.CreateProcessInstanceRequest;
 import fleetwood.bounder.ProcessDefinitionQuery;
 import fleetwood.bounder.ProcessInstanceQuery;
+import fleetwood.bounder.SignalRequest;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.ProcessDefinition;
@@ -160,15 +162,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
   
   public ProcessInstance lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
-    ProcessInstanceQuery processInstanceQuery = buildProcessInstanceQuery()
-      .activityInstanceId(activityInstanceId)
-      .getQuery();
-    processInstanceQuery.setMaxResults(1);
-    List<ProcessInstance> processInstances = findProcessInstances(processInstanceQuery);
-    ProcessInstance processInstance = (!processInstances.isEmpty() ? processInstances.get(0) : null);
-    if (processInstance==null) { 
-      throw new RuntimeException("Couldn't lock process instance");
-    }
+    ProcessInstance processInstance = super.lockProcessInstanceByActivityInstanceId(activityInstanceId);
     ProcessInstanceId id = processInstance.getId();
     if (lockedProcessInstances.contains(id)) {
       throw new RuntimeException("ProcessInstance "+id+" is already locked");
