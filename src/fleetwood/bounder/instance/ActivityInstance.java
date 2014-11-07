@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
+import fleetwood.bounder.engine.operation.NotifyParentActivityInstanceEnded;
 import fleetwood.bounder.engine.updates.ActivityInstanceEndUpdate;
 import fleetwood.bounder.util.Time;
 
@@ -36,43 +37,45 @@ public class ActivityInstance extends CompositeInstance {
   protected ActivityDefinition activityDefinition;
   
   public void onwards() {
-    ProcessEngineImpl.log.debug("Ended "+this);
-    end();
-    if (activityDefinition.hasTransitionDefinitions()) {
-      for (TransitionDefinition transitionDefinition: activityDefinition.getTransitionDefinitions()) {
+    processEngine.log.debug("Onwards "+this);
+    // Default BPMN logic when an activity ends
+    // If there are outgoing transitions (in bpmn they are called sequence flows)
+    if (activityDefinition.hasOutgoingTransitionDefinitions()) {
+      // Ensure that each transition is taken
+      // Note that process concurrency does not require java concurrency
+      for (TransitionDefinition transitionDefinition: activityDefinition.getOutgoingTransitionDefinitions()) {
         takeTransition(transitionDefinition);  
       }
+    }
+    // If non of the transitions is taken
+    if (!isEnded()) {
+      // Propagate completion upwards
+      end(true);
     }
   }
 
   public void end() {
+    end(true);
+  }
+
+  void end(boolean notifyParent) {
     if (this.end==null) {
       if (hasUnfinishedActivityInstances()) {
         throw new RuntimeException("Can't end this activity instance. There are unfinished activity instances. "+processEngine.getJson().toJsonStringPretty(processInstance));
       }
-      this.end = Time.now();
-      processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
-    }
-  }
-
-  public boolean hasUnfinishedActivityInstances() {
-    if (activityInstances==null) {
-      return false;
-    }
-    for (ActivityInstance activityInstance: activityInstances) {
-      if (!activityInstance.isEnded()) {
-        return true;
+      setEnd(Time.now());
+      if (notifyParent) {
+        processInstance.addOperation(new NotifyParentActivityInstanceEnded(this));
       }
     }
-    return false;
   }
 
   /** Starts the to (destination) activity in the current (parent) scope.
    * This methods will also end the current activity instance.
    * This method can be called multiple times in one start() */
   public void takeTransition(TransitionDefinition transitionDefinition) {
-    end();
     ActivityDefinition to = transitionDefinition.getTo();
+    end(to!=null);
     if (to!=null) {
       ActivityInstance activityInstance = getParent().createActivityInstance(to);
       processInstance.startActivityInstance(activityInstance);
@@ -106,4 +109,10 @@ public class ActivityInstance extends CompositeInstance {
   public String toString() {
     return "ai("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+"|"+activityDefinition.getClass().getSimpleName()+")";
   }
+  
+  public void setEnd(Long end) {
+    this.end = end;
+    processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
+  }
+
 }

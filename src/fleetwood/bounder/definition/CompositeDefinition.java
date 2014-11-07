@@ -24,6 +24,8 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.instance.CompositeInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.util.Exceptions;
 import fleetwood.bounder.util.Identifyable;
@@ -166,6 +168,7 @@ public abstract class CompositeDefinition implements Identifyable {
     transitionDefinition.setFrom(from);
     transitionDefinition.setTo(to);
     addTransitionDefinition(transitionDefinition);
+    from.addOutgoingTransition(transitionDefinition);
   }
 
   public CompositeDefinition addTransitionDefinition(TransitionDefinition transitionDefinition) {
@@ -247,5 +250,12 @@ public abstract class CompositeDefinition implements Identifyable {
 
   public void visit(ProcessDefinitionVisitor visitor) {
     visitor.visitCompositeDefinition(this);
+  }
+
+  public void notifyActivityInstanceEnded(ActivityInstance activityInstance) {
+    CompositeInstance parentCompositeInstance = activityInstance.getParent();
+    if (!parentCompositeInstance.hasUnfinishedActivityInstances()) {
+      parentCompositeInstance.end();
+    }
   }
 }

@@ -15,18 +15,18 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine.updates;
+package fleetwood.bounder.engine.operation;
 
-import fleetwood.bounder.engine.operation.Operation;
+import fleetwood.bounder.instance.ProcessEngineImpl;
 
 
-/** The operation is always added at the end of the queue. 
- * 
+/**
  * @author Walter White
  */
-public class OperationAddUpdate extends OperationUpdate {
+public interface Operation {
 
-  public OperationAddUpdate(Operation operation) {
-    super(operation);
-  }
+  boolean isAsync();
+
+  void execute(ProcessEngineImpl processEngine);
+
 }

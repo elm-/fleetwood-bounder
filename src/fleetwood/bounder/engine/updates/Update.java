@@ -17,14 +17,10 @@
 
 package fleetwood.bounder.engine.updates;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
 public interface Update {
 }

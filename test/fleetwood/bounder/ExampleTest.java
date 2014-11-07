@@ -40,11 +40,6 @@ public class ExampleTest {
   
   @Test
   public void testOne() {
-    // TODO
-    // ensure jackson lib is not required if json is not used
-    // static process variables
-    // transient execution context variables
-
     ProcessDefinition processDefinition = new ProcessDefinition();
     
     Go go = new Go();
@@ -73,15 +68,35 @@ public class ExampleTest {
     assertNotNull(processInstanceId);
     assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
     
-    assertEquals(1, go.activityInstances.size());
-    assertTrue(go.activityInstances.get(0).isEnded());
-    assertEquals(1, wait.activityInstances.size());
-    ActivityInstance waitActivityInstance = wait.activityInstances.get(0);
+    ActivityInstance goInstance = processInstance.getActivityInstances().get(0);
+    assertTrue(goInstance.isEnded());
+    assertEquals(go, goInstance.getActivityDefinition());
+    
+    ActivityInstance waitActivityInstance = processInstance.getActivityInstances().get(1);
     assertFalse(waitActivityInstance.isEnded());
+    assertEquals(wait, waitActivityInstance.getActivityDefinition());
     
     SignalRequest signalRequest = new SignalRequest();
     signalRequest.setActivityInstanceId(waitActivityInstance.getId());
     // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
     processInstance = processEngine.signal(signalRequest);
+    assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
+
+    goInstance = processInstance.getActivityInstances().get(0);
+    assertTrue(goInstance.isEnded());
+    assertEquals(go, goInstance.getActivityDefinition());
+    
+    waitActivityInstance = processInstance.getActivityInstances().get(1);
+    assertTrue(waitActivityInstance.isEnded());
+    assertEquals(wait, waitActivityInstance.getActivityDefinition());
+    
+    ActivityInstance wait2ActivityInstance = processInstance.getActivityInstances().get(2);
+    assertFalse(wait2ActivityInstance.isEnded());
+    assertEquals(wait2, wait2ActivityInstance.getActivityDefinition());
+
+    signalRequest = new SignalRequest();
+    signalRequest.setActivityInstanceId(wait2ActivityInstance.getId());
+    processInstance = processEngine.signal(signalRequest);
+    assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
   }
 }

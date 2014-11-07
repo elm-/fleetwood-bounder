@@ -31,7 +31,7 @@ import fleetwood.bounder.engine.updates.ActivityInstanceCreateUpdate;
 /**
  * @author Walter White
  */
-public class CompositeInstance {
+public abstract class CompositeInstance {
 
   protected Long start;
   protected Long end;
@@ -59,10 +59,25 @@ public class CompositeInstance {
       activityInstances = new ArrayList<>();
     }
     activityInstances.add(activityInstance);
-    ProcessEngineImpl.log.debug("Created "+activityInstance);
+    processEngine.log.debug("Created "+activityInstance);
     processInstance.addUpdate(new ActivityInstanceCreateUpdate(activityInstance));
     return activityInstance;
   }
+  
+  public abstract void end();
+
+  public boolean hasUnfinishedActivityInstances() {
+    if (activityInstances==null) {
+      return false;
+    }
+    for (ActivityInstance activityInstance: activityInstances) {
+      if (!activityInstance.isEnded()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   
   /** searches for the variable starting in this activity and upwards over the parent hierarchy */ 
   public void setVariableByName(String variableName, Object value) {
@@ -145,9 +160,7 @@ public class CompositeInstance {
     return end;
   }
   
-  public void setEnd(Long end) {
-    this.end = end;
-  }
+  public abstract void setEnd(Long end); 
   
   public boolean isEnded() {
     return end!=null;

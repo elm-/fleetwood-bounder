@@ -15,40 +15,40 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.instance;
+package fleetwood.bounder.engine.operation;
 
-import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.engine.updates.ActivityInstanceStartUpdate;
-import fleetwood.bounder.util.Time;
+import fleetwood.bounder.definition.CompositeDefinition;
+import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.instance.ProcessEngineImpl;
 
 
 /**
  * @author Walter White
  */
-public class ActivityInstanceStartOperation implements Operation {
-  
-  protected ActivityInstance activityInstance;
+public class NotifyParentActivityInstanceEnded implements Operation {
 
-  public ActivityInstanceStartOperation(ActivityInstance activityInstance) {
+  protected ActivityInstance activityInstance;
+  
+  public NotifyParentActivityInstanceEnded(ActivityInstance activityInstance) {
     this.activityInstance = activityInstance;
   }
 
-  public void execute() {
-    ProcessInstance processInstance = activityInstance.processInstance;
-    activityInstance.setStart(Time.now());
-    processInstance.addUpdate(new ActivityInstanceStartUpdate(activityInstance));
-    ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
-    ProcessEngineImpl.log.debug("Starting "+activityInstance);
-    activityDefinition.start(activityInstance);
+  @Override
+  public void execute(ProcessEngineImpl processEngine) {
+    CompositeDefinition parentDefinition = activityInstance.getParent().getCompositeDefinition();
+    parentDefinition.notifyActivityInstanceEnded(activityInstance);
   }
-
   
   public ActivityInstance getActivityInstance() {
     return activityInstance;
   }
 
-  
   public void setActivityInstance(ActivityInstance activityInstance) {
     this.activityInstance = activityInstance;
+  }
+
+  @Override
+  public boolean isAsync() {
+    return false;
   }
 }

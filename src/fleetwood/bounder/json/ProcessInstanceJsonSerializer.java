@@ -23,18 +23,19 @@ import java.util.Queue;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
+import fleetwood.bounder.engine.operation.ActivityInstanceStartOperation;
+import fleetwood.bounder.engine.operation.Operation;
 import fleetwood.bounder.engine.updates.ActivityInstanceCreateUpdate;
 import fleetwood.bounder.engine.updates.ActivityInstanceEndUpdate;
 import fleetwood.bounder.engine.updates.ActivityInstanceStartUpdate;
 import fleetwood.bounder.engine.updates.LockReleaseUpdate;
 import fleetwood.bounder.engine.updates.OperationAddUpdate;
 import fleetwood.bounder.engine.updates.OperationRemoveUpdate;
+import fleetwood.bounder.engine.updates.ProcessInstanceEndUpdate;
 import fleetwood.bounder.engine.updates.Update;
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.ActivityInstanceStartOperation;
 import fleetwood.bounder.instance.Lock;
 import fleetwood.bounder.instance.LockAcquireUpdate;
-import fleetwood.bounder.instance.Operation;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceVisitor;
 import fleetwood.bounder.util.Exceptions;
@@ -59,6 +60,7 @@ public class ProcessInstanceJsonSerializer extends ProcessInstanceVisitor {
   public static final String UPDATETYPE_LOCK_ACQUIRE = "lockAcquire";
   public static final String UPDATETYPE_OPERATION_ADD = "operationAdd";
   public static final String UPDATETYPE_OPERATION_REMOVE = "operationRemove";
+  public static final String UPDATETYPE_PROCESS_INSTANCE_END = "processInstanceEnd";
   
   JsonGenerator jsonGenerator;
   
@@ -72,6 +74,8 @@ public class ProcessInstanceJsonSerializer extends ProcessInstanceVisitor {
     try {
       jsonGenerator.writeStartObject();
       writeIdField(ID, processInstance.getId()); 
+      writeTimeField(jsonGenerator, "start", processInstance.getStart()); 
+      writeTimeField(jsonGenerator, "end", processInstance.getEnd()); 
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -121,6 +125,8 @@ public class ProcessInstanceJsonSerializer extends ProcessInstanceVisitor {
         visitUpdateOperationAdd((OperationAddUpdate)update);
       } else if (OperationRemoveUpdate.class.isAssignableFrom(update.getClass())) {
         visitUpdateOperationRemove((OperationRemoveUpdate)update);
+      } else if (ProcessInstanceEndUpdate.class.isAssignableFrom(update.getClass())) {
+        visitUpdateProcessInstanceEnd((ProcessInstanceEndUpdate)update);
       } else {
         throw new RuntimeException("Unsupported update type: "+update.getClass().getName());
       }
@@ -156,6 +162,10 @@ public class ProcessInstanceJsonSerializer extends ProcessInstanceVisitor {
   protected void visitUpdateActivityInstanceEnd(ActivityInstanceEndUpdate update) throws IOException {
     jsonGenerator.writeStringField(UPDATETYPE, UPDATETYPE_ACTIVITY_INSTANCE_END);
     writeIdField("activityInstanceId", update.getActivityInstance().getId());
+  }
+
+  protected void visitUpdateProcessInstanceEnd(ProcessInstanceEndUpdate update) throws IOException {
+    jsonGenerator.writeStringField(UPDATETYPE, UPDATETYPE_PROCESS_INSTANCE_END);
   }
 
   protected void visitUpdateActivityInstanceCreate(ActivityInstanceCreateUpdate update) throws IOException {

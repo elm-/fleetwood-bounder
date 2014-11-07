@@ -15,13 +15,18 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.instance;
+package fleetwood.bounder.engine.updates;
+
+import fleetwood.bounder.engine.operation.Operation;
 
 
 /**
  * @author Walter White
  */
-public interface Operation {
-  
-  void execute();
+public class AsyncOperationAddUpdate extends OperationUpdate {
+
+  public AsyncOperationAddUpdate(Operation operation) {
+    super(operation);
+  }
+
 }

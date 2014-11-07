@@ -25,14 +25,14 @@ import fleetwood.bounder.instance.ProcessEngineImpl;
 /**
  * @author Walter White
  */
-public class IdVisitor extends ProcessDefinitionVisitor {
+public class EnsureIdVisitor extends ProcessDefinitionVisitor {
 
   protected ProcessEngineImpl processEngine;
   protected int activityDefinitionsCreated = -1;   // first id used is 0
   protected int transitionDefinitionsCreated = -1; // first id used is 0
   protected int variableDefinitionsCreated = -1;   // first id used is 0
   
-  public IdVisitor(ProcessEngineImpl processEngine) {
+  public EnsureIdVisitor(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 

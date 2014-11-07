@@ -17,8 +17,10 @@
 
 package fleetwood.bounder.definition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.CompositeInstance;
 import fleetwood.bounder.util.Exceptions;
 
 
@@ -28,6 +30,7 @@ import fleetwood.bounder.util.Exceptions;
 public abstract class ActivityDefinition extends CompositeDefinition {
 
   protected ActivityDefinitionId id;
+  protected List<TransitionDefinition> outgoingTransitionDefinitions;
 
   public ActivityDefinitionId getId() {
     return id;
@@ -45,25 +48,42 @@ public abstract class ActivityDefinition extends CompositeDefinition {
     return parent.getPath().addActivityInstanceId(id);
   }
 
-  public String toString() {
-    return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
+  public boolean isAsync(ActivityInstance activityInstance) {
+    return false;
   }
 
   public void signal(ActivityInstance activityInstance) {
     activityInstance.onwards();
   }
 
-//  public void executionPathEnded(ActivityInstance nestedActivityInstance) {
-//    CompositeInstance compositeInstance = nestedActivityInstance.getParent();
-//    if (!compositeInstance.hasUnfinishedActivityInstances()) {
-//      compositeInstance.end();
-//    }
-//  }
-
   @Override
   public void visit(ProcessDefinitionVisitor visitor) {
     visitor.startActivityDefinition(this);
     super.visit(visitor);
     visitor.endActivityDefinition(this);
+  }
+
+  public void addOutgoingTransition(TransitionDefinition transitionDefinition) {
+    if (outgoingTransitionDefinitions==null) {
+      outgoingTransitionDefinitions = new ArrayList<TransitionDefinition>();
+    }
+    outgoingTransitionDefinitions.add(transitionDefinition);
+  }
+
+  public boolean hasOutgoingTransitionDefinitions() {
+    return outgoingTransitionDefinitions!=null && !outgoingTransitionDefinitions.isEmpty();
+  }
+
+  
+  public List<TransitionDefinition> getOutgoingTransitionDefinitions() {
+    return outgoingTransitionDefinitions;
+  }
+
+  public void setOutgoingTransitionDefinitions(List<TransitionDefinition> outgoingTransitionDefinitions) {
+    this.outgoingTransitionDefinitions = outgoingTransitionDefinitions;
+  }
+
+  public String toString() {
+    return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
 }

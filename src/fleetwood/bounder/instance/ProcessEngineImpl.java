@@ -17,9 +17,9 @@
 
 package fleetwood.bounder.instance;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 import fleetwood.bounder.CreateProcessInstanceRequest;
 import fleetwood.bounder.ProcessDefinitionQueryBuilder;
@@ -27,10 +27,9 @@ import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.ProcessInstanceQueryBuilder;
 import fleetwood.bounder.SignalRequest;
 import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.definition.IdVisitor;
+import fleetwood.bounder.definition.EnsureIdVisitor;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
-import fleetwood.bounder.engine.updates.Update;
 import fleetwood.bounder.json.JacksonJson;
 import fleetwood.bounder.json.Json;
 import fleetwood.bounder.util.Exceptions;
@@ -42,11 +41,12 @@ import fleetwood.bounder.util.Time;
  */
 public abstract class ProcessEngineImpl implements ProcessEngine {
 
-  public static Log log = new Log();
-
   protected String id;
   protected ProcessEngine processEngine;
   protected Json json;
+  protected Executor executor;
+  
+  public Log log = new Log();
 
   public ProcessEngineImpl() {
     this.json = new JacksonJson();
@@ -61,7 +61,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   
   /** ensures that every element in this process definition has an id */
   protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
-    processDefinition.visit(new IdVisitor(this));
+    processDefinition.visit(new EnsureIdVisitor(this));
   }
   
   protected abstract void storeProcessDefinition(ProcessDefinition processDefinition);
@@ -75,7 +75,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ProcessInstanceId processInstanceId = createProcessInstanceRequest.getProcessInstanceId();
     ProcessInstance processInstance = createProcessInstance(processDefinition, processInstanceId);
     // TODO set variables and context
-    ProcessEngineImpl.log.debug("Starting "+processInstance);
+    log.debug("Starting "+processInstance);
     processInstance.setStart(Time.now());
     List<ActivityDefinition> startActivityDefinitions = processDefinition.getStartActivityDefinitions();
     if (startActivityDefinitions!=null) {
@@ -123,7 +123,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public ProcessInstance signal(SignalRequest signalRequest) {
     ActivityInstanceId activityInstanceId = signalRequest.getActivityInstanceId();
     ProcessInstance processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
-    ProcessEngineImpl.log.debug("Locked process instance "+json.toJsonStringPretty(processInstance));
+    log.debug("Locked process instance "+json.toJsonStringPretty(processInstance));
     // TODO set variables and context
     ActivityInstance activityInstance = processInstance.findActivityInstance(activityInstanceId);
     ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
@@ -146,7 +146,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public abstract void saveProcessInstance(ProcessInstance processInstance);
 
-  public abstract void flushUpdates(ProcessInstance processInstance);
+  public abstract void flush(ProcessInstance processInstance);
 
   public abstract void flushAndUnlock(ProcessInstance processInstance);
 
@@ -172,5 +172,13 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   
   public void setId(String id) {
     this.id = id;
+  }
+  
+  public Executor getExecutor() {
+    return executor;
+  }
+  
+  public void setExecutor(Executor executor) {
+    this.executor = executor;
   }
 }

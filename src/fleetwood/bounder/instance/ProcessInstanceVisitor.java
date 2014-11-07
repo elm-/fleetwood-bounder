@@ -20,8 +20,7 @@ package fleetwood.bounder.instance;
 import java.util.List;
 import java.util.Queue;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-
+import fleetwood.bounder.engine.operation.Operation;
 import fleetwood.bounder.engine.updates.Update;
 
 

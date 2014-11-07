@@ -20,13 +20,22 @@ package fleetwood.bounder.engine.updates;
 import fleetwood.bounder.engine.operation.Operation;
 
 
-/** The operation is always added at the end of the queue. 
- * 
+/**
  * @author Walter White
  */
-public class OperationAddUpdate extends OperationUpdate {
+public class OperationUpdate implements Update {
 
-  public OperationAddUpdate(Operation operation) {
-    super(operation);
+  protected Operation operation;
+
+  public OperationUpdate(Operation operation) {
+    this.operation = operation;
+  }
+  
+  public Operation getOperation() {
+    return operation;
+  }
+  
+  public void setOperation(Operation operation) {
+    this.operation = operation;
   }
 }

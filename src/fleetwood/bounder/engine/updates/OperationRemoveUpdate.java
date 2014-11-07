@@ -17,19 +17,18 @@
 
 package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.instance.Operation;
+import fleetwood.bounder.engine.operation.Operation;
+
 
 
 /** always the first operation in the queue is removed.
  * 
  * @author Walter White
  */
-public class OperationRemoveUpdate implements Update {
+public class OperationRemoveUpdate extends OperationUpdate {
 
-  Operation operation;
-  
   public OperationRemoveUpdate(Operation operation) {
-    this.operation = operation;
+    super(operation);
   }
 
 }

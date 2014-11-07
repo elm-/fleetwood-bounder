@@ -61,19 +61,19 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   @Override
   public void saveProcessInstance(ProcessInstance processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
-    ProcessEngineImpl.log.debug("Saving: "+json.toJsonStringPretty(processInstance));
+    log.debug("Saving: "+json.toJsonStringPretty(processInstance));
   }
 
   @Override
-  public void flushUpdates(ProcessInstance processInstance) {
+  public void flush(ProcessInstance processInstance) {
     List<Update> updates = processInstance.getUpdates();
     if (updates!=null) {
-      ProcessEngineImpl.log.debug("Flushing updates: ");
+      log.debug("Flushing updates: ");
       for (Update update : updates) {
-        ProcessEngineImpl.log.debug("  " + json.toJsonString(update));
+        log.debug("  " + json.toJsonString(update));
       }
     } else {
-      ProcessEngineImpl.log.debug("No updates to flush");
+      log.debug("No updates to flush");
     }
   }
 
@@ -81,8 +81,8 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   public void flushAndUnlock(ProcessInstance processInstance) {
     lockedProcessInstances.remove(processInstance.getId());
     processInstance.removeLock();
-    flushUpdates(processInstance);
-    ProcessEngineImpl.log.debug("Process instance should be: "+json.toJsonStringPretty(processInstance));
+    flush(processInstance);
+    log.debug("Process instance should be: "+json.toJsonStringPretty(processInstance));
   }
 
   @Override

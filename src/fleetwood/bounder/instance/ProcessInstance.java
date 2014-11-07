@@ -21,14 +21,18 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.concurrent.Executor;
 
 import fleetwood.bounder.definition.ProcessDefinition;
+import fleetwood.bounder.engine.operation.ActivityInstanceStartOperation;
+import fleetwood.bounder.engine.operation.Operation;
+import fleetwood.bounder.engine.updates.AsyncOperationAddUpdate;
 import fleetwood.bounder.engine.updates.LockReleaseUpdate;
 import fleetwood.bounder.engine.updates.OperationAddUpdate;
 import fleetwood.bounder.engine.updates.OperationRemoveUpdate;
+import fleetwood.bounder.engine.updates.ProcessInstanceEndUpdate;
 import fleetwood.bounder.engine.updates.Update;
+import fleetwood.bounder.util.Time;
 
 
 
@@ -41,10 +45,10 @@ public class ProcessInstance extends CompositeInstance {
   protected ProcessInstanceId id;
   protected Lock lock;
 
-  @JsonIgnore
   protected List<Update> updates;
-  @JsonIgnore
   protected Queue<Operation> operations;
+  protected Queue<Operation> asyncOperations;
+  protected boolean isAsync;
   
   public ProcessInstance(ProcessEngineImpl processEngine, ProcessDefinition processDefinition, ProcessInstanceId processInstanceId) {
     setId(processInstanceId);
@@ -52,7 +56,8 @@ public class ProcessInstance extends CompositeInstance {
     setProcessDefinition(processDefinition);
     setCompositeDefinition(processDefinition);
     setProcessInstance(this);
-    ProcessEngineImpl.log.debug("Created "+processInstance);
+    setStart(Time.now());
+    processEngine.log.debug("Created "+processInstance);
   }
 
   // Adds the activity instances to the list of activity instances to start.
@@ -62,11 +67,19 @@ public class ProcessInstance extends CompositeInstance {
   }
   
   void addOperation(Operation operation) {
-    if (operations==null) {
-      operations = new LinkedList<>();
+    if (isAsync || !operation.isAsync()) {
+      if (operations==null) {
+        operations = new LinkedList<>();
+      }
+      operations.add(operation);
+      addUpdate(new OperationAddUpdate(operation));
+    } else {
+      if (asyncOperations==null) {
+        asyncOperations = new LinkedList<>();
+      }
+      asyncOperations.add(operation);
+      addUpdate(new AsyncOperationAddUpdate(operation));
     }
-    operations.add(operation);
-    addUpdate(new OperationAddUpdate(operation));
   }
   
   Operation removeOperation() {
@@ -77,7 +90,7 @@ public class ProcessInstance extends CompositeInstance {
     return operation; 
   }
 
-  void addUpdate(Update update) {
+  public void addUpdate(Update update) {
     // we only must capture the updates after the first save
     // so the collection is initialized after the save by the process store
     if (updates!=null) {
@@ -92,21 +105,51 @@ public class ProcessInstance extends CompositeInstance {
       // in the first iteration, the updates will be empty and hence no updates will be flushed
       flushUpdates(); // first time round, the 
       Operation operation = removeOperation();
-      operation.execute();
+      operation.execute(processEngine);
     }
-    processEngine.flushAndUnlock(processInstance);
+    if (hasAsyncWork()) {
+      processEngine.flush(processInstance);
+      Executor executor = processEngine.getExecutor();
+      executor.execute(new Runnable(){
+        public void run() {
+          operations = asyncOperations;
+          asyncOperations = null;
+          executeOperations();
+        }});
+    } else {
+      processEngine.flushAndUnlock(processInstance);
+    }
   }
   
+  boolean hasAsyncWork() {
+    return asyncOperations!=null && !asyncOperations.isEmpty();
+  }
+
   boolean hasOperations() {
     return operations!=null && !operations.isEmpty();
   }
 
   void flushUpdates() {
     if (!updates.isEmpty()) {
-      processEngine.flushUpdates(this);
+      processEngine.flush(this);
       updates = new ArrayList<>();
     }
   }
+  
+  public void end() {
+    if (this.end==null) {
+      if (hasUnfinishedActivityInstances()) {
+        throw new RuntimeException("Can't end this process instance. There are unfinished activity instances. "+processEngine.getJson().toJsonStringPretty(processInstance));
+      }
+      setEnd(Time.now());
+      
+      // Each operation is an extra flush.  So this if limits the number of flushes
+      // if (thereProcessInstanceCouldTriggerNotifications) {
+      //   processInstance.addOperation(new NotifyProcessInstanceEnded(this));
+      // }
+    }
+  }
+
 
   public ProcessInstanceId getId() {
     return id;
@@ -154,26 +197,29 @@ public class ProcessInstance extends CompositeInstance {
     return operations;
   }
 
-  
   public void setOperations(Queue<Operation> operations) {
     this.operations = operations;
   }
   
-//  @JsonAnyGetter
-//  public Map<String , Object> getOtherFields() {
-//    if ( (operations==null || operations.isEmpty())
-//         && (async==null || operations.isEmpty())
-//       ) {
-//      return null;
-//    }
-//    Map<String, Object> otherFields = new HashMap<>();
-//    if (operations!=null && !operations.isEmpty()) {
-//      List<ActivityInstanceId> toStartIds = new ArrayList<>();
-//      for (ActivityInstance activityInstance: operations) {
-//        toStartIds.add(activityInstance.id);
-//      }
-//      otherFields.put("toStart", toStartIds);
-//    }
-//    return otherFields;
-//  }
+  public boolean isAsync() {
+    return isAsync;
+  }
+
+  public void setAsync(boolean isAsync) {
+    this.isAsync = isAsync;
+  }
+
+  public Queue<Operation> getAsyncOperations() {
+    return asyncOperations;
+  }
+
+  public void setAsyncOperations(Queue<Operation> asyncOperations) {
+    this.asyncOperations = asyncOperations;
+  }
+  
+  public void setEnd(Long end) {
+    this.end = end;
+    addUpdate(new ProcessInstanceEndUpdate(this));
+  }
+
 }

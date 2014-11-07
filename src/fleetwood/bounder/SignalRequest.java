@@ -17,7 +17,6 @@
 
 package fleetwood.bounder;
 
-import fleetwood.bounder.definition.VariableDefinitionId;
 import fleetwood.bounder.instance.ActivityInstanceId;
 
 

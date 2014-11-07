@@ -15,31 +15,38 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.engine.operation;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
-import fleetwood.bounder.util.Id;
+import fleetwood.bounder.instance.ProcessEngineImpl;
+import fleetwood.bounder.instance.ProcessInstance;
 
 
 /**
  * @author Walter White
  */
-public class IdSerializer extends JsonSerializer<Id> {
+public class NotifyProcessInstanceEnded implements Operation {
 
-  @Override
-  public void serialize(Id value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-    String idString = value!=null ? value.getIdString() : null;
-    if (idString!=null) {
-      jgen.writeString(idString);
-    } else {
-      jgen.writeNull();
-    }
+  protected ProcessInstance processInstance;
+
+  public NotifyProcessInstanceEnded(ProcessInstance processInstance) {
+    this.processInstance = processInstance;
   }
 
+  @Override
+  public void execute(ProcessEngineImpl processEngine) {
+    // TODO notify other process instances waiting for this one to complete.
+  }
+
+  public ProcessInstance getProcessInstance() {
+    return processInstance;
+  }
+
+  public void setProcessInstance(ProcessInstance processInstance) {
+    this.processInstance = processInstance;
+  }
+  
+  @Override
+  public boolean isAsync() {
+    return false;
+  }
 }

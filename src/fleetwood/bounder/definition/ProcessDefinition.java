@@ -17,9 +17,6 @@
 
 package fleetwood.bounder.definition;
 
-import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.instance.ProcessInstance;
-import fleetwood.bounder.instance.ProcessInstanceId;
 import fleetwood.bounder.util.Exceptions;
 
 

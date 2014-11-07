@@ -17,16 +17,25 @@
 
 package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.engine.operation.Operation;
+import fleetwood.bounder.instance.ProcessInstance;
 
 
-/** The operation is always added at the end of the queue. 
- * 
+/**
  * @author Walter White
  */
-public class OperationAddUpdate extends OperationUpdate {
+public class ProcessInstanceEndUpdate implements Update {
 
-  public OperationAddUpdate(Operation operation) {
-    super(operation);
+  protected ProcessInstance processInstance;
+  
+  public ProcessInstanceEndUpdate(ProcessInstance processInstance) {
+    this.processInstance = processInstance;
+  }
+
+  public ProcessInstance getProcessInstance() {
+    return processInstance;
+  }
+  
+  public void setProcessInstance(ProcessInstance processInstance) {
+    this.processInstance = processInstance;
   }
 }
