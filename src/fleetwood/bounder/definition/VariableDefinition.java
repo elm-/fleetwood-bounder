@@ -17,7 +17,7 @@
 
 package fleetwood.bounder.definition;
 
-import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.util.Identifyable;
 
 

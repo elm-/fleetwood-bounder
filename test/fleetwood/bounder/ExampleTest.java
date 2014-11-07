@@ -31,16 +31,20 @@ import fleetwood.bounder.engine.memory.MemoryProcessEngine;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
-import fleetwood.bounder.json.JacksonJson;
 import fleetwood.bounder.types.TextVariableDefinition;
 
 /**
  * @author Walter White
  */
-public class ProcessExecutionTest {
+public class ExampleTest {
   
   @Test
   public void testOne() {
+    // TODO
+    // ensure jackson lib is not required if json is not used
+    // static process variables
+    // transient execution context variables
+
     ProcessDefinition processDefinition = new ProcessDefinition();
     
     Go go = new Go();
@@ -56,13 +60,13 @@ public class ProcessExecutionTest {
     variableDefinition.setName("v");
     processDefinition.addVariableDefinition(variableDefinition);
 
-    MemoryProcessEngine processEngine = new MemoryProcessEngine();
-    processEngine.setJson(new JacksonJson());
+    ProcessEngine processEngine = new MemoryProcessEngine();
     processDefinition = processEngine.saveProcessDefinition(processDefinition);
     ProcessDefinitionId processDefinitionId = processDefinition.getId();
     
     CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
     createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
+    // createProcessInstanceRequest.putVariable(variableDefinition.getId(), "hello world");
     ProcessInstance processInstance = processEngine.createProcessInstance(createProcessInstanceRequest);
     
     ProcessInstanceId processInstanceId = processInstance.getId();
@@ -77,10 +81,7 @@ public class ProcessExecutionTest {
     
     SignalRequest signalRequest = new SignalRequest();
     signalRequest.setActivityInstanceId(waitActivityInstance.getId());
-    // signalRequest.putVariable(variableDefinition.getId(), "hello world");
+    // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
     processInstance = processEngine.signal(signalRequest);
   }
-  
-  // static process variables
-  // transient execution context variables
 }

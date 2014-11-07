@@ -15,18 +15,20 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.instance;
+package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.util.Id;
+import fleetwood.bounder.instance.Operation;
 
 
-/**
+/** The operation is always added at the end of the queue. 
+ * 
  * @author Walter White
  */
-public class ProcessInstanceId extends Id {
+public class OperationAddUpdate implements Update {
 
-  public ProcessInstanceId(Object state) {
-    super(state);
+  protected Operation operation;
+  
+  public OperationAddUpdate(Operation operation) {
+    this.operation = operation;
   }
-
 }

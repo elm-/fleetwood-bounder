@@ -15,17 +15,13 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine.updates;
-
-import fleetwood.bounder.engine.ProcessEngineImpl;
+package fleetwood.bounder.instance;
 
 
 /**
  * @author Walter White
  */
-public class LockRemove extends Update {
-
-  public LockRemove(ProcessEngineImpl processEngine) {
-    super(processEngine);
-  }
+public interface Operation {
+  
+  void execute();
 }

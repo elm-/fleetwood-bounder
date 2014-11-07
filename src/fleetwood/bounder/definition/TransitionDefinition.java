@@ -19,7 +19,7 @@ package fleetwood.bounder.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.util.Identifyable;
 
 
@@ -99,5 +99,4 @@ public class TransitionDefinition implements Identifyable {
   public void setProcessDefinition(ProcessDefinition processDefinition) {
     this.processDefinition = processDefinition;
   }
-  
 }

@@ -15,18 +15,16 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.instance;
+package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.util.Id;
-
+import fleetwood.bounder.instance.ActivityInstance;
 
 /**
- * @author Walter White
+ * @author tbaeyens
  */
-public class ProcessInstanceId extends Id {
+public class ActivityInstanceStartUpdate extends ActivityInstanceUpdate {
 
-  public ProcessInstanceId(Object state) {
-    super(state);
+  public ActivityInstanceStartUpdate(ActivityInstance activityInstance) {
+    super(activityInstance);
   }
-
 }

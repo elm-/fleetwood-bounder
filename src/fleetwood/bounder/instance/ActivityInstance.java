@@ -21,9 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
-import fleetwood.bounder.engine.ProcessEngineImpl;
-import fleetwood.bounder.engine.updates.ActivityInstanceEnd;
-import fleetwood.bounder.engine.updates.StateUpdate;
+import fleetwood.bounder.engine.updates.ActivityInstanceEndUpdate;
 import fleetwood.bounder.util.Time;
 
 
@@ -33,7 +31,6 @@ import fleetwood.bounder.util.Time;
 public class ActivityInstance extends CompositeInstance {
   
   protected ActivityInstanceId id;
-  protected ActivityInstanceState state;
   
   @JsonIgnore
   protected ActivityDefinition activityDefinition;
@@ -50,12 +47,31 @@ public class ActivityInstance extends CompositeInstance {
 
   public void end() {
     if (this.end==null) {
+      if (hasUnfinishedActivityInstances()) {
+        throw new RuntimeException("Can't end this activity instance. There are unfinished activity instances. "+processEngine.getJson().toJsonStringPretty(processInstance));
+      }
       this.end = Time.now();
-      processInstance.addUpdate(new ActivityInstanceEnd(processEngine, this));
+      processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
     }
   }
 
+  public boolean hasUnfinishedActivityInstances() {
+    if (activityInstances==null) {
+      return false;
+    }
+    for (ActivityInstance activityInstance: activityInstances) {
+      if (!activityInstance.isEnded()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Starts the to (destination) activity in the current (parent) scope.
+   * This methods will also end the current activity instance.
+   * This method can be called multiple times in one start() */
   public void takeTransition(TransitionDefinition transitionDefinition) {
+    end();
     ActivityDefinition to = transitionDefinition.getTo();
     if (to!=null) {
       ActivityInstance activityInstance = getParent().createActivityInstance(to);
@@ -88,32 +104,6 @@ public class ActivityInstance extends CompositeInstance {
   }
   
   public String toString() {
-    return "["+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+"|"+activityDefinition.getClass().getSimpleName()+"]";
-  }
-
-  
-  public ActivityInstanceState getState() {
-    return state;
-  }
-  
-  public void setState(ActivityInstanceState state) {
-    this.state = state;
-    processInstance.addUpdate(new StateUpdate(processEngine, this, state));
-  }
-
-  public void setStateCreated() {
-    setState(ActivityInstanceState.CREATED);
-  }
-
-  public void setStateAsync() {
-    setState(ActivityInstanceState.ASYNC);
-  }
-
-  public void setStateStarting() {
-    setState(ActivityInstanceState.STARTING);
-  }
-
-  public void setStateWaiting() {
-    setState(ActivityInstanceState.WAITING);
+    return "ai("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+"|"+activityDefinition.getClass().getSimpleName()+")";
   }
 }

@@ -40,5 +40,7 @@ public interface ProcessEngine {
   List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
 
   ProcessInstance createProcessInstance(CreateProcessInstanceRequest createProcessInstanceRequest);
+
+  ProcessInstance signal(SignalRequest signalRequest);
   
 }

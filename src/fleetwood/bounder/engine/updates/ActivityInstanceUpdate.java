@@ -17,27 +17,25 @@
 
 package fleetwood.bounder.engine.updates;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import fleetwood.bounder.engine.ProcessEngineImpl;
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.ActivityInstanceId;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
-public class ActivityInstanceStart extends Update {
+public class ActivityInstanceUpdate implements Update {
 
-  @JsonIgnore
   protected ActivityInstance activityInstance;
-  protected ActivityInstanceId activityInstanceId;
-  protected Long start;
   
-  public ActivityInstanceStart(ProcessEngineImpl processEngine, ActivityInstance activityInstance) {
-    super(processEngine);
+  public ActivityInstanceUpdate(ActivityInstance activityInstance) {
     this.activityInstance = activityInstance;
-    this.activityInstanceId = activityInstance.getId();
-    this.start = activityInstance.getStart();
+  }
+  
+  public ActivityInstance getActivityInstance() {
+    return activityInstance;
+  }
+
+  public void setActivityInstance(ActivityInstance activityInstance) {
+    this.activityInstance = activityInstance;
   }
 }

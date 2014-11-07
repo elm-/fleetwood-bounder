@@ -25,28 +25,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fleetwood.bounder.CreateProcessInstanceRequest;
 import fleetwood.bounder.ProcessDefinitionQuery;
 import fleetwood.bounder.ProcessInstanceQuery;
-import fleetwood.bounder.SignalRequest;
-import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
-import fleetwood.bounder.definition.TransitionDefinition;
-import fleetwood.bounder.definition.TransitionDefinitionId;
-import fleetwood.bounder.definition.VariableDefinition;
-import fleetwood.bounder.definition.VariableDefinitionId;
-import fleetwood.bounder.engine.ProcessEngineImpl;
 import fleetwood.bounder.engine.updates.Update;
-import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
+import fleetwood.bounder.instance.Lock;
+import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
 import fleetwood.bounder.util.Lists;
+import fleetwood.bounder.util.Time;
 
 
-/**
+/** In memory (synchronized map based) process engine.
+ * 
+ * This implementation leverages the default process engine implementation use of UUIDs so it can be clustered.
+ * 
  * @author Walter White
  */
 public class MemoryProcessEngine extends ProcessEngineImpl {
@@ -54,59 +50,12 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   protected Map<ProcessDefinitionId, ProcessDefinition> processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinition>());
   protected Map<ProcessInstanceId, ProcessInstance> processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstance>());
   protected Set<ProcessInstanceId> lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
-  protected long processDefinitionsCreated = 0;
-  protected long activityDefinitionsCreated = 0;
-  protected long transitionDefinitionsCreated = 0;
-  protected long variableDefinitionsCreated = 0;
-  protected long processInstancesCreated = 0;
-  protected long activityInstancesCreated = 0;
-  
+
   @Override
   protected void storeProcessDefinition(ProcessDefinition processDefinition) {
     processDefinitions.put(processDefinition.getId(), processDefinition);
-    processDefinition.setProcessStore(this);
+    processDefinition.setProcessEngine(this);
     processDefinition.prepare();
-  }
-
-  @Override
-  protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
-    super.identifyProcessDefinition(processDefinition);
-  }
-
-  @Override
-  public synchronized ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition) {
-    activityDefinitionsCreated++;
-    return new ActivityDefinitionId("ad"+activityDefinitionsCreated);
-  }
-
-  @Override
-  public synchronized VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition) {
-    variableDefinitionsCreated++;
-    return new VariableDefinitionId("vd"+variableDefinitionsCreated);
-  }
-
-  @Override
-  public synchronized TransitionDefinitionId createTransitionDefinitionId(TransitionDefinition transitionDefinition) {
-    transitionDefinitionsCreated++;
-    return new TransitionDefinitionId("td"+transitionDefinitionsCreated);
-  }
-
-  @Override
-  public synchronized ProcessDefinitionId createProcessDefinitionId(ProcessDefinition processDefinition) {
-    processDefinitionsCreated++;
-    return new ProcessDefinitionId("pd"+processDefinitionsCreated);
-  }
-
-  @Override
-  public synchronized ProcessInstanceId createProcessInstanceId(ProcessInstance processInstance) {
-    processInstancesCreated++;
-    return new ProcessInstanceId("pi"+processInstancesCreated);
-  }
-
-  @Override
-  public synchronized ActivityInstanceId createActivityInstanceId(ActivityInstance activityInstance) {
-    activityInstancesCreated++;
-    return new ActivityInstanceId("ai"+activityInstancesCreated);
   }
 
   @Override
@@ -117,14 +66,19 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
 
   @Override
   public void flushUpdates(ProcessInstance processInstance) {
-    ProcessEngineImpl.log.debug("Flushing updates: ");
-    for (Update update: processInstance.getUpdates()) {
-      ProcessEngineImpl.log.debug("  "+update);
+    List<Update> updates = processInstance.getUpdates();
+    if (updates!=null) {
+      ProcessEngineImpl.log.debug("Flushing updates: ");
+      for (Update update : updates) {
+        ProcessEngineImpl.log.debug("  " + json.toJsonString(update));
+      }
+    } else {
+      ProcessEngineImpl.log.debug("No updates to flush");
     }
   }
 
   @Override
-  public void flushUpdatesAndUnlock(ProcessInstance processInstance) {
+  public void flushAndUnlock(ProcessInstance processInstance) {
     lockedProcessInstances.remove(processInstance.getId());
     processInstance.removeLock();
     flushUpdates(processInstance);
@@ -160,14 +114,26 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     }
     return result;
   }
-  
+
   public ProcessInstance lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
-    ProcessInstance processInstance = super.lockProcessInstanceByActivityInstanceId(activityInstanceId);
+    ProcessInstanceQuery processInstanceQuery = buildProcessInstanceQuery()
+      .activityInstanceId(activityInstanceId)
+      .getQuery();
+    processInstanceQuery.setMaxResults(1);
+    List<ProcessInstance> processInstances = findProcessInstances(processInstanceQuery);
+    ProcessInstance processInstance = (!processInstances.isEmpty() ? processInstances.get(0) : null);
+    if (processInstance==null) { 
+      throw new RuntimeException("Process instance "+id+" doesn't exist");
+    }
     ProcessInstanceId id = processInstance.getId();
     if (lockedProcessInstances.contains(id)) {
-      throw new RuntimeException("ProcessInstance "+id+" is already locked");
+      throw new RuntimeException("Process instance "+id+" is already locked");
     }
     lockedProcessInstances.add(id);
+    Lock lock = new Lock();
+    lock.setTime(Time.now());
+    lock.setOwner(getId());
+    processInstance.setLock(lock);
     return processInstance;
   }
 }

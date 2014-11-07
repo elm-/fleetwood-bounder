@@ -17,28 +17,19 @@
 
 package fleetwood.bounder.engine.updates;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import fleetwood.bounder.engine.ProcessEngineImpl;
-import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.ActivityInstanceId;
+import fleetwood.bounder.instance.Operation;
 
 
-/**
+/** always the first operation in the queue is removed.
+ * 
  * @author Walter White
  */
-public class ActivityInstanceEnd extends Update {
+public class OperationRemoveUpdate implements Update {
 
-  @JsonIgnore
-  protected ActivityInstance activityInstance;
-  protected ActivityInstanceId activityInstanceId;
-  protected Long end;
+  Operation operation;
   
-  public ActivityInstanceEnd(ProcessEngineImpl processEngine, ActivityInstance activityInstance) {
-    super(processEngine);
-    this.activityInstance = activityInstance;
-    this.activityInstanceId = activityInstance.getId();
-    this.end = activityInstance.getEnd();
+  public OperationRemoveUpdate(Operation operation) {
+    this.operation = operation;
   }
 
 }

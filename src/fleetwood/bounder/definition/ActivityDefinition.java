@@ -18,6 +18,8 @@
 package fleetwood.bounder.definition;
 
 import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.instance.CompositeInstance;
+import fleetwood.bounder.util.Exceptions;
 
 
 /**
@@ -37,10 +39,31 @@ public abstract class ActivityDefinition extends CompositeDefinition {
   
   public abstract void start(ActivityInstance activityInstance);
 
+  public ProcessDefinitionPath getPath() {
+    Exceptions.checkNotNull(id, "Activity definition doesn't have an id yet");
+    Exceptions.checkNotNull(parent, "Activity definition doesn't have an parent yet");
+    return parent.getPath().addActivityInstanceId(id);
+  }
+
   public String toString() {
     return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
 
   public void signal(ActivityInstance activityInstance) {
+    activityInstance.onwards();
+  }
+
+//  public void executionPathEnded(ActivityInstance nestedActivityInstance) {
+//    CompositeInstance compositeInstance = nestedActivityInstance.getParent();
+//    if (!compositeInstance.hasUnfinishedActivityInstances()) {
+//      compositeInstance.end();
+//    }
+//  }
+
+  @Override
+  public void visit(ProcessDefinitionVisitor visitor) {
+    visitor.startActivityDefinition(this);
+    super.visit(visitor);
+    visitor.endActivityDefinition(this);
   }
 }

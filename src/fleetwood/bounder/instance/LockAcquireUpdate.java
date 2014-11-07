@@ -15,24 +15,27 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine.updates;
+package fleetwood.bounder.instance;
 
-import fleetwood.bounder.engine.ProcessEngineImpl;
-import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.ActivityInstanceState;
+import fleetwood.bounder.engine.updates.Update;
 
 
 /**
  * @author Walter White
  */
-public class StateUpdate extends Update {
+public class LockAcquireUpdate implements Update {
 
-  protected ActivityInstance activityInstance;
-  protected ActivityInstanceState state;
+  protected Lock lock;
+  
+  public LockAcquireUpdate(Lock lock) {
+    this.lock = lock;
+  }
 
-  public StateUpdate(ProcessEngineImpl processEngine, ActivityInstance activityInstance, ActivityInstanceState state) {
-    super(processEngine);
-    this.activityInstance = activityInstance;
-    this.state = state;
+  public Lock getLock() {
+    return lock;
+  }
+  
+  public void setLock(Lock lock) {
+    this.lock = lock;
   }
 }

@@ -24,7 +24,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.util.Exceptions;
 import fleetwood.bounder.util.Identifyable;
 
@@ -54,7 +54,7 @@ public abstract class CompositeDefinition implements Identifyable {
       startActivityDefinitions = new ArrayList<>(activityDefinitions);
       activityDefinitionsMap = new HashMap<>();
       for (ActivityDefinition activityDefinition: activityDefinitions) {
-        activityDefinition.setProcessStore(processEngine);
+        activityDefinition.setProcessEngine(processEngine);
         activityDefinition.setProcessDefinition(processDefinition);
         activityDefinition.setParent(this);
         Exceptions.checkNotNull(activityDefinition.getId(), "activityDefinition.id");
@@ -89,20 +89,14 @@ public abstract class CompositeDefinition implements Identifyable {
     }
   } 
   
+  public abstract ProcessDefinitionPath getPath();
+
   public List<ActivityDefinition> getStartActivityDefinitions() {
     return startActivityDefinitions;
   }
   
   public void setStartActivityDefinitions(List<ActivityDefinition> startActivityDefinitions) {
     this.startActivityDefinitions = startActivityDefinitions;
-  }
-
-  public ProcessEngineImpl getProcessStore() {
-    return processEngine;
-  }
-
-  public void setProcessStore(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
   }
 
   public ProcessDefinition getProcessDefinition() {
@@ -117,6 +111,14 @@ public abstract class CompositeDefinition implements Identifyable {
     return activityDefinitionsMap!=null ? activityDefinitionsMap.get(id) : null;
   }
   
+  public ProcessEngineImpl getProcessEngine() {
+    return processEngine;
+  }
+  
+  public void setProcessEngine(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
+  }
+
   public CompositeDefinition getParent() {
     return parent;
   }
@@ -241,5 +243,9 @@ public abstract class CompositeDefinition implements Identifyable {
   
   public void setTransitionDefinitionsMap(Map<TransitionDefinitionId, TransitionDefinition> transitionDefinitionsMap) {
     this.transitionDefinitionsMap = transitionDefinitionsMap;
+  }
+
+  public void visit(ProcessDefinitionVisitor visitor) {
+    visitor.visitCompositeDefinition(this);
   }
 }

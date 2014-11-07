@@ -18,22 +18,17 @@
 package fleetwood.bounder.instance;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.engine.ProcessEngineImpl;
-import fleetwood.bounder.engine.updates.ActivityInstanceStart;
-import fleetwood.bounder.engine.updates.LockRemove;
-import fleetwood.bounder.engine.updates.ToStartAdd;
+import fleetwood.bounder.definition.ProcessDefinition;
+import fleetwood.bounder.engine.updates.LockReleaseUpdate;
+import fleetwood.bounder.engine.updates.OperationAddUpdate;
+import fleetwood.bounder.engine.updates.OperationRemoveUpdate;
 import fleetwood.bounder.engine.updates.Update;
-import fleetwood.bounder.util.Time;
 
 
 
@@ -49,19 +44,40 @@ public class ProcessInstance extends CompositeInstance {
   @JsonIgnore
   protected List<Update> updates;
   @JsonIgnore
-  protected Queue<ActivityInstance> toStart;
-  @JsonIgnore
-  protected Queue<ActivityInstance> async;
+  protected Queue<Operation> operations;
   
-  public void startActivityInstance(ActivityInstance activityInstance) {
-    if (toStart==null) {
-      toStart = new LinkedList<>();
-    }
-    toStart.add(activityInstance);
-    addUpdate(new ToStartAdd(processEngine, activityInstance));
+  public ProcessInstance(ProcessEngineImpl processEngine, ProcessDefinition processDefinition, ProcessInstanceId processInstanceId) {
+    setId(processInstanceId);
+    setProcessEngine(processEngine);
+    setProcessDefinition(processDefinition);
+    setCompositeDefinition(processDefinition);
+    setProcessInstance(this);
+    ProcessEngineImpl.log.debug("Created "+processInstance);
+  }
+
+  // Adds the activity instances to the list of activity instances to start.
+  // This method assumes that executeOperations was already called or will be called. 
+  void startActivityInstance(ActivityInstance activityInstance) {
+    addOperation(new ActivityInstanceStartOperation(activityInstance));
   }
   
-  protected void addUpdate(Update update) {
+  void addOperation(Operation operation) {
+    if (operations==null) {
+      operations = new LinkedList<>();
+    }
+    operations.add(operation);
+    addUpdate(new OperationAddUpdate(operation));
+  }
+  
+  Operation removeOperation() {
+    Operation operation = operations!=null ? operations.poll() : null;
+    if (operation!=null) {
+      addUpdate(new OperationRemoveUpdate(operation));
+    }
+    return operation; 
+  }
+
+  void addUpdate(Update update) {
     // we only must capture the updates after the first save
     // so the collection is initialized after the save by the process store
     if (updates!=null) {
@@ -69,20 +85,27 @@ public class ProcessInstance extends CompositeInstance {
     }
   }
 
-  public void executeOperations() {
-    if (toStart!=null) {
-      while (!toStart.isEmpty()) {
-        processEngine.flushUpdates(this);
-        updates = new ArrayList<>();
-        ActivityInstance activityInstance = toStart.remove();
-        activityInstance.setStart(Time.now());
-        addUpdate(new ActivityInstanceStart(processEngine, activityInstance));
-        ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
-        ProcessEngineImpl.log.debug("Starting "+activityInstance);
-        activityDefinition.start(activityInstance);
-      }
+  // to be called from the process engine
+  void executeOperations() {
+    updates = new ArrayList<Update>();
+    while (hasOperations()) {
+      // in the first iteration, the updates will be empty and hence no updates will be flushed
+      flushUpdates(); // first time round, the 
+      Operation operation = removeOperation();
+      operation.execute();
     }
-    processEngine.flushUpdatesAndUnlock(processInstance);
+    processEngine.flushAndUnlock(processInstance);
+  }
+  
+  boolean hasOperations() {
+    return operations!=null && !operations.isEmpty();
+  }
+
+  void flushUpdates() {
+    if (!updates.isEmpty()) {
+      processEngine.flushUpdates(this);
+      updates = new ArrayList<>();
+    }
   }
 
   public ProcessInstanceId getId() {
@@ -94,7 +117,7 @@ public class ProcessInstance extends CompositeInstance {
   }
 
   public String toString() {
-    return "("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+")";
+    return "pi("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+")";
   }
 
   public String toJson() {
@@ -119,26 +142,38 @@ public class ProcessInstance extends CompositeInstance {
 
   public void setLock(Lock lock) {
     if (this.lock!=null && lock==null) {
-      addUpdate(new LockRemove(processEngine));
+      addUpdate(new LockReleaseUpdate());
+    }
+    if (this.lock==null && lock!=null) {
+      addUpdate(new LockAcquireUpdate(lock));
     }
     this.lock = lock;
   }
   
-  @JsonAnyGetter
-  public Map<String , Object> getOtherFields() {
-    if ( (toStart==null || toStart.isEmpty())
-         && (async==null || toStart.isEmpty())
-       ) {
-      return null;
-    }
-    Map<String, Object> otherFields = new HashMap<>();
-    if (toStart!=null && !toStart.isEmpty()) {
-      List<ActivityInstanceId> toStartIds = new ArrayList<>();
-      for (ActivityInstance activityInstance: toStart) {
-        toStartIds.add(activityInstance.id);
-      }
-      otherFields.put("toStart", toStartIds);
-    }
-    return otherFields;
+  public Queue<Operation> getOperations() {
+    return operations;
   }
+
+  
+  public void setOperations(Queue<Operation> operations) {
+    this.operations = operations;
+  }
+  
+//  @JsonAnyGetter
+//  public Map<String , Object> getOtherFields() {
+//    if ( (operations==null || operations.isEmpty())
+//         && (async==null || operations.isEmpty())
+//       ) {
+//      return null;
+//    }
+//    Map<String, Object> otherFields = new HashMap<>();
+//    if (operations!=null && !operations.isEmpty()) {
+//      List<ActivityInstanceId> toStartIds = new ArrayList<>();
+//      for (ActivityInstance activityInstance: operations) {
+//        toStartIds.add(activityInstance.id);
+//      }
+//      otherFields.put("toStart", toStartIds);
+//    }
+//    return otherFields;
+//  }
 }

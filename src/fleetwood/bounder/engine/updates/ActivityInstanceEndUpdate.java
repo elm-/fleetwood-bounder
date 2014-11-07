@@ -17,19 +17,15 @@
 
 package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.engine.ProcessEngineImpl;
 import fleetwood.bounder.instance.ActivityInstance;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
-public class ActivityInstanceCreate extends Update {
+public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
 
-  protected ActivityInstance activityInstance;
-  
-  public ActivityInstanceCreate(ProcessEngineImpl processEngine, ActivityInstance activityInstance) {
-    super(processEngine);
-    this.activityInstance = activityInstance;
+  public ActivityInstanceEndUpdate(ActivityInstance activityInstance) {
+    super(activityInstance);
   }
 }

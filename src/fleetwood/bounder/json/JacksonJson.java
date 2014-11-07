@@ -17,19 +17,16 @@
 
 package fleetwood.bounder.json;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collection;
 
-import fleetwood.bounder.definition.ActivityDefinitionId;
-import fleetwood.bounder.definition.ProcessDefinitionId;
-import fleetwood.bounder.definition.TransitionDefinitionId;
-import fleetwood.bounder.definition.VariableDefinitionId;
-import fleetwood.bounder.instance.ActivityInstanceId;
-import fleetwood.bounder.instance.ProcessInstanceId;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+
+import fleetwood.bounder.engine.updates.Update;
+import fleetwood.bounder.instance.ProcessInstance;
 
 
 /**
@@ -37,30 +34,34 @@ import fleetwood.bounder.instance.ProcessInstanceId;
  */
 public class JacksonJson implements Json {
   
-  protected ObjectMapper objectMapper;
+  JsonFactory jsonFactory = new JsonFactory();
   
   public JacksonJson() {
-    this.objectMapper = new ObjectMapper()
-      .setSerializationInclusion(Include.NON_NULL)
-      .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
-      .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-    
-    SimpleModule module = new SimpleModule();
-    IdSerializer idSerializer = new IdSerializer();
-    module.addSerializer(ProcessInstanceId.class, idSerializer);
-    module.addSerializer(ActivityInstanceId.class, idSerializer);
-    module.addSerializer(ProcessDefinitionId.class, idSerializer);
-    module.addSerializer(ActivityDefinitionId.class, idSerializer);
-    module.addSerializer(VariableDefinitionId.class, idSerializer);
-    module.addSerializer(TransitionDefinitionId.class, idSerializer);
-    this.objectMapper.registerModule(module);
+//    this.objectMapper = new ObjectMapper()
+//      .setSerializationInclusion(Include.NON_NULL)
+//      .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
+//      .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+//    
+//    SimpleModule module = new SimpleModule();
+//    IdSerializer idSerializer = new IdSerializer();
+//    module.addSerializer(ProcessInstanceId.class, idSerializer);
+//    module.addSerializer(ActivityInstanceId.class, idSerializer);
+//    module.addSerializer(ProcessDefinitionId.class, idSerializer);
+//    module.addSerializer(ActivityDefinitionId.class, idSerializer);
+//    module.addSerializer(VariableDefinitionId.class, idSerializer);
+//    module.addSerializer(TransitionDefinitionId.class, idSerializer);
+//    this.objectMapper.registerModule(module);
   }
   
   @Override
   public String toJsonString(Object object) {
     try {
-      return objectMapper.writeValueAsString(object);
-    } catch (JsonProcessingException e) {
+      StringWriter stringWriter = new StringWriter();
+      JsonGenerator jsonGenerator = jsonFactory.createGenerator(stringWriter);
+      toJson(object, jsonGenerator);
+      jsonGenerator.flush();
+      return stringWriter.toString();
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -68,12 +69,43 @@ public class JacksonJson implements Json {
   @Override
   public String toJsonStringPretty(Object object) {
     try {
-      return objectMapper
-              .writerWithDefaultPrettyPrinter()
-              .writeValueAsString(object);
-    } catch (JsonProcessingException e) {
+      StringWriter stringWriter = new StringWriter();
+      JsonGenerator jsonGenerator = jsonFactory.createGenerator(stringWriter);
+      jsonGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
+      toJson(object, jsonGenerator);
+      jsonGenerator.flush();
+      return stringWriter.toString();
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
+  public void toJson(Object object, JsonGenerator jsonGenerator) {
+    try {
+      if (object==null) {
+        jsonGenerator.writeNull();
+        return;
+      }
+      if (object instanceof ProcessInstance) {
+        ProcessInstance processInstance = (ProcessInstance)object;
+        ProcessInstanceJsonSerializer visitor = new ProcessInstanceJsonSerializer(jsonGenerator);
+        visitor.visitProcessInstance(processInstance);
+      } else if (object instanceof Collection) {
+        jsonGenerator.writeStartArray();
+        Collection<?> collection = (Collection<?>) object;
+        for (Object element: collection) {
+          toJson(element, jsonGenerator);
+        }
+        jsonGenerator.writeEndArray();
+      } else if (object instanceof Update) {
+        Update update = (Update)object;
+        ProcessInstanceJsonSerializer visitor = new ProcessInstanceJsonSerializer(jsonGenerator);
+        visitor.visitUpdate(update);
+      } else {
+        throw new RuntimeException("No json support for serializing "+object.getClass().getSimpleName()+"'s");
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

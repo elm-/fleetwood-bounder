@@ -15,18 +15,13 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.instance;
+package fleetwood.bounder.engine.updates;
+
 
 
 /**
  * @author Walter White
  */
-public enum ActivityInstanceState {
+public class LockReleaseUpdate implements Update {
 
-  CREATED,
-  STARTING,
-  WAITING,
-  ENDED,
-  ASYNC,
-  JOIN, 
 }

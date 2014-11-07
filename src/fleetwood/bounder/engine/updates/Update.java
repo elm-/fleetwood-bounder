@@ -17,28 +17,14 @@
 
 package fleetwood.bounder.engine.updates;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
-import fleetwood.bounder.engine.ProcessEngineImpl;
 
 
 /**
  * @author Walter White
  */
 @JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
-public abstract class Update {
-
-  @JsonIgnore
-  ProcessEngineImpl processEngine;
-  
-  public Update(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
-  }
-
-  public String toString() {
-    return processEngine.getJson().toJsonString(this);
-  }
+public interface Update {
 }

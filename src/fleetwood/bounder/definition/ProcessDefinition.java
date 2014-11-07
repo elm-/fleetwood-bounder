@@ -17,9 +17,10 @@
 
 package fleetwood.bounder.definition;
 
-import fleetwood.bounder.engine.ProcessEngineImpl;
+import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.util.Exceptions;
 
 
 /**
@@ -32,6 +33,11 @@ public class ProcessDefinition extends CompositeDefinition {
   public void prepare() {
     this.processDefinition = this;
     super.prepare();
+  }
+  
+  public ProcessDefinitionPath getPath() {
+    Exceptions.checkNotNull(id, "Process definition doesn't have an id yet");
+    return new ProcessDefinitionPath(id);
   }
 
   public ProcessDefinitionId getId() {
@@ -46,17 +52,12 @@ public class ProcessDefinition extends CompositeDefinition {
     return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
   }
 
-  public ProcessInstance createProcessInstance(ProcessInstanceId processInstanceId) {
-    ProcessInstance processInstance = new ProcessInstance();
-    processInstance.setProcessStore(processEngine);
-    processInstance.setProcessDefinition(this);
-    processInstance.setCompositeDefinition(this);
-    processInstance.setProcessInstance(processInstance);
-    if (processInstanceId == null) {
-      processInstanceId = processEngine.createProcessInstanceId(processInstance);
+  public void visit(ProcessDefinitionVisitor visitor) {
+    if (visitor==null) {
+      return;
     }
-    processInstance.setId(processInstanceId);
-    ProcessEngineImpl.log.debug("Created "+processInstance);
-    return processInstance;
+    visitor.startProcessDefinition(this);
+    super.visit(visitor);
+    visitor.endProcessDefinition(this);
   }
 }
