@@ -15,38 +15,43 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine.operation;
+package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.instance.ProcessInstance;
+import fleetwood.bounder.instance.Lock;
+import fleetwood.bounder.json.Serializer;
 
 
 /**
  * @author Walter White
  */
-public class NotifyProcessInstanceEnded implements Operation {
+public class LockAcquireUpdate implements Update {
 
-  protected ProcessInstance processInstance;
+  public static final String FIELD_LOCK = "lock";
+  protected Lock lock;
+  
+  public static final String TYPE_LOCK_ACQUIRE_UPDATE = "lockAcquire";
 
-  public NotifyProcessInstanceEnded(ProcessInstance processInstance) {
-    this.processInstance = processInstance;
+  public LockAcquireUpdate(Lock lock) {
+    this.lock = lock;
   }
 
-  @Override
-  public void execute(ProcessEngineImpl processEngine) {
-    // TODO notify other process instances waiting for this one to complete.
-  }
-
-  public ProcessInstance getProcessInstance() {
-    return processInstance;
-  }
-
-  public void setProcessInstance(ProcessInstance processInstance) {
-    this.processInstance = processInstance;
+  public Lock getLock() {
+    return lock;
   }
   
+  public void setLock(Lock lock) {
+    this.lock = lock;
+  }
+
   @Override
-  public boolean isAsync() {
-    return false;
+  public String getSerializableType() {
+    return TYPE_LOCK_ACQUIRE_UPDATE;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeObject(FIELD_LOCK, lock);
+    serializer.objectEnd(this);
   }
 }

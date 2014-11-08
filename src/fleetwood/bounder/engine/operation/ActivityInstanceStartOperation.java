@@ -17,12 +17,14 @@
 
 package fleetwood.bounder.engine.operation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.engine.updates.ActivityInstanceStartUpdate;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.instance.ProcessInstance;
-import fleetwood.bounder.util.Time;
+import fleetwood.bounder.json.Serializer;
 
 
 /**
@@ -30,6 +32,11 @@ import fleetwood.bounder.util.Time;
  */
 public class ActivityInstanceStartOperation implements Operation {
   
+  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+
+  public static final String TYPE_ACTIVITY_INSTANCE_START_OPERATION = "aiStart";
+
+  public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
   protected ActivityInstance activityInstance;
 
   public ActivityInstanceStartOperation(ActivityInstance activityInstance) {
@@ -42,11 +49,8 @@ public class ActivityInstanceStartOperation implements Operation {
   }
 
   public void execute(ProcessEngineImpl processEngine) {
-    ProcessInstance processInstance = activityInstance.getProcessInstance();
-    activityInstance.setStart(Time.now());
-    processInstance.addUpdate(new ActivityInstanceStartUpdate(activityInstance));
     ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
-    processEngine.log.debug("Starting "+activityInstance);
+    log.debug("Starting "+activityInstance);
     activityDefinition.start(activityInstance);
   }
   
@@ -56,5 +60,17 @@ public class ActivityInstanceStartOperation implements Operation {
   
   public void setActivityInstance(ActivityInstance activityInstance) {
     this.activityInstance = activityInstance;
+  }
+
+  @Override
+  public String getSerializableType() {
+    return TYPE_ACTIVITY_INSTANCE_START_OPERATION;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
+    serializer.objectEnd(this);
   }
 }

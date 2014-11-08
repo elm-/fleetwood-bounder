@@ -51,7 +51,7 @@ public class EnsureIdVisitor extends ProcessDefinitionVisitor {
   }
 
   @Override
-  public void variableDefinition(VariableDefinition variableDefinition) {
+  public void variableDefinition(VariableDefinition<?> variableDefinition) {
     if (variableDefinition.getId()==null) {
       variableDefinition.setId(createVariableDefinitionId(variableDefinition));
     }
@@ -73,7 +73,7 @@ public class EnsureIdVisitor extends ProcessDefinitionVisitor {
     return new ActivityDefinitionId(activityDefinitionsCreated);
   }
 
-  public VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition) {
+  public VariableDefinitionId createVariableDefinitionId(VariableDefinition<?> variableDefinition) {
     variableDefinitionsCreated++;
     return new VariableDefinitionId(variableDefinitionsCreated);
   }

@@ -17,11 +17,26 @@
 
 package fleetwood.bounder.engine.updates;
 
+import fleetwood.bounder.json.Serializer;
+
 
 
 /**
  * @author Walter White
  */
 public class LockReleaseUpdate implements Update {
+
+  protected static final String TYPE_LOCK_RELEASE_UPDATE = "lockRelease";
+
+  @Override
+  public String getSerializableType() {
+    return TYPE_LOCK_RELEASE_UPDATE;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.objectEnd(this);
+  }
 
 }

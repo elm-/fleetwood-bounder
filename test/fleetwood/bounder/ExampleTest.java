@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.definition.VariableDefinition;
@@ -43,12 +44,12 @@ public class ExampleTest {
     ProcessEngine processEngine = new MemoryProcessEngine();
 
     // prepare the ingredients
-    VariableDefinition t = new VariableDefinition()
+    VariableDefinition<String> t = new VariableDefinition<String>()
       .type(Type.TEXT);
     
-    Go go = new Go();
-    Wait wait = new Wait();
-    Wait wait2 = new Wait();
+    ActivityDefinition go = new Go();
+    ActivityDefinition wait = new Wait();
+    ActivityDefinition wait2 = new Wait();
     
     // cook a process batch
     ProcessDefinition processDefinition = new ProcessDefinition()

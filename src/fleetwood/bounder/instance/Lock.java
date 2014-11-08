@@ -17,13 +17,19 @@
 
 package fleetwood.bounder.instance;
 
+import fleetwood.bounder.json.Serializable;
+import fleetwood.bounder.json.Serializer;
+
 
 /**
  * @author Walter White
  */
-public class Lock {
+public class Lock implements Serializable {
 
+  public static String FIELD_TIME = "time";
   protected Long time;
+
+  public static String FIELD_OWNER = "owner";
   protected String owner;
   
   public Long getTime() {
@@ -40,5 +46,13 @@ public class Lock {
   
   public void setOwner(String owner) {
     this.owner = owner;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeTimeField(FIELD_TIME, time);
+    serializer.writeStringField(FIELD_OWNER, owner);
+    serializer.objectEnd(this);
   }
 }

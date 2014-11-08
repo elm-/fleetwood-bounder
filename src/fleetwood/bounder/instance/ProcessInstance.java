@@ -23,15 +23,20 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.engine.operation.ActivityInstanceStartOperation;
 import fleetwood.bounder.engine.operation.Operation;
 import fleetwood.bounder.engine.updates.AsyncOperationAddUpdate;
+import fleetwood.bounder.engine.updates.LockAcquireUpdate;
 import fleetwood.bounder.engine.updates.LockReleaseUpdate;
 import fleetwood.bounder.engine.updates.OperationAddUpdate;
 import fleetwood.bounder.engine.updates.OperationRemoveUpdate;
-import fleetwood.bounder.engine.updates.ProcessInstanceEndUpdate;
 import fleetwood.bounder.engine.updates.Update;
+import fleetwood.bounder.json.Serializer;
 import fleetwood.bounder.util.Time;
 
 
@@ -42,12 +47,21 @@ import fleetwood.bounder.util.Time;
  */
 public class ProcessInstance extends CompositeInstance {
   
+  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+
+  public static final String FIELD_ID = "id";
   protected ProcessInstanceId id;
+
+  public static final String FIELD_LOCK = "lock";
   protected Lock lock;
 
-  protected List<Update> updates;
+  public static final String FIELD_OPERATIONS = "operations";
   protected Queue<Operation> operations;
+
+  public static final String FIELD_ASYNC_OPERATIONS = "asyncOperations";
   protected Queue<Operation> asyncOperations;
+  
+  protected List<Update> updates;
   protected boolean isAsync;
   
   public ProcessInstance(ProcessEngineImpl processEngine, ProcessDefinition processDefinition, ProcessInstanceId processInstanceId) {
@@ -57,7 +71,8 @@ public class ProcessInstance extends CompositeInstance {
     setCompositeDefinition(processDefinition);
     setProcessInstance(this);
     setStart(Time.now());
-    processEngine.log.debug("Created "+processInstance);
+    initializeVariableInstances();
+    log.debug("Created "+processInstance);
   }
 
   // Adds the activity instances to the list of activity instances to start.
@@ -139,7 +154,7 @@ public class ProcessInstance extends CompositeInstance {
   public void end() {
     if (this.end==null) {
       if (hasUnfinishedActivityInstances()) {
-        throw new RuntimeException("Can't end this process instance. There are unfinished activity instances. "+processEngine.getJson().toJsonStringPretty(processInstance));
+        throw new RuntimeException("Can't end this process instance. There are unfinished activity instances: "+this);
       }
       setEnd(Time.now());
       
@@ -163,10 +178,6 @@ public class ProcessInstance extends CompositeInstance {
     return "pi("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+")";
   }
 
-  public String toJson() {
-    return processEngine.getJson().toJsonString(this);
-  }
-  
   public List<Update> getUpdates() {
     return updates;
   }
@@ -222,7 +233,17 @@ public class ProcessInstance extends CompositeInstance {
     if (start!=null && end!=null) {
       this.duration = end-start;
     }
-    addUpdate(new ProcessInstanceEndUpdate(this));
+    // when we add call activity we will need:
+    // addUpdate(new ProcessInstanceEndUpdate(this));
   }
 
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeIdField(FIELD_ID, id);
+    serializeCompositeInstanceFields(serializer);
+    serializer.writeObjectArray(FIELD_OPERATIONS, operations);
+    serializer.writeObjectArray(FIELD_ASYNC_OPERATIONS, asyncOperations);
+    serializer.writeObject(FIELD_LOCK, lock);
+    serializer.objectEnd(this);
+  }
 }

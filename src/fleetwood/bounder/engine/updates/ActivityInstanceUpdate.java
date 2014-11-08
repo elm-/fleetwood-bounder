@@ -23,8 +23,9 @@ import fleetwood.bounder.instance.ActivityInstance;
 /**
  * @author Walter White
  */
-public class ActivityInstanceUpdate implements Update {
+public abstract class ActivityInstanceUpdate implements Update {
 
+  public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
   protected ActivityInstance activityInstance;
   
   public ActivityInstanceUpdate(ActivityInstance activityInstance) {

@@ -17,12 +17,15 @@
 
 package fleetwood.bounder.instance;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
-import fleetwood.bounder.engine.operation.NotifyParentActivityInstanceEnded;
+import fleetwood.bounder.engine.operation.NotifyActivityInstanceEndToParent;
 import fleetwood.bounder.engine.updates.ActivityInstanceEndUpdate;
+import fleetwood.bounder.json.Serializer;
 import fleetwood.bounder.util.Time;
 
 
@@ -31,13 +34,16 @@ import fleetwood.bounder.util.Time;
  */
 public class ActivityInstance extends CompositeInstance {
   
+  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+
+  public static final String FIELD_ID = "id";
   protected ActivityInstanceId id;
   
-  @JsonIgnore
+  public static final String FIELD_ACTIVITY_DEFINITION_ID = "activityDefinitionId";
   protected ActivityDefinition activityDefinition;
   
   public void onwards() {
-    processEngine.log.debug("Onwards "+this);
+    log.debug("Onwards "+this);
     // Default BPMN logic when an activity ends
     // If there are outgoing transitions (in bpmn they are called sequence flows)
     if (activityDefinition.hasOutgoingTransitionDefinitions()) {
@@ -61,11 +67,11 @@ public class ActivityInstance extends CompositeInstance {
   void end(boolean notifyParent) {
     if (this.end==null) {
       if (hasUnfinishedActivityInstances()) {
-        throw new RuntimeException("Can't end this activity instance. There are unfinished activity instances. "+processEngine.getJson().toJsonStringPretty(processInstance));
+        throw new RuntimeException("Can't end this activity instance. There are unfinished activity instances: " +this);
       }
       setEnd(Time.now());
       if (notifyParent) {
-        processInstance.addOperation(new NotifyParentActivityInstanceEnded(this));
+        processInstance.addOperation(new NotifyActivityInstanceEndToParent(this));
       }
     }
   }
@@ -77,6 +83,7 @@ public class ActivityInstance extends CompositeInstance {
     ActivityDefinition to = transitionDefinition.getTo();
     end(to!=null);
     if (to!=null) {
+      log.debug("Taking transition to "+to);
       ActivityInstance activityInstance = getParent().createActivityInstance(to);
       processInstance.startActivityInstance(activityInstance);
     }
@@ -107,7 +114,9 @@ public class ActivityInstance extends CompositeInstance {
   }
   
   public String toString() {
-    return "ai("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+"|"+activityDefinition.getClass().getSimpleName()+")";
+    String activityDefinitionIdString = activityDefinition.getId().toString();    
+    String activityDefinitionType = activityDefinition.getClass().getSimpleName();
+    return "ai("+activityDefinitionIdString+"|"+activityDefinitionType+"|"+id+")";
   }
   
   public void setEnd(Long end) {
@@ -116,5 +125,14 @@ public class ActivityInstance extends CompositeInstance {
       this.duration = end-start;
     }
     processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeIdField(FIELD_ID, id);
+    serializer.writeIdField(FIELD_ACTIVITY_DEFINITION_ID, activityDefinition!=null ? activityDefinition.getId() : null);
+    serializeCompositeInstanceFields(serializer);
+    serializer.objectEnd(this);
   }
 }

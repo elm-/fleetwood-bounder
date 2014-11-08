@@ -28,22 +28,22 @@ import fleetwood.bounder.instance.VariableInstance;
  */
 public class VariableRequest {
 
-  protected Map<VariableDefinitionId,VariableInstance> variablesInstances;
-  protected Map<String,VariableInstance> persistentContext;
+  protected Map<VariableDefinitionId,VariableInstance<?>> variablesInstances;
+  protected Map<String,VariableInstance<?>> persistentContext;
   
-  public Map<VariableDefinitionId, VariableInstance> getVariablesInstances() {
+  public Map<VariableDefinitionId, VariableInstance<?>> getVariablesInstances() {
     return variablesInstances;
   }
   
-  public void setVariablesInstances(Map<VariableDefinitionId, VariableInstance> variables) {
+  public void setVariablesInstances(Map<VariableDefinitionId, VariableInstance<?>> variables) {
     this.variablesInstances = variables;
   }
   
-  public Map<String, VariableInstance> getPersistentContext() {
+  public Map<String, VariableInstance<?>> getPersistentContext() {
     return persistentContext;
   }
 
-  public void setPersistentContext(Map<String, VariableInstance> persistentContext) {
+  public void setPersistentContext(Map<String, VariableInstance<?>> persistentContext) {
     this.persistentContext = persistentContext;
   }
 }

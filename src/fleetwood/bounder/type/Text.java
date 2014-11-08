@@ -17,11 +17,24 @@
 
 package fleetwood.bounder.type;
 
+import fleetwood.bounder.json.Serializer;
+
 
 /**
  * @author Walter White
  */
 public class Text extends Type<String> {
+
+  @Override
+  public String getSerializableType() {
+    return "text";
+  }
+
+  @Override
+  public void serializeValueField(Serializer serializer, String fieldName, String value) {
+    serializer.writeStringField(fieldName, value);
+  }
+
 
   
 }

@@ -20,16 +20,20 @@ package fleetwood.bounder.engine.operation;
 import fleetwood.bounder.definition.CompositeDefinition;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
+import fleetwood.bounder.json.Serializer;
 
 
 /**
  * @author Walter White
  */
-public class NotifyParentActivityInstanceEnded implements Operation {
+public class NotifyActivityInstanceEndToParent implements Operation {
 
+  public static final String TYPE_NOTIFY_ACTIVITY_INSTANCE_END_TO_PARENT = "notifyEndToParent";
+
+  public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
   protected ActivityInstance activityInstance;
   
-  public NotifyParentActivityInstanceEnded(ActivityInstance activityInstance) {
+  public NotifyActivityInstanceEndToParent(ActivityInstance activityInstance) {
     this.activityInstance = activityInstance;
   }
 
@@ -50,5 +54,17 @@ public class NotifyParentActivityInstanceEnded implements Operation {
   @Override
   public boolean isAsync() {
     return false;
+  }
+
+  @Override
+  public String getSerializableType() {
+    return TYPE_NOTIFY_ACTIVITY_INSTANCE_END_TO_PARENT;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
+    serializer.objectEnd(this);
   }
 }

@@ -15,27 +15,14 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.instance;
-
-import fleetwood.bounder.engine.updates.Update;
+package fleetwood.bounder.json;
 
 
 /**
  * @author Walter White
  */
-public class LockAcquireUpdate implements Update {
-
-  protected Lock lock;
+public interface Serializable {
   
-  public LockAcquireUpdate(Lock lock) {
-    this.lock = lock;
-  }
+  void serialize(Serializer serializer);
 
-  public Lock getLock() {
-    return lock;
-  }
-  
-  public void setLock(Lock lock) {
-    this.lock = lock;
-  }
 }

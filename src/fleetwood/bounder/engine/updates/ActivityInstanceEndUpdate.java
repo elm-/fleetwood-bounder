@@ -18,6 +18,7 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.json.Serializer;
 
 
 /**
@@ -25,7 +26,21 @@ import fleetwood.bounder.instance.ActivityInstance;
  */
 public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
 
+  public static final String TYPE_ACTIVITY_INSTANCE_END_UPDATE = "aiEnd";
+
   public ActivityInstanceEndUpdate(ActivityInstance activityInstance) {
     super(activityInstance);
+  }
+
+  @Override
+  public String getSerializableType() {
+    return TYPE_ACTIVITY_INSTANCE_END_UPDATE;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance.getId());
+    serializer.objectEnd(this);
   }
 }

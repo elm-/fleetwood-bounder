@@ -42,8 +42,21 @@ public abstract class ActivityDefinition extends CompositeDefinition {
     return this;
   }
 
-  public ActivityDefinition variable(VariableDefinition variableDefinition) {
+  public ActivityDefinition variable(VariableDefinition<?> variableDefinition) {
     addVariableDefinition(variableDefinition);
+    return this;
+  }
+  
+  public <T> ActivityDefinition parameterObject(ParameterDefinition<T> parameterDefinition, Object object) {
+    super.parameterObject(parameterDefinition, object);
+    return this;
+  }
+  public <T> ActivityDefinition parameterExpression(ParameterDefinition<T> parameterDefinition, String expression) {
+    super.parameterExpression(parameterDefinition, expression);
+    return this;
+  }
+  public <T> ActivityDefinition parameterVariable(ParameterDefinition<T> parameterDefinition, VariableDefinition<T> variableDefinition) {
+    super.parameterVariable(parameterDefinition, variableDefinition);
     return this;
   }
   

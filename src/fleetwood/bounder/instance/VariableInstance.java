@@ -17,10 +17,83 @@
 
 package fleetwood.bounder.instance;
 
+import fleetwood.bounder.definition.VariableDefinition;
+import fleetwood.bounder.json.Serializable;
+import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.type.Type;
+
 
 /**
  * @author Walter White
  */
-public class VariableInstance {
+public class VariableInstance<T> implements Serializable {
 
+  protected ProcessEngineImpl processEngine;
+  protected CompositeInstance parent;
+  protected ProcessInstance processInstance;
+  
+  public static final String FIELD_VARIABLE_DEFINITION_ID = "variableDefinitionId";
+  protected VariableDefinition<T> variableDefinition;
+  protected Type<T> type;
+  
+  public static final String FIELD_VALUE = "value";
+  protected T value;
+  
+  public ProcessEngineImpl getProcessEngine() {
+    return processEngine;
+  }
+  
+  public void setProcessEngine(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
+  }
+  
+  public CompositeInstance getParent() {
+    return parent;
+  }
+  
+  public void setParent(CompositeInstance parent) {
+    this.parent = parent;
+  }
+  
+  public ProcessInstance getProcessInstance() {
+    return processInstance;
+  }
+  
+  public void setProcessInstance(ProcessInstance processInstance) {
+    this.processInstance = processInstance;
+  }
+
+  public Type<T> getType() {
+    return type;
+  }
+
+  public void setType(Type<T> type) {
+    this.type = type;
+  }
+  
+  public T getValue() {
+    return value;
+  }
+  
+  public void setValue(T value) {
+    this.value = value;
+  }
+  
+  public VariableDefinition<T> getVariableDefinition() {
+    return variableDefinition;
+  }
+  
+  public void setVariableDefinition(VariableDefinition<T> variableDefinition) {
+    this.variableDefinition = variableDefinition;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeIdField(FIELD_VARIABLE_DEFINITION_ID, variableDefinition.getId());
+    if (value!=null) {
+      type.serializeValueField(serializer, FIELD_VARIABLE_DEFINITION_ID, value);
+    }
+    serializer.objectEnd(this);
+  }
 }

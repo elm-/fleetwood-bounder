@@ -18,6 +18,7 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.engine.operation.Operation;
+import fleetwood.bounder.json.Serializer;
 
 
 
@@ -27,8 +28,21 @@ import fleetwood.bounder.engine.operation.Operation;
  */
 public class OperationRemoveUpdate extends OperationUpdate {
 
+  protected static final String TYPE_OPERATION_REMOVE = "operationRemove";
+
   public OperationRemoveUpdate(Operation operation) {
     super(operation);
+  }
+
+  @Override
+  public String getSerializableType() {
+    return TYPE_OPERATION_REMOVE;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.objectEnd(this);
   }
 
 }

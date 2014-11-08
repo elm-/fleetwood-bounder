@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fleetwood.bounder.CreateProcessInstanceRequest;
 import fleetwood.bounder.ProcessDefinitionQueryBuilder;
 import fleetwood.bounder.ProcessEngine;
@@ -30,10 +33,7 @@ import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.EnsureIdVisitor;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
-import fleetwood.bounder.json.JacksonJson;
-import fleetwood.bounder.json.Json;
 import fleetwood.bounder.util.Exceptions;
-import fleetwood.bounder.util.Log;
 import fleetwood.bounder.util.Time;
 
 /**
@@ -41,17 +41,12 @@ import fleetwood.bounder.util.Time;
  */
 public abstract class ProcessEngineImpl implements ProcessEngine {
 
+  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+
   protected String id;
   protected ProcessEngine processEngine;
-  protected Json json;
   protected Executor executor;
   
-  public Log log = new Log();
-
-  public ProcessEngineImpl() {
-    this.json = new JacksonJson();
-  }
-
   public ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition) {
     Exceptions.checkNotNull(processDefinition, "processDefinition");
     identifyProcessDefinition(processDefinition);
@@ -123,7 +118,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public ProcessInstance signal(SignalRequest signalRequest) {
     ActivityInstanceId activityInstanceId = signalRequest.getActivityInstanceId();
     ProcessInstance processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
-    log.debug("Locked process instance "+json.toJsonStringPretty(processInstance));
     // TODO set variables and context
     ActivityInstance activityInstance = processInstance.findActivityInstance(activityInstanceId);
     ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
@@ -158,14 +152,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     this.processEngine = processEngine;
   }
   
-  public Json getJson() {
-    return json;
-  }
-  
-  public void setJson(Json json) {
-    this.json = json;
-  }
-
   public String getId() {
     return id;
   }

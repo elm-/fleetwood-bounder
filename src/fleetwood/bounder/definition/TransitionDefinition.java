@@ -17,8 +17,6 @@
 
 package fleetwood.bounder.definition;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.util.Identifyable;
 
@@ -32,11 +30,8 @@ public class TransitionDefinition implements Identifyable {
   protected ActivityDefinition from;
   protected ActivityDefinition to;
 
-  @JsonIgnore
   protected ProcessEngineImpl processEngine;
-  @JsonIgnore
   protected ProcessDefinition processDefinition;
-  @JsonIgnore
   protected CompositeDefinition parent;
 
   public void prepare() {

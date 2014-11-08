@@ -18,6 +18,7 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.json.Serializer;
 
 
 /**
@@ -25,8 +26,22 @@ import fleetwood.bounder.instance.ActivityInstance;
  */
 public class ActivityInstanceCreateUpdate extends ActivityInstanceUpdate {
 
+  public static final String TYPE_ACTIVITY_INSTANCE_CREATE_UPDATE = "aiCreate";
+  public static final String FIELD_ACTIVITY_INSTANCE_CREATED = "activityInstance";
+
   public ActivityInstanceCreateUpdate(ActivityInstance activityInstance) {
     super(activityInstance);
   }
 
+  @Override
+  public String getSerializableType() {
+    return TYPE_ACTIVITY_INSTANCE_CREATE_UPDATE;
+  }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeObject(FIELD_ACTIVITY_INSTANCE_CREATED, activityInstance);
+    serializer.objectEnd(this);
+  }
 }

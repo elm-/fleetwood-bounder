@@ -42,7 +42,7 @@ public class ProcessDefinition extends CompositeDefinition {
     return this;
   }
 
-  public ProcessDefinition variable(VariableDefinition variableDefinition) {
+  public ProcessDefinition variable(VariableDefinition<?> variableDefinition) {
     addVariableDefinition(variableDefinition);
     return this;
   }

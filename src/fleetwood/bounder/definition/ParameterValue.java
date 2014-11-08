@@ -25,7 +25,7 @@ public class ParameterValue {
 
   // one of the next 3 specifies the value
   protected Object object;
-  protected VariableDefinitionId varableDefinitionId;
+  protected VariableDefinition<?> varableDefinition;
   protected String expression;
   
   public ParameterValue object(Object object) {
@@ -38,8 +38,8 @@ public class ParameterValue {
     return this;
   }
   
-  public ParameterValue variableDefinitionId(VariableDefinitionId variableDefinitionId) {
-    this.varableDefinitionId = variableDefinitionId;
+  public ParameterValue variableDefinition(VariableDefinition<?> variableDefinition) {
+    this.varableDefinition = variableDefinition;
     return this;
   }
 
@@ -51,12 +51,12 @@ public class ParameterValue {
     this.object = object;
   }
   
-  public VariableDefinitionId getVarableDefinitionId() {
-    return varableDefinitionId;
+  public VariableDefinition<?> getVarableDefinition() {
+    return varableDefinition;
   }
   
-  public void setVarableDefinitionId(VariableDefinitionId varableDefinitionId) {
-    this.varableDefinitionId = varableDefinitionId;
+  public void setVarableDefinition(VariableDefinition<?> varableDefinition) {
+    this.varableDefinition = varableDefinition;
   }
   
   public String getExpression() {

@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.CompositeInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
@@ -41,38 +39,32 @@ public abstract class CompositeDefinition implements Identifyable {
   protected CompositeDefinition parent;
   protected List<ActivityDefinition> activityDefinitions;
   protected Map<ActivityDefinitionId, ActivityDefinition> activityDefinitionsMap;
-  protected List<VariableDefinition> variableDefinitions;
-  protected Map<VariableDefinitionId, VariableDefinition> variableDefinitionsMap;
+  protected List<VariableDefinition<?>> variableDefinitions;
+  protected Map<VariableDefinitionId, VariableDefinition<?>> variableDefinitionsMap;
   protected List<TransitionDefinition> transitionDefinitions;
   protected Map<TransitionDefinitionId, TransitionDefinition> transitionDefinitionsMap;
   protected List<ParameterInstance<?>> parameterInstances;
   protected Map<String, ParameterInstance<?>> parameterInstancesMap;
 
-  @JsonIgnore
   protected List<ActivityDefinition> startActivityDefinitions;
   
-  public CompositeDefinition parameterObject(String parameterName, Object object) {
-    addParameterValue(parameterName, new ParameterValue().object(object));
+  public <T> CompositeDefinition parameterObject(ParameterDefinition<T> parameterDefinition, Object object) {
+    addParameterValue(parameterDefinition, new ParameterValue().object(object));
     return this;
   }
-  public CompositeDefinition parameterExpression(String parameterName, String expression) {
-    addParameterValue(parameterName, new ParameterValue().expression(expression));
+  public <T> CompositeDefinition parameterExpression(ParameterDefinition<T> parameterDefinition, String expression) {
+    addParameterValue(parameterDefinition, new ParameterValue().expression(expression));
     return this;
   }
-  public CompositeDefinition parameterVariable(String parameterName, VariableDefinitionId variableDefinitionId) {
-    addParameterValue(parameterName, new ParameterValue().variableDefinitionId(variableDefinitionId));
+  public <T> CompositeDefinition parameterVariable(ParameterDefinition<T> parameterDefinition, VariableDefinition<T> variableDefinition) {
+    addParameterValue(parameterDefinition, new ParameterValue().variableDefinition(variableDefinition));
     return this;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  void addParameterValue(String parameterName, ParameterValue parameterValue) {
-    Exceptions.checkNotNull(parameterName, "parameterName");
-    ParameterDefinitions parameterDefinitions = getParameterDefinitions();
-    ParameterDefinition<?> parameterDefinition = parameterDefinitions!=null ? parameterDefinitions.getParameterDefinition(parameterName) : null;
-    if (parameterDefinition==null) {
-      throw new RuntimeException("Parameter "+parameterName+" is not defined in "+getClass().getSimpleName());
-    }
-    ParameterInstance<?> parameterInstance = findParameterInstance(parameterName);
+  <T> void addParameterValue(ParameterDefinition<T> parameterDefinition, ParameterValue parameterValue) {
+    Exceptions.checkNotNull(parameterDefinition, "parameterDefinition");
+    ParameterInstance<?> parameterInstance = findParameterInstance(parameterDefinition.getName());
     if (parameterInstance==null) {
       parameterInstance = new ParameterInstance<Object>();
       parameterInstance.setName(parameterDefinition.getName());
@@ -129,7 +121,7 @@ public abstract class CompositeDefinition implements Identifyable {
     }
     if (variableDefinitions!=null) {
       variableDefinitionsMap = new HashMap<>();
-      for (VariableDefinition variableDefinition: variableDefinitions) {
+      for (VariableDefinition<?> variableDefinition: variableDefinitions) {
         variableDefinition.setProcessEngine(processEngine);
         variableDefinition.setProcessDefinition(processDefinition);
         variableDefinition.setParent(this);
@@ -205,11 +197,11 @@ public abstract class CompositeDefinition implements Identifyable {
     return activityDefinitions!=null && !activityDefinitions.isEmpty();
   }
 
-  public VariableDefinition getVariableDefinition(VariableDefinitionId id) {
+  public VariableDefinition<?> getVariableDefinition(VariableDefinitionId id) {
     return variableDefinitionsMap!=null ? variableDefinitionsMap.get(id) : null;
   }
   
-  public CompositeDefinition addVariableDefinition(VariableDefinition variableDefinition) {
+  public CompositeDefinition addVariableDefinition(VariableDefinition<?> variableDefinition) {
     Exceptions.checkNotNull(variableDefinition, "variableDefinition");
     if (variableDefinitions==null)  {
       variableDefinitions = new ArrayList<>();
@@ -268,22 +260,22 @@ public abstract class CompositeDefinition implements Identifyable {
   }
 
   
-  public List<VariableDefinition> getVariableDefinitions() {
+  public List<VariableDefinition<?>> getVariableDefinitions() {
     return variableDefinitions;
   }
 
   
-  public void setVariableDefinitions(List<VariableDefinition> variableDefinitions) {
+  public void setVariableDefinitions(List<VariableDefinition<?>> variableDefinitions) {
     this.variableDefinitions = variableDefinitions;
   }
 
   
-  public Map<VariableDefinitionId, VariableDefinition> getVariableDefinitionsMap() {
+  public Map<VariableDefinitionId, VariableDefinition<?>> getVariableDefinitionsMap() {
     return variableDefinitionsMap;
   }
 
   
-  public void setVariableDefinitionsMap(Map<VariableDefinitionId, VariableDefinition> variableDefinitionsMap) {
+  public void setVariableDefinitionsMap(Map<VariableDefinitionId, VariableDefinition<?>> variableDefinitionsMap) {
     this.variableDefinitionsMap = variableDefinitionsMap;
   }
 

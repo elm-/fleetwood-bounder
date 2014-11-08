@@ -18,13 +18,15 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.engine.operation.Operation;
+import fleetwood.bounder.json.Serializer;
 
 
 /**
  * @author Walter White
  */
-public class OperationUpdate implements Update {
+public abstract class OperationUpdate implements Update {
 
+  public static final String FIELD_OPERATION = "operation";
   protected Operation operation;
 
   public OperationUpdate(Operation operation) {
@@ -38,4 +40,12 @@ public class OperationUpdate implements Update {
   public void setOperation(Operation operation) {
     this.operation = operation;
   }
+
+  @Override
+  public void serialize(Serializer serializer) {
+    serializer.objectStart(this);
+    serializer.writeObject(FIELD_OPERATION, operation);
+    serializer.objectEnd(this);
+  }
+
 }

@@ -26,7 +26,14 @@ import fleetwood.bounder.engine.operation.Operation;
  */
 public class OperationAddUpdate extends OperationUpdate {
 
+  protected static final String TYPE_OPERATION_ADD_UPDATE = "operationAdd";
+
   public OperationAddUpdate(Operation operation) {
     super(operation);
+  }
+  
+  @Override
+  public String getSerializableType() {
+    return TYPE_OPERATION_ADD_UPDATE;
   }
 }

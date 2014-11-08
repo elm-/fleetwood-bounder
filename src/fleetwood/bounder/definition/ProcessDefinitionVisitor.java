@@ -42,7 +42,7 @@ public class ProcessDefinitionVisitor {
   }
 
   /** visit variable definitions */
-  public void variableDefinition(VariableDefinition variableDefinition) {
+  public void variableDefinition(VariableDefinition<?> variableDefinition) {
   }
 
   /** visit transition definitions */
@@ -66,9 +66,9 @@ public class ProcessDefinitionVisitor {
   }
 
   protected void visitCompositeVariableDefinitions(CompositeDefinition compositeDefinition) {
-    List<VariableDefinition> variableDefinitions = compositeDefinition.variableDefinitions;
+    List<VariableDefinition<?>> variableDefinitions = compositeDefinition.variableDefinitions;
     if (variableDefinitions!=null) {
-      for (VariableDefinition variableDefinition: variableDefinitions) {
+      for (VariableDefinition<?> variableDefinition: variableDefinitions) {
         variableDefinition(variableDefinition);
       }
     }
