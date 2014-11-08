@@ -45,9 +45,58 @@ public abstract class CompositeDefinition implements Identifyable {
   protected Map<VariableDefinitionId, VariableDefinition> variableDefinitionsMap;
   protected List<TransitionDefinition> transitionDefinitions;
   protected Map<TransitionDefinitionId, TransitionDefinition> transitionDefinitionsMap;
+  protected List<ParameterInstance<?>> parameterInstances;
+  protected Map<String, ParameterInstance<?>> parameterInstancesMap;
 
   @JsonIgnore
   protected List<ActivityDefinition> startActivityDefinitions;
+  
+  public CompositeDefinition parameterObject(String parameterName, Object object) {
+    addParameterValue(parameterName, new ParameterValue().object(object));
+    return this;
+  }
+  public CompositeDefinition parameterExpression(String parameterName, String expression) {
+    addParameterValue(parameterName, new ParameterValue().expression(expression));
+    return this;
+  }
+  public CompositeDefinition parameterVariable(String parameterName, VariableDefinitionId variableDefinitionId) {
+    addParameterValue(parameterName, new ParameterValue().variableDefinitionId(variableDefinitionId));
+    return this;
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  void addParameterValue(String parameterName, ParameterValue parameterValue) {
+    Exceptions.checkNotNull(parameterName, "parameterName");
+    ParameterDefinitions parameterDefinitions = getParameterDefinitions();
+    ParameterDefinition<?> parameterDefinition = parameterDefinitions!=null ? parameterDefinitions.getParameterDefinition(parameterName) : null;
+    if (parameterDefinition==null) {
+      throw new RuntimeException("Parameter "+parameterName+" is not defined in "+getClass().getSimpleName());
+    }
+    ParameterInstance<?> parameterInstance = findParameterInstance(parameterName);
+    if (parameterInstance==null) {
+      parameterInstance = new ParameterInstance<Object>();
+      parameterInstance.setName(parameterDefinition.getName());
+      parameterInstance.setParameterDefinition((ParameterDefinition)parameterDefinition);
+      parameterInstances.add(parameterInstance);
+    }
+    parameterInstance.addParameterValue(parameterValue);
+  }
+
+  public ParameterDefinitions getParameterDefinitions() {
+    return null;
+  }
+
+  ParameterInstance<?> findParameterInstance(String parameterName) {
+    if (parameterInstances!=null) {
+      for (ParameterInstance<?> parameterInstance: parameterInstances) {
+        if (parameterName.equals(parameterInstance.getName())) {
+          return parameterInstance;
+        }
+      }
+    }
+    return null;
+  }
+  
   
   /** performs initializations after the activity is constructed and before the process is used in execution.
    * eg calculating the start activities */ 
@@ -70,7 +119,7 @@ public abstract class CompositeDefinition implements Identifyable {
         if (startActivityDefinitions!=null) {
           startActivityDefinitions.remove(transitionDefinition.getTo());
         }
-        transitionDefinition.setProcessStore(processEngine);
+        transitionDefinition.setProcessEngine(processEngine);
         transitionDefinition.setProcessDefinition(processDefinition);
         transitionDefinition.setParent(this);
         Exceptions.checkNotNull(transitionDefinition.getId(), "transitionDefinition.id");
@@ -81,12 +130,22 @@ public abstract class CompositeDefinition implements Identifyable {
     if (variableDefinitions!=null) {
       variableDefinitionsMap = new HashMap<>();
       for (VariableDefinition variableDefinition: variableDefinitions) {
-        variableDefinition.setProcessStore(processEngine);
+        variableDefinition.setProcessEngine(processEngine);
         variableDefinition.setProcessDefinition(processDefinition);
         variableDefinition.setParent(this);
         Exceptions.checkNotNull(variableDefinition.getId(), "variableDefinition.id");
         variableDefinitionsMap.put(variableDefinition.getId(), variableDefinition);
         variableDefinition.prepare();
+      }
+    }
+    if (parameterInstances!=null) {
+      parameterInstancesMap = new HashMap<>();
+      for (ParameterInstance<?> parameterInstance: parameterInstances) {
+        parameterInstance.setProcessEngine(processEngine);
+        String name = parameterInstance.getName();
+        Exceptions.checkNotNull(name, "parameterInstance.name");
+        parameterInstancesMap.put(name, parameterInstance);
+        parameterInstance.prepare();
       }
     }
   } 
@@ -133,13 +192,13 @@ public abstract class CompositeDefinition implements Identifyable {
     return parent!=null;
   }
 
-  public CompositeDefinition addActivityDefinition(ActivityDefinition activityDefinition) {
+  public <T extends ActivityDefinition> T addActivityDefinition(T activityDefinition) {
     Exceptions.checkNotNull(activityDefinition, "activityDefinition");
     if (activityDefinitions==null)  {
       activityDefinitions = new ArrayList<>();
     }
     activityDefinitions.add(activityDefinition);
-    return this;
+    return activityDefinition;
   }
   
   public boolean hasActivityDefinitions() {
@@ -163,7 +222,7 @@ public abstract class CompositeDefinition implements Identifyable {
     return variableDefinitions!=null && !variableDefinitions.isEmpty();
   }
 
-  public void addTransitionDefinition(ActivityDefinition from, ActivityDefinition to) {
+  public void createTransitionDefinition(ActivityDefinition from, ActivityDefinition to) {
     TransitionDefinition transitionDefinition = new TransitionDefinition();
     transitionDefinition.setFrom(from);
     transitionDefinition.setTo(to);

@@ -15,14 +15,15 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.types;
+package fleetwood.bounder.type;
 
-import fleetwood.bounder.definition.VariableDefinition;
+import fleetwood.bounder.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class TextVariableDefinition extends VariableDefinition {
+public class IdType extends Type<Id> {
 
+  
 }

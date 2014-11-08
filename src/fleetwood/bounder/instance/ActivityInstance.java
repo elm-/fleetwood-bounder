@@ -112,7 +112,9 @@ public class ActivityInstance extends CompositeInstance {
   
   public void setEnd(Long end) {
     this.end = end;
+    if (start!=null && end!=null) {
+      this.duration = end-start;
+    }
     processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
   }
-
 }

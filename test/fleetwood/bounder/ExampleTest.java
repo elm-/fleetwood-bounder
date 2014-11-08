@@ -31,7 +31,7 @@ import fleetwood.bounder.engine.memory.MemoryProcessEngine;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
-import fleetwood.bounder.types.TextVariableDefinition;
+import fleetwood.bounder.type.Type;
 
 /**
  * @author Walter White
@@ -40,22 +40,24 @@ public class ExampleTest {
   
   @Test
   public void testOne() {
-    ProcessDefinition processDefinition = new ProcessDefinition();
+    ProcessEngine processEngine = new MemoryProcessEngine();
+
+    // prepare the ingredients
+    VariableDefinition t = new VariableDefinition()
+      .type(Type.TEXT);
     
     Go go = new Go();
-    processDefinition.addActivityDefinition(go);
     Wait wait = new Wait();
-    processDefinition.addActivityDefinition(wait);
     Wait wait2 = new Wait();
-    processDefinition.addActivityDefinition(wait2);
     
-    processDefinition.addTransitionDefinition(wait, wait2);
+    // cook a process batch
+    ProcessDefinition processDefinition = new ProcessDefinition()
+      .activity(go)
+      .activity(wait)
+      .activity(wait2)
+      .transition(wait, wait2)
+      .variable(t);
 
-    VariableDefinition variableDefinition = new TextVariableDefinition();
-    variableDefinition.setName("v");
-    processDefinition.addVariableDefinition(variableDefinition);
-
-    ProcessEngine processEngine = new MemoryProcessEngine();
     processDefinition = processEngine.saveProcessDefinition(processDefinition);
     ProcessDefinitionId processDefinitionId = processDefinition.getId();
     

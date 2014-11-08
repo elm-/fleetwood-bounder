@@ -42,5 +42,4 @@ public interface ProcessEngine {
   ProcessInstance createProcessInstance(CreateProcessInstanceRequest createProcessInstanceRequest);
 
   ProcessInstance signal(SignalRequest signalRequest);
-  
 }

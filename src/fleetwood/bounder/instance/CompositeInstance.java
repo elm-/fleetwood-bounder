@@ -35,6 +35,7 @@ public abstract class CompositeInstance {
 
   protected Long start;
   protected Long end;
+  protected Long duration;
   protected List<ActivityInstance> activityInstances;
 
   @JsonIgnore

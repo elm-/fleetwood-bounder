@@ -20,6 +20,7 @@ package fleetwood.bounder;
 import java.util.Map;
 
 import fleetwood.bounder.definition.ProcessDefinitionId;
+import fleetwood.bounder.definition.VariableDefinitionId;
 import fleetwood.bounder.instance.ProcessInstanceId;
 
 
@@ -31,6 +32,7 @@ public class CreateProcessInstanceRequest extends VariableRequest {
   protected ProcessDefinitionId processDefinitionId;
   protected ProcessInstanceId processInstanceId;
   protected Map<String,Object> transientContext;
+  protected Map<VariableDefinitionId,Object> variableValues;
   
   public ProcessDefinitionId getProcessDefinitionId() {
     return processDefinitionId;
@@ -54,5 +56,13 @@ public class CreateProcessInstanceRequest extends VariableRequest {
   
   public void setTransientContext(Map<String, Object> transientContext) {
     this.transientContext = transientContext;
+  }
+  
+  public Map<VariableDefinitionId, Object> getVariableValues() {
+    return variableValues;
+  }
+  
+  public void setVariableValues(Map<VariableDefinitionId, Object> variableValues) {
+    this.variableValues = variableValues;
   }
 }

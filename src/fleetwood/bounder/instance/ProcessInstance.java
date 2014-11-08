@@ -219,6 +219,9 @@ public class ProcessInstance extends CompositeInstance {
   
   public void setEnd(Long end) {
     this.end = end;
+    if (start!=null && end!=null) {
+      this.duration = end-start;
+    }
     addUpdate(new ProcessInstanceEndUpdate(this));
   }
 

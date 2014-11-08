@@ -15,15 +15,19 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.types;
+package fleetwood.bounder.bpmn.activities;
 
-import fleetwood.bounder.instance.VariableInstance;
+import fleetwood.bounder.definition.ActivityDefinition;
+import fleetwood.bounder.instance.ActivityInstance;
 
 
 /**
  * @author Walter White
  */
-public class TextVariableInstance extends VariableInstance {
+public class Task extends ActivityDefinition {
 
-  protected String text;
+  @Override
+  public void start(ActivityInstance activityInstance) {
+  }
+
 }

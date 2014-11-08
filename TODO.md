@@ -1,5 +1,6 @@
 # Roadmap
  
+* upgrade json abstraction
 * bpmn process logic coverage
  * end activity
  * join
@@ -19,3 +20,7 @@
 * ensure jackson lib is not required if json is not used
 * static persistable process variables
 * transient execution context variables
+
+# Design review
+
+* Typed id's vs strings

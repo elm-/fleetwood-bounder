@@ -17,59 +17,51 @@
 
 package fleetwood.bounder.definition;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 
 import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.util.Identifyable;
 
 
 /**
  * @author Walter White
  */
-public class TransitionDefinition implements Identifyable {
+public class ParameterInstance<T> {
 
-  protected TransitionDefinitionId id;
-  protected ActivityDefinition from;
-  protected ActivityDefinition to;
-
-  @JsonIgnore
   protected ProcessEngineImpl processEngine;
-  @JsonIgnore
   protected ProcessDefinition processDefinition;
-  @JsonIgnore
   protected CompositeDefinition parent;
+  
+  protected String name;
+  protected ParameterDefinition<T> parameterDefinition;
 
+  protected List<ParameterValue> values;
+  
+  public void addParameterValue(ParameterValue parameterValue) {
+    if (values==null) {
+      values = new ArrayList<ParameterValue>();
+    }
+    values.add(parameterValue);
+  }
+  
   public void prepare() {
   }
 
-  public TransitionDefinitionId getId() {
-    return id;
+  public String getName() {
+    return name;
   }
   
-  public void setId(TransitionDefinitionId id) {
-    this.id = id;
+  public void setName(String name) {
+    this.name = name;
   }
-
   
-  public ActivityDefinition getFrom() {
-    return from;
+  public ParameterDefinition<T> getParameterDefinition() {
+    return parameterDefinition;
   }
-
   
-  public void setFrom(ActivityDefinition from) {
-    this.from = from;
+  public void setParameterDefinition(ParameterDefinition<T> parameterDefinition) {
+    this.parameterDefinition = parameterDefinition;
   }
-
-  
-  public ActivityDefinition getTo() {
-    return to;
-  }
-
-  
-  public void setTo(ActivityDefinition to) {
-    this.to = to;
-  }
-
   
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
@@ -78,6 +70,16 @@ public class TransitionDefinition implements Identifyable {
   
   public void setProcessEngine(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
+  }
+
+  
+  public ProcessDefinition getProcessDefinition() {
+    return processDefinition;
+  }
+
+  
+  public void setProcessDefinition(ProcessDefinition processDefinition) {
+    this.processDefinition = processDefinition;
   }
 
   
@@ -91,12 +93,12 @@ public class TransitionDefinition implements Identifyable {
   }
 
   
-  public ProcessDefinition getProcessDefinition() {
-    return processDefinition;
+  public List<ParameterValue> getValues() {
+    return values;
   }
 
   
-  public void setProcessDefinition(ProcessDefinition processDefinition) {
-    this.processDefinition = processDefinition;
+  public void setValues(List<ParameterValue> values) {
+    this.values = values;
   }
 }

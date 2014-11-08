@@ -27,6 +27,26 @@ public class ProcessDefinition extends CompositeDefinition {
 
   protected ProcessDefinitionId id;
 
+  public ProcessDefinition activity(ActivityDefinition activityDefinition) {
+    addActivityDefinition(activityDefinition);
+    return this;
+  }
+
+  public ProcessDefinition transition(ActivityDefinition from, ActivityDefinition to) {
+    createTransitionDefinition(from, to);
+    return this;
+  }
+
+  public ProcessDefinition transition(TransitionDefinition transitionDefinition) {
+    addTransitionDefinition(transitionDefinition);
+    return this;
+  }
+
+  public ProcessDefinition variable(VariableDefinition variableDefinition) {
+    addVariableDefinition(variableDefinition);
+    return this;
+  }
+
   public void prepare() {
     this.processDefinition = this;
     super.prepare();

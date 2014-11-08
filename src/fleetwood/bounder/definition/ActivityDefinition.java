@@ -32,6 +32,21 @@ public abstract class ActivityDefinition extends CompositeDefinition {
   protected ActivityDefinitionId id;
   protected List<TransitionDefinition> outgoingTransitionDefinitions;
 
+  public ActivityDefinition activity(ActivityDefinition activityDefinition) {
+    addActivityDefinition(activityDefinition);
+    return this;
+  }
+
+  public ActivityDefinition transition(TransitionDefinition transitionDefinition) {
+    addTransitionDefinition(transitionDefinition);
+    return this;
+  }
+
+  public ActivityDefinition variable(VariableDefinition variableDefinition) {
+    addVariableDefinition(variableDefinition);
+    return this;
+  }
+  
   public ActivityDefinitionId getId() {
     return id;
   }
