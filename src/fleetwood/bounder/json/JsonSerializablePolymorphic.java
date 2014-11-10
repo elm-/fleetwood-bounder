@@ -21,8 +21,7 @@ package fleetwood.bounder.json;
 /**
  * @author Walter White
  */
-public interface Serializable {
-  
-  void serialize(Serializer serializer);
+public interface JsonSerializablePolymorphic extends JsonSerializable {
 
+  String getSerializableType();
 }

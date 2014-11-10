@@ -64,7 +64,7 @@ public class ExampleTest {
     
     CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
     createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
-    // createProcessInstanceRequest.putVariable(variableDefinition.getId(), "hello world");
+    createProcessInstanceRequest.variableValue(t.getId(), "hello world");
     ProcessInstance processInstance = processEngine.createProcessInstance(createProcessInstanceRequest);
     
     ProcessInstanceId processInstanceId = processInstance.getId();

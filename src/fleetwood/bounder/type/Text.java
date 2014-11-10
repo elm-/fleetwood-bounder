@@ -17,7 +17,7 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializer;
 
 
 /**
@@ -31,10 +31,9 @@ public class Text extends Type<String> {
   }
 
   @Override
-  public void serializeValueField(Serializer serializer, String fieldName, String value) {
+  public void serializeValueField(JsonSerializer serializer, String fieldName, String value) {
     serializer.writeStringField(fieldName, value);
   }
-
-
+  
   
 }

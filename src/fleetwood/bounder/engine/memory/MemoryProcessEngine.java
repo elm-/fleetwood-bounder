@@ -35,7 +35,7 @@ import fleetwood.bounder.instance.Lock;
 import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JacksonJsonSerializer;
 import fleetwood.bounder.util.Lists;
 import fleetwood.bounder.util.Time;
 
@@ -62,7 +62,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   @Override
   public void saveProcessInstance(ProcessInstance processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
-    log.debug("Saving: "+JsonSerializer.toJsonStringPretty(processInstance));
+    log.debug("Saving: "+JacksonJsonSerializer.toJsonStringPretty(processInstance));
   }
 
   @Override
@@ -71,7 +71,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     if (updates!=null) {
       log.debug("Flushing updates: ");
       for (Update update : updates) {
-        log.debug("  " + JsonSerializer.toJsonString(update));
+        log.debug("  " + JacksonJsonSerializer.toJsonString(update));
       }
     } else {
       log.debug("No updates to flush");
@@ -83,7 +83,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     lockedProcessInstances.remove(processInstance.getId());
     processInstance.removeLock();
     flush(processInstance);
-    log.debug("Process instance should be: "+JsonSerializer.toJsonStringPretty(processInstance));
+    log.debug("Process instance should be: "+JacksonJsonSerializer.toJsonStringPretty(processInstance));
   }
 
   @Override
@@ -135,7 +135,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     lock.setTime(Time.now());
     lock.setOwner(getId());
     processInstance.setLock(lock);
-    log.debug("Locked process instance: "+JsonSerializer.toJsonStringPretty(processInstance));
+    log.debug("Locked process instance: "+JacksonJsonSerializer.toJsonStringPretty(processInstance));
     return processInstance;
   }
 }

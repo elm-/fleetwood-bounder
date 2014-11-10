@@ -29,7 +29,14 @@ import fleetwood.bounder.instance.VariableInstance;
 public class VariableRequest {
 
   protected Map<VariableDefinitionId,VariableInstance<?>> variablesInstances;
+  
+  /** extra user defined information to be stored with the process instance. */
   protected Map<String,VariableInstance<?>> persistentContext;
+  
+  public VariableRequest variableValue(VariableDefinitionId variableDefinitionId, Object value) {
+    // TODO
+    return this;
+  }
   
   public Map<VariableDefinitionId, VariableInstance<?>> getVariablesInstances() {
     return variablesInstances;

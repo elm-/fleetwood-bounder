@@ -36,7 +36,7 @@ import fleetwood.bounder.engine.updates.LockReleaseUpdate;
 import fleetwood.bounder.engine.updates.OperationAddUpdate;
 import fleetwood.bounder.engine.updates.OperationRemoveUpdate;
 import fleetwood.bounder.engine.updates.Update;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializer;
 import fleetwood.bounder.util.Time;
 
 
@@ -237,7 +237,7 @@ public class ProcessInstance extends CompositeInstance {
     // addUpdate(new ProcessInstanceEndUpdate(this));
   }
 
-  public void serialize(Serializer serializer) {
+  public void serialize(JsonSerializer serializer) {
     serializer.objectStart(this);
     serializer.writeIdField(FIELD_ID, id);
     serializeCompositeInstanceFields(serializer);

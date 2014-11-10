@@ -25,7 +25,7 @@ import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
 import fleetwood.bounder.engine.operation.NotifyActivityInstanceEndToParent;
 import fleetwood.bounder.engine.updates.ActivityInstanceEndUpdate;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializer;
 import fleetwood.bounder.util.Time;
 
 
@@ -128,7 +128,7 @@ public class ActivityInstance extends CompositeInstance {
   }
 
   @Override
-  public void serialize(Serializer serializer) {
+  public void serialize(JsonSerializer serializer) {
     serializer.objectStart(this);
     serializer.writeIdField(FIELD_ID, id);
     serializer.writeIdField(FIELD_ACTIVITY_DEFINITION_ID, activityDefinition!=null ? activityDefinition.getId() : null);

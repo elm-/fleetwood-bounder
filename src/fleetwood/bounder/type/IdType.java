@@ -17,7 +17,7 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializer;
 import fleetwood.bounder.util.Id;
 
 
@@ -32,7 +32,7 @@ public class IdType extends Type<Id> {
   }
 
   @Override
-  public void serializeValueField(Serializer serializer, String fieldName, Id value) {
+  public void serializeValueField(JsonSerializer serializer, String fieldName, Id value) {
     serializer.writeIdField(fieldName, value);
   }
 }

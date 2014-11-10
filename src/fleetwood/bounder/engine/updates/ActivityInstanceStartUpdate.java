@@ -18,7 +18,7 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializer;
 
 /**
  * @author tbaeyens
@@ -35,6 +35,6 @@ public class ActivityInstanceStartUpdate extends ActivityInstanceUpdate {
   }
 
   @Override
-  public void serialize(Serializer serializer) {
+  public void serialize(JsonSerializer serializer) {
   }
 }

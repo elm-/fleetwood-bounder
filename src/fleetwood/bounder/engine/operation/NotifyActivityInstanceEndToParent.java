@@ -20,7 +20,7 @@ package fleetwood.bounder.engine.operation;
 import fleetwood.bounder.definition.CompositeDefinition;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializer;
 
 
 /**
@@ -62,7 +62,7 @@ public class NotifyActivityInstanceEndToParent implements Operation {
   }
 
   @Override
-  public void serialize(Serializer serializer) {
+  public void serialize(JsonSerializer serializer) {
     serializer.objectStart(this);
     serializer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
     serializer.objectEnd(this);

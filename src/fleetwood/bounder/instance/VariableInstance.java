@@ -18,15 +18,15 @@
 package fleetwood.bounder.instance;
 
 import fleetwood.bounder.definition.VariableDefinition;
-import fleetwood.bounder.json.Serializable;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializable;
+import fleetwood.bounder.json.JsonSerializer;
 import fleetwood.bounder.type.Type;
 
 
 /**
  * @author Walter White
  */
-public class VariableInstance<T> implements Serializable {
+public class VariableInstance<T> implements JsonSerializable {
 
   protected ProcessEngineImpl processEngine;
   protected CompositeInstance parent;
@@ -88,7 +88,7 @@ public class VariableInstance<T> implements Serializable {
   }
 
   @Override
-  public void serialize(Serializer serializer) {
+  public void serialize(JsonSerializer serializer) {
     serializer.objectStart(this);
     serializer.writeIdField(FIELD_VARIABLE_DEFINITION_ID, variableDefinition.getId());
     if (value!=null) {

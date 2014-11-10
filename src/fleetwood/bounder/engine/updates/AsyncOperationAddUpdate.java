@@ -18,7 +18,7 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.engine.operation.Operation;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializer;
 
 
 /**
@@ -38,7 +38,7 @@ public class AsyncOperationAddUpdate extends OperationUpdate {
   }
 
   @Override
-  public void serialize(Serializer serializer) {
+  public void serialize(JsonSerializer serializer) {
     serializer.objectStart(this);
     serializer.writeObject(FIELD_OPERATION, operation);
     serializer.objectEnd(this);

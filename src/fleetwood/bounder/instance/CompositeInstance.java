@@ -29,15 +29,15 @@ import fleetwood.bounder.definition.CompositeDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.VariableDefinition;
 import fleetwood.bounder.engine.updates.ActivityInstanceCreateUpdate;
-import fleetwood.bounder.json.Serializable;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializable;
+import fleetwood.bounder.json.JsonSerializer;
 import fleetwood.bounder.util.Time;
 
 
 /**
  * @author Walter White
  */
-public abstract class CompositeInstance implements Serializable {
+public abstract class CompositeInstance implements JsonSerializable {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -74,7 +74,7 @@ public abstract class CompositeInstance implements Serializable {
       activityInstances = new ArrayList<>();
     }
     activityInstances.add(activityInstance);
-    initializeVariableInstances();
+    activityInstance.initializeVariableInstances();
     log.debug("Created "+activityInstance);
     processInstance.addUpdate(new ActivityInstanceCreateUpdate(activityInstance));
     return activityInstance;
@@ -198,7 +198,7 @@ public abstract class CompositeInstance implements Serializable {
     return end!=null;
   }
 
-  protected void serializeCompositeInstanceFields(Serializer serializer) {
+  protected void serializeCompositeInstanceFields(JsonSerializer serializer) {
     serializer.writeTimeField(FIELD_START, start);
     serializer.writeTimeField(FIELD_END, end);
     serializer.writeNumberField(FIELD_DURATION, end);

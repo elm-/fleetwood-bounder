@@ -17,176 +17,28 @@
 
 package fleetwood.bounder.json;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Collection;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import fleetwood.bounder.util.Id;
 
 
-/**
+/** interface so there is no hard dependency on the jackson library
+ * as long as json serialization is not used.
+ * 
  * @author Walter White
  */
-public class JsonSerializer implements Serializer {
+public interface JsonSerializer {
+
+  void objectStart(JsonSerializable serializable);
+  void objectEnd(JsonSerializable serializable);
+
+  void writeStringField(String fieldName, String text);
+  void writeTimeField(String fieldName, Long time);
+  void writeIdField(String fieldName, Id id);
+  void writeNumberField(String fieldDuration, Long end);
   
-  static JsonFactory jsonFactory = new JsonFactory();
+  void writeObjectArray(String fieldName, Collection<? extends JsonSerializable> serializables);
+  void writeObject(String fieldName, JsonSerializable serializable);
   
-  protected JsonGenerator json;
-  
-  public static String toJsonString(Serializable serializable) {
-    try {
-      StringWriter stringWriter = new StringWriter();
-      JsonGenerator json = jsonFactory.createGenerator(stringWriter);
-      JsonSerializer serializer = new JsonSerializer(json);
-      serializable.serialize(serializer);
-      serializer.flush();
-      stringWriter.flush();
-      return stringWriter.toString();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static String toJsonStringPretty(Serializable serializable) {
-    try {
-      StringWriter stringWriter = new StringWriter();
-      JsonGenerator json = jsonFactory.createGenerator(stringWriter);
-      json.setPrettyPrinter(new DefaultPrettyPrinter());
-      JsonSerializer serializer = new JsonSerializer(json);
-      serializable.serialize(serializer);
-      serializer.flush();
-      stringWriter.flush();
-      return stringWriter.toString();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  void flush() {
-    try {
-      json.flush();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public JsonSerializer(JsonGenerator jsonGenerator) {
-    this.json = jsonGenerator;
-  }
-
-  @Override
-  public void objectStart(Serializable serializable) {
-    try {
-      json.writeStartObject();
-      if (serializable instanceof SerializablePolymorphic) {
-        SerializablePolymorphic serializablePolymorphic = (SerializablePolymorphic) serializable;
-        json.writeFieldName(serializablePolymorphic.getSerializableType());
-        json.writeStartObject();
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public void objectEnd(Serializable serializable) {
-    try {
-      json.writeEndObject();
-      if (serializable instanceof SerializablePolymorphic) {
-        json.writeEndObject();
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public void writeStringField(String fieldName, String text) {
-    if (text!=null) {
-      try {
-        json.writeStringField(fieldName, text);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  @Override
-  public void writeTimeField(String fieldName, Long date) {
-    if (date!=null) {
-      try {
-        json.writeNumberField(fieldName, date);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  @Override
-  public void writeIdField(String fieldName, Id id) {
-    if (id!=null && id.getValue()!=null) {
-      try {
-        json.writeStringField(fieldName, id.getValue().toString());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-  
-  @Override
-  public void writeNumberField(String fieldName, Long number) {
-    if (number!=null) {
-      try {
-        json.writeNumberField(fieldName, number);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  @Override
-  public void writeObjectArray(String fieldName, Collection< ? extends Serializable> serializables) {
-    if (serializables!=null) {
-      try {
-        json.writeFieldName(fieldName);
-        json.writeStartArray();
-        for (Serializable serializable: serializables) {
-          serializable.serialize(this);
-        }
-        json.writeEndArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  @Override
-  public void writeObject(String fieldName, Serializable serializable) {
-    if (serializable!=null) {
-      try {
-        json.writeFieldName(fieldName);
-        serializable.serialize(this);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    
-  }
-
-  @Override
-  public void writeString(String string) {
-    try {
-      if (string!=null) {
-        json.writeString(string);
-      } else {
-        json.writeNull();
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+  void writeString(String serializableType);
 }

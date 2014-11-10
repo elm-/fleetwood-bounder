@@ -17,23 +17,23 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.SerializablePolymorphic;
-import fleetwood.bounder.json.Serializer;
+import fleetwood.bounder.json.JsonSerializablePolymorphic;
+import fleetwood.bounder.json.JsonSerializer;
 
 
 
 /**
  * @author Walter White
  */
-public abstract class Type<T> implements SerializablePolymorphic {
+public abstract class Type<T> implements JsonSerializablePolymorphic {
   
   public static final Text TEXT = new Text();
   public static final IdType ID = new IdType();
   
   @Override
-  public void serialize(Serializer serializer) {
+  public void serialize(JsonSerializer serializer) {
     serializer.writeString(getSerializableType());
   }
 
-  public abstract void serializeValueField(Serializer serializer, String fieldName, T value);
+  public abstract void serializeValueField(JsonSerializer serializer, String fieldName, T value);
 }

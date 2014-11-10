@@ -15,13 +15,15 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.type;
+
+import fleetwood.bounder.json.JsonSerializablePolymorphic;
 
 
 /**
  * @author Walter White
  */
-public interface SerializablePolymorphic extends Serializable {
+public interface Value extends JsonSerializablePolymorphic {
 
-  String getSerializableType();
+  
 }

@@ -15,32 +15,27 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine.updates;
+package fleetwood.bounder.type;
 
-import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
-
-  public static final String TYPE_ACTIVITY_INSTANCE_END_UPDATE = "aiEnd";
-
-  public ActivityInstanceEndUpdate(ActivityInstance activityInstance) {
-    super(activityInstance);
-  }
+public class IdValue implements Value {
+  
+  protected Id value;
 
   @Override
   public String getSerializableType() {
-    return TYPE_ACTIVITY_INSTANCE_END_UPDATE;
+    return "id";
   }
 
   @Override
   public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance.getId());
-    serializer.objectEnd(this);
+    serializer.writeString(value.toString());
   }
+
 }
