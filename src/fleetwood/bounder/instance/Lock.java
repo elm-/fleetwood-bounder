@@ -17,14 +17,14 @@
 
 package fleetwood.bounder.instance;
 
-import fleetwood.bounder.json.JsonSerializable;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWritable;
+import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
-public class Lock implements JsonSerializable {
+public class Lock implements JsonWritable {
 
   public static String FIELD_TIME = "time";
   protected Long time;
@@ -49,10 +49,10 @@ public class Lock implements JsonSerializable {
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.writeTimeField(FIELD_TIME, time);
-    serializer.writeStringField(FIELD_OWNER, owner);
-    serializer.objectEnd(this);
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeTimeField(FIELD_TIME, time);
+    writer.writeStringField(FIELD_OWNER, owner);
+    writer.writeObjectEnd(this);
   }
 }

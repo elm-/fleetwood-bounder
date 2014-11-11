@@ -17,10 +17,11 @@
 
 package fleetwood.bounder;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import fleetwood.bounder.definition.VariableDefinitionId;
-import fleetwood.bounder.instance.VariableInstance;
+import fleetwood.bounder.type.Value;
 
 
 /**
@@ -28,29 +29,59 @@ import fleetwood.bounder.instance.VariableInstance;
  */
 public class VariableRequest {
 
-  protected Map<VariableDefinitionId,VariableInstance<?>> variablesInstances;
-  
+  protected Map<VariableDefinitionId,Value> variableValues;
+
   /** extra user defined information to be stored with the process instance. */
-  protected Map<String,VariableInstance<?>> persistentContext;
+  protected Map<String,Value> persistentContext;
   
-  public VariableRequest variableValue(VariableDefinitionId variableDefinitionId, Object value) {
-    // TODO
+  /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
+  protected Map<String,Object> transientContext;
+
+  public VariableRequest variableValue(VariableDefinitionId variableDefinitionId, Value value) {
+    if (variableValues==null) {
+      variableValues = new HashMap<>();
+    }
+    variableValues.put(variableDefinitionId, value);
     return this;
   }
-  
-  public Map<VariableDefinitionId, VariableInstance<?>> getVariablesInstances() {
-    return variablesInstances;
+
+  public VariableRequest persistentContext(String key, Value value) {
+    if (persistentContext==null) {
+      persistentContext = new HashMap<>();
+    }
+    persistentContext.put(key, value);
+    return this;
+  }
+
+  public VariableRequest transientContext(String key, Value value) {
+    if (transientContext==null) {
+      transientContext = new HashMap<>();
+    }
+    transientContext.put(key, value);
+    return this;
+  }
+
+  public Map<VariableDefinitionId, Value> getVariableValues() {
+    return variableValues;
   }
   
-  public void setVariablesInstances(Map<VariableDefinitionId, VariableInstance<?>> variables) {
-    this.variablesInstances = variables;
+  public void setVariableValues(Map<VariableDefinitionId, Value> variableValues) {
+    this.variableValues = variableValues;
   }
-  
-  public Map<String, VariableInstance<?>> getPersistentContext() {
+
+  public Map<String, Value> getPersistentContext() {
     return persistentContext;
   }
 
-  public void setPersistentContext(Map<String, VariableInstance<?>> persistentContext) {
+  public void setPersistentContext(Map<String, Value> persistentContext) {
     this.persistentContext = persistentContext;
+  }
+
+  public Map<String, Object> getTransientContext() {
+    return transientContext;
+  }
+  
+  public void setTransientContext(Map<String, Object> transientContext) {
+    this.transientContext = transientContext;
   }
 }

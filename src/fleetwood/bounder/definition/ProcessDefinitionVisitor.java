@@ -42,7 +42,7 @@ public class ProcessDefinitionVisitor {
   }
 
   /** visit variable definitions */
-  public void variableDefinition(VariableDefinition<?> variableDefinition) {
+  public void variableDefinition(VariableDefinition variableDefinition) {
   }
 
   /** visit transition definitions */
@@ -50,14 +50,14 @@ public class ProcessDefinitionVisitor {
   }
 
   /** overwrite if you want to change the order */
-  protected void visitCompositeDefinition(CompositeDefinition compositeDefinition) {
-    visitCompositeActivityDefinitions(compositeDefinition);
-    visitCompositeTransitionDefinitions(compositeDefinition);
-    visitCompositeVariableDefinitions(compositeDefinition);
+  protected void visitCompositeDefinition(ScopeDefinition scopeDefinition) {
+    visitCompositeActivityDefinitions(scopeDefinition);
+    visitCompositeTransitionDefinitions(scopeDefinition);
+    visitCompositeVariableDefinitions(scopeDefinition);
   }
 
-  protected void visitCompositeActivityDefinitions(CompositeDefinition compositeDefinition) {
-    List<ActivityDefinition> activityDefinitions = compositeDefinition.activityDefinitions;
+  protected void visitCompositeActivityDefinitions(ScopeDefinition scopeDefinition) {
+    List<ActivityDefinition> activityDefinitions = scopeDefinition.activityDefinitions;
     if (activityDefinitions!=null) {
       for (ActivityDefinition activityDefinition: activityDefinitions) {
         activityDefinition.visit(this);
@@ -65,17 +65,17 @@ public class ProcessDefinitionVisitor {
     }
   }
 
-  protected void visitCompositeVariableDefinitions(CompositeDefinition compositeDefinition) {
-    List<VariableDefinition<?>> variableDefinitions = compositeDefinition.variableDefinitions;
+  protected void visitCompositeVariableDefinitions(ScopeDefinition scopeDefinition) {
+    List<VariableDefinition> variableDefinitions = scopeDefinition.variableDefinitions;
     if (variableDefinitions!=null) {
-      for (VariableDefinition<?> variableDefinition: variableDefinitions) {
+      for (VariableDefinition variableDefinition: variableDefinitions) {
         variableDefinition(variableDefinition);
       }
     }
   }
 
-  protected void visitCompositeTransitionDefinitions(CompositeDefinition compositeDefinition) {
-    List<TransitionDefinition> transitionDefinitions = compositeDefinition.transitionDefinitions;
+  protected void visitCompositeTransitionDefinitions(ScopeDefinition scopeDefinition) {
+    List<TransitionDefinition> transitionDefinitions = scopeDefinition.transitionDefinitions;
     if (transitionDefinitions!=null) {
       for (TransitionDefinition transitionDefinition: transitionDefinitions) {
         transitionDefinition(transitionDefinition);

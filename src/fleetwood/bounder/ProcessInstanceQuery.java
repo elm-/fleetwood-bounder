@@ -19,7 +19,7 @@ package fleetwood.bounder;
 
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
-import fleetwood.bounder.instance.CompositeInstance;
+import fleetwood.bounder.instance.ScopeInstance;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
 
@@ -65,9 +65,9 @@ public class ProcessInstanceQuery {
     return true;
   }
 
-  boolean containsCompositeInstance(CompositeInstance compositeInstance, ActivityInstanceId activityInstanceId) {
-    if (compositeInstance.hasActivityInstances()) {
-      for (ActivityInstance activityInstance : compositeInstance.getActivityInstances()) {
+  boolean containsCompositeInstance(ScopeInstance scopeInstance, ActivityInstanceId activityInstanceId) {
+    if (scopeInstance.hasActivityInstances()) {
+      for (ActivityInstance activityInstance : scopeInstance.getActivityInstances()) {
         if (containsActivityInstance(activityInstance, activityInstanceId)) {
           return true;
         }

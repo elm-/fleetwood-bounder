@@ -24,7 +24,6 @@ import fleetwood.bounder.definition.ParameterDefinitions;
 import fleetwood.bounder.definition.ProcessDefinitionId;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.type.Type;
-import fleetwood.bounder.util.Id;
 
 
 /**
@@ -32,7 +31,7 @@ import fleetwood.bounder.util.Id;
  */
 public abstract class CallActivity extends ActivityDefinition {
   
-  public static ParameterDefinition<Id> PROCESS_DEFINITION_ID = ParameterDefinition
+  public static ParameterDefinition PROCESS_DEFINITION_ID = ParameterDefinition
     .type(Type.ID)
     .name("name");
   

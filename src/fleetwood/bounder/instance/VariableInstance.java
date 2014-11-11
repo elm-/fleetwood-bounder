@@ -18,26 +18,27 @@
 package fleetwood.bounder.instance;
 
 import fleetwood.bounder.definition.VariableDefinition;
-import fleetwood.bounder.json.JsonSerializable;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWritable;
+import fleetwood.bounder.json.JsonWriter;
 import fleetwood.bounder.type.Type;
+import fleetwood.bounder.type.Value;
 
 
 /**
  * @author Walter White
  */
-public class VariableInstance<T> implements JsonSerializable {
+public class VariableInstance implements JsonWritable {
 
   protected ProcessEngineImpl processEngine;
-  protected CompositeInstance parent;
+  protected ScopeInstance parent;
   protected ProcessInstance processInstance;
   
   public static final String FIELD_VARIABLE_DEFINITION_ID = "variableDefinitionId";
-  protected VariableDefinition<T> variableDefinition;
-  protected Type<T> type;
+  protected VariableDefinition variableDefinition;
+  protected Type type;
   
   public static final String FIELD_VALUE = "value";
-  protected T value;
+  protected Value value;
   
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
@@ -47,11 +48,11 @@ public class VariableInstance<T> implements JsonSerializable {
     this.processEngine = processEngine;
   }
   
-  public CompositeInstance getParent() {
+  public ScopeInstance getParent() {
     return parent;
   }
   
-  public void setParent(CompositeInstance parent) {
+  public void setParent(ScopeInstance parent) {
     this.parent = parent;
   }
   
@@ -63,37 +64,38 @@ public class VariableInstance<T> implements JsonSerializable {
     this.processInstance = processInstance;
   }
 
-  public Type<T> getType() {
+  public Type getType() {
     return type;
   }
 
-  public void setType(Type<T> type) {
+  public void setType(Type type) {
     this.type = type;
   }
   
-  public T getValue() {
+  public Value getValue() {
     return value;
   }
   
-  public void setValue(T value) {
+  public void setValue(Value value) {
     this.value = value;
   }
   
-  public VariableDefinition<T> getVariableDefinition() {
+  public VariableDefinition getVariableDefinition() {
     return variableDefinition;
   }
   
-  public void setVariableDefinition(VariableDefinition<T> variableDefinition) {
+  public void setVariableDefinition(VariableDefinition variableDefinition) {
     this.variableDefinition = variableDefinition;
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.writeIdField(FIELD_VARIABLE_DEFINITION_ID, variableDefinition.getId());
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeIdField(FIELD_VARIABLE_DEFINITION_ID, variableDefinition.getId());
     if (value!=null) {
-      type.serializeValueField(serializer, FIELD_VARIABLE_DEFINITION_ID, value);
+      writer.writeFieldName(FIELD_VALUE);
+      value.write(writer);
     }
-    serializer.objectEnd(this);
+    writer.writeObjectEnd(this);
   }
 }

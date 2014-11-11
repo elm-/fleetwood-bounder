@@ -32,7 +32,7 @@ public class TransitionDefinition implements Identifyable {
 
   protected ProcessEngineImpl processEngine;
   protected ProcessDefinition processDefinition;
-  protected CompositeDefinition parent;
+  protected ScopeDefinition parent;
 
   public void prepare() {
   }
@@ -76,12 +76,12 @@ public class TransitionDefinition implements Identifyable {
   }
 
   
-  public CompositeDefinition getParent() {
+  public ScopeDefinition getParent() {
     return parent;
   }
 
   
-  public void setParent(CompositeDefinition parent) {
+  public void setParent(ScopeDefinition parent) {
     this.parent = parent;
   }
 

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.CompositeInstance;
+import fleetwood.bounder.instance.ScopeInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.util.Exceptions;
 import fleetwood.bounder.util.Identifyable;
@@ -32,41 +32,40 @@ import fleetwood.bounder.util.Identifyable;
 /**
  * @author Walter White
  */
-public abstract class CompositeDefinition implements Identifyable {
+public abstract class ScopeDefinition implements Identifyable {
 
   protected ProcessEngineImpl processEngine;
   protected ProcessDefinition processDefinition;
-  protected CompositeDefinition parent;
+  protected ScopeDefinition parent;
   protected List<ActivityDefinition> activityDefinitions;
   protected Map<ActivityDefinitionId, ActivityDefinition> activityDefinitionsMap;
-  protected List<VariableDefinition<?>> variableDefinitions;
-  protected Map<VariableDefinitionId, VariableDefinition<?>> variableDefinitionsMap;
+  protected List<VariableDefinition> variableDefinitions;
+  protected Map<VariableDefinitionId, VariableDefinition> variableDefinitionsMap;
   protected List<TransitionDefinition> transitionDefinitions;
   protected Map<TransitionDefinitionId, TransitionDefinition> transitionDefinitionsMap;
-  protected List<ParameterInstance<?>> parameterInstances;
-  protected Map<String, ParameterInstance<?>> parameterInstancesMap;
+  protected List<ParameterInstance> parameterInstances;
+  protected Map<String, ParameterInstance> parameterInstancesMap;
 
   protected List<ActivityDefinition> startActivityDefinitions;
   
-  public <T> CompositeDefinition parameterObject(ParameterDefinition<T> parameterDefinition, Object object) {
+  public  ScopeDefinition parameterObject(ParameterDefinition parameterDefinition, Object object) {
     addParameterValue(parameterDefinition, new ParameterValue().object(object));
     return this;
   }
-  public <T> CompositeDefinition parameterExpression(ParameterDefinition<T> parameterDefinition, String expression) {
+  public  ScopeDefinition parameterExpression(ParameterDefinition parameterDefinition, String expression) {
     addParameterValue(parameterDefinition, new ParameterValue().expression(expression));
     return this;
   }
-  public <T> CompositeDefinition parameterVariable(ParameterDefinition<T> parameterDefinition, VariableDefinition<T> variableDefinition) {
+  public  ScopeDefinition parameterVariable(ParameterDefinition parameterDefinition, VariableDefinition variableDefinition) {
     addParameterValue(parameterDefinition, new ParameterValue().variableDefinition(variableDefinition));
     return this;
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  <T> void addParameterValue(ParameterDefinition<T> parameterDefinition, ParameterValue parameterValue) {
+   void addParameterValue(ParameterDefinition parameterDefinition, ParameterValue parameterValue) {
     Exceptions.checkNotNull(parameterDefinition, "parameterDefinition");
-    ParameterInstance<?> parameterInstance = findParameterInstance(parameterDefinition.getName());
+    ParameterInstance parameterInstance = findParameterInstance(parameterDefinition.getName());
     if (parameterInstance==null) {
-      parameterInstance = new ParameterInstance<Object>();
+      parameterInstance = new ParameterInstance();
       parameterInstance.setName(parameterDefinition.getName());
       parameterInstance.setParameterDefinition((ParameterDefinition)parameterDefinition);
       parameterInstances.add(parameterInstance);
@@ -78,9 +77,9 @@ public abstract class CompositeDefinition implements Identifyable {
     return null;
   }
 
-  ParameterInstance<?> findParameterInstance(String parameterName) {
+  ParameterInstance findParameterInstance(String parameterName) {
     if (parameterInstances!=null) {
-      for (ParameterInstance<?> parameterInstance: parameterInstances) {
+      for (ParameterInstance parameterInstance: parameterInstances) {
         if (parameterName.equals(parameterInstance.getName())) {
           return parameterInstance;
         }
@@ -121,7 +120,7 @@ public abstract class CompositeDefinition implements Identifyable {
     }
     if (variableDefinitions!=null) {
       variableDefinitionsMap = new HashMap<>();
-      for (VariableDefinition<?> variableDefinition: variableDefinitions) {
+      for (VariableDefinition variableDefinition: variableDefinitions) {
         variableDefinition.setProcessEngine(processEngine);
         variableDefinition.setProcessDefinition(processDefinition);
         variableDefinition.setParent(this);
@@ -132,7 +131,7 @@ public abstract class CompositeDefinition implements Identifyable {
     }
     if (parameterInstances!=null) {
       parameterInstancesMap = new HashMap<>();
-      for (ParameterInstance<?> parameterInstance: parameterInstances) {
+      for (ParameterInstance parameterInstance: parameterInstances) {
         parameterInstance.setProcessEngine(processEngine);
         String name = parameterInstance.getName();
         Exceptions.checkNotNull(name, "parameterInstance.name");
@@ -172,11 +171,11 @@ public abstract class CompositeDefinition implements Identifyable {
     this.processEngine = processEngine;
   }
 
-  public CompositeDefinition getParent() {
+  public ScopeDefinition getParent() {
     return parent;
   }
 
-  public void setParent(CompositeDefinition parent) {
+  public void setParent(ScopeDefinition parent) {
     this.parent = parent;
   }
   
@@ -197,11 +196,11 @@ public abstract class CompositeDefinition implements Identifyable {
     return activityDefinitions!=null && !activityDefinitions.isEmpty();
   }
 
-  public VariableDefinition<?> getVariableDefinition(VariableDefinitionId id) {
+  public VariableDefinition getVariableDefinition(VariableDefinitionId id) {
     return variableDefinitionsMap!=null ? variableDefinitionsMap.get(id) : null;
   }
   
-  public CompositeDefinition addVariableDefinition(VariableDefinition<?> variableDefinition) {
+  public  ScopeDefinition addVariableDefinition(VariableDefinition variableDefinition) {
     Exceptions.checkNotNull(variableDefinition, "variableDefinition");
     if (variableDefinitions==null)  {
       variableDefinitions = new ArrayList<>();
@@ -222,7 +221,7 @@ public abstract class CompositeDefinition implements Identifyable {
     from.addOutgoingTransition(transitionDefinition);
   }
 
-  public CompositeDefinition addTransitionDefinition(TransitionDefinition transitionDefinition) {
+  public ScopeDefinition addTransitionDefinition(TransitionDefinition transitionDefinition) {
     Exceptions.checkNotNull(transitionDefinition, "transitionDefinition");
     if (transitionDefinitions==null)  {
       transitionDefinitions = new ArrayList<>();
@@ -260,22 +259,22 @@ public abstract class CompositeDefinition implements Identifyable {
   }
 
   
-  public List<VariableDefinition<?>> getVariableDefinitions() {
+  public List<VariableDefinition> getVariableDefinitions() {
     return variableDefinitions;
   }
 
   
-  public void setVariableDefinitions(List<VariableDefinition<?>> variableDefinitions) {
+  public void setVariableDefinitions(List<VariableDefinition> variableDefinitions) {
     this.variableDefinitions = variableDefinitions;
   }
 
   
-  public Map<VariableDefinitionId, VariableDefinition<?>> getVariableDefinitionsMap() {
+  public Map<VariableDefinitionId, VariableDefinition> getVariableDefinitionsMap() {
     return variableDefinitionsMap;
   }
 
   
-  public void setVariableDefinitionsMap(Map<VariableDefinitionId, VariableDefinition<?>> variableDefinitionsMap) {
+  public void setVariableDefinitionsMap(Map<VariableDefinitionId, VariableDefinition> variableDefinitionsMap) {
     this.variableDefinitionsMap = variableDefinitionsMap;
   }
 
@@ -304,7 +303,7 @@ public abstract class CompositeDefinition implements Identifyable {
   }
 
   public void notifyActivityInstanceEnded(ActivityInstance activityInstance) {
-    CompositeInstance parentCompositeInstance = activityInstance.getParent();
+    ScopeInstance parentCompositeInstance = activityInstance.getParent();
     if (!parentCompositeInstance.hasUnfinishedActivityInstances()) {
       parentCompositeInstance.end();
     }

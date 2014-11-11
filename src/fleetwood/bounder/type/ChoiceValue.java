@@ -17,14 +17,37 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.JsonWritablePolymorphic;
+import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
-public interface Value extends JsonWritablePolymorphic {
+public class ChoiceValue implements Value {
 
-  Object getScriptValue();
-  
+  protected String text;
+
+  public ChoiceValue() {
+  }
+
+  public ChoiceValue(String text) {
+    this.text = text;
+  }
+
+  @Override
+  public String getJsonType() {
+    return "text";
+  }
+
+  @Override
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeStringField("text", text);
+    writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public Object getScriptValue() {
+    return text;
+  }
 }

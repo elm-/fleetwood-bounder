@@ -15,13 +15,53 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.type;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
-public interface JsonSerializablePolymorphic extends JsonSerializable {
+public class Choice extends Type {
+  
+  protected List<ChoiceOption> options;
 
-  String getSerializableType();
+  @Override
+  public String getJsonType() {
+    return "choice";
+  }
+  
+  public Choice option(String label) {
+    option(label, null);
+    return this;
+  }
+
+  public Choice option(String label, String id) {
+    if (options==null) {
+      options = new ArrayList<>();
+    }
+    options.add(new ChoiceOption()
+      .id(id)
+      .label(label)
+    );
+    return this;
+  }
+
+  public List<ChoiceOption> getOptions() {
+    return options;
+  }
+
+  public void setOptions(List<ChoiceOption> options) {
+    this.options = options;
+  }
+
+  @Override
+  public void write(JsonWriter writer) {
+    super.write(writer);
+  }
+  
 }

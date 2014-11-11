@@ -26,14 +26,14 @@ import fleetwood.bounder.instance.ProcessEngineImpl;
 /**
  * @author Walter White
  */
-public class ParameterInstance<T> {
+public class ParameterInstance {
 
   protected ProcessEngineImpl processEngine;
   protected ProcessDefinition processDefinition;
-  protected CompositeDefinition parent;
+  protected ScopeDefinition parent;
   
   protected String name;
-  protected ParameterDefinition<T> parameterDefinition;
+  protected ParameterDefinition parameterDefinition;
 
   protected List<ParameterValue> values;
   
@@ -55,11 +55,11 @@ public class ParameterInstance<T> {
     this.name = name;
   }
   
-  public ParameterDefinition<T> getParameterDefinition() {
+  public ParameterDefinition getParameterDefinition() {
     return parameterDefinition;
   }
   
-  public void setParameterDefinition(ParameterDefinition<T> parameterDefinition) {
+  public void setParameterDefinition(ParameterDefinition parameterDefinition) {
     this.parameterDefinition = parameterDefinition;
   }
   
@@ -83,12 +83,12 @@ public class ParameterInstance<T> {
   }
 
   
-  public CompositeDefinition getParent() {
+  public ScopeDefinition getParent() {
     return parent;
   }
 
   
-  public void setParent(CompositeDefinition parent) {
+  public void setParent(ScopeDefinition parent) {
     this.parent = parent;
   }
 

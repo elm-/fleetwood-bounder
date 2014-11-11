@@ -17,7 +17,7 @@
 
 package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWriter;
 
 
 
@@ -29,14 +29,14 @@ public class LockReleaseUpdate implements Update {
   protected static final String TYPE_LOCK_RELEASE_UPDATE = "lockRelease";
 
   @Override
-  public String getSerializableType() {
+  public String getJsonType() {
     return TYPE_LOCK_RELEASE_UPDATE;
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.objectEnd(this);
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeObjectEnd(this);
   }
 
 }

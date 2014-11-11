@@ -32,6 +32,7 @@ import fleetwood.bounder.engine.memory.MemoryProcessEngine;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.type.TextValue;
 import fleetwood.bounder.type.Type;
 
 /**
@@ -44,7 +45,7 @@ public class ExampleTest {
     ProcessEngine processEngine = new MemoryProcessEngine();
 
     // prepare the ingredients
-    VariableDefinition<String> t = new VariableDefinition<String>()
+    VariableDefinition t = new VariableDefinition()
       .type(Type.TEXT);
     
     ActivityDefinition go = new Go();
@@ -64,7 +65,7 @@ public class ExampleTest {
     
     CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
     createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
-    createProcessInstanceRequest.variableValue(t.getId(), "hello world");
+    createProcessInstanceRequest.variableValue(t.getId(), new TextValue("hello world"));
     ProcessInstance processInstance = processEngine.createProcessInstance(createProcessInstanceRequest);
     
     ProcessInstanceId processInstanceId = processInstance.getId();

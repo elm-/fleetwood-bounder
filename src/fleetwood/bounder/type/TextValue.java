@@ -17,7 +17,7 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWriter;
 
 
 /**
@@ -25,16 +25,29 @@ import fleetwood.bounder.json.JsonSerializer;
  */
 public class TextValue implements Value {
 
-  protected String value;
+  protected String text;
+
+  public TextValue() {
+  }
+
+  public TextValue(String text) {
+    this.text = text;
+  }
 
   @Override
-  public String getSerializableType() {
+  public String getJsonType() {
     return "text";
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.writeString(value);
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeStringField("text", text);
+    writer.writeObjectEnd(this);
   }
 
+  @Override
+  public Object getScriptValue() {
+    return text;
+  }
 }

@@ -31,8 +31,8 @@ public class ProcessDefinitionId extends Id {
 
   @Override
   public String toString() {
-    if (value!=null) {
-      return "pdid"+value.toString();
+    if (internal!=null) {
+      return "pdid"+internal.toString();
     }
     return "pdidnull";
   }

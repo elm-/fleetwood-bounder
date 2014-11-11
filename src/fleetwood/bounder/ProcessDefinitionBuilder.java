@@ -45,7 +45,7 @@ public class ProcessDefinitionBuilder {
     return this;
   }
 
-  public ProcessDefinitionBuilder variable(VariableDefinition<?> variableDefinition) {
+  public ProcessDefinitionBuilder variable(VariableDefinition variableDefinition) {
     processDefinition.addVariableDefinition(variableDefinition);
     return this;
   }

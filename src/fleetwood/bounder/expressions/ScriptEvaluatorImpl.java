@@ -25,16 +25,26 @@ import javax.script.ScriptException;
 /**
  * @author Walter White
  */
-public class ExpressionEvaluator {
-  
-  public static void main(String[] args) {
-    try {
-      ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-      Object result = engine.eval("4 < 5");
-      System.out.println(result);
+public class ScriptEvaluatorImpl implements ScriptEvaluator {
 
+  @Override
+  public ScriptOutput evaluateScript(ScriptInput scriptInput) {
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName(scriptInput.getLanguage());
+    ScriptOutput scriptOutput = new ScriptOutput(scriptInput);
+    try {
+      ScriptContextImpl scriptContext = new ScriptContextImpl(scriptInput, scriptOutput);
+      engine.setContext(scriptContext);
+      Object result = engine.eval(scriptInput.getScript());
+      scriptOutput.setResult(result);
+      if (scriptInput.hasScriptOutputVariables()) {
+        for (String scriptOutputVariable: scriptInput.getOutputVariableNames()) {
+          Object value = engine.get(scriptOutputVariable);
+          scriptOutput.setOutputVariable(scriptOutputVariable, value);
+        }
+      }
     } catch (ScriptException e) {
-      throw new RuntimeException(e);
+      scriptOutput.setException(e);
     }
+    return scriptOutput;
   }
 }

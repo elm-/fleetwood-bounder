@@ -24,7 +24,7 @@ import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWriter;
 
 
 /**
@@ -63,14 +63,14 @@ public class ActivityInstanceStartOperation implements Operation {
   }
 
   @Override
-  public String getSerializableType() {
+  public String getJsonType() {
     return TYPE_ACTIVITY_INSTANCE_START_OPERATION;
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
-    serializer.objectEnd(this);
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
+    writer.writeObjectEnd(this);
   }
 }

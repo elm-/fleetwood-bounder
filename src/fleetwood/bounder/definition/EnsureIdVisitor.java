@@ -51,7 +51,7 @@ public class EnsureIdVisitor extends ProcessDefinitionVisitor {
   }
 
   @Override
-  public void variableDefinition(VariableDefinition<?> variableDefinition) {
+  public void variableDefinition(VariableDefinition variableDefinition) {
     if (variableDefinition.getId()==null) {
       variableDefinition.setId(createVariableDefinitionId(variableDefinition));
     }
@@ -70,16 +70,16 @@ public class EnsureIdVisitor extends ProcessDefinitionVisitor {
 
   public ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition) {
     activityDefinitionsCreated++;
-    return new ActivityDefinitionId(activityDefinitionsCreated);
+    return new ActivityDefinitionId("a"+activityDefinitionsCreated);
   }
 
-  public VariableDefinitionId createVariableDefinitionId(VariableDefinition<?> variableDefinition) {
+  public VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition) {
     variableDefinitionsCreated++;
-    return new VariableDefinitionId(variableDefinitionsCreated);
+    return new VariableDefinitionId("v"+variableDefinitionsCreated);
   }
 
   public TransitionDefinitionId createTransitionDefinitionId(TransitionDefinition transitionDefinition) {
     transitionDefinitionsCreated++;
-    return new TransitionDefinitionId(transitionDefinitionsCreated);
+    return new TransitionDefinitionId("t"+transitionDefinitionsCreated);
   }
 }

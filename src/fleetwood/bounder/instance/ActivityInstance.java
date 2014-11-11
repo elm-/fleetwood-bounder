@@ -25,14 +25,14 @@ import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.TransitionDefinition;
 import fleetwood.bounder.engine.operation.NotifyActivityInstanceEndToParent;
 import fleetwood.bounder.engine.updates.ActivityInstanceEndUpdate;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWriter;
 import fleetwood.bounder.util.Time;
 
 
 /**
  * @author Walter White
  */
-public class ActivityInstance extends CompositeInstance {
+public class ActivityInstance extends ScopeInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -128,11 +128,11 @@ public class ActivityInstance extends CompositeInstance {
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.writeIdField(FIELD_ID, id);
-    serializer.writeIdField(FIELD_ACTIVITY_DEFINITION_ID, activityDefinition!=null ? activityDefinition.getId() : null);
-    serializeCompositeInstanceFields(serializer);
-    serializer.objectEnd(this);
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeIdField(FIELD_ID, id);
+    writer.writeIdField(FIELD_ACTIVITY_DEFINITION_ID, activityDefinition!=null ? activityDefinition.getId() : null);
+    serializeCompositeInstanceFields(writer);
+    writer.writeObjectEnd(this);
   }
 }

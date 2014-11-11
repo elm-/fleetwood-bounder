@@ -19,44 +19,45 @@ package fleetwood.bounder.definition;
 
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.type.Type;
+import fleetwood.bounder.type.Value;
 
 
 /**
  * @author Walter White
  */
-public class ParameterDefinition<T> {
+public class ParameterDefinition {
 
   protected String name;
-  protected Type<T> type;
+  protected Type type;
   protected VariableDefinitionId variableDefinitionId;
   protected String expression;
   
   public ParameterDefinition() {
   }
 
-  public ParameterDefinition(Type<T> type) {
+  public ParameterDefinition(Type type) {
     this.type = type;
   }
   
-  public T get(ActivityInstance activityInstance) {
+  public Value get(ActivityInstance activityInstance) {
     return null;
   }
 
-  public static <T> ParameterDefinition<T> type(Type<T> type) {
-    return new ParameterDefinition<T>(type);
+  public static  ParameterDefinition type(Type type) {
+    return new ParameterDefinition(type);
   }
   
-  public ParameterDefinition<T> name(String name) {
+  public ParameterDefinition name(String name) {
     this.name = name;
     return this;
   }
   
-  public ParameterDefinition<T> variableDefinitionId(VariableDefinitionId variableDefinitionId) {
+  public ParameterDefinition variableDefinitionId(VariableDefinitionId variableDefinitionId) {
     this.variableDefinitionId = variableDefinitionId;
     return this;
   }
 
-  public ParameterDefinition<T> expression(String expression) {
+  public ParameterDefinition expression(String expression) {
     this.expression = expression;
     return this;
   }
@@ -71,12 +72,12 @@ public class ParameterDefinition<T> {
   }
 
   
-  public Type<T> getType() {
+  public Type getType() {
     return type;
   }
 
   
-  public void setType(Type<T> type) {
+  public void setType(Type type) {
     this.type = type;
   }
 

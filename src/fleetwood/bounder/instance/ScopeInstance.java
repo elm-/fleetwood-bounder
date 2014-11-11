@@ -18,26 +18,30 @@
 package fleetwood.bounder.instance;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.definition.CompositeDefinition;
+import fleetwood.bounder.definition.ScopeDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.VariableDefinition;
+import fleetwood.bounder.definition.VariableDefinitionId;
 import fleetwood.bounder.engine.updates.ActivityInstanceCreateUpdate;
-import fleetwood.bounder.json.JsonSerializable;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWritable;
+import fleetwood.bounder.json.JsonWriter;
+import fleetwood.bounder.type.Value;
 import fleetwood.bounder.util.Time;
 
 
 /**
  * @author Walter White
  */
-public abstract class CompositeInstance implements JsonSerializable {
+public abstract class ScopeInstance implements JsonWritable {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -54,18 +58,20 @@ public abstract class CompositeInstance implements JsonSerializable {
   protected List<ActivityInstance> activityInstances;
 
   public static final String FIELD_VARIABLE_INSTANCES = "variableInstances";
-  protected List<VariableInstance<?>> variableInstances;
+  protected List<VariableInstance> variableInstances;
+
+  protected Map<VariableDefinitionId, VariableInstance> variableInstancesMap;
 
   protected ProcessEngineImpl processEngine;
   protected ProcessDefinition processDefinition;
-  protected CompositeDefinition compositeDefinition;
+  protected ScopeDefinition scopeDefinition;
   protected ProcessInstance processInstance;
-  protected CompositeInstance parent;
+  protected ScopeInstance parent;
 
   public ActivityInstance createActivityInstance(ActivityDefinition activityDefinition) {
     ActivityInstance activityInstance = processEngine.createActivityInstance(activityDefinition);
     activityInstance.setProcessEngine(processEngine);
-    activityInstance.setCompositeDefinition(activityDefinition);
+    activityInstance.setScopeDefinition(activityDefinition);
     activityInstance.setProcessInstance(processInstance);
     activityInstance.setParent(this);
     activityInstance.setActivityDefinition(activityDefinition);
@@ -81,10 +87,10 @@ public abstract class CompositeInstance implements JsonSerializable {
   }
   
   protected void initializeVariableInstances() {
-    List<VariableDefinition<?>> variableDefinitions = compositeDefinition.getVariableDefinitions();
+    List<VariableDefinition> variableDefinitions = scopeDefinition.getVariableDefinitions();
     if (variableDefinitions!=null) {
-      for (VariableDefinition<?> variableDefinition: variableDefinitions) {
-        VariableInstance<?> variableInstance = variableDefinition.createVariableInstance();
+      for (VariableDefinition variableDefinition: variableDefinitions) {
+        VariableInstance variableInstance = variableDefinition.createVariableInstance();
         variableInstance.setProcessEngine(processEngine);
         variableInstance.setParent(this);
         variableInstance.setProcessInstance(processInstance);
@@ -92,6 +98,54 @@ public abstract class CompositeInstance implements JsonSerializable {
           variableInstances = new ArrayList<>();
         }
         variableInstances.add(variableInstance);
+      }
+    }
+  }
+  
+  public void setVariableValuesRecursive(Map<VariableDefinitionId, Value> variableValues) {
+    if (variableValues!=null) {
+      for (VariableDefinitionId variableDefinitionId: variableValues.keySet()) {
+        Value value = variableValues.get(variableDefinitionId);
+        setVariableValueRecursive(variableDefinitionId, value);
+      }
+    }
+  }
+
+  public void setVariableValueRecursive(VariableDefinitionId variableDefinitionId, Value value) {
+    if (variableInstances!=null) {
+      VariableInstance variableInstance = getVariableInstanceLocal(variableDefinitionId);
+      if (variableInstance!=null) {
+        variableInstance.setValue(value);
+      }
+    }
+    if (parent!=null) {
+      parent.setVariableValueRecursive(variableDefinitionId, value);
+    }
+  }
+  
+  public Value getVariableValueRecursive(VariableDefinitionId variableDefinitionId) {
+    if (variableInstances!=null) {
+      VariableInstance variableInstance = getVariableInstanceLocal(variableDefinitionId);
+      if (variableInstance!=null) {
+        return variableInstance.getValue();
+      }
+    }
+    if (parent!=null) {
+      return parent.getVariableValueRecursive(variableDefinitionId);
+    }
+    return null;
+  }
+  
+  protected VariableInstance getVariableInstanceLocal(VariableDefinitionId variableDefinitionId) {
+    ensureVariableInstancesMapInitialized();
+    return variableInstancesMap.get(variableDefinitionId);
+  }
+
+  protected void ensureVariableInstancesMapInitialized() {
+    if (variableInstancesMap==null && variableInstances!=null) {
+      variableInstancesMap = new HashMap<>();
+      for (VariableInstance variableInstance: variableInstances) {
+        variableInstancesMap.put(variableInstance.getVariableDefinition().getId(), variableInstance);
       }
     }
   }
@@ -144,12 +198,12 @@ public abstract class CompositeInstance implements JsonSerializable {
     this.processDefinition = processDefinition;
   }
   
-  public CompositeDefinition getCompositeDefinition() {
-    return compositeDefinition;
+  public ScopeDefinition getScopeDefinition() {
+    return scopeDefinition;
   }
 
-  public void setCompositeDefinition(CompositeDefinition compositeDefinition) {
-    this.compositeDefinition = compositeDefinition;
+  public void setScopeDefinition(ScopeDefinition scopeDefinition) {
+    this.scopeDefinition = scopeDefinition;
   }
   
   public ProcessInstance getProcessInstance() {
@@ -172,11 +226,11 @@ public abstract class CompositeInstance implements JsonSerializable {
     return activityInstances!=null && !activityInstances.isEmpty();
   }
   
-  public CompositeInstance getParent() {
+  public ScopeInstance getParent() {
     return parent;
   }
   
-  public void setParent(CompositeInstance parent) {
+  public void setParent(ScopeInstance parent) {
     this.parent = parent;
   }
 
@@ -198,11 +252,11 @@ public abstract class CompositeInstance implements JsonSerializable {
     return end!=null;
   }
 
-  protected void serializeCompositeInstanceFields(JsonSerializer serializer) {
-    serializer.writeTimeField(FIELD_START, start);
-    serializer.writeTimeField(FIELD_END, end);
-    serializer.writeNumberField(FIELD_DURATION, end);
-    serializer.writeObjectArray(FIELD_ACTIVITY_INSTANCES, activityInstances);
-    serializer.writeObjectArray(FIELD_VARIABLE_INSTANCES, variableInstances);
+  protected void serializeCompositeInstanceFields(JsonWriter writer) {
+    writer.writeTimeField(FIELD_START, start);
+    writer.writeTimeField(FIELD_END, end);
+    writer.writeNumberField(FIELD_DURATION, end);
+    writer.writeObjectArray(FIELD_ACTIVITY_INSTANCES, activityInstances);
+    writer.writeObjectArray(FIELD_VARIABLE_INSTANCES, variableInstances);
   }
 }

@@ -17,7 +17,7 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWriter;
 import fleetwood.bounder.util.Id;
 
 
@@ -29,13 +29,18 @@ public class IdValue implements Value {
   protected Id value;
 
   @Override
-  public String getSerializableType() {
+  public String getJsonType() {
     return "id";
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.writeString(value.toString());
+  public void write(JsonWriter writer) {
+    writer.writeString(value.toString());
+  }
+
+  @Override
+  public Object getScriptValue() {
+    return value.getInternal();
   }
 
 }

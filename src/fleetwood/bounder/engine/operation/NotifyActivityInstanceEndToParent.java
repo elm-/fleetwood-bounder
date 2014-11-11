@@ -17,10 +17,10 @@
 
 package fleetwood.bounder.engine.operation;
 
-import fleetwood.bounder.definition.CompositeDefinition;
+import fleetwood.bounder.definition.ScopeDefinition;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWriter;
 
 
 /**
@@ -39,7 +39,7 @@ public class NotifyActivityInstanceEndToParent implements Operation {
 
   @Override
   public void execute(ProcessEngineImpl processEngine) {
-    CompositeDefinition parentDefinition = activityInstance.getParent().getCompositeDefinition();
+    ScopeDefinition parentDefinition = activityInstance.getParent().getScopeDefinition();
     parentDefinition.notifyActivityInstanceEnded(activityInstance);
   }
   
@@ -57,14 +57,14 @@ public class NotifyActivityInstanceEndToParent implements Operation {
   }
 
   @Override
-  public String getSerializableType() {
+  public String getJsonType() {
     return TYPE_NOTIFY_ACTIVITY_INSTANCE_END_TO_PARENT;
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
-    serializer.objectEnd(this);
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
+    writer.writeObjectEnd(this);
   }
 }

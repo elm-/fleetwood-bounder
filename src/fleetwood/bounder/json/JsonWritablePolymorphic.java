@@ -17,28 +17,11 @@
 
 package fleetwood.bounder.json;
 
-import java.util.Collection;
 
-import fleetwood.bounder.util.Id;
-
-
-/** interface so there is no hard dependency on the jackson library
- * as long as json serialization is not used.
- * 
+/**
  * @author Walter White
  */
-public interface JsonSerializer {
+public interface JsonWritablePolymorphic extends JsonWritable {
 
-  void objectStart(JsonSerializable serializable);
-  void objectEnd(JsonSerializable serializable);
-
-  void writeStringField(String fieldName, String text);
-  void writeTimeField(String fieldName, Long time);
-  void writeIdField(String fieldName, Id id);
-  void writeNumberField(String fieldDuration, Long end);
-  
-  void writeObjectArray(String fieldName, Collection<? extends JsonSerializable> serializables);
-  void writeObject(String fieldName, JsonSerializable serializable);
-  
-  void writeString(String serializableType);
+  String getJsonType();
 }

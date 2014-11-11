@@ -33,7 +33,7 @@ public class OperationAddUpdate extends OperationUpdate {
   }
   
   @Override
-  public String getSerializableType() {
+  public String getJsonType() {
     return TYPE_OPERATION_ADD_UPDATE;
   }
 }

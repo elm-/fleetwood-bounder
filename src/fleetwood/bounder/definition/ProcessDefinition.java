@@ -23,7 +23,7 @@ import fleetwood.bounder.util.Exceptions;
 /**
  * @author Walter White
  */
-public class ProcessDefinition extends CompositeDefinition {
+public class ProcessDefinition extends ScopeDefinition {
 
   protected ProcessDefinitionId id;
 
@@ -42,7 +42,7 @@ public class ProcessDefinition extends CompositeDefinition {
     return this;
   }
 
-  public ProcessDefinition variable(VariableDefinition<?> variableDefinition) {
+  public ProcessDefinition variable(VariableDefinition variableDefinition) {
     addVariableDefinition(variableDefinition);
     return this;
   }

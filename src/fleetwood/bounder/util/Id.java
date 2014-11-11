@@ -23,26 +23,26 @@ package fleetwood.bounder.util;
  */
 public class Id {
 
-  protected Object value;
+  protected Object internal;
   
-  public Id(Object state) {
-    Exceptions.checkNotNull(state, "state");
-    this.value = state;
+  public Id(Object internal) {
+    Exceptions.checkNotNull(internal, "internal");
+    this.internal = internal;
   }
 
-  public Object getValue() {
-    return value;
+  public Object getInternal() {
+    return internal;
   }
   
-  public void setState(Object state) {
-    this.value = state;
+  public void setState(Object internal) {
+    this.internal = internal;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((value == null) ? 0 : value.hashCode());
+    result = prime * result + ((internal == null) ? 0 : internal.hashCode());
     return result;
   }
 
@@ -55,20 +55,20 @@ public class Id {
     if (getClass() != obj.getClass())
       return false;
     Id other = (Id) obj;
-    if (value == null) {
-      if (other.value != null)
+    if (internal == null) {
+      if (other.internal != null)
         return false;
-    } else if (!value.equals(other.value))
+    } else if (!internal.equals(other.internal))
       return false;
     return true;
   }
 
   @Override
   public String toString() {
-    return value.toString();
+    return internal.toString();
   }
 
   public String getIdString() {
-    return value!=null ? value.toString() : null;
+    return internal!=null ? internal.toString() : null;
   }
 }

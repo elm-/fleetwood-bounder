@@ -20,23 +20,24 @@ package fleetwood.bounder.definition;
 import fleetwood.bounder.instance.ProcessEngineImpl;
 import fleetwood.bounder.instance.VariableInstance;
 import fleetwood.bounder.type.Type;
+import fleetwood.bounder.type.Value;
 import fleetwood.bounder.util.Identifyable;
 
 
 /**
  * @author Walter White
  */
-public class VariableDefinition<T> implements Identifyable {
+public class VariableDefinition implements Identifyable {
 
   protected ProcessEngineImpl processEngine;
   protected ProcessDefinition processDefinition;  
-  protected CompositeDefinition parent;
+  protected ScopeDefinition parent;
   protected VariableDefinitionId id;
   protected String name;
-  protected Type<T> type;
-  protected T initialValue;
+  protected Type type;
+  protected Value initialValue;
   
-  public VariableDefinition<T> type(Type<T> type) {
+  public VariableDefinition type(Type type) {
     this.type = type;
     return this;
   }
@@ -44,11 +45,11 @@ public class VariableDefinition<T> implements Identifyable {
   public void prepare() {
   }
   
-  public CompositeDefinition getParent() {
+  public ScopeDefinition getParent() {
     return parent;
   }
 
-  public void setParent(CompositeDefinition parent) {
+  public void setParent(ScopeDefinition parent) {
     this.parent = parent;
   }
 
@@ -64,7 +65,7 @@ public class VariableDefinition<T> implements Identifyable {
     return name;
   }
   
-  public VariableDefinition<?> setName(String name) {
+  public VariableDefinition setName(String name) {
     this.name = name;
     return this;
   }
@@ -85,16 +86,16 @@ public class VariableDefinition<T> implements Identifyable {
     this.processEngine = processEngine;
   }
   
-  public Type<?> getType() {
+  public Type getType() {
     return type;
   }
   
-  public void setType(Type<T> type) {
+  public void setType(Type type) {
     this.type = type;
   }
 
-  public VariableInstance<T> createVariableInstance() {
-    VariableInstance<T> variableInstance = new VariableInstance<>();
+  public VariableInstance createVariableInstance() {
+    VariableInstance variableInstance = new VariableInstance();
     variableInstance.setType(type);
     variableInstance.setVariableDefinition(this);
     variableInstance.setValue(initialValue);

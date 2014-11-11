@@ -15,16 +15,15 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.type;
-
-import fleetwood.bounder.json.JsonWritablePolymorphic;
+package fleetwood.bounder.expressions;
 
 
 /**
  * @author Walter White
  */
-public interface Value extends JsonWritablePolymorphic {
+public class Conditions {
 
-  Object getScriptValue();
-  
+  public boolean contains(String text, String substring) {
+    return text.toLowerCase().contains(substring.toLowerCase());
+  }
 }

@@ -1,14 +1,11 @@
 # Roadmap
  
-* upgrade json abstraction
 * bpmn process logic coverage
- * end activity
  * join
-* async
 * in / output
 * expressions
-* variable types
 * bpmn serialization and parsing
+* object type declarations in process definition 
 * mongodb persistence
 * jdbc persistence
 * load testing

@@ -27,7 +27,7 @@ import fleetwood.bounder.util.Exceptions;
 /**
  * @author Walter White
  */
-public abstract class ActivityDefinition extends CompositeDefinition {
+public abstract class ActivityDefinition extends ScopeDefinition {
 
   protected ActivityDefinitionId id;
   protected List<TransitionDefinition> outgoingTransitionDefinitions;
@@ -42,20 +42,20 @@ public abstract class ActivityDefinition extends CompositeDefinition {
     return this;
   }
 
-  public ActivityDefinition variable(VariableDefinition<?> variableDefinition) {
+  public  ActivityDefinition variable(VariableDefinition variableDefinition) {
     addVariableDefinition(variableDefinition);
     return this;
   }
   
-  public <T> ActivityDefinition parameterObject(ParameterDefinition<T> parameterDefinition, Object object) {
+  public ActivityDefinition parameterObject(ParameterDefinition parameterDefinition, Object object) {
     super.parameterObject(parameterDefinition, object);
     return this;
   }
-  public <T> ActivityDefinition parameterExpression(ParameterDefinition<T> parameterDefinition, String expression) {
+  public ActivityDefinition parameterExpression(ParameterDefinition parameterDefinition, String expression) {
     super.parameterExpression(parameterDefinition, expression);
     return this;
   }
-  public <T> ActivityDefinition parameterVariable(ParameterDefinition<T> parameterDefinition, VariableDefinition<T> variableDefinition) {
+  public ActivityDefinition parameterVariable(ParameterDefinition parameterDefinition, VariableDefinition variableDefinition) {
     super.parameterVariable(parameterDefinition, variableDefinition);
     return this;
   }

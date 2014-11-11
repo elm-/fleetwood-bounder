@@ -18,7 +18,7 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.Lock;
-import fleetwood.bounder.json.JsonSerializer;
+import fleetwood.bounder.json.JsonWriter;
 
 
 /**
@@ -44,14 +44,14 @@ public class LockAcquireUpdate implements Update {
   }
 
   @Override
-  public String getSerializableType() {
+  public String getJsonType() {
     return TYPE_LOCK_ACQUIRE_UPDATE;
   }
 
   @Override
-  public void serialize(JsonSerializer serializer) {
-    serializer.objectStart(this);
-    serializer.writeObject(FIELD_LOCK, lock);
-    serializer.objectEnd(this);
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeObject(FIELD_LOCK, lock);
+    writer.writeObjectEnd(this);
   }
 }

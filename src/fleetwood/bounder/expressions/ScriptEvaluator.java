@@ -15,16 +15,15 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.type;
+package fleetwood.bounder.expressions;
 
-import fleetwood.bounder.json.JsonWritablePolymorphic;
 
 
 /**
  * @author Walter White
  */
-public interface Value extends JsonWritablePolymorphic {
-
-  Object getScriptValue();
+public interface ScriptEvaluator {
+  
+  ScriptOutput evaluateScript(ScriptInput scriptInput);
   
 }

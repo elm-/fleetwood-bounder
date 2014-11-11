@@ -26,18 +26,18 @@ import java.util.Map;
  */
 public class ParameterDefinitions {
 
-  Map<String, ParameterDefinition<?>> parameterDefinitions;
+  Map<String, ParameterDefinition> parameterDefinitions;
 
-  public ParameterDefinitions(ParameterDefinition< ? >... parameterDefinitions) {
+  public ParameterDefinitions(ParameterDefinition... parameterDefinitions) {
     this.parameterDefinitions = new LinkedHashMap<>();
     if (parameterDefinitions!=null) {
-      for (ParameterDefinition<?> parameterDefinition: parameterDefinitions) {
+      for (ParameterDefinition parameterDefinition: parameterDefinitions) {
         this.parameterDefinitions.put(parameterDefinition.name, parameterDefinition);
       }
     }
   }
   
-  public ParameterDefinition<?> getParameterDefinition(String name) {
+  public ParameterDefinition getParameterDefinition(String name) {
     return (parameterDefinitions!=null ? parameterDefinitions.get(name) : null);
   }
 }

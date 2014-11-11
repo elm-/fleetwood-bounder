@@ -18,6 +18,7 @@
 package fleetwood.bounder.instance;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -33,6 +34,8 @@ import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.definition.EnsureIdVisitor;
 import fleetwood.bounder.definition.ProcessDefinition;
 import fleetwood.bounder.definition.ProcessDefinitionId;
+import fleetwood.bounder.definition.VariableDefinitionId;
+import fleetwood.bounder.type.Value;
 import fleetwood.bounder.util.Exceptions;
 import fleetwood.bounder.util.Time;
 
@@ -69,7 +72,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
       .get();
     ProcessInstanceId processInstanceId = createProcessInstanceRequest.getProcessInstanceId();
     ProcessInstance processInstance = createProcessInstance(processDefinition, processInstanceId);
-    // TODO set variables and context
+    Map<VariableDefinitionId, Value> variableValues = createProcessInstanceRequest.getVariableValues();
+    processInstance.setVariableValuesRecursive(variableValues);
     log.debug("Starting "+processInstance);
     processInstance.setStart(Time.now());
     List<ActivityDefinition> startActivityDefinitions = processDefinition.getStartActivityDefinitions();
