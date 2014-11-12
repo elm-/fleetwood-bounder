@@ -36,6 +36,7 @@ import fleetwood.bounder.engine.updates.LockReleaseUpdate;
 import fleetwood.bounder.engine.updates.OperationAddUpdate;
 import fleetwood.bounder.engine.updates.OperationRemoveUpdate;
 import fleetwood.bounder.engine.updates.Update;
+import fleetwood.bounder.json.JsonReader;
 import fleetwood.bounder.json.JsonWriter;
 import fleetwood.bounder.util.Time;
 
@@ -240,10 +241,25 @@ public class ProcessInstance extends ScopeInstance {
   public void write(JsonWriter writer) {
     writer.writeObjectStart(this);
     writer.writeIdField(FIELD_ID, id);
-    serializeCompositeInstanceFields(writer);
+    writeScopeInstanceFields(writer);
     writer.writeObjectArray(FIELD_OPERATIONS, operations);
     writer.writeObjectArray(FIELD_ASYNC_OPERATIONS, asyncOperations);
     writer.writeObject(FIELD_LOCK, lock);
     writer.writeObjectEnd(this);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void read(JsonReader reader) {
+    reader.pushContext(JSON_READER_CONTEXT_KEY_SCOPE_INSTANCE, new ScopeInstanceJsonReaderContext(this));
+    try {
+      id = reader.readId(FIELD_ID, ProcessInstanceId.class);
+      readScopeInstanceFields(reader);
+      operations = (LinkedList<Operation>) reader.readObjectArray(FIELD_OPERATIONS, Operation.class, LinkedList.class);
+      asyncOperations = (LinkedList<Operation>) reader.readObjectArray(FIELD_ASYNC_OPERATIONS, Operation.class, LinkedList.class);
+      lock = reader.readObject(FIELD_LOCK, Lock.class);
+    } finally {
+      reader.popContext(JSON_READER_CONTEXT_KEY_SCOPE_INSTANCE);
+    }
   }
 }

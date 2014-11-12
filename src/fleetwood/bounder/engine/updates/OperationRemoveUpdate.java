@@ -18,6 +18,8 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.engine.operation.Operation;
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
@@ -26,17 +28,11 @@ import fleetwood.bounder.json.JsonWriter;
  * 
  * @author Walter White
  */
+@JsonTypeId("operationRemove")
 public class OperationRemoveUpdate extends OperationUpdate {
-
-  protected static final String TYPE_OPERATION_REMOVE = "operationRemove";
 
   public OperationRemoveUpdate(Operation operation) {
     super(operation);
-  }
-
-  @Override
-  public String getJsonType() {
-    return TYPE_OPERATION_REMOVE;
   }
 
   @Override
@@ -45,4 +41,7 @@ public class OperationRemoveUpdate extends OperationUpdate {
     writer.writeObjectEnd(this);
   }
 
+  @Override
+  public void read(JsonReader reader) {
+  }
 }

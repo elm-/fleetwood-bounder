@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import fleetwood.bounder.instance.ActivityInstance;
-import fleetwood.bounder.instance.ScopeInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
+import fleetwood.bounder.instance.ScopeInstance;
 import fleetwood.bounder.util.Exceptions;
 import fleetwood.bounder.util.Identifyable;
 

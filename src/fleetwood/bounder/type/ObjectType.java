@@ -15,25 +15,24 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine.updates;
+package fleetwood.bounder.type;
 
-import fleetwood.bounder.engine.operation.Operation;
+import java.util.List;
+
 import fleetwood.bounder.json.JsonReader;
 import fleetwood.bounder.json.JsonTypeId;
 
 
-/** The operation is always added at the end of the queue. 
- * 
+/**
  * @author Walter White
  */
-@JsonTypeId("operationAdd")
-public class OperationAddUpdate extends OperationUpdate {
+@JsonTypeId("object")
+public class ObjectType extends Type {
 
-  public OperationAddUpdate(Operation operation) {
-    super(operation);
-  }
+  List<ObjectField> fields;
   
   @Override
   public void read(JsonReader reader) {
   }
+
 }

@@ -24,17 +24,18 @@ import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeId("aiStart")
 public class ActivityInstanceStartOperation implements Operation {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
-
-  public static final String TYPE_ACTIVITY_INSTANCE_START_OPERATION = "aiStart";
 
   public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
   protected ActivityInstance activityInstance;
@@ -63,14 +64,13 @@ public class ActivityInstanceStartOperation implements Operation {
   }
 
   @Override
-  public String getJsonType() {
-    return TYPE_ACTIVITY_INSTANCE_START_OPERATION;
-  }
-
-  @Override
   public void write(JsonWriter writer) {
     writer.writeObjectStart(this);
     writer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 }

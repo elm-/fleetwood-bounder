@@ -17,15 +17,18 @@
 
 package fleetwood.bounder.type;
 
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
+
 
 
 /**
  * @author Walter White
  */
+@JsonTypeId("id")
 public class IdType extends Type {
 
   @Override
-  public String getJsonType() {
-    return "id";
+  public void read(JsonReader reader) {
   }
 }

@@ -17,6 +17,8 @@
 
 package fleetwood.bounder.engine.updates;
 
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
@@ -24,19 +26,17 @@ import fleetwood.bounder.json.JsonWriter;
 /**
  * @author Walter White
  */
+@JsonTypeId("lockRelease")
 public class LockReleaseUpdate implements Update {
-
-  protected static final String TYPE_LOCK_RELEASE_UPDATE = "lockRelease";
-
-  @Override
-  public String getJsonType() {
-    return TYPE_LOCK_RELEASE_UPDATE;
-  }
 
   @Override
   public void write(JsonWriter writer) {
     writer.writeObjectStart(this);
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 
 }

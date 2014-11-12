@@ -17,16 +17,10 @@
 
 package fleetwood.bounder.expressions;
 
-import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
 import org.slf4j.Logger;
@@ -35,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.VariableDefinitionId;
 import fleetwood.bounder.instance.ScopeInstance;
-import fleetwood.bounder.type.Value;
 
 
 /**
@@ -62,9 +55,8 @@ public class ScriptContextImpl extends SimpleScriptContext {
     if (inputVariableNames!=null) {
       for (VariableDefinitionId variableDefinitionId: inputVariableNames.keySet()) {
         String scriptVariableName = inputVariableNames.get(variableDefinitionId);
-        Value value = scopeInstance.getVariableValueRecursive(variableDefinitionId);
-        Object scriptValue = value.getScriptValue();
-        setAttribute(scriptVariableName, scriptValue, ENGINE_SCOPE);
+        Object value = scopeInstance.getVariableValueRecursive(variableDefinitionId);
+        setAttribute(scriptVariableName, value, ENGINE_SCOPE);
       }
     }
   }

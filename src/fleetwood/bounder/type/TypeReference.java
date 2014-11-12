@@ -15,13 +15,26 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.json;
+package fleetwood.bounder.type;
+
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonWriter;
+import fleetwood.bounder.json.Jsonnable;
 
 
 /**
  * @author Walter White
  */
-public interface JsonWritablePolymorphic extends JsonWritable {
+public class TypeReference implements Jsonnable {
 
-  String getJsonType();
+  Type type;
+  
+  @Override
+  public void write(JsonWriter writer) {
+    writer.writeString(type.getId());
+  }
+
+  @Override
+  public void read(JsonReader reader) {
+  }
 }

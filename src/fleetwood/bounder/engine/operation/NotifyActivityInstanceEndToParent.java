@@ -20,15 +20,16 @@ package fleetwood.bounder.engine.operation;
 import fleetwood.bounder.definition.ScopeDefinition;
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ProcessEngineImpl;
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeId("notifyEndToParent")
 public class NotifyActivityInstanceEndToParent implements Operation {
-
-  public static final String TYPE_NOTIFY_ACTIVITY_INSTANCE_END_TO_PARENT = "notifyEndToParent";
 
   public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
   protected ActivityInstance activityInstance;
@@ -57,14 +58,13 @@ public class NotifyActivityInstanceEndToParent implements Operation {
   }
 
   @Override
-  public String getJsonType() {
-    return TYPE_NOTIFY_ACTIVITY_INSTANCE_END_TO_PARENT;
-  }
-
-  @Override
   public void write(JsonWriter writer) {
     writer.writeObjectStart(this);
     writer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance!=null ? activityInstance.getId() : null);
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 }

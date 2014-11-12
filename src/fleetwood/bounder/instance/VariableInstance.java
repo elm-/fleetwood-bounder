@@ -18,16 +18,17 @@
 package fleetwood.bounder.instance;
 
 import fleetwood.bounder.definition.VariableDefinition;
-import fleetwood.bounder.json.JsonWritable;
+import fleetwood.bounder.definition.VariableDefinitionId;
+import fleetwood.bounder.json.JsonReader;
 import fleetwood.bounder.json.JsonWriter;
+import fleetwood.bounder.json.Jsonnable;
 import fleetwood.bounder.type.Type;
-import fleetwood.bounder.type.Value;
 
 
 /**
  * @author Walter White
  */
-public class VariableInstance implements JsonWritable {
+public class VariableInstance implements Jsonnable {
 
   protected ProcessEngineImpl processEngine;
   protected ScopeInstance parent;
@@ -38,7 +39,7 @@ public class VariableInstance implements JsonWritable {
   protected Type type;
   
   public static final String FIELD_VALUE = "value";
-  protected Value value;
+  protected Object value;
   
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
@@ -72,11 +73,11 @@ public class VariableInstance implements JsonWritable {
     this.type = type;
   }
   
-  public Value getValue() {
+  public Object getValue() {
     return value;
   }
   
-  public void setValue(Value value) {
+  public void setValue(Object value) {
     this.value = value;
   }
   
@@ -94,8 +95,18 @@ public class VariableInstance implements JsonWritable {
     writer.writeIdField(FIELD_VARIABLE_DEFINITION_ID, variableDefinition.getId());
     if (value!=null) {
       writer.writeFieldName(FIELD_VALUE);
-      value.write(writer);
+      type.writeValue(writer, value);
     }
     writer.writeObjectEnd(this);
+  }
+
+  public static final String JSON_CONTEXT_KEY_UNRESOLVED_VARIABLE_INSTANCES = null;
+
+  @Override
+  public void read(JsonReader reader) {
+    VariableDefinitionId variableDefinitionId = (VariableDefinitionId) reader.readId(FIELD_VARIABLE_DEFINITION_ID);
+    Object valueJson = reader.getJsonObject(FIELD_VALUE);
+    ScopeInstanceJsonReaderContext parentScopeContext = (ScopeInstanceJsonReaderContext) reader.getContext(ScopeInstance.JSON_READER_CONTEXT_KEY_SCOPE_INSTANCE);
+    parentScopeContext.addUnresolvedVariableInstance(this, variableDefinitionId, valueJson);
   }
 }

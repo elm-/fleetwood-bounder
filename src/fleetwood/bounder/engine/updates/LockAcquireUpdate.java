@@ -18,19 +18,20 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.Lock;
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeId("lockAcquire")
 public class LockAcquireUpdate implements Update {
 
   public static final String FIELD_LOCK = "lock";
   protected Lock lock;
   
-  public static final String TYPE_LOCK_ACQUIRE_UPDATE = "lockAcquire";
-
   public LockAcquireUpdate(Lock lock) {
     this.lock = lock;
   }
@@ -44,14 +45,13 @@ public class LockAcquireUpdate implements Update {
   }
 
   @Override
-  public String getJsonType() {
-    return TYPE_LOCK_ACQUIRE_UPDATE;
-  }
-
-  @Override
   public void write(JsonWriter writer) {
     writer.writeObjectStart(this);
     writer.writeObject(FIELD_LOCK, lock);
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 }

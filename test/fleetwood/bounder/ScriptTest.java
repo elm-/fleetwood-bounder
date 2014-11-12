@@ -17,7 +17,7 @@
 
 package fleetwood.bounder;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,7 +31,6 @@ import fleetwood.bounder.expressions.ScriptEvaluatorImpl;
 import fleetwood.bounder.expressions.ScriptInput;
 import fleetwood.bounder.expressions.ScriptOutput;
 import fleetwood.bounder.instance.ProcessInstance;
-import fleetwood.bounder.type.TextValue;
 import fleetwood.bounder.type.Type;
 
 
@@ -59,7 +58,7 @@ public class ScriptTest {
     
     CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
     createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
-    createProcessInstanceRequest.variableValue(t.getId(), new TextValue("hello world"));
+    createProcessInstanceRequest.variableValue(t.getId(), "hello world");
     ProcessInstance processInstance = processEngine.createProcessInstance(createProcessInstanceRequest);
 
     ScriptEvaluatorImpl scriptEvaluator = new ScriptEvaluatorImpl();

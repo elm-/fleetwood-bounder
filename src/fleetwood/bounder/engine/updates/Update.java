@@ -17,12 +17,12 @@
 
 package fleetwood.bounder.engine.updates;
 
-import fleetwood.bounder.json.JsonWritablePolymorphic;
+import fleetwood.bounder.json.Jsonnable;
 
 
 
 /**
  * @author Walter White
  */
-public interface Update extends JsonWritablePolymorphic {
+public interface Update extends Jsonnable {
 }

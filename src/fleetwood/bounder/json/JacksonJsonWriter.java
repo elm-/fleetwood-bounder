@@ -37,12 +37,12 @@ public class JacksonJsonWriter implements JsonWriter {
   
   protected JsonGenerator json;
   
-  public static String toJsonString(JsonWritable serializable) {
+  public static String toJsonString(Jsonnable jsonnable) {
     try {
       StringWriter stringWriter = new StringWriter();
       JsonGenerator json = jsonFactory.createGenerator(stringWriter);
       JacksonJsonWriter writer = new JacksonJsonWriter(json);
-      serializable.write(writer);
+      jsonnable.write(writer);
       writer.flush();
       stringWriter.flush();
       return stringWriter.toString();
@@ -51,13 +51,13 @@ public class JacksonJsonWriter implements JsonWriter {
     }
   }
 
-  public static String toJsonStringPretty(JsonWritable serializable) {
+  public static String toJsonStringPretty(Jsonnable jsonnable) {
     try {
       StringWriter stringWriter = new StringWriter();
       JsonGenerator json = jsonFactory.createGenerator(stringWriter);
       json.setPrettyPrinter(new DefaultPrettyPrinter());
       JacksonJsonWriter writer = new JacksonJsonWriter(json);
-      serializable.write(writer);
+      jsonnable.write(writer);
       writer.flush();
       stringWriter.flush();
       return stringWriter.toString();
@@ -188,39 +188,55 @@ public class JacksonJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void writeObjectStart(JsonWritable serializable) {
+  public void writeObjectStart() {
     try {
       json.writeStartObject();
-      if (serializable instanceof JsonWritablePolymorphic) {
-        JsonWritablePolymorphic serializablePolymorphic = (JsonWritablePolymorphic) serializable;
-        json.writeFieldName(serializablePolymorphic.getJsonType());
-        json.writeStartObject();
-      }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void writeObjectEnd(JsonWritable serializable) {
+  public void writeObjectEnd() {
     try {
       json.writeEndObject();
-      if (serializable instanceof JsonWritablePolymorphic) {
-        json.writeEndObject();
-      }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
+  @Override
+  public void writeObjectStart(Jsonnable jsonnable) {
+    try {
+      json.writeStartObject();
+      String jsonTypeId = jsonnable
+        .getClass()
+        .getAnnotation(JsonTypeId.class)
+        .value();
+      json.writeFieldName(jsonTypeId);
+      json.writeStartObject();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @Override
-  public void writeObjectArray(String fieldName, Collection< ? extends JsonWritable> serializables) {
-    if (serializables!=null) {
+  public void writeObjectEnd(Jsonnable jsonnable) {
+    try {
+      json.writeEndObject();
+      json.writeEndObject();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void writeObjectArray(String fieldName, Collection< ? extends Jsonnable> jsonnables) {
+    if (jsonnables!=null) {
       try {
         json.writeFieldName(fieldName);
         json.writeStartArray();
-        for (JsonWritable serializable: serializables) {
+        for (Jsonnable serializable: jsonnables) {
           serializable.write(this);
         }
         json.writeEndArray();
@@ -231,11 +247,11 @@ public class JacksonJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void writeObject(String fieldName, JsonWritable serializable) {
-    if (serializable!=null) {
+  public void writeObject(String fieldName, Jsonnable jsonnable) {
+    if (jsonnable!=null) {
       try {
         json.writeFieldName(fieldName);
-        serializable.write(this);
+        jsonnable.write(this);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }

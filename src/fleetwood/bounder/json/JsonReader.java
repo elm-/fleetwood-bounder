@@ -15,17 +15,33 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.type;
+package fleetwood.bounder.json;
 
+import java.util.List;
+
+import fleetwood.bounder.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class Text extends Type {
+public interface JsonReader {
+  
+  Long readTime(String fieldName);
+  Id readId(String fieldName);
+  <T extends Id> T readId(String fieldName, Class<T> idType);
+  String readString(String fieldName);
+  Long readLong(String fieldName);
+  Double readDouble(String fieldName);
 
-  @Override
-  public String getJsonType() {
-    return "text";
-  }
+  Object getJsonObject(String fieldName);
+  <O> O readObject(String fieldName, Class<O> type);
+  
+  <E> List<E> readObjectArray(String fieldName, Class<E> elementType);
+  <C> C readObjectArray(String fieldName, Class<?> elementType, Class<C> collectionType);
+
+  void pushContext(String key, Object value);
+  Object getContext(String key);
+  void popContext(String key);
+  
 }

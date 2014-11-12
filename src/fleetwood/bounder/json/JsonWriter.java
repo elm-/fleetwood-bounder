@@ -35,8 +35,11 @@ public interface JsonWriter {
   void writeNumber(Long l);
   void writeNumber(Double d);
 
-  void writeObjectStart(JsonWritable jsonWritable);
-  void writeObjectEnd(JsonWritable jsonWritable);
+  void writeObjectStart(Jsonnable jsonnable);
+  void writeObjectEnd(Jsonnable jsonnable);
+
+  void writeObjectStart();
+  void writeObjectEnd();
 
   void writeFieldName(String fieldName);
   void writeStringField(String fieldName, String text);
@@ -47,6 +50,6 @@ public interface JsonWriter {
   void writeArrayStart();
   void writeArrayEnd();
   
-  void writeObjectArray(String fieldName, Collection<? extends JsonWritable> writables);
-  void writeObject(String fieldName, JsonWritable writable);
+  void writeObjectArray(String fieldName, Collection<? extends Jsonnable> writables);
+  void writeObject(String fieldName, Jsonnable writable);
 }

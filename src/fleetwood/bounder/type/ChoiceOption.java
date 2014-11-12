@@ -17,11 +17,15 @@
 
 package fleetwood.bounder.type;
 
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonWriter;
+import fleetwood.bounder.json.Jsonnable;
+
 
 /**
  * @author Walter White
  */
-public class ChoiceOption {
+public class ChoiceOption implements Jsonnable {
 
   protected String id;
   protected String label;
@@ -50,5 +54,17 @@ public class ChoiceOption {
   
   public void setLabel(String label) {
     this.label = label;
+  }
+
+  @Override
+  public void write(JsonWriter writer) {
+    writer.writeObjectStart(this);
+    writer.writeStringField("id", id);
+    writer.writeStringField("label", label);
+    writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 }

@@ -21,8 +21,9 @@ package fleetwood.bounder.json;
 /**
  * @author Walter White
  */
-public interface JsonWritable {
+public interface Jsonnable {
   
   void write(JsonWriter writer);
+  void read(JsonReader reader);
 
 }

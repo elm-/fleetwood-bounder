@@ -18,13 +18,13 @@
 package fleetwood.bounder.engine.operation;
 
 import fleetwood.bounder.instance.ProcessEngineImpl;
-import fleetwood.bounder.json.JsonWritablePolymorphic;
+import fleetwood.bounder.json.Jsonnable;
 
 
 /**
  * @author Walter White
  */
-public interface Operation extends JsonWritablePolymorphic {
+public interface Operation extends Jsonnable {
 
   boolean isAsync();
 

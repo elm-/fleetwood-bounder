@@ -17,37 +17,24 @@
 
 package fleetwood.bounder.type;
 
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
+
 
 
 /**
  * @author Walter White
  */
-public class TextValue implements Value {
+@JsonTypeId("text")
+public class TextType extends Type {
 
-  protected String text;
-
-  public TextValue() {
-  }
-
-  public TextValue(String text) {
-    this.text = text;
+  public void writeValue(JsonWriter writer, Object value) {
+    writer.writeString((String)value);
   }
 
   @Override
-  public String getJsonType() {
-    return "text";
+  public void read(JsonReader reader) {
   }
 
-  @Override
-  public void write(JsonWriter writer) {
-    writer.writeObjectStart(this);
-    writer.writeStringField("text", text);
-    writer.writeObjectEnd(this);
-  }
-
-  @Override
-  public Object getScriptValue() {
-    return text;
-  }
 }

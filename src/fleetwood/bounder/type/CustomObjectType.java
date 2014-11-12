@@ -17,30 +17,19 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.JsonWriter;
-import fleetwood.bounder.util.Id;
-
 
 /**
  * @author Walter White
  */
-public class IdValue implements Value {
+public class CustomObjectType extends ObjectType {
+
+  protected String id;
   
-  protected Id value;
-
-  @Override
-  public String getJsonType() {
-    return "id";
+  public String getId() {
+    return id;
   }
 
-  @Override
-  public void write(JsonWriter writer) {
-    writer.writeString(value.toString());
+  public void setId(String id) {
+    this.id = id;
   }
-
-  @Override
-  public Object getScriptValue() {
-    return value.getInternal();
-  }
-
 }

@@ -15,25 +15,23 @@
  *  limitations under the License.
  */
 
-package fleetwood.bounder.engine.updates;
-
-import fleetwood.bounder.engine.operation.Operation;
-import fleetwood.bounder.json.JsonReader;
-import fleetwood.bounder.json.JsonTypeId;
+package fleetwood.bounder.definition;
 
 
-/** The operation is always added at the end of the queue. 
- * 
+
+/**
  * @author Walter White
  */
-@JsonTypeId("operationAdd")
-public class OperationAddUpdate extends OperationUpdate {
+public class UnresolvedTransitionDefinition {
 
-  public OperationAddUpdate(Operation operation) {
-    super(operation);
-  }
+  public TransitionDefinition transitionDefinition;
+  public ActivityDefinitionId fromId;
+  public ActivityDefinitionId toId;
   
-  @Override
-  public void read(JsonReader reader) {
+  public void resolve(ScopeDefinition scopeDefinition) {
+    ActivityDefinition from = scopeDefinition.getActivityDefinition(fromId);
+    ActivityDefinition to = scopeDefinition.getActivityDefinition(toId);
+    transitionDefinition.setFrom(from);
+    transitionDefinition.setTo(to);
   }
 }

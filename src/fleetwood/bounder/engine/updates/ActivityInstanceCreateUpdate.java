@@ -18,15 +18,17 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
+@JsonTypeId("aiCreate")
 public class ActivityInstanceCreateUpdate extends ActivityInstanceUpdate {
 
-  public static final String TYPE_ACTIVITY_INSTANCE_CREATE_UPDATE = "aiCreate";
   public static final String FIELD_ACTIVITY_INSTANCE_CREATED = "activityInstance";
 
   public ActivityInstanceCreateUpdate(ActivityInstance activityInstance) {
@@ -34,14 +36,13 @@ public class ActivityInstanceCreateUpdate extends ActivityInstanceUpdate {
   }
 
   @Override
-  public String getJsonType() {
-    return TYPE_ACTIVITY_INSTANCE_CREATE_UPDATE;
-  }
-
-  @Override
   public void write(JsonWriter writer) {
     writer.writeObjectStart(this);
     writer.writeObject(FIELD_ACTIVITY_INSTANCE_CREATED, activityInstance);
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 }

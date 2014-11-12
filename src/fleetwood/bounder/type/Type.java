@@ -17,21 +17,31 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.JsonWritablePolymorphic;
 import fleetwood.bounder.json.JsonWriter;
+import fleetwood.bounder.json.Jsonnable;
 
 
 
 /**
  * @author Walter White
  */
-public abstract class Type implements JsonWritablePolymorphic {
+public abstract class Type implements Jsonnable {
   
-  public static final Text TEXT = new Text();
+  public static final TextType TEXT = new TextType();
   public static final IdType ID = new IdType();
   
   @Override
   public void write(JsonWriter writer) {
-    writer.writeString(getJsonType());
+    writer.writeObjectStart(this);
+    writer.writeStringField("id", getId());
+    writer.writeObjectEnd(this);
+  }
+  
+  public String getId() {
+    return getJsonType();
+  }
+
+  public void writeValue(JsonWriter writer, Object value) {
+    writer.writeString(value.toString());
   }
 }

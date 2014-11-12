@@ -18,23 +18,19 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeId("aiEnd")
 public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
-
-  public static final String TYPE_ACTIVITY_INSTANCE_END_UPDATE = "aiEnd";
 
   public ActivityInstanceEndUpdate(ActivityInstance activityInstance) {
     super(activityInstance);
-  }
-
-  @Override
-  public String getJsonType() {
-    return TYPE_ACTIVITY_INSTANCE_END_UPDATE;
   }
 
   @Override
@@ -42,5 +38,9 @@ public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
     writer.writeObjectStart(this);
     writer.writeIdField(FIELD_ACTIVITY_INSTANCE_ID, activityInstance.getId());
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 }

@@ -19,9 +19,9 @@ package fleetwood.bounder;
 
 import fleetwood.bounder.instance.ActivityInstance;
 import fleetwood.bounder.instance.ActivityInstanceId;
-import fleetwood.bounder.instance.ScopeInstance;
 import fleetwood.bounder.instance.ProcessInstance;
 import fleetwood.bounder.instance.ProcessInstanceId;
+import fleetwood.bounder.instance.ScopeInstance;
 
 
 /**

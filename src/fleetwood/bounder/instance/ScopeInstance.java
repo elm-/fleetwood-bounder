@@ -27,21 +27,21 @@ import org.slf4j.LoggerFactory;
 
 import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
-import fleetwood.bounder.definition.ScopeDefinition;
 import fleetwood.bounder.definition.ProcessDefinition;
+import fleetwood.bounder.definition.ScopeDefinition;
 import fleetwood.bounder.definition.VariableDefinition;
 import fleetwood.bounder.definition.VariableDefinitionId;
 import fleetwood.bounder.engine.updates.ActivityInstanceCreateUpdate;
-import fleetwood.bounder.json.JsonWritable;
+import fleetwood.bounder.json.JsonReader;
 import fleetwood.bounder.json.JsonWriter;
-import fleetwood.bounder.type.Value;
+import fleetwood.bounder.json.Jsonnable;
 import fleetwood.bounder.util.Time;
 
 
 /**
  * @author Walter White
  */
-public abstract class ScopeInstance implements JsonWritable {
+public abstract class ScopeInstance implements Jsonnable {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -102,16 +102,16 @@ public abstract class ScopeInstance implements JsonWritable {
     }
   }
   
-  public void setVariableValuesRecursive(Map<VariableDefinitionId, Value> variableValues) {
+  public void setVariableValuesRecursive(Map<VariableDefinitionId, Object> variableValues) {
     if (variableValues!=null) {
       for (VariableDefinitionId variableDefinitionId: variableValues.keySet()) {
-        Value value = variableValues.get(variableDefinitionId);
+        Object value = variableValues.get(variableDefinitionId);
         setVariableValueRecursive(variableDefinitionId, value);
       }
     }
   }
 
-  public void setVariableValueRecursive(VariableDefinitionId variableDefinitionId, Value value) {
+  public void setVariableValueRecursive(VariableDefinitionId variableDefinitionId, Object value) {
     if (variableInstances!=null) {
       VariableInstance variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
@@ -123,7 +123,7 @@ public abstract class ScopeInstance implements JsonWritable {
     }
   }
   
-  public Value getVariableValueRecursive(VariableDefinitionId variableDefinitionId) {
+  public Object getVariableValueRecursive(VariableDefinitionId variableDefinitionId) {
     if (variableInstances!=null) {
       VariableInstance variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
@@ -252,11 +252,21 @@ public abstract class ScopeInstance implements JsonWritable {
     return end!=null;
   }
 
-  protected void serializeCompositeInstanceFields(JsonWriter writer) {
+  protected void writeScopeInstanceFields(JsonWriter writer) {
     writer.writeTimeField(FIELD_START, start);
     writer.writeTimeField(FIELD_END, end);
-    writer.writeNumberField(FIELD_DURATION, end);
+    writer.writeNumberField(FIELD_DURATION, duration);
     writer.writeObjectArray(FIELD_ACTIVITY_INSTANCES, activityInstances);
     writer.writeObjectArray(FIELD_VARIABLE_INSTANCES, variableInstances);
+  }
+
+  public static final String JSON_READER_CONTEXT_KEY_SCOPE_INSTANCE = "scopeInstance";
+
+  protected void readScopeInstanceFields(JsonReader reader) {
+    start = reader.readTime(FIELD_START);
+    end = reader.readTime(FIELD_END);
+    duration = reader.readLong(FIELD_DURATION);
+    activityInstances = reader.readObjectArray(FIELD_ACTIVITY_INSTANCES, ActivityInstance.class);
+    variableInstances = reader.readObjectArray(FIELD_VARIABLE_INSTANCES, VariableInstance.class);
   }
 }

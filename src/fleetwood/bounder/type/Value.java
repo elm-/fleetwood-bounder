@@ -17,13 +17,13 @@
 
 package fleetwood.bounder.type;
 
-import fleetwood.bounder.json.JsonWritablePolymorphic;
+import fleetwood.bounder.json.Jsonnable;
 
 
 /**
  * @author Walter White
  */
-public interface Value extends JsonWritablePolymorphic {
+public interface Value extends Jsonnable {
 
   Object getScriptValue();
   

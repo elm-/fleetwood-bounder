@@ -17,37 +17,59 @@
 
 package fleetwood.bounder.type;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 
 /**
  * @author Walter White
  */
-public class ChoiceValue implements Value {
+@JsonTypeId("choice")
+public class ChoiceType extends Type {
+  
+  protected List<ChoiceOption> options;
 
-  protected String text;
-
-  public ChoiceValue() {
+  public ChoiceType option(String label) {
+    option(label, null);
+    return this;
   }
 
-  public ChoiceValue(String text) {
-    this.text = text;
+  public ChoiceType option(String label, String id) {
+    if (options==null) {
+      options = new ArrayList<>();
+    }
+    options.add(new ChoiceOption()
+      .id(id)
+      .label(label)
+    );
+    return this;
   }
 
-  @Override
-  public String getJsonType() {
-    return "text";
+  public List<ChoiceOption> getOptions() {
+    return options;
+  }
+
+  public void setOptions(List<ChoiceOption> options) {
+    this.options = options;
   }
 
   @Override
   public void write(JsonWriter writer) {
     writer.writeObjectStart(this);
-    writer.writeStringField("text", text);
+    writer.writeStringField("id", getId());
+    writer.writeObjectArray("options", options);
     writer.writeObjectEnd(this);
+  }
+  
+  public void writeValue(JsonWriter writer, Object value) {
+    writer.writeString((String)value);
   }
 
   @Override
-  public Object getScriptValue() {
-    return text;
+  public void read(JsonReader reader) {
   }
 }

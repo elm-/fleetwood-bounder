@@ -17,14 +17,15 @@
 
 package fleetwood.bounder.instance;
 
-import fleetwood.bounder.json.JsonWritable;
+import fleetwood.bounder.json.JsonReader;
 import fleetwood.bounder.json.JsonWriter;
+import fleetwood.bounder.json.Jsonnable;
 
 
 /**
  * @author Walter White
  */
-public class Lock implements JsonWritable {
+public class Lock implements Jsonnable {
 
   public static String FIELD_TIME = "time";
   protected Long time;
@@ -54,5 +55,9 @@ public class Lock implements JsonWritable {
     writer.writeTimeField(FIELD_TIME, time);
     writer.writeStringField(FIELD_OWNER, owner);
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
   }
 }

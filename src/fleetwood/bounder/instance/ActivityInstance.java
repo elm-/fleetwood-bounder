@@ -22,9 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import fleetwood.bounder.ProcessEngine;
 import fleetwood.bounder.definition.ActivityDefinition;
+import fleetwood.bounder.definition.ActivityDefinitionId;
 import fleetwood.bounder.definition.TransitionDefinition;
 import fleetwood.bounder.engine.operation.NotifyActivityInstanceEndToParent;
 import fleetwood.bounder.engine.updates.ActivityInstanceEndUpdate;
+import fleetwood.bounder.json.JsonReader;
 import fleetwood.bounder.json.JsonWriter;
 import fleetwood.bounder.util.Time;
 
@@ -132,7 +134,23 @@ public class ActivityInstance extends ScopeInstance {
     writer.writeObjectStart(this);
     writer.writeIdField(FIELD_ID, id);
     writer.writeIdField(FIELD_ACTIVITY_DEFINITION_ID, activityDefinition!=null ? activityDefinition.getId() : null);
-    serializeCompositeInstanceFields(writer);
+    writeScopeInstanceFields(writer);
     writer.writeObjectEnd(this);
+  }
+
+  @Override
+  public void read(JsonReader reader) {
+    ScopeInstanceJsonReaderContext parentScopeContext = (ScopeInstanceJsonReaderContext) reader.getContext(JSON_READER_CONTEXT_KEY_SCOPE_INSTANCE);
+    reader.pushContext(JSON_READER_CONTEXT_KEY_SCOPE_INSTANCE, new ScopeInstanceJsonReaderContext(this));
+    try {
+      id = reader.readId(FIELD_ID, ActivityInstanceId.class);
+
+      ActivityDefinitionId activityDefinitionId = reader.readId(FIELD_ACTIVITY_DEFINITION_ID, ActivityDefinitionId.class);
+      parentScopeContext.addUnresolvedActivityInstance(this, activityDefinitionId);
+      
+      readScopeInstanceFields(reader);
+    } finally {
+      reader.popContext(JSON_READER_CONTEXT_KEY_SCOPE_INSTANCE);
+    }
   }
 }

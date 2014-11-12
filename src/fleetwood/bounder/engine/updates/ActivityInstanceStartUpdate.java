@@ -18,11 +18,14 @@
 package fleetwood.bounder.engine.updates;
 
 import fleetwood.bounder.instance.ActivityInstance;
+import fleetwood.bounder.json.JsonReader;
+import fleetwood.bounder.json.JsonTypeId;
 import fleetwood.bounder.json.JsonWriter;
 
 /**
- * @author tbaeyens
+ * @author Walter White
  */
+@JsonTypeId("aiStart")
 public class ActivityInstanceStartUpdate extends ActivityInstanceUpdate {
 
   public ActivityInstanceStartUpdate(ActivityInstance activityInstance) {
@@ -30,11 +33,10 @@ public class ActivityInstanceStartUpdate extends ActivityInstanceUpdate {
   }
 
   @Override
-  public String getJsonType() {
-    return null;
+  public void write(JsonWriter writer) {
   }
 
   @Override
-  public void write(JsonWriter writer) {
+  public void read(JsonReader reader) {
   }
 }
