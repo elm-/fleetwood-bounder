@@ -1,11 +1,15 @@
 # Roadmap
- 
-* bpmn process logic coverage
- * join
-* in / output
+
+* types
+* json (de)serialization
+  * process instance
+  * updates & operations
+  * types
+* type system 
 * expressions
+* activity in / output parameters
+* bpmn process logic coverage
 * bpmn serialization and parsing
-* object type declarations in process definition 
 * mongodb persistence
 * jdbc persistence
 * load testing
@@ -14,10 +18,15 @@
   * HTTP invocation
   * Send email
 * timers
-* ensure jackson lib is not required if json is not used
+* object type declarations in process definition 
 * static persistable process variables
 * transient execution context variables
+* ensure jackson lib is not required if json is not used
 
-# Design review
+# Design principles
+
+* ensure libraries are not required at runtime if they are not used
+
+# Design topics
 
 * Typed id's vs strings
