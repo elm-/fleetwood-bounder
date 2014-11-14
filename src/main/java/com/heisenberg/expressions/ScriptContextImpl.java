@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.ProcessEngine;
 import com.heisenberg.definition.VariableDefinitionId;
-import com.heisenberg.instance.ScopeInstance;
+import com.heisenberg.instance.ScopeInstanceImpl;
 
 
 /**
@@ -34,7 +34,7 @@ public class ScriptContextImpl extends SimpleScriptContext {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
   
-  public ScriptContextImpl(ScopeInstance scopeInstance, Map<String,VariableDefinitionId> scriptVariableBindings, Writer logWriter) {
+  public ScriptContextImpl(ScopeInstanceImpl scopeInstance, Map<String,VariableDefinitionId> scriptVariableBindings, Writer logWriter) {
     setWriter(logWriter);
     setErrorWriter(logWriter);
     setBindings(new ScriptBindings(scopeInstance, scriptVariableBindings, logWriter), ENGINE_SCOPE);

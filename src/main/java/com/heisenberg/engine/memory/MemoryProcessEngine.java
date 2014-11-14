@@ -14,6 +14,8 @@
  */
 package com.heisenberg.engine.memory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,15 +26,16 @@ import java.util.Set;
 
 import com.heisenberg.ProcessDefinitionQuery;
 import com.heisenberg.ProcessInstanceQuery;
-import com.heisenberg.definition.ProcessDefinition;
+import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.engine.updates.Update;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.Services;
 import com.heisenberg.instance.ActivityInstanceId;
-import com.heisenberg.instance.Lock;
-import com.heisenberg.instance.ProcessEngineImpl;
-import com.heisenberg.instance.ProcessInstance;
+import com.heisenberg.instance.LockImpl;
+import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.ProcessInstanceId;
-import com.heisenberg.instance.json.Json;
+import com.heisenberg.json.Json;
 import com.heisenberg.util.Lists;
 import com.heisenberg.util.Time;
 
@@ -45,25 +48,38 @@ import com.heisenberg.util.Time;
  */
 public class MemoryProcessEngine extends ProcessEngineImpl {
   
-  protected Map<ProcessDefinitionId, ProcessDefinition> processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinition>());
-  protected Map<ProcessInstanceId, ProcessInstance> processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstance>());
-  protected Set<ProcessInstanceId> lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
+  protected Map<ProcessDefinitionId, ProcessDefinitionImpl> processDefinitions;
+  protected Map<ProcessInstanceId, ProcessInstanceImpl> processInstances;
+  protected Set<ProcessInstanceId> lockedProcessInstances;
+  
+  public MemoryProcessEngine() {
+    processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinitionImpl>());
+    processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstanceImpl>());
+    lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
+    try {
+      id = InetAddress.getLocalHost().getHostAddress();
+    } catch (UnknownHostException e) {
+      id = "amnesia";
+    }
+    executor = createDefaultExecutor();
+    json = new Json();
+    services = new Services();
+  }
 
   @Override
-  protected void storeProcessDefinition(ProcessDefinition processDefinition) {
+  protected void storeProcessDefinition(ProcessDefinitionImpl processDefinition) {
     processDefinitions.put(processDefinition.getId(), processDefinition);
-    processDefinition.setProcessEngine(this);
     processDefinition.prepare();
   }
 
   @Override
-  public void saveProcessInstance(ProcessInstance processInstance) {
+  public void saveProcessInstance(ProcessInstanceImpl processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
-    log.debug("Saving: "+Json.toJsonStringPretty(processInstance));
+    log.debug("Saving: "+json.toJsonStringPretty(processInstance));
   }
 
   @Override
-  public void flush(ProcessInstance processInstance) {
+  public void flush(ProcessInstanceImpl processInstance) {
     List<Update> updates = processInstance.getUpdates();
     if (updates!=null) {
       log.debug("Flushing updates: ");
@@ -76,21 +92,21 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public void flushAndUnlock(ProcessInstance processInstance) {
+  public void flushAndUnlock(ProcessInstanceImpl processInstance) {
     lockedProcessInstances.remove(processInstance.getId());
     processInstance.removeLock();
     flush(processInstance);
-    log.debug("Process instance should be: "+Json.toJsonStringPretty(processInstance));
+    log.debug("Process instance should be: "+json.toJsonStringPretty(processInstance));
   }
 
   @Override
-  public List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
     if (processDefinitionQuery.getProcessDefinitionId()!=null) {
-      ProcessDefinition processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
+      ProcessDefinitionImpl processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
       return Lists.of(processDefinition);
     }
-    List<ProcessDefinition> result = new ArrayList<>();
-    for (ProcessDefinition processDefinition: processDefinitions.values()) {
+    List<ProcessDefinitionImpl> result = new ArrayList<>();
+    for (ProcessDefinitionImpl processDefinition: processDefinitions.values()) {
       if (processDefinitionQuery.satisfiesCriteria(processDefinition)) {
         result.add(processDefinition);
       }
@@ -99,13 +115,13 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
   
   @Override
-  public List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
+  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
     if (processInstanceQuery.getProcessInstanceId()!=null) {
-      ProcessInstance processInstance = processInstances.get(processInstanceQuery.getProcessInstanceId());
+      ProcessInstanceImpl processInstance = processInstances.get(processInstanceQuery.getProcessInstanceId());
       return Lists.of(processInstance);
     }
-    List<ProcessInstance> result = new ArrayList<>();
-    for (ProcessInstance processInstance: processInstances.values()) {
+    List<ProcessInstanceImpl> result = new ArrayList<>();
+    for (ProcessInstanceImpl processInstance: processInstances.values()) {
       if (processInstanceQuery.satisfiesCriteria(processInstance)) {
         result.add(processInstance);
       }
@@ -113,13 +129,13 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     return result;
   }
 
-  public ProcessInstance lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
+  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
     ProcessInstanceQuery processInstanceQuery = buildProcessInstanceQuery()
       .activityInstanceId(activityInstanceId)
       .getQuery();
     processInstanceQuery.setMaxResults(1);
-    List<ProcessInstance> processInstances = findProcessInstances(processInstanceQuery);
-    ProcessInstance processInstance = (!processInstances.isEmpty() ? processInstances.get(0) : null);
+    List<ProcessInstanceImpl> processInstances = findProcessInstances(processInstanceQuery);
+    ProcessInstanceImpl processInstance = (!processInstances.isEmpty() ? processInstances.get(0) : null);
     if (processInstance==null) { 
       throw new RuntimeException("Process instance "+id+" doesn't exist");
     }
@@ -128,11 +144,11 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
       throw new RuntimeException("Process instance "+id+" is already locked");
     }
     lockedProcessInstances.add(id);
-    Lock lock = new Lock();
+    LockImpl lock = new LockImpl();
     lock.setTime(Time.now());
     lock.setOwner(getId());
     processInstance.setLock(lock);
-    log.debug("Locked process instance: "+Json.toJsonStringPretty(processInstance));
+    log.debug("Locked process instance: "+json.toJsonStringPretty(processInstance));
     return processInstance;
   }
 }

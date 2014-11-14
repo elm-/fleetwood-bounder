@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.definition.VariableDefinitionId;
-import com.heisenberg.instance.ScopeInstance;
-import com.heisenberg.type.Type;
+import com.heisenberg.instance.ScopeInstanceImpl;
+import com.heisenberg.spi.Type;
 import com.heisenberg.type.TypedValue;
 
 
@@ -39,11 +39,11 @@ public class ScriptBindings implements Bindings {
   
   public static final Logger log = LoggerFactory.getLogger(ScriptBindings.class);
   
-  protected ScopeInstance scopeInstance;
+  protected ScopeInstanceImpl scopeInstance;
   protected Map<String,VariableDefinitionId> scriptVariableBindings;
   protected Console console;
 
-  public ScriptBindings(ScopeInstance scopeInstance, Map<String,VariableDefinitionId> scriptVariableBindings, Writer logWriter) {
+  public ScriptBindings(ScopeInstanceImpl scopeInstance, Map<String,VariableDefinitionId> scriptVariableBindings, Writer logWriter) {
     this.scopeInstance = scopeInstance;
     this.scriptVariableBindings = scriptVariableBindings;
     this.console = new Console(logWriter);

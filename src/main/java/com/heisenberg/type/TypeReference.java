@@ -14,6 +14,8 @@
  */
 package com.heisenberg.type;
 
+import com.heisenberg.spi.Type;
+
 
 
 /**

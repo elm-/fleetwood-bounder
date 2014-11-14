@@ -14,9 +14,9 @@
  */
 package com.heisenberg.engine.operation;
 
-import com.heisenberg.definition.ScopeDefinition;
-import com.heisenberg.instance.ActivityInstance;
-import com.heisenberg.instance.ProcessEngineImpl;
+import com.heisenberg.definition.ScopeDefinitionImpl;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
@@ -25,23 +25,23 @@ import com.heisenberg.instance.ProcessEngineImpl;
 public class NotifyActivityInstanceEndToParent implements Operation {
 
   public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
-  protected ActivityInstance activityInstance;
+  protected ActivityInstanceImpl activityInstance;
   
-  public NotifyActivityInstanceEndToParent(ActivityInstance activityInstance) {
+  public NotifyActivityInstanceEndToParent(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
 
   @Override
   public void execute(ProcessEngineImpl processEngine) {
-    ScopeDefinition parentDefinition = activityInstance.getParent().getScopeDefinition();
+    ScopeDefinitionImpl parentDefinition = activityInstance.getParent().getScopeDefinition();
     parentDefinition.notifyActivityInstanceEnded(activityInstance);
   }
   
-  public ActivityInstance getActivityInstance() {
+  public ActivityInstanceImpl getActivityInstance() {
     return activityInstance;
   }
 
-  public void setActivityInstance(ActivityInstance activityInstance) {
+  public void setActivityInstance(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
 

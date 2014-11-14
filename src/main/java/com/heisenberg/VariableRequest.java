@@ -56,7 +56,7 @@ public class VariableRequest {
     transientContext.put(key, value);
     return this;
   }
-
+  
   public Map<VariableDefinitionId, Object> getVariableValues() {
     return variableValues;
   }

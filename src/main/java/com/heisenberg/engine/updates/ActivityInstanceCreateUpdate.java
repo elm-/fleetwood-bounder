@@ -15,7 +15,7 @@
 package com.heisenberg.engine.updates;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
@@ -26,7 +26,7 @@ public class ActivityInstanceCreateUpdate extends ActivityInstanceUpdate {
 
   public static final String FIELD_ACTIVITY_INSTANCE_CREATED = "activityInstance";
 
-  public ActivityInstanceCreateUpdate(ActivityInstance activityInstance) {
+  public ActivityInstanceCreateUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }
 }

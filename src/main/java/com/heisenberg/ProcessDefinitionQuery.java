@@ -14,7 +14,7 @@
  */
 package com.heisenberg;
 
-import com.heisenberg.definition.ProcessDefinition;
+import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
 
 
@@ -42,7 +42,7 @@ public class ProcessDefinitionQuery {
     return maxResults;
   }
   
-  public boolean satisfiesCriteria(ProcessDefinition processDefinition) {
+  public boolean satisfiesCriteria(ProcessDefinitionImpl processDefinition) {
     if ( processDefinitionId!=null
          && !processDefinitionId.equals(processDefinition.getId()) ) {
       return false;

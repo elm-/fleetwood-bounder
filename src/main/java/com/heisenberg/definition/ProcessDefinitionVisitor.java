@@ -23,58 +23,58 @@ import java.util.List;
 public class ProcessDefinitionVisitor {
 
   /** invoked only for process definitions */
-  public void startProcessDefinition(ProcessDefinition processDefinition) {
+  public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
   }
   
   /** invoked only for process definitions */
-  public void endProcessDefinition(ProcessDefinition processDefinition) {
+  public void endProcessDefinition(ProcessDefinitionImpl processDefinition) {
   }
   
   /** invoked only for process definitions and activity definitions */
-  public void startActivityDefinition(ActivityDefinition activityDefinition) {
+  public void startActivityDefinition(ActivityDefinitionImpl activityDefinition) {
   }
 
   /** invoked only for process definitions and activity definitions */
-  public void endActivityDefinition(ActivityDefinition activityDefinition) {
+  public void endActivityDefinition(ActivityDefinitionImpl activityDefinition) {
   }
 
   /** visit variable definitions */
-  public void variableDefinition(VariableDefinition variableDefinition) {
+  public void variableDefinition(VariableDefinitionImpl variableDefinition) {
   }
 
   /** visit transition definitions */
-  public void transitionDefinition(TransitionDefinition transitionDefinition) {
+  public void transitionDefinition(TransitionDefinitionImpl transitionDefinition) {
   }
 
   /** overwrite if you want to change the order */
-  protected void visitCompositeDefinition(ScopeDefinition scopeDefinition) {
+  protected void visitCompositeDefinition(ScopeDefinitionImpl scopeDefinition) {
     visitCompositeActivityDefinitions(scopeDefinition);
     visitCompositeTransitionDefinitions(scopeDefinition);
     visitCompositeVariableDefinitions(scopeDefinition);
   }
 
-  protected void visitCompositeActivityDefinitions(ScopeDefinition scopeDefinition) {
-    List<ActivityDefinition> activityDefinitions = scopeDefinition.activityDefinitions;
+  protected void visitCompositeActivityDefinitions(ScopeDefinitionImpl scopeDefinition) {
+    List<ActivityDefinitionImpl> activityDefinitions = scopeDefinition.activityDefinitions;
     if (activityDefinitions!=null) {
-      for (ActivityDefinition activityDefinition: activityDefinitions) {
+      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
         activityDefinition.visit(this);
       }
     }
   }
 
-  protected void visitCompositeVariableDefinitions(ScopeDefinition scopeDefinition) {
-    List<VariableDefinition> variableDefinitions = scopeDefinition.variableDefinitions;
+  protected void visitCompositeVariableDefinitions(ScopeDefinitionImpl scopeDefinition) {
+    List<VariableDefinitionImpl> variableDefinitions = scopeDefinition.variableDefinitions;
     if (variableDefinitions!=null) {
-      for (VariableDefinition variableDefinition: variableDefinitions) {
+      for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
         variableDefinition(variableDefinition);
       }
     }
   }
 
-  protected void visitCompositeTransitionDefinitions(ScopeDefinition scopeDefinition) {
-    List<TransitionDefinition> transitionDefinitions = scopeDefinition.transitionDefinitions;
+  protected void visitCompositeTransitionDefinitions(ScopeDefinitionImpl scopeDefinition) {
+    List<TransitionDefinitionImpl> transitionDefinitions = scopeDefinition.transitionDefinitions;
     if (transitionDefinitions!=null) {
-      for (TransitionDefinition transitionDefinition: transitionDefinitions) {
+      for (TransitionDefinitionImpl transitionDefinition: transitionDefinitions) {
         transitionDefinition(transitionDefinition);
       }
     }

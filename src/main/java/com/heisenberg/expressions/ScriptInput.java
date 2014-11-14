@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.heisenberg.definition.VariableDefinitionId;
-import com.heisenberg.instance.ScopeInstance;
+import com.heisenberg.instance.ScopeInstanceImpl;
 
 
 /**
@@ -29,7 +29,7 @@ public class ScriptInput {
   protected String language = "JavaScript";
 
   // the context containing the data
-  protected ScopeInstance scopeInstance;
+  protected ScopeInstanceImpl scopeInstance;
   
   // the script
   protected String script;
@@ -50,7 +50,7 @@ public class ScriptInput {
     return this;
   }
   
-  public ScriptInput scopeInstance(ScopeInstance scopeInstance) {
+  public ScriptInput scopeInstance(ScopeInstanceImpl scopeInstance) {
     this.scopeInstance = scopeInstance;
     return this;
   }
@@ -64,12 +64,12 @@ public class ScriptInput {
     this.language = language;
   }
 
-  public ScopeInstance getScopeInstance() {
+  public ScopeInstanceImpl getScopeInstance() {
     return scopeInstance;
   }
 
   
-  public void setScopeInstance(ScopeInstance scopeInstance) {
+  public void setScopeInstance(ScopeInstanceImpl scopeInstance) {
     this.scopeInstance = scopeInstance;
   }
 

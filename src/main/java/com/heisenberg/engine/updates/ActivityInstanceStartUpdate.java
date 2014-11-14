@@ -15,7 +15,7 @@
 package com.heisenberg.engine.updates;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 /**
  * @author Walter White
@@ -23,7 +23,7 @@ import com.heisenberg.instance.ActivityInstance;
 @JsonTypeName("aiStart")
 public class ActivityInstanceStartUpdate extends ActivityInstanceUpdate {
 
-  public ActivityInstanceStartUpdate(ActivityInstance activityInstance) {
+  public ActivityInstanceStartUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }
 }

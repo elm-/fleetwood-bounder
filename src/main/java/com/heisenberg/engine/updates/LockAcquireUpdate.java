@@ -15,7 +15,7 @@
 package com.heisenberg.engine.updates;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.instance.Lock;
+import com.heisenberg.instance.LockImpl;
 
 
 /**
@@ -25,17 +25,17 @@ import com.heisenberg.instance.Lock;
 public class LockAcquireUpdate implements Update {
 
   public static final String FIELD_LOCK = "lock";
-  protected Lock lock;
+  protected LockImpl lock;
   
-  public LockAcquireUpdate(Lock lock) {
+  public LockAcquireUpdate(LockImpl lock) {
     this.lock = lock;
   }
 
-  public Lock getLock() {
+  public LockImpl getLock() {
     return lock;
   }
   
-  public void setLock(Lock lock) {
+  public void setLock(LockImpl lock) {
     this.lock = lock;
   }
 }

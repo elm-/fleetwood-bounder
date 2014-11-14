@@ -21,13 +21,13 @@ package com.heisenberg.definition;
  */
 public class UnresolvedTransitionDefinition {
 
-  public TransitionDefinition transitionDefinition;
+  public TransitionDefinitionImpl transitionDefinition;
   public ActivityDefinitionId fromId;
   public ActivityDefinitionId toId;
   
-  public void resolve(ScopeDefinition scopeDefinition) {
-    ActivityDefinition from = scopeDefinition.getActivityDefinition(fromId);
-    ActivityDefinition to = scopeDefinition.getActivityDefinition(toId);
+  public void resolve(ScopeDefinitionImpl scopeDefinition) {
+    ActivityDefinitionImpl from = scopeDefinition.getActivityDefinition(fromId);
+    ActivityDefinitionImpl to = scopeDefinition.getActivityDefinition(toId);
     transitionDefinition.setFrom(from);
     transitionDefinition.setTo(to);
   }

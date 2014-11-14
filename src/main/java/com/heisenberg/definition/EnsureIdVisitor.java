@@ -16,7 +16,7 @@ package com.heisenberg.definition;
 
 import java.util.UUID;
 
-import com.heisenberg.instance.ProcessEngineImpl;
+import com.heisenberg.impl.ProcessEngineImpl;
 
 
 /**
@@ -34,48 +34,48 @@ public class EnsureIdVisitor extends ProcessDefinitionVisitor {
   }
 
   @Override
-  public void startProcessDefinition(ProcessDefinition processDefinition) {
+  public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
     if (processDefinition.getId()==null) {
       processDefinition.setId(createProcessDefinitionId(processDefinition));
     }
   }
   
   @Override
-  public void startActivityDefinition(ActivityDefinition activityDefinition) {
+  public void startActivityDefinition(ActivityDefinitionImpl activityDefinition) {
     if (activityDefinition.getId()==null) {
-      activityDefinition.setId(createActivityDefinitionId(activityDefinition));
+      activityDefinition.id(createActivityDefinitionId(activityDefinition));
     }
   }
 
   @Override
-  public void variableDefinition(VariableDefinition variableDefinition) {
+  public void variableDefinition(VariableDefinitionImpl variableDefinition) {
     if (variableDefinition.getId()==null) {
       variableDefinition.setId(createVariableDefinitionId(variableDefinition));
     }
   }
 
   @Override
-  public void transitionDefinition(TransitionDefinition transitionDefinition) {
+  public void transitionDefinition(TransitionDefinitionImpl transitionDefinition) {
     if (transitionDefinition.getId()==null) {
       transitionDefinition.setId(createTransitionDefinitionId(transitionDefinition));
     }
   }
 
-  public ProcessDefinitionId createProcessDefinitionId(ProcessDefinition processDefinition) {
+  public ProcessDefinitionId createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
     return new ProcessDefinitionId(UUID.randomUUID());
   }
 
-  public ActivityDefinitionId createActivityDefinitionId(ActivityDefinition activityDefinition) {
+  public ActivityDefinitionId createActivityDefinitionId(ActivityDefinitionImpl activityDefinition) {
     activityDefinitionsCreated++;
     return new ActivityDefinitionId("a"+activityDefinitionsCreated);
   }
 
-  public VariableDefinitionId createVariableDefinitionId(VariableDefinition variableDefinition) {
+  public VariableDefinitionId createVariableDefinitionId(VariableDefinitionImpl variableDefinition) {
     variableDefinitionsCreated++;
     return new VariableDefinitionId("v"+variableDefinitionsCreated);
   }
 
-  public TransitionDefinitionId createTransitionDefinitionId(TransitionDefinition transitionDefinition) {
+  public TransitionDefinitionId createTransitionDefinitionId(TransitionDefinitionImpl transitionDefinition) {
     transitionDefinitionsCreated++;
     return new TransitionDefinitionId("t"+transitionDefinitionsCreated);
   }

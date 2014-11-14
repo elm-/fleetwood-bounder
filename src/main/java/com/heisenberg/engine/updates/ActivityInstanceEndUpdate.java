@@ -15,7 +15,7 @@
 package com.heisenberg.engine.updates;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
@@ -24,7 +24,7 @@ import com.heisenberg.instance.ActivityInstance;
 @JsonTypeName("aiEnd")
 public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
 
-  public ActivityInstanceEndUpdate(ActivityInstance activityInstance) {
+  public ActivityInstanceEndUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }
 }

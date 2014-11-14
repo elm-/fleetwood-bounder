@@ -21,15 +21,16 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.definition.ActivityDefinition;
-import com.heisenberg.definition.ProcessDefinition;
-import com.heisenberg.definition.ProcessDefinitionId;
-import com.heisenberg.definition.VariableDefinition;
+import com.heisenberg.Go.Execution;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.definition.VariableDefinition;
+import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
-import com.heisenberg.instance.ActivityInstance;
-import com.heisenberg.instance.ProcessInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.ProcessInstanceId;
-import com.heisenberg.type.Type;
+import com.heisenberg.instance.ProcessInstanceImpl;
+import com.heisenberg.spi.Type;
 
 /**
  * @author Walter White
@@ -41,14 +42,20 @@ public class ExampleTest {
     ProcessEngine processEngine = new MemoryProcessEngine();
 
     // prepare the ingredients
-    VariableDefinition t = new VariableDefinition()
+    VariableDefinition t = VariableDefinition
       .type(Type.TEXT);
     
-    ActivityDefinition go = new Go();
-    ActivityDefinition wait = new Wait();
-    ActivityDefinition wait2 = new Wait();
+    ActivityDefinition go = ActivityDefinition
+      .activityType(Go.ID)
+      .parameterValue(Go.PLACE, "Antwerp");
     
-    // cook a process batch
+    ActivityDefinition wait = ActivityDefinition
+      .activityType(Wait.ID);
+    
+    ActivityDefinition wait2 = ActivityDefinition
+      .activityType(Wait.ID);
+    
+    // cook the process
     ProcessDefinition processDefinition = new ProcessDefinition()
       .activity(go)
       .activity(wait)
@@ -57,29 +64,32 @@ public class ExampleTest {
       .variable(t);
 
     processDefinition = processEngine.saveProcessDefinition(processDefinition);
-    ProcessDefinitionId processDefinitionId = processDefinition.getId();
     
-    CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
-    createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
-    createProcessInstanceRequest.variableValue(t.getId(), "hello world");
-    ProcessInstance processInstance = processEngine.createProcessInstance(createProcessInstanceRequest);
+    ProcessInstanceImpl processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
+      .processDefinitionId(processDefinition.getId())
+      .variableValue(t.getId(), "hello world"));
+    
+    assertEquals(1, Go.executions.size());
+    Go.Execution goExecution = Go.executions.get(0);
+    assertEquals(go, goExecution.activityInstance.getActivityDefinition());
+    assertEquals("Antwerp", goExecution.place);
     
     ProcessInstanceId processInstanceId = processInstance.getId();
     assertNotNull(processInstanceId);
     assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
     
-    ActivityInstance goInstance = processInstance.getActivityInstances().get(0);
+    ActivityInstanceImpl goInstance = processInstance.getActivityInstances().get(0);
     assertTrue(goInstance.isEnded());
     assertEquals(go, goInstance.getActivityDefinition());
     
-    ActivityInstance waitActivityInstance = processInstance.getActivityInstances().get(1);
+    ActivityInstanceImpl waitActivityInstance = processInstance.getActivityInstances().get(1);
     assertFalse(waitActivityInstance.isEnded());
     assertEquals(wait, waitActivityInstance.getActivityDefinition());
     
-    SignalRequest signalRequest = new SignalRequest();
-    signalRequest.setActivityInstanceId(waitActivityInstance.getId());
     // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
-    processInstance = processEngine.signal(signalRequest);
+    processInstance = processEngine.signal(new SignalRequest()
+      .activityInstanceId(waitActivityInstance.getId()));
+    
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
 
     goInstance = processInstance.getActivityInstances().get(0);
@@ -90,13 +100,13 @@ public class ExampleTest {
     assertTrue(waitActivityInstance.isEnded());
     assertEquals(wait, waitActivityInstance.getActivityDefinition());
     
-    ActivityInstance wait2ActivityInstance = processInstance.getActivityInstances().get(2);
+    ActivityInstanceImpl wait2ActivityInstance = processInstance.getActivityInstances().get(2);
     assertFalse(wait2ActivityInstance.isEnded());
     assertEquals(wait2, wait2ActivityInstance.getActivityDefinition());
 
-    signalRequest = new SignalRequest();
-    signalRequest.setActivityInstanceId(wait2ActivityInstance.getId());
-    processInstance = processEngine.signal(signalRequest);
+    processInstance = processEngine.signal(new SignalRequest()
+      .activityInstanceId(wait2ActivityInstance.getId()));
+    
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
   }
 }

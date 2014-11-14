@@ -14,12 +14,29 @@
  */
 package com.heisenberg.type;
 
+import com.heisenberg.spi.I18nString;
+import com.heisenberg.spi.Type;
+
 
 
 
 /**
  * @author Walter White
  */
-public class TextType extends Type {
+public class TextType implements Type {
 
+  @Override
+  public String getId() {
+    return "text";
+  }
+
+  @Override
+  public I18nString getName() {
+    return null;
+  }
+
+  @Override
+  public I18nString getDescription() {
+    return null;
+  }
 }

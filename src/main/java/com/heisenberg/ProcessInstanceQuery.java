@@ -14,11 +14,11 @@
  */
 package com.heisenberg;
 
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.ActivityInstanceId;
-import com.heisenberg.instance.ProcessInstance;
+import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.ProcessInstanceId;
-import com.heisenberg.instance.ScopeInstance;
+import com.heisenberg.instance.ScopeInstanceImpl;
 
 
 /**
@@ -55,16 +55,16 @@ public class ProcessInstanceQuery {
     this.maxResults = maxResults;
   }
 
-  public boolean satisfiesCriteria(ProcessInstance processInstance) {
+  public boolean satisfiesCriteria(ProcessInstanceImpl processInstance) {
     if (activityInstanceId!=null && !containsCompositeInstance(processInstance, activityInstanceId)) {
       return false;
     }
     return true;
   }
 
-  boolean containsCompositeInstance(ScopeInstance scopeInstance, ActivityInstanceId activityInstanceId) {
+  boolean containsCompositeInstance(ScopeInstanceImpl scopeInstance, ActivityInstanceId activityInstanceId) {
     if (scopeInstance.hasActivityInstances()) {
-      for (ActivityInstance activityInstance : scopeInstance.getActivityInstances()) {
+      for (ActivityInstanceImpl activityInstance : scopeInstance.getActivityInstances()) {
         if (containsActivityInstance(activityInstance, activityInstanceId)) {
           return true;
         }
@@ -73,7 +73,7 @@ public class ProcessInstanceQuery {
     return false;
   }
 
-  boolean containsActivityInstance(ActivityInstance activityInstance, ActivityInstanceId activityInstanceId) {
+  boolean containsActivityInstance(ActivityInstanceImpl activityInstance, ActivityInstanceId activityInstanceId) {
     if (activityInstanceId.equals(activityInstance.getId())) {
       return true;
     }

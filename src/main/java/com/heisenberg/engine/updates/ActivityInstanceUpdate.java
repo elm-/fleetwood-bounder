@@ -14,7 +14,7 @@
  */
 package com.heisenberg.engine.updates;
 
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
@@ -22,17 +22,17 @@ import com.heisenberg.instance.ActivityInstance;
  */
 public abstract class ActivityInstanceUpdate implements Update {
 
-  protected ActivityInstance activityInstance;
+  protected ActivityInstanceImpl activityInstance;
   
-  public ActivityInstanceUpdate(ActivityInstance activityInstance) {
+  public ActivityInstanceUpdate(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
   
-  public ActivityInstance getActivityInstance() {
+  public ActivityInstanceImpl getActivityInstance() {
     return activityInstance;
   }
 
-  public void setActivityInstance(ActivityInstance activityInstance) {
+  public void setActivityInstance(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
 }

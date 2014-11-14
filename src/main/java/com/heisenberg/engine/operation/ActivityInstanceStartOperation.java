@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.ProcessEngine;
-import com.heisenberg.definition.ActivityDefinition;
-import com.heisenberg.instance.ActivityInstance;
-import com.heisenberg.instance.ProcessEngineImpl;
+import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
@@ -31,9 +31,9 @@ public class ActivityInstanceStartOperation implements Operation {
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
-  protected ActivityInstance activityInstance;
+  protected ActivityInstanceImpl activityInstance;
 
-  public ActivityInstanceStartOperation(ActivityInstance activityInstance) {
+  public ActivityInstanceStartOperation(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
 
@@ -43,16 +43,16 @@ public class ActivityInstanceStartOperation implements Operation {
   }
 
   public void execute(ProcessEngineImpl processEngine) {
-    ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
+    ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
     log.debug("Starting "+activityInstance);
     activityDefinition.start(activityInstance);
   }
   
-  public ActivityInstance getActivityInstance() {
+  public ActivityInstanceImpl getActivityInstance() {
     return activityInstance;
   }
   
-  public void setActivityInstance(ActivityInstance activityInstance) {
+  public void setActivityInstance(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
 }

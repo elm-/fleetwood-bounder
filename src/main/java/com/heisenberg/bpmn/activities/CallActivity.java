@@ -14,44 +14,44 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.CreateProcessInstanceRequest;
-import com.heisenberg.definition.ActivityDefinition;
-import com.heisenberg.definition.ParameterDefinition;
-import com.heisenberg.definition.ParameterDefinitions;
+import com.heisenberg.StartProcessInstanceRequest;
+import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.definition.ParameterDefinitionsImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
-import com.heisenberg.instance.ActivityInstance;
-import com.heisenberg.type.Type;
+import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.spi.ObjectActivityParameter;
+import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public abstract class CallActivity extends ActivityDefinition {
+public abstract class CallActivity extends ActivityDefinitionImpl {
   
-  public static ParameterDefinition PROCESS_DEFINITION_ID = ParameterDefinition
+  public static ObjectActivityParameter PROCESS_DEFINITION_ID = ObjectActivityParameter
     .type(Type.ID)
     .name("name");
   
-  public static ParameterDefinitions PARAMETER_DEFINITIONS = new ParameterDefinitions(
+  public static ParameterDefinitionsImpl PARAMETER_DEFINITIONS = new ParameterDefinitionsImpl(
     PROCESS_DEFINITION_ID);
   
   @Override
-  public ParameterDefinitions getParameterDefinitions() {
+  public ParameterDefinitionsImpl getParameterDefinitions() {
     return PARAMETER_DEFINITIONS;
   }
 
   @Override
-  public void start(ActivityInstance activityInstance) {
-    ProcessDefinitionId processDefinitionId = (ProcessDefinitionId) PROCESS_DEFINITION_ID.get(activityInstance);
+  public void start(ActivityInstanceImpl activityInstance) {
+    ProcessDefinitionId processDefinitionId = PROCESS_DEFINITION_ID.get(activityInstance, ProcessDefinitionId.class);
     if (processDefinitionId!=null) {
-      CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
-      createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
-      activityInstance.getProcessEngine().createProcessInstance(createProcessInstanceRequest);
+      StartProcessInstanceRequest startProcessInstanceRequest = new StartProcessInstanceRequest();
+      startProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
+      activityInstance.getProcessEngine().startProcessInstance(startProcessInstanceRequest);
     }
   }
   
   @Override
-  public boolean isAsync(ActivityInstance activityInstance) {
+  public boolean isAsync(ActivityInstanceImpl activityInstance) {
     return true;
   }
 }

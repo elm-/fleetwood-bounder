@@ -14,25 +14,25 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.definition.ActivityDefinition;
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public abstract class ServiceTask extends ActivityDefinition {
+public abstract class ServiceTask extends ActivityDefinitionImpl {
 
   @Override
-  public void start(ActivityInstance activityInstance) {
+  public void start(ActivityInstanceImpl activityInstance) {
     invokeService(activityInstance);
     activityInstance.onwards();
   }
   
   @Override
-  public boolean isAsync(ActivityInstance activityInstance) {
+  public boolean isAsync(ActivityInstanceImpl activityInstance) {
     return true;
   }
 
-  public abstract void invokeService(ActivityInstance activityInstance);
+  public abstract void invokeService(ActivityInstanceImpl activityInstance);
 }

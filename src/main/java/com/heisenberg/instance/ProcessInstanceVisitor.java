@@ -26,7 +26,7 @@ import com.heisenberg.engine.updates.Update;
  */
 public class ProcessInstanceVisitor {
   
-  public void visitProcessInstance(ProcessInstance processInstance) {
+  public void visitProcessInstance(ProcessInstanceImpl processInstance) {
     startProcessInstance(processInstance);
     visitActivityInstances(processInstance.getActivityInstances());
     visitOperations(processInstance.getOperations());
@@ -35,15 +35,15 @@ public class ProcessInstanceVisitor {
     endProcessInstance(processInstance);
   }
   
-  protected void visitActivityInstances(List<ActivityInstance> activityInstances) {
+  protected void visitActivityInstances(List<ActivityInstanceImpl> activityInstances) {
     if (activityInstances!=null) {
-      for (ActivityInstance activityInstance: activityInstances) {
+      for (ActivityInstanceImpl activityInstance: activityInstances) {
         visitActivityInstance(activityInstance);
       }
     }
   }
 
-  protected void visitActivityInstance(ActivityInstance activityInstance) {
+  protected void visitActivityInstance(ActivityInstanceImpl activityInstance) {
     startActivityInstance(activityInstance);
     visitActivityInstances(activityInstance.getActivityInstances());
     endActivityInstance(activityInstance);
@@ -71,18 +71,18 @@ public class ProcessInstanceVisitor {
   protected void visitOperation(Operation operation) {
   }
   
-  protected void visitLock(Lock lock) {
+  protected void visitLock(LockImpl lock) {
   }
 
-  protected void startProcessInstance(ProcessInstance processInstance) {
+  protected void startProcessInstance(ProcessInstanceImpl processInstance) {
   }
 
-  protected void endProcessInstance(ProcessInstance processInstance) {
+  protected void endProcessInstance(ProcessInstanceImpl processInstance) {
   }
 
-  protected void startActivityInstance(ActivityInstance activityInstance) {
+  protected void startActivityInstance(ActivityInstanceImpl activityInstance) {
   }
 
-  protected void endActivityInstance(ActivityInstance activityInstance) {
+  protected void endActivityInstance(ActivityInstanceImpl activityInstance) {
   }
 }

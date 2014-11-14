@@ -20,15 +20,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.definition.ProcessDefinition;
+import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
-import com.heisenberg.definition.VariableDefinition;
+import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.expressions.JavaScript;
 import com.heisenberg.expressions.ScriptInput;
 import com.heisenberg.expressions.ScriptOutput;
-import com.heisenberg.instance.ProcessInstance;
-import com.heisenberg.type.Type;
+import com.heisenberg.instance.ProcessInstanceImpl;
+import com.heisenberg.spi.Type;
 
 
 /**
@@ -43,20 +43,20 @@ public class ScriptTest {
     ProcessEngine processEngine = new MemoryProcessEngine();
 
     // prepare the ingredients
-    VariableDefinition t = new VariableDefinition()
+    VariableDefinitionImpl t = new VariableDefinitionImpl()
       .type(Type.TEXT);
     
     // cook a process batch
-    ProcessDefinition processDefinition = new ProcessDefinition()
+    ProcessDefinitionImpl processDefinition = new ProcessDefinitionImpl()
       .variable(t);
 
     processDefinition = processEngine.saveProcessDefinition(processDefinition);
     ProcessDefinitionId processDefinitionId = processDefinition.getId();
     
-    CreateProcessInstanceRequest createProcessInstanceRequest = new CreateProcessInstanceRequest();
-    createProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
-    createProcessInstanceRequest.variableValue(t.getId(), "hello world");
-    ProcessInstance processInstance = processEngine.createProcessInstance(createProcessInstanceRequest);
+    StartProcessInstanceRequest startProcessInstanceRequest = new StartProcessInstanceRequest();
+    startProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
+    startProcessInstanceRequest.variableValue(t.getId(), "hello world");
+    ProcessInstanceImpl processInstance = processEngine.startProcessInstance(startProcessInstanceRequest);
 
     JavaScript javaScript = new JavaScript();
     ScriptInput scriptInput = new ScriptInput()

@@ -14,7 +14,7 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 
@@ -25,7 +25,7 @@ import com.heisenberg.instance.ActivityInstance;
 public abstract class JavaServiceTask extends ServiceTask {
 
   @Override
-  public void invokeService(ActivityInstance activityInstance) {
+  public void invokeService(ActivityInstanceImpl activityInstance) {
   }
 
 }

@@ -16,8 +16,10 @@ package com.heisenberg;
 
 import java.util.List;
 
-import com.heisenberg.definition.ProcessDefinition;
-import com.heisenberg.instance.ProcessInstance;
+import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.Services;
+import com.heisenberg.instance.ProcessInstanceImpl;
 
 
 
@@ -31,12 +33,14 @@ public interface ProcessEngine {
   ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition);
   
   ProcessDefinitionQueryBuilder buildProcessDefinitionQuery();
-  List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
+  List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
 
   ProcessInstanceQueryBuilder buildProcessInstanceQuery();
-  List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
+  List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
 
-  ProcessInstance createProcessInstance(CreateProcessInstanceRequest createProcessInstanceRequest);
+  ProcessInstanceImpl startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);
 
-  ProcessInstance signal(SignalRequest signalRequest);
+  ProcessInstanceImpl signal(SignalRequest signalRequest);
+
+  Services getServices();
 }

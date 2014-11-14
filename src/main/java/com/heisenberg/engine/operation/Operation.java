@@ -14,7 +14,7 @@
  */
 package com.heisenberg.engine.operation;
 
-import com.heisenberg.instance.ProcessEngineImpl;
+import com.heisenberg.impl.ProcessEngineImpl;
 
 
 /**

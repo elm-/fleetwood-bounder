@@ -17,19 +17,34 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.definition.ActivityDefinition;
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.spi.ActivityInstance;
+import com.heisenberg.spi.ActivityType;
+import com.heisenberg.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class Wait extends ActivityDefinition {
+public class Wait implements ActivityType {
   
-  protected List<ActivityInstance> activityInstances = new ArrayList<>();
+  public static final String ID = "wait";
+  
+  protected List<k> activityInstances = new ArrayList<>();
 
   @Override
   public void start(ActivityInstance activityInstance) {
     activityInstances.add(activityInstance);
   }
+
+  @Override
+  public String getId() {
+    return ID;
+  }
+
+  @Override
+  public void signal(ActivityInstance activityInstance) {
+  }
+  
+  
 }

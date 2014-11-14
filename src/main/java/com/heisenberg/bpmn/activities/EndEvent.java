@@ -14,17 +14,17 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.definition.ActivityDefinition;
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public class EndEvent extends ActivityDefinition {
+public class EndEvent extends ActivityDefinitionImpl {
 
   @Override
-  public void start(ActivityInstance activityInstance) {
+  public void start(ActivityInstanceImpl activityInstance) {
     activityInstance.end();
   }
 

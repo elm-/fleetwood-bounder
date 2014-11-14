@@ -17,7 +17,7 @@ package com.heisenberg;
 import java.util.List;
 
 import com.heisenberg.instance.ActivityInstanceId;
-import com.heisenberg.instance.ProcessInstance;
+import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.ProcessInstanceId;
 
 
@@ -45,16 +45,16 @@ public class ProcessInstanceQueryBuilder {
     return this;
   }
   
-  public ProcessInstance get() {
+  public ProcessInstanceImpl get() {
     processInstanceQuery.setMaxResults(1);
-    List<ProcessInstance> processInstances = asList();
+    List<ProcessInstanceImpl> processInstances = asList();
     if (processInstances!=null && !processInstances.isEmpty()) {
       return processInstances.get(0);
     }
     return null;
   }
 
-  public List<ProcessInstance> asList() {
+  public List<ProcessInstanceImpl> asList() {
     return processEngine.findProcessInstances(processInstanceQuery);
   }
 

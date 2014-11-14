@@ -16,6 +16,8 @@ package com.heisenberg.type;
 
 import java.util.List;
 
+import com.heisenberg.spi.Type;
+
 
 /**
  * @author Walter White

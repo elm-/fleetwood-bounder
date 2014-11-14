@@ -14,6 +14,7 @@
 * jdbc persistence
 * load testing
 * activity pluggability (java)
+* activity pluggability (remote/HTTP)
 * activity types
   * HTTP invocation
   * Send email
@@ -23,9 +24,43 @@
 * transient execution context variables
 * ensure jackson lib is not required if json is not used
 
+Unsure if in scope:
+* multi language support ?
+
+# Deployment use cases
+
++--------------------------------------------------+
+| Test case                                        |
+| +----------------------+   +-------------------+ |
+| | Effektif PVM library |-->| In memory objects | |
+| +----------------------+   +-------------------+ |
++--------------------------------------------------+
+
+  +--------------------------+
++--------------------------+ |
+| User Java App            | |         +----------------------+   +----------------+
+| +----------------------+ | |--HTTP-->| Effektif PVM Server  |   | JDBC / MongoDB |
+| | Effektif PVM library | |----HTTP-->| containing library   |-->| Database       |
+| +----------------------+ |-+         +----------------------+   +----------------+
++--------------------------+
+
++--------------------------+
+| User Java App            |
+| +----------------------+ |      +-------------------------+
+| | Effektif PVM library |------->| JDBC / MongoDB Database |
+| +----------------------+ |      +-------------------------+
++--------------------------+
+
++--------------------------+          +--------------------------+
+| User Java App            |        +--------------------------+ |
+| +----------------------+ |      +--------------------------+ |-+
+| | Effektif PVM library |------->| Sharded MongoDB Database |-+
+| +----------------------+ |      +--------------------------+
++--------------------------+
+
 # Design principles
 
-* ensure libraries are not required at runtime if they are not used
+* Minimal library dependencies
 
 # Design topics
 

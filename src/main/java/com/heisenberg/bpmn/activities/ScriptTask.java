@@ -18,21 +18,21 @@ import java.util.Map;
 
 import javax.script.CompiledScript;
 
-import com.heisenberg.definition.ActivityDefinition;
+import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionId;
-import com.heisenberg.instance.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public class ScriptTask extends ActivityDefinition {
+public class ScriptTask extends ActivityDefinitionImpl {
   
   protected CompiledScript compiledScript;
   protected Map<String, VariableDefinitionId> variableDefinitionIds;
 
   @Override
-  public void start(ActivityInstance activityInstance) {
+  public void start(ActivityInstanceImpl activityInstance) {
     // clone the variable values
     // invoke javascript
     // perform dirty checking on the variables

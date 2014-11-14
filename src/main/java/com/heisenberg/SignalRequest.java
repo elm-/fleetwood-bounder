@@ -24,6 +24,11 @@ public class SignalRequest extends VariableRequest {
 
   protected ActivityInstanceId activityInstanceId;
   
+  public SignalRequest activityInstanceId(ActivityInstanceId activityInstanceId) {
+    this.activityInstanceId = activityInstanceId;
+    return this;
+  }
+  
   public ActivityInstanceId getActivityInstanceId() {
     return activityInstanceId;
   }

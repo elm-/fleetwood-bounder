@@ -14,6 +14,8 @@
  */
 package com.heisenberg.type;
 
+import com.heisenberg.spi.Type;
+
 
 
 
@@ -22,15 +24,13 @@ package com.heisenberg.type;
  */
 public abstract class ReferenceType<T extends Type> extends Type {
 
-  T referencedObjectType;
+  T referencedType;
   
-  public T getReferencedObjectType() {
-    return referencedObjectType;
+  public T getReferencedType() {
+    return referencedType;
   }
 
-  public void setReferencedObjectType(T referencedObjectType) {
-    this.referencedObjectType = referencedObjectType;
+  public void setReferencedType(T referencedType) {
+    this.referencedType = referencedType;
   }
-
-  
 }
