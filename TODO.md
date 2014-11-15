@@ -1,10 +1,10 @@
 # Roadmap
 
-[ ] types
-[ ] json (de)serialization
-  [ ] process instance
-  [ ] updates & operations
-  [ ] types
+- [ ] types
+- [ ] json (de)serialization
+  - [ ] process instance
+  - [x] updates & operations
+  - [ ] types
 * type system 
 * expressions
 * ensure users can do simple versioning on top
