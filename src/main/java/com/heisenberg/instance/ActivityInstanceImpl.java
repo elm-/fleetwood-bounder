@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.TransitionDefinitionImpl;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
@@ -35,6 +36,15 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl {
   public ActivityInstanceId id;
   public ActivityDefinitionImpl activityDefinition;
   
+  @Override
+  public ActivityInstance serializeToJson() {
+    ActivityInstance activityInstance = new ActivityInstance();
+    activityInstance.id = id.toString();
+    activityInstance.activityDefinitionName = activityDefinition.name;
+    serialize(activityInstance);
+    return activityInstance;
+  }
+
   public void onwards() {
     log.debug("Onwards "+this);
     // Default BPMN logic when an activity ends
@@ -117,10 +127,5 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl {
       this.duration = end-start;
     }
     processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
-  }
-
-  @Override
-  public Object getJson() {
-    return null;
   }
 }

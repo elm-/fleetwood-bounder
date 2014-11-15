@@ -14,12 +14,7 @@
  */
 package com.heisenberg.api.instance;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.instance.ScopeInstanceImpl;
-import com.heisenberg.instance.VariableInstanceImpl;
 
 
 /**
@@ -34,24 +29,4 @@ public class ScopeInstance {
   public List<ActivityInstance> activityInstances;
   public List<VariableInstance> variableInstances;
   
-  public ScopeInstance() {
-  }
-  
-  public ScopeInstance(ScopeInstanceImpl scopeInstance) {
-    this.start = scopeInstance.start;
-    this.end = scopeInstance.end;
-    this.duration = scopeInstance.duration;
-    if (scopeInstance.activityInstances!=null) {
-      this.activityInstances = new ArrayList<ActivityInstance>(scopeInstance.activityInstances.size());
-      for (ActivityInstanceImpl activityInstance: scopeInstance.activityInstances) {
-        this.activityInstances.add(new ActivityInstance(activityInstance));
-      }
-    }
-    if (scopeInstance.variableInstances!=null) {
-      this.variableInstances = new ArrayList<VariableInstance>(scopeInstance.variableInstances.size());
-      for (VariableInstanceImpl variableInstance: scopeInstance.variableInstances) {
-        this.variableInstances.add(new VariableInstance(variableInstance));
-      }
-    }
-  }
 }

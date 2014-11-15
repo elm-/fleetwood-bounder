@@ -19,8 +19,6 @@ import java.util.Set;
 
 import javax.script.CompiledScript;
 
-import com.heisenberg.definition.VariableDefinitionId;
-
 
 /**
  * @author Walter White

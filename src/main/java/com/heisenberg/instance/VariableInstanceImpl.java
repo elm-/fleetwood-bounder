@@ -14,6 +14,7 @@
  */
 package com.heisenberg.instance;
 
+import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.spi.Type;
@@ -79,5 +80,13 @@ public class VariableInstanceImpl {
   
   public void setVariableDefinition(VariableDefinitionImpl variableDefinition) {
     this.variableDefinition = variableDefinition;
+  }
+
+  public VariableInstance serialize() {
+    VariableInstance variableInstance = new VariableInstance();
+    variableInstance.variableDefinitionRefName = variableDefinition.name;
+    variableInstance.typeRefId = type.getId();
+    variableInstance.value = value;
+    return variableInstance;
   }
 }

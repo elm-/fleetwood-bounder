@@ -173,7 +173,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     processInstance.setLock(lock);
     saveProcessInstance(processInstance);
     processInstance.executeOperations();
-    return processInstance.serialize(processInstance);
+    return processInstance.serializeToJson();
   }
 
   protected ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(ProcessDefinitionId processDefinitionId) {

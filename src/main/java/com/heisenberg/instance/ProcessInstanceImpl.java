@@ -71,8 +71,10 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl {
     addOperation(new ActivityInstanceStartOperation(activityInstance));
   }
   
-  public ProcessInstance serialize() {
+  @Override
+  public ProcessInstance serializeToJson() {
     ProcessInstance processInstance = new ProcessInstance();
+    processInstance.id = id.toString();
     super.serialize(processInstance);
     return processInstance;
   }
@@ -231,10 +233,5 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl {
     }
     // when we add call activity we will need:
     // addUpdate(new ProcessInstanceEndUpdate(this));
-  }
-
-  @Override
-  public Object getJson() {
-    return new ProcessInstance(this);
   }
 }

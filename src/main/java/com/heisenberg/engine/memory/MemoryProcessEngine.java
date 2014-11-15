@@ -34,8 +34,6 @@ import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceId;
 import com.heisenberg.instance.ProcessInstanceImpl;
-import com.heisenberg.json.Json;
-import com.heisenberg.util.Lists;
 import com.heisenberg.util.Time;
 
 
@@ -103,7 +101,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   public List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
     if (processDefinitionQuery.getProcessDefinitionId()!=null) {
       ProcessDefinitionImpl processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
-      return Lists.of(processDefinition);
+      throw new RuntimeException("TODO");
     }
     List<ProcessDefinitionImpl> result = new ArrayList<>();
     for (ProcessDefinitionImpl processDefinition: processDefinitions.values()) {
@@ -111,23 +109,25 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
         result.add(processDefinition);
       }
     }
-    return result;
+    throw new RuntimeException("TODO");
   }
   
 
-  @Override
   public List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
+    throw new RuntimeException("TODO");
+  }
+  
+  public ProcessInstanceImpl findProcessInstance(ProcessInstanceQuery processInstanceQuery) {
     if (processInstanceQuery.getProcessInstanceId()!=null) {
       ProcessInstanceImpl processInstance = processInstances.get(processInstanceQuery.getProcessInstanceId());
-      return Lists.of(processInstance);
+      return processInstance;
     }
-    List<ProcessInstanceImpl> result = new ArrayList<>();
     for (ProcessInstanceImpl processInstance: processInstances.values()) {
       if (processInstanceQuery.satisfiesCriteria(processInstance)) {
-        result.add(processInstance);
+        return processInstance;
       }
     }
-    return result;
+    return null;
   }
 
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
@@ -135,8 +135,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
       .activityInstanceId(activityInstanceId)
       .getQuery();
     processInstanceQuery.setMaxResults(1);
-    List<ProcessInstance> processInstances = findProcessInstances(processInstanceQuery);
-    ProcessInstanceImpl processInstance = (!processInstances.isEmpty() ? processInstances.get(0) : null);
+    ProcessInstanceImpl processInstance = findProcessInstance(processInstanceQuery);
     if (processInstance==null) { 
       throw new RuntimeException("Process instance "+id+" doesn't exist");
     }

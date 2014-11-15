@@ -17,7 +17,6 @@ package com.heisenberg.expressions;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.heisenberg.definition.VariableDefinitionId;
 import com.heisenberg.instance.ScopeInstanceImpl;
 
 

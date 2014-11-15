@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.instance;
 
-import com.heisenberg.instance.VariableInstanceImpl;
-import com.heisenberg.json.Json;
 
 
 
@@ -24,16 +22,10 @@ import com.heisenberg.json.Json;
  */
 public class VariableInstance {
 
-  public String variableDefinitionId;
+  public String variableDefinitionRefName;
+  public String typeRefId;
   public Object value;
   
   public VariableInstance() {
-  }
-
-  public VariableInstance(VariableInstanceImpl variableInstance) {
-    if (variableInstance.variableDefinition!=null) {
-      this.variableDefinitionId = Json.getIdString(variableInstance.variableDefinition); 
-    }
-    this.value = variableInstance.value;
   }
 }

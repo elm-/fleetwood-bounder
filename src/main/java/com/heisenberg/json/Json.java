@@ -71,7 +71,7 @@ public class Json {
     if (object==null) {
       return null;
     } else if (object instanceof ProcessInstanceImpl) {
-      return new ProcessInstance((ProcessInstanceImpl)object);
+      return ((ProcessInstanceImpl)object).serializeToJson();
     }
     throw new RuntimeException("Unknown json type: "+object);
   }

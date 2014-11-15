@@ -18,7 +18,6 @@ import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.ParameterBinding;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.type.TypedValue;
 
 
 /**

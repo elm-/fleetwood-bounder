@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.instance;
 
-import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.json.Json;
 
 
 
@@ -26,16 +24,5 @@ import com.heisenberg.json.Json;
 public class ActivityInstance extends ScopeInstance {
 
   public String activityDefinitionName;
-
-  public ActivityInstance() {
-  }
-
-  public ActivityInstance(ActivityInstanceImpl activityInstance) {
-    super(activityInstance);
-    this.id = Json.getIdString(activityInstance);
-    if (activityInstance.activityDefinition!=null) {
-      this.activityDefinitionName = Json.getIdString(activityInstance.activityDefinition); 
-    }
-  }
 
 }

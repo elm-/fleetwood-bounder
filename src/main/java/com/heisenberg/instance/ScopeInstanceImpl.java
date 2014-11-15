@@ -23,6 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.instance.ScopeInstance;
+import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ScopeDefinitionImpl;
@@ -44,11 +47,8 @@ public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public Long start;
-  
   public Long end;
-
   public Long duration;
-
   public List<ActivityInstanceImpl> activityInstances;
 
   public List<VariableInstanceImpl> variableInstances;
@@ -59,6 +59,27 @@ public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
   public ScopeDefinitionImpl scopeDefinition;
   public ProcessInstanceImpl processInstance;
   public ScopeInstanceImpl parent;
+  
+  
+  public void serialize(ScopeInstance scopeInstance) {
+    scopeInstance.start = start;
+    scopeInstance.end = end;
+    scopeInstance.duration = duration;
+    if (activityInstances!=null) {
+      scopeInstance.activityInstances = new ArrayList<>(activityInstances.size());
+      for (ActivityInstanceImpl activityInstanceImpl: activityInstances) {
+        ActivityInstance activityInstance = activityInstanceImpl.serializeToJson();
+        scopeInstance.activityInstances.add(activityInstance);
+      }
+    }
+    if (variableInstances!=null) {
+      scopeInstance.variableInstances = new ArrayList<>(variableInstances.size());
+      for (VariableInstanceImpl variableInstanceImpl: variableInstances) {
+        VariableInstance variableInstance = variableInstanceImpl.serialize();
+        scopeInstance.variableInstances.add(variableInstance);
+      }
+    }
+  }
 
   public ActivityInstanceImpl createActivityInstance(ActivityDefinitionImpl activityDefinition) {
     ActivityInstanceImpl activityInstance = processEngine.createActivityInstance(activityDefinition);
@@ -175,7 +196,7 @@ public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
     }
     return null;
   }
-  
+
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
   }

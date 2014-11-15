@@ -20,5 +20,5 @@ package com.heisenberg.json;
  */
 public interface Jsonnable {
 
-  Object getJson();
+  Object serializeToJson();
 }

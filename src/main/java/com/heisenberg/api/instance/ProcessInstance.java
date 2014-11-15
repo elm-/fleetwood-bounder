@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.instance;
 
-import com.heisenberg.instance.ProcessInstanceImpl;
-import com.heisenberg.json.Json;
 
 
 
@@ -24,11 +22,4 @@ import com.heisenberg.json.Json;
  */
 public class ProcessInstance extends ScopeInstance {
 
-  public ProcessInstance() {
-  }
-  
-  public ProcessInstance(ProcessInstanceImpl processInstance) {
-    super(processInstance);
-    this.id = Json.getIdString(processInstance);
-  }
 }

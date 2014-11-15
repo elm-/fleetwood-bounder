@@ -45,7 +45,7 @@ public class ActivityInstanceStartOperation implements Operation {
   public void execute(ProcessEngineImpl processEngine) {
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
     log.debug("Starting "+activityInstance);
-    activityDefinition.start(activityInstance);
+    activityDefinition.activityType.start(activityInstance);
   }
   
   public ActivityInstanceImpl getActivityInstance() {

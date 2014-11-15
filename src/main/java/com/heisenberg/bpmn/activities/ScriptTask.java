@@ -19,7 +19,6 @@ import java.util.Map;
 import javax.script.CompiledScript;
 
 import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.VariableDefinitionId;
 import com.heisenberg.instance.ActivityInstanceImpl;
 
 
