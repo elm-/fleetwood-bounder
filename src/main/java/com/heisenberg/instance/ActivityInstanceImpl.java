@@ -22,7 +22,6 @@ import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.TransitionDefinitionImpl;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.spi.ActivityInstanceImpl;
 import com.heisenberg.util.Time;
 
 
@@ -108,9 +107,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl {
   }
   
   public String toString() {
-    String activityDefinitionIdString = activityDefinition.getId().toString();    
     String activityDefinitionType = activityDefinition.getClass().getSimpleName();
-    return "ai("+activityDefinitionIdString+"|"+activityDefinitionType+"|"+id+")";
+    return "ai("+activityDefinition.name+"|"+activityDefinitionType+"|"+id+")";
   }
   
   public void setEnd(Long end) {

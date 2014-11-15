@@ -14,9 +14,11 @@
  */
 package com.heisenberg.spi;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.Location;
 import com.heisenberg.definition.ParameterInstanceImpl;
 
 
@@ -29,6 +31,7 @@ public abstract class ActivityParameter {
   public String name;
   public Type type;
   public Boolean required;
+  public Boolean recommended;
   
   public ActivityParameter(Type type) {
     this.type = type;
@@ -38,9 +41,36 @@ public abstract class ActivityParameter {
     this.name = name;
     return this;
   }
+  
+  /** generates an error if the parameter is not provided */
+  public ActivityParameter required() {
+    this.required = true;
+    return this;
+  }
 
-  public void checkParameters(Map<String, ParameterInstanceImpl> parameterInstances, DeployProcessDefinitionResponse response) {
-    // TODO
-    
+  /** generates a warning if the parameter is not provided */
+  public ActivityParameter recommended() {
+    this.required = true;
+    return this;
+  }
+
+  public void checkParameters(Location activityDefinitionLocation, Map<String, ParameterInstanceImpl> parameterInstances, DeployProcessDefinitionResponse response) {
+    if (!parameterInstances.containsKey(name)) {
+      if (Boolean.TRUE.equals(required)) {
+        response.addError(activityDefinitionLocation, "Parameter %s is not provided", name);
+      } else if (Boolean.TRUE.equals(recommended)) {
+        response.addWarning(activityDefinitionLocation, "Parameter %s is not provided", name);
+      }
+    }
+  }
+
+  public static Map<String, ActivityParameter> buildActivityParameterMap(ActivityParameter[] activityParameters) {
+    Map<String, ActivityParameter> activityParameterMap = new HashMap<>();
+    if (activityParameters!=null) {
+      for (ActivityParameter activityParameter: activityParameters) {
+        activityParameterMap.put(activityParameter.name, activityParameter);
+      }
+    }
+    return activityParameterMap;
   }
 }

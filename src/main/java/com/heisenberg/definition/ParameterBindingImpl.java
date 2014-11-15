@@ -14,6 +14,9 @@
  */
 package com.heisenberg.definition;
 
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.ParameterBinding;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.type.TypedValue;
 
@@ -79,5 +82,13 @@ public class ParameterBindingImpl {
       return null;
     }
     return null;
+  }
+
+  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
+          ScopeDefinitionImpl parentScopeDefinition, ParameterInstanceImpl parentParameterInstance, ParameterBinding parameterBinding) {
+    if (parameterBinding.variableDefinitionRefName!=null) {
+      variableDefinition = parentScopeDefinition.findVariableDefinitionByName(parameterBinding.variableDefinitionRefName);
+      
+    }
   }
 }

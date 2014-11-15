@@ -14,10 +14,11 @@
  */
 package com.heisenberg.definition;
 
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.VariableInstanceImpl;
 import com.heisenberg.spi.Type;
-import com.heisenberg.util.Identifyable;
 
 
 /**
@@ -25,12 +26,12 @@ import com.heisenberg.util.Identifyable;
  */
 public class VariableDefinitionImpl {
 
-  protected ProcessEngineImpl processEngine;
-  protected ProcessDefinitionImpl processDefinition;  
-  protected ScopeDefinitionImpl parent;
-  protected String name;
-  protected Type type;
-  protected Object initialValue;
+  public ProcessEngineImpl processEngine;
+  public ProcessDefinitionImpl processDefinition;  
+  public ScopeDefinitionImpl parent;
+  public String name;
+  public Type type;
+  public Object initialValue;
   
   public VariableDefinitionImpl type(Type type) {
     this.type = type;
@@ -87,5 +88,28 @@ public class VariableDefinitionImpl {
     variableInstance.setVariableDefinition(this);
     variableInstance.setValue(initialValue);
     return variableInstance;
+  }
+
+  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition, ScopeDefinitionImpl parent, VariableDefinition variableDefinition) {
+    this.name = variableDefinition.name;
+    if (this.name==null) {
+      response.addError(variableDefinition.location, "Variable does not have a name");
+    }
+    if (variableDefinition.typeRefId!=null) {
+      this.type = processEngine.types.get(variableDefinition.typeRefId);
+      if (this.type==null) {
+        response.addError(variableDefinition.location, "Variable '%s' has unknown type '%s' does not exist", name, variableDefinition.typeRefId);
+      } else {
+        if (variableDefinition.initialValue!=null) {
+          if (type.isValidValue(variableDefinition.initialValue)) {
+            this.initialValue = variableDefinition.initialValue;
+          } else {
+            response.addError(variableDefinition.location, "Variable '%s' does not exist", variableDefinition.typeRefId);
+          }
+        }
+      }
+    } else {
+      response.addError(variableDefinition.location, "Variable '%s' does not have a type", name);
+    }
   }
 }

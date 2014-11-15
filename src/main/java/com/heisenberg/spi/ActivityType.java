@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.Location;
 import com.heisenberg.api.definition.ParameterInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ParameterInstanceImpl;
@@ -39,18 +40,19 @@ public abstract class ActivityType implements Spi {
    * Invoked just once during initialization of the process engine.
    * If you return activity parameters, you could consider overriding the default 
    * parameter checking in {@link #checkParameters(ActivityDefinitionImpl, DeployProcessDefinitionResponse)}. */
-  public List<ActivityParameter> getActivityParameters() {
+  public ActivityParameter[] getActivityParameters() {
     return null;
   }
 
   /** Checks the parameters during process deployment.
-   * The errors and warnings should be reported with response.addError() and response.addWarning(). */
-  public void checkParameters(ActivityDefinitionImpl activityDefinitionImpl, Map<String,ActivityParameter> activityParameterMap, DeployProcessDefinitionResponse response) {
+   * The errors and warnings should be reported with response.addError() and response.addWarning(). 
+   * @param parameterInstances2 */
+  public void checkParameters(Location activityDefinitionLocation, List<ParameterInstanceImpl> parameterInstances, Map<String,ActivityParameter> activityParameterMap, DeployProcessDefinitionResponse response) {
     if (activityParameterMap!=null) {
-      Map<String,ParameterInstanceImpl> parameterInstances = ParameterInstance.buildParameterInstancesMap(activityDefinitionImpl.parameterInstances);
+      Map<String,ParameterInstanceImpl> parameterInstanceMap = ParameterInstance.buildParameterInstancesMap(parameterInstances);
       for (String activityParameterName: activityParameterMap.keySet()) {
         ActivityParameter activityParameter = activityParameterMap.get(activityParameterName); 
-        activityParameter.checkParameters(parameterInstances, response);
+        activityParameter.checkParameters(activityDefinitionLocation, parameterInstanceMap, response);
       }
     }
   }

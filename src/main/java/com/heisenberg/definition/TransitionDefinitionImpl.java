@@ -14,6 +14,10 @@
  */
 package com.heisenberg.definition;
 
+import java.util.Map;
+
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
@@ -35,17 +39,14 @@ public class TransitionDefinitionImpl {
   public ActivityDefinitionImpl getFrom() {
     return from;
   }
-
   
   public void setFrom(ActivityDefinitionImpl from) {
     this.from = from;
   }
-
   
   public ActivityDefinitionImpl getTo() {
     return to;
   }
-
   
   public void setTo(ActivityDefinitionImpl to) {
     this.to = to;
@@ -79,5 +80,26 @@ public class TransitionDefinitionImpl {
   
   public void setProcessDefinition(ProcessDefinitionImpl processDefinition) {
     this.processDefinition = processDefinition;
+  }
+
+  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
+          ScopeDefinitionImpl scopeDefinitionImpl, TransitionDefinition transitionDefinition) {
+    Map<String, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionImpl.activityDefinitionsMap;
+    if (transitionDefinition.fromActivityDefinitionName==null) {
+      response.addWarning(transitionDefinition.location, "Transition does not have from (source) specified");
+    } else {
+      from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transitionDefinition.fromActivityDefinitionName) : null);
+      if (from==null) {
+        response.addError(transitionDefinition.location, "Transition has an invalid from (source) '%s' : Should be one of "+activityDefinitionsMap.keySet(), transitionDefinition.fromActivityDefinitionName);
+      }
+    }
+    if (transitionDefinition.toActivityDefinitionName==null) {
+      response.addWarning(transitionDefinition.location, "Transition does not have to (destination) specified");
+    } else {
+      to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transitionDefinition.toActivityDefinitionName) : null);
+      if (to==null) {
+        response.addError(transitionDefinition.location, "Transition has an invalid to (destination) '%s' : Should be one of "+activityDefinitionsMap.keySet(), transitionDefinition.toActivityDefinitionName);
+      }
+    }
   }
 }

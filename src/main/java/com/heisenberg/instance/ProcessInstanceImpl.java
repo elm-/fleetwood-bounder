@@ -64,13 +64,19 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl {
     initializeVariableInstances();
     log.debug("Created "+processInstance);
   }
-
+  
   // Adds the activity instances to the list of activity instances to start.
   // This method assumes that executeOperations was already called or will be called. 
   public void startActivityInstance(ActivityInstanceImpl activityInstance) {
     addOperation(new ActivityInstanceStartOperation(activityInstance));
   }
   
+  public ProcessInstance serialize() {
+    ProcessInstance processInstance = new ProcessInstance();
+    super.serialize(processInstance);
+    return processInstance;
+  }
+
   void addOperation(Operation operation) {
     if (isAsync || !operation.isAsync()) {
       if (operations==null) {

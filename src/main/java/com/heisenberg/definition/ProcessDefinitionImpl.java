@@ -29,7 +29,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
   public ProcessDefinitionImpl(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinition processDefinition) {
     this.processEngine = processEngine;
     this.processDefinition = this;
-    parse(processEngine, response, this, this, processDefinition);
+    parse(processEngine, response, this, null, processDefinition);
   }
 
   public void prepare() {

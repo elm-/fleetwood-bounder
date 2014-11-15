@@ -17,6 +17,9 @@ package com.heisenberg.definition;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.ParameterBinding;
+import com.heisenberg.api.definition.ParameterInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.spi.ActivityParameter;
 
@@ -32,7 +35,6 @@ public class ParameterInstanceImpl {
   
   public String name;
   public ActivityParameter parameterDefinition;
-
   public List<ParameterBindingImpl> parameterBindings;
   
   public void addParameterBinding(ParameterBindingImpl parameterBinding) {
@@ -98,5 +100,21 @@ public class ParameterInstanceImpl {
   
   public void setParameterBindings(List<ParameterBindingImpl> values) {
     this.parameterBindings = values;
+  }
+
+  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
+          ScopeDefinitionImpl parent, ParameterInstance parameterInstance) {
+    this.name = parameterInstance.parameterRefName;
+    if (this.name==null) {
+      response.addError(parameterInstance.location, "Parameter instance does not have a name");
+    }
+    if (parameterInstance.parameterBindings!=null && !parameterInstance.parameterBindings.isEmpty()) {
+      this.parameterBindings = new ArrayList<ParameterBindingImpl>();
+      for (ParameterBinding parameterBinding : parameterInstance.parameterBindings) {
+        ParameterBindingImpl parameterBindingImpl = new ParameterBindingImpl();
+        parameterBindingImpl.parse(processEngine, response, processDefinition, parent, this, parameterBinding);
+        parameterBindings.add(parameterBindingImpl);
+      }
+    }
   }
 }

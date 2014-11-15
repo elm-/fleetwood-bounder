@@ -4,12 +4,13 @@
 - [x] programatic registration of pluggable types (ActivityType, Type, Service)
 - [x] fluent process builder api
 - [x] process parsing error reporting with i18n support
-
+- [x] delegate validation of parameters to pluggable activities
 - [ ] process engine java interface
-  - [ ] jackson (de)serializable to json
-  - [ ] must be possible to build rest interface on top 1-1
-- [ ] activity pluggability
-- [ ] activity parameters
+  - [x] jackson (de)serializable to json
+  - [x] must be possible to build rest interface on top 1-1
+  - [x] enable support for multiple process languages
+- [x] activity pluggability
+- [x] activity parameters
 - [ ] javascript expressions
 - [ ] types
 - [ ] json (de)serialization

@@ -35,7 +35,7 @@ public class ProcessDefinitionParsingTest {
     // cook the process
     ProcessDefinition processDefinition = new ProcessDefinition()
       .activity(new ActivityDefinition()
-      .type(Go.TYPE_ID));
+      .type(Go.ID));
 
     TestHelper.assertTextPresent("Activity has no name", processEngine
         .deployProcessDefinition(processDefinition)

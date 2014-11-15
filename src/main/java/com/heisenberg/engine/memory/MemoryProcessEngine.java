@@ -95,6 +95,11 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
+  protected ProcessDefinitionImpl loadProcessDefinitionById(ProcessDefinitionId processDefinitionId) {
+    return processDefinitions.get(processDefinitionId);
+  }
+
+  @Override
   public List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
     if (processDefinitionQuery.getProcessDefinitionId()!=null) {
       ProcessDefinitionImpl processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
@@ -109,6 +114,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     return result;
   }
   
+
   @Override
   public List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
     if (processInstanceQuery.getProcessInstanceId()!=null) {

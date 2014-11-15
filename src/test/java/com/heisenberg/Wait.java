@@ -17,7 +17,6 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
 
@@ -25,13 +24,13 @@ import com.heisenberg.spi.ActivityType;
 /**
  * @author Walter White
  */
-public class Wait implements ActivityType {
+public class Wait extends ActivityType {
   
-  public static final String TYPE_ID = "wait";
+  public static final String ID = "wait";
 
   @Override
-  public ActivityTypeDescriptor getActivityTypeDescriptor() {
-    return ActivityTypeDescriptor.typeId(TYPE_ID);
+  public String getId() {
+    return ID;
   }
 
   public static List<Execution> executions = new ArrayList<>();
@@ -52,5 +51,4 @@ public class Wait implements ActivityType {
       this.activityInstance = activityInstance;
     }
   }
-
 }

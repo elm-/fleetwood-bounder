@@ -111,8 +111,8 @@ public class ProcessDefinition extends ScopeDefinition {
   }
 
   @Override
-  public ProcessDefinition parameterVariable(ActivityParameter activityParameter, Object variableDefinitionId) {
-    super.parameterVariable(activityParameter, variableDefinitionId);
+  public ProcessDefinition parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
+    super.parameterVariable(activityParameter, variableDefinitionRefName);
     return this;
   }
 }

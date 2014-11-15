@@ -90,8 +90,8 @@ public class ActivityDefinition extends ScopeDefinition {
   }
 
   @Override
-  public ActivityDefinition parameterVariable(ActivityParameter activityParameter, Object variableDefinitionId) {
-    super.parameterVariable(activityParameter, variableDefinitionId);
+  public ActivityDefinition parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
+    super.parameterVariable(activityParameter, variableDefinitionRefName);
     return this;
   }
 }

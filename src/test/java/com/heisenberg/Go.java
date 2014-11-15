@@ -17,8 +17,8 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.ObjectActivityParameter;
 import com.heisenberg.spi.Type;
@@ -27,19 +27,22 @@ import com.heisenberg.spi.Type;
 /**
  * @author Walter White
  */
-public class Go implements ActivityType {
+public class Go extends ActivityType {
   
-  public static final String TYPE_ID = "go";
+  public static final String ID = "go";
+
+  @Override
+  public String getId() {
+    return ID;
+  }
 
   public static ObjectActivityParameter PLACE = ObjectActivityParameter
           .type(Type.TEXT)
           .name("place");
         
-
-  public ActivityTypeDescriptor getActivityTypeDescriptor() {
-    return ActivityTypeDescriptor
-            .typeId(TYPE_ID)
-            .parameter(PLACE);
+  @Override
+  public ActivityParameter[] getActivityParameters() {
+    return new ActivityParameter[]{PLACE};
   }
 
   public static List<Execution> executions = new ArrayList<>();

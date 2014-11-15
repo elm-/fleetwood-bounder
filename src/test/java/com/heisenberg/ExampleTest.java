@@ -37,7 +37,8 @@ public class ExampleTest {
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
       .registerActivityType(new Go())
-      .registerActivityType(new Wait());
+      .registerActivityType(new Wait())
+      .registerType(Type.TEXT);
 
     // prepare the ingredients
     VariableDefinition t = new VariableDefinition()
@@ -45,16 +46,16 @@ public class ExampleTest {
       .name("t");
     
     ActivityDefinition go = new ActivityDefinition()
-      .type(Go.TYPE_ID)
+      .type(Go.ID)
       .parameterValue(Go.PLACE, "Antwerp")
       .name("go");
     
     ActivityDefinition wait1 = new ActivityDefinition()
-      .type(Wait.TYPE_ID)
+      .type(Wait.ID)
       .name("wait1");
     
     ActivityDefinition wait2 = new ActivityDefinition()
-      .type(Wait.TYPE_ID)
+      .type(Wait.ID)
       .name("wait2");
     
     // cook the process

@@ -23,7 +23,7 @@ public class ParameterBinding {
 
   // one of the next 3 specifies the value
   public Object value;
-  public Object variableDefinitionId;
+  public String variableDefinitionRefName;
   public String expression;
   public Location location;
   
@@ -37,8 +37,8 @@ public class ParameterBinding {
     return this;
   }
   
-  public ParameterBinding variableDefinitionId(Object variableDefinitionId) {
-    this.variableDefinitionId = variableDefinitionId;
+  public ParameterBinding variableDefinitionRefName(String variableDefinitionRefName) {
+    this.variableDefinitionRefName = variableDefinitionRefName;
     return this;
   }
 

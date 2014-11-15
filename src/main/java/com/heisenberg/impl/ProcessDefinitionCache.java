@@ -12,24 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.impl;
 
-import com.heisenberg.type.IdType;
-import com.heisenberg.type.TextType;
-
-
+import com.heisenberg.definition.ProcessDefinitionId;
+import com.heisenberg.definition.ProcessDefinitionImpl;
 
 
 /**
  * @author Walter White
  */
-public interface Type extends Spi {
-  
-  TextType TEXT = new TextType();
-  IdType ID = new IdType();
-  
-  String getId();
+public interface ProcessDefinitionCache {
 
-  boolean isValidValue(Object initialValue);
-    
+  ProcessDefinitionImpl get(ProcessDefinitionId processDefinitionId);
+  void put(ProcessDefinitionImpl processDefinition);
 }

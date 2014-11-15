@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.UUID;
@@ -41,14 +42,17 @@ import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceId;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.json.Json;
+import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.Service;
 import com.heisenberg.spi.Spi;
 import com.heisenberg.spi.Type;
 import com.heisenberg.util.Exceptions;
+import com.heisenberg.util.Time;
 
 /**
  * @author Walter White
@@ -63,6 +67,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public Map<String,Type> types;
   public Executor executor;
   public Json json;
+  public ProcessDefinitionCache processDefinitionCache;
   
   protected void initializeId() {
     try {
@@ -109,7 +114,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public ProcessEngineImpl registerActivityType(ActivityType activityType) {
     ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor();
     activityTypeDescriptor.activityTypeId = activityType.getId();
-    activityTypeDescriptor.activityParameters = activityType.getActivityParameters();
+    Exceptions.checkNotNull(activityTypeDescriptor.activityTypeId, "id of "+activityType.getClass().getName()+" can not be null");
+    activityTypeDescriptor.activityParameters = ActivityParameter.buildActivityParameterMap(activityType.getActivityParameters());
     activityTypeDescriptor.activityTypeClass = activityType.getClass();
     activityTypeDescriptor.activityType = activityType;
     activityTypeDescriptors.put(activityTypeDescriptor.activityTypeId, activityTypeDescriptor);
@@ -146,40 +152,42 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
-//    ProcessDefinitionId processDefinitionId = startProcessInstanceRequest.getProcessDefinitionId();
-//    Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
-//    ProcessDefinitionImpl processDefinition = buildProcessDefinitionQuery()
-//      .processDefinitionId(processDefinitionId)
-//      .get();
-//    ProcessInstanceId processInstanceId = startProcessInstanceRequest.getProcessInstanceId();
-//    ProcessInstanceImpl processInstance = createProcessInstance(processDefinition, processInstanceId);
-//    Map<VariableDefinitionId, Object> variableValues = startProcessInstanceRequest.getVariableValues();
-//    processInstance.setVariableValuesRecursive(variableValues);
-//    log.debug("Starting "+processInstance);
-//    processInstance.setStart(Time.now());
-//    List<ActivityDefinitionImpl> startActivityDefinitions = processDefinition.getStartActivityDefinitions();
-//    if (startActivityDefinitions!=null) {
-//      for (ActivityDefinitionImpl startActivityDefinition: startActivityDefinitions) {
-//        ActivityInstanceImpl activityInstance = processInstance.createActivityInstance(startActivityDefinition);
-//        processInstance.startActivityInstance(activityInstance);
-//      }
-//    }
-//    LockImpl lock = new LockImpl();
-//    lock.setTime(Time.now());
-//    lock.setOwner(getId());
-//    processInstance.setLock(lock);
-//    saveProcessInstance(processInstance);
-//    processInstance.executeOperations();
-    throw new RuntimeException("TODO");
-    // return processInstance;
+    ProcessDefinitionId processDefinitionId = new ProcessDefinitionId(startProcessInstanceRequest.processDefinitionRefId);
+    Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
+    ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
+    ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
+    Map<String, Object> variableValues = startProcessInstanceRequest.variableValues;
+    processInstance.setVariableValuesRecursive(variableValues);
+    log.debug("Starting "+processInstance);
+    processInstance.setStart(Time.now());
+    List<ActivityDefinitionImpl> startActivityDefinitions = processDefinition.getStartActivityDefinitions();
+    if (startActivityDefinitions!=null) {
+      for (ActivityDefinitionImpl startActivityDefinition: startActivityDefinitions) {
+        ActivityInstanceImpl activityInstance = processInstance.createActivityInstance(startActivityDefinition);
+        processInstance.startActivityInstance(activityInstance);
+      }
+    }
+    LockImpl lock = new LockImpl();
+    lock.setTime(Time.now());
+    lock.setOwner(getId());
+    processInstance.setLock(lock);
+    saveProcessInstance(processInstance);
+    processInstance.executeOperations();
+    return processInstance.serialize(processInstance);
   }
 
-  protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition, ProcessInstanceId processInstanceId) {
-    if (processInstanceId==null) {
-      processInstanceId = createProcessInstanceId(processDefinition);
+  protected ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(ProcessDefinitionId processDefinitionId) {
+    ProcessDefinitionImpl processDefinition = processDefinitionCache!=null ? processDefinitionCache.get(processDefinitionId) : null;
+    if (processDefinition==null) {
+      processDefinition = loadProcessDefinitionById(processDefinitionId);
     }
-    ProcessInstanceImpl processInstance = new ProcessInstanceImpl(this, processDefinition, processInstanceId);
-    return processInstance;
+    return processDefinition;
+  }
+  
+  protected abstract ProcessDefinitionImpl loadProcessDefinitionById(ProcessDefinitionId processDefinitionId);
+
+  protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition) {
+    return new ProcessInstanceImpl(this, processDefinition, createProcessInstanceId(processDefinition));
   }
 
   protected ProcessInstanceId createProcessInstanceId(ProcessDefinitionImpl processDefinition) {

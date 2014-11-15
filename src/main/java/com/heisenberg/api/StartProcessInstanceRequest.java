@@ -21,9 +21,9 @@ package com.heisenberg.api;
  */
 public class StartProcessInstanceRequest extends VariableRequest {
 
-  public Object processDefinitionRefId;
+  public String processDefinitionRefId;
 
-  public StartProcessInstanceRequest processDefinitionRefId(Object processDefinitionRefId) {
+  public StartProcessInstanceRequest processDefinitionRefId(String processDefinitionRefId) {
     this.processDefinitionRefId = processDefinitionRefId;
     return this;
   }

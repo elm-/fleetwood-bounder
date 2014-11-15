@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.heisenberg.spi.ActivityParameter;
-import com.heisenberg.util.Exceptions;
 
 
 /**
@@ -111,8 +110,8 @@ public class ScopeDefinition {
     return this;
   }
   
-  public  ScopeDefinition parameterVariable(ActivityParameter activityParameter, Object variableDefinitionId) {
-    addParameterValue(activityParameter.name, new ParameterBinding().variableDefinitionId(variableDefinitionId));
+  public  ScopeDefinition parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
+    addParameterValue(activityParameter.name, new ParameterBinding().variableDefinitionRefName(variableDefinitionRefName));
     return this;
   }
 

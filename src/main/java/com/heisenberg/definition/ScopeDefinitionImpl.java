@@ -21,7 +21,9 @@ import java.util.Map;
 
 import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.ParameterInstance;
 import com.heisenberg.api.definition.ScopeDefinition;
+import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.impl.ProcessEngineImpl;
@@ -58,6 +60,31 @@ public abstract class ScopeDefinitionImpl {
           ProcessDefinitionImpl processDefinition, 
           ScopeDefinitionImpl parent, 
           ScopeDefinition scopeDefinition) {
+    this.parent = parent;
+    if (scopeDefinition.variableDefinitions!=null) {
+      for (VariableDefinition variableDefinition: scopeDefinition.variableDefinitions) {
+        VariableDefinitionImpl variableDefinitionImpl = new VariableDefinitionImpl();
+        if (variableDefinitions==null) {
+          variableDefinitions = new ArrayList<>();
+          variableDefinitionsMap = new HashMap<>();
+        }
+        variableDefinitionImpl.parse(processEngine, response, processDefinition, this, variableDefinition);
+        variableDefinitions.add(variableDefinitionImpl);
+        variableDefinitionsMap.put(variableDefinitionImpl.name, variableDefinitionImpl);
+      }
+    }
+    if (scopeDefinition.parameterInstances!=null) {
+      for (ParameterInstance parameterInstance: scopeDefinition.parameterInstances) {
+        ParameterInstanceImpl parameterInstanceImpl = new ParameterInstanceImpl();
+        if (parameterInstances==null) {
+          parameterInstances = new ArrayList<>();
+          parameterInstancesMap = new HashMap<>();
+        }
+        parameterInstanceImpl.parse(processEngine, response, processDefinition, this, parameterInstance);
+        parameterInstances.add(parameterInstanceImpl);
+        parameterInstancesMap.put(parameterInstanceImpl.name, parameterInstanceImpl);
+      }
+    }
     if (scopeDefinition.activityDefinitions!=null) {
       Map<String,ActivityTypeDescriptor> activityTypeDescriptors = processEngine.activityTypeDescriptors;
       int index = 0;
@@ -74,23 +101,31 @@ public abstract class ScopeDefinitionImpl {
                   "Activity %s has invalid type %s.  Must be one of "+activityTypeDescriptors.keySet(), 
                   getActivityErrorReferenceText(activityDefinition), 
                   activityDefinition.activityTypeRefId);
+        } else {
+          activityDefinitionImpl.activityType = activityTypeDescriptor.activityType;
         }
-        index++;
         activityDefinitionImpl.parse(processEngine, response, processDefinition, activityDefinitionImpl, activityDefinition);
-        
-        activityTypeDescriptor.activityType.checkParameters(activityDefinitionImpl, activityTypeDescriptor.activityParameters, response);
-      }
-    }
-    if (scopeDefinition.variableDefinitions!=null) {
-      for (VariableDefinition variableDefinition: scopeDefinition.variableDefinitions) {
-        VariableDefinitionImpl variableDefinitionImpl = new VariableDefinitionImpl();
-        if (variableDefinition.name==null) {
-          String activityPath = path+(activityDefinition.name!=null ? activityDefinition.name : Integer.toString(index));
-          response.addError(variableDefinition.location, "Activity has no name");
-          
+        activityTypeDescriptor.activityType.checkParameters(activityDefinition.location, activityDefinitionImpl.parameterInstances, activityTypeDescriptor.activityParameters, response);
+        if (activityDefinitions==null) {
+          activityDefinitions = new ArrayList<ActivityDefinitionImpl>();
+          activityDefinitionsMap = new HashMap<>();
         }
+        activityDefinitions.add(activityDefinitionImpl);
+        activityDefinitionsMap.put(activityDefinitionImpl.name, activityDefinitionImpl);
+        index++;
       }
     }
+    if (scopeDefinition.transitionDefinitions!=null) {
+      for (TransitionDefinition transitionDefinition: scopeDefinition.transitionDefinitions) {
+        TransitionDefinitionImpl transitionDefinitionImpl = new TransitionDefinitionImpl();
+        if (transitionDefinitions==null) {
+          transitionDefinitions = new ArrayList<>();
+        }
+        transitionDefinitionImpl.parse(processEngine, response, processDefinition, this, transitionDefinition);
+        transitionDefinitions.add(transitionDefinitionImpl);
+      }
+    }
+
   }
 
   static String getActivityErrorReferenceText(ActivityDefinition activityDefinition) {
@@ -322,5 +357,10 @@ public abstract class ScopeDefinitionImpl {
       return parent.containsVariable(variableDefinitionName);
     }
     return false;
+  }
+
+  public VariableDefinitionImpl findVariableDefinitionByName(String variableDefinitionName) {
+    
+    return null;
   }
 }
