@@ -17,11 +17,12 @@ package com.heisenberg.instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.ProcessEngine;
+import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.TransitionDefinitionImpl;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceEndUpdate;
+import com.heisenberg.spi.ActivityInstanceImpl;
 import com.heisenberg.util.Time;
 
 

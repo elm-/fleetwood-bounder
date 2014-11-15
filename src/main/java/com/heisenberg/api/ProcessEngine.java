@@ -12,14 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg;
+package com.heisenberg.api;
 
 import java.util.List;
 
 import com.heisenberg.api.definition.ProcessDefinition;
-import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.Services;
-import com.heisenberg.instance.ProcessInstanceImpl;
+import com.heisenberg.api.instance.ProcessInstance;
 
 
 
@@ -30,17 +28,15 @@ public interface ProcessEngine {
   
   /** potentially changes the passed processDefinition (assigning ids) 
    * and returns the same object as a way to indicate it may have changed. */
-  ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition);
+  DeployProcessDefinitionResponse deployProcessDefinition(ProcessDefinition processDefinition);
   
   ProcessDefinitionQueryBuilder buildProcessDefinitionQuery();
-  List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
+  List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
 
   ProcessInstanceQueryBuilder buildProcessInstanceQuery();
-  List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
+  List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
 
-  ProcessInstanceImpl startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);
+  ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);
 
-  ProcessInstanceImpl signal(SignalRequest signalRequest);
-
-  Services getServices();
+  ProcessInstance signal(SignalRequest signalRequest);
 }

@@ -14,8 +14,6 @@
  */
 package com.heisenberg.engine.memory;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,17 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.heisenberg.ProcessDefinitionQuery;
-import com.heisenberg.ProcessInstanceQuery;
-import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.api.ProcessDefinitionQuery;
+import com.heisenberg.api.ProcessInstanceQuery;
+import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.definition.ProcessDefinitionId;
+import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.updates.Update;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.Services;
 import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.LockImpl;
-import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.ProcessInstanceId;
+import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.util.Lists;
 import com.heisenberg.util.Time;
@@ -56,20 +54,16 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinitionImpl>());
     processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstanceImpl>());
     lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
-    try {
-      id = InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException e) {
-      id = "amnesia";
-    }
-    executor = createDefaultExecutor();
-    json = new Json();
-    services = new Services();
+    initializeId();
+    initializeExecutor();
+    initializeJson();
+    initializePluggableImplementations();
   }
 
   @Override
-  protected void storeProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    processDefinitions.put(processDefinition.getId(), processDefinition);
-    processDefinition.prepare();
+  protected void storeProcessDefinition(ProcessDefinition processDefinition) {
+    ProcessDefinitionImpl processDefinitionImpl = new ProcessDefinitionImpl(this, processDefinition);
+    processDefinitions.put(processDefinitionImpl.id, processDefinitionImpl);
   }
 
   @Override

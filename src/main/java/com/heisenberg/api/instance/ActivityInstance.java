@@ -25,7 +25,7 @@ import com.heisenberg.json.Json;
  */
 public class ActivityInstance extends ScopeInstance {
 
-  String activityDefinitionId;
+  public String activityDefinitionName;
 
   public ActivityInstance() {
   }
@@ -34,7 +34,7 @@ public class ActivityInstance extends ScopeInstance {
     super(activityInstance);
     this.id = Json.getIdString(activityInstance);
     if (activityInstance.activityDefinition!=null) {
-      this.activityDefinitionId = Json.getIdString(activityInstance.activityDefinition); 
+      this.activityDefinitionName = Json.getIdString(activityInstance.activityDefinition); 
     }
   }
 

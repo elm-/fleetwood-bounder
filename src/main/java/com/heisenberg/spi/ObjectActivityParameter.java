@@ -33,9 +33,9 @@ public class ObjectActivityParameter extends ActivityParameter {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T get(ActivityInstance activityInstance, Class<T> valueType) {
+  public <T> T get(ActivityInstanceImpl activityInstance, Class<T> valueType) {
     ActivityInstanceImpl activityInstanceImpl = (ActivityInstanceImpl) activityInstance;
-    ParameterInstanceImpl parameterInstance = activityInstanceImpl.getActivityDefinition().findParameterInstance(id);
+    ParameterInstanceImpl parameterInstance = activityInstanceImpl.getActivityDefinition().findParameterInstance(name);
     if ( parameterInstance==null 
          || parameterInstance.parameterBindings==null
          || parameterInstance.parameterBindings.isEmpty()) {
@@ -46,8 +46,8 @@ public class ObjectActivityParameter extends ActivityParameter {
   }
 
   @Override
-  public ObjectActivityParameter id(String id) {
-    super.id(id);
+  public ObjectActivityParameter name(String id) {
+    super.name(id);
     return this;
   }
   

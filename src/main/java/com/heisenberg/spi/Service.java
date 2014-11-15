@@ -24,6 +24,6 @@ package com.heisenberg.spi;
  */
 public interface Service extends Spi {
 
-  String getId();
+  ServiceDescriptor getServiceDescriptor();
   
 }

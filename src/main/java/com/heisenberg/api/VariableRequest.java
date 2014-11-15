@@ -12,12 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg;
+package com.heisenberg.api;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.heisenberg.definition.VariableDefinitionId;
 
 
 /**
@@ -25,15 +23,15 @@ import com.heisenberg.definition.VariableDefinitionId;
  */
 public class VariableRequest {
 
-  protected Map<VariableDefinitionId,Object> variableValues;
+  public Map<String,Object> variableValues;
 
   /** extra user defined information to be stored with the process instance. */
-  protected Map<String,Object> persistentContext;
+  public Map<String,Object> persistentContext;
   
   /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
-  protected Map<String,Object> transientContext;
+  public Map<String,Object> transientContext;
 
-  public VariableRequest variableValue(VariableDefinitionId variableDefinitionId, Object value) {
+  public VariableRequest variableValue(String variableDefinitionId, Object value) {
     if (variableValues==null) {
       variableValues = new HashMap<>();
     }
@@ -55,29 +53,5 @@ public class VariableRequest {
     }
     transientContext.put(key, value);
     return this;
-  }
-  
-  public Map<VariableDefinitionId, Object> getVariableValues() {
-    return variableValues;
-  }
-  
-  public void setVariableValues(Map<VariableDefinitionId, Object> variableValues) {
-    this.variableValues = variableValues;
-  }
-
-  public Map<String, Object> getPersistentContext() {
-    return persistentContext;
-  }
-
-  public void setPersistentContext(Map<String, Object> persistentContext) {
-    this.persistentContext = persistentContext;
-  }
-
-  public Map<String, Object> getTransientContext() {
-    return transientContext;
-  }
-  
-  public void setTransientContext(Map<String, Object> transientContext) {
-    this.transientContext = transientContext;
   }
 }

@@ -14,6 +14,8 @@
  */
 package com.heisenberg.spi;
 
+import com.heisenberg.instance.ActivityInstanceImpl;
+
 
 
 /**
@@ -21,9 +23,11 @@ package com.heisenberg.spi;
  */
 public interface ActivityType extends Spi {
 
-  String getId();
+  /** During initialization time of the process engine, 
+   * an object is created and this method is invoked once. */
+  ActivityTypeDescriptor getActivityTypeDescriptor();
   
-  void start(ActivityInstance activityInstance);
+  void start(ActivityInstanceImpl activityInstance);
 
-  void signal(ActivityInstance activityInstance);
+  void signal(ActivityInstanceImpl activityInstance);
 }

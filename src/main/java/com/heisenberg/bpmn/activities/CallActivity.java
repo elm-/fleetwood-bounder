@@ -14,7 +14,7 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.StartProcessInstanceRequest;
+import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ParameterDefinitionsImpl;
 import com.heisenberg.definition.ProcessDefinitionId;

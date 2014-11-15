@@ -14,6 +14,7 @@
  */
 package com.heisenberg.definition;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,30 +23,18 @@ import java.util.List;
  */
 public class ProcessDefinitionPathImpl {
   
-  protected ProcessDefinitionId processDefinitionId;
-  protected List<ActivityDefinitionId> activityDefinitionIds;
+  public ProcessDefinitionId processDefinitionId;
+  public List<String> activityDefinitionNames;
 
   public ProcessDefinitionPathImpl(ProcessDefinitionId processDefinitionId) {
     this.processDefinitionId = processDefinitionId;
   }
 
-  public ProcessDefinitionId getProcessDefinitionId() {
-    return processDefinitionId;
-  }
-
-  public void setProcessDefinitionId(ProcessDefinitionId processDefinitionId) {
-    this.processDefinitionId = processDefinitionId;
-  }
-
-  public List<ActivityDefinitionId> getActivityDefinitionIds() {
-    return activityDefinitionIds;
-  }
-
-  public void setActivityDefinitionIds(List<ActivityDefinitionId> activityDefinitionIds) {
-    this.activityDefinitionIds = activityDefinitionIds;
-  }
-
-  public ProcessDefinitionPathImpl addActivityInstanceId(ActivityDefinitionId id) {
+  public ProcessDefinitionPathImpl addActivityDefinitionName(String activiyDefinitionName) {
+    if (activityDefinitionNames==null) {
+      activityDefinitionNames = new ArrayList<>();
+    }
+    activityDefinitionNames.add(activiyDefinitionName);
     return null;
   }
 
@@ -56,10 +45,10 @@ public class ProcessDefinitionPathImpl {
     }
     StringBuilder path = new StringBuilder();
     path.append(processDefinitionId);
-    if (activityDefinitionIds!=null) {
-      for (ActivityDefinitionId activityDefinitionId: activityDefinitionIds) {
+    if (activityDefinitionNames!=null) {
+      for (String activityDefinitionName: activityDefinitionNames) {
         path.append("/");
-        path.append(activityDefinitionId);
+        path.append(activityDefinitionName);
       }
     }
     return path.toString();

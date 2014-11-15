@@ -24,15 +24,15 @@ public class ActivityDefinition extends ScopeDefinition {
   
   public String activityTypeRefId;
   
-  public static ActivityDefinition activityType(String activityTypeRefId) {
+  public static ActivityDefinition type(String activityTypeRefId) {
     ActivityDefinition activityDefinition = new ActivityDefinition();
     activityDefinition.activityTypeRefId = activityTypeRefId;
     return activityDefinition;
   }
 
   @Override
-  public ActivityDefinition id(Object id) {
-    super.id(id);
+  public ActivityDefinition name(String name) {
+    super.name(name);
     return this;
   }
 
@@ -43,8 +43,14 @@ public class ActivityDefinition extends ScopeDefinition {
   }
 
   @Override
-  public ActivityDefinition transition(Object fromActivityDefinitionId, Object toActivityDefinitionId) {
-    super.transition(fromActivityDefinitionId, toActivityDefinitionId);
+  public ActivityDefinition transition(ActivityDefinition fromActivityDefinition, ActivityDefinition toActivityDefinition) {
+    super.transition(fromActivityDefinition, toActivityDefinition);
+    return this;
+  }
+
+  @Override
+  public ActivityDefinition transition(String fromActivityDefinitionName, String toActivityDefinitionName) {
+    super.transition(fromActivityDefinitionName, toActivityDefinitionName);
     return this;
   }
 

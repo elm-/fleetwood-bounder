@@ -38,7 +38,7 @@ public class ListActivityParameter extends ActivityParameter {
 
   @SuppressWarnings("unchecked")
   public <T> List<T> get(ActivityInstanceImpl activityInstance, Class<T> valueType) {
-    ParameterInstanceImpl parameterInstance = activityInstance.getActivityDefinition().findParameterInstance(id);
+    ParameterInstanceImpl parameterInstance = activityInstance.getActivityDefinition().findParameterInstance(name);
     if ( parameterInstance==null 
          || parameterInstance.parameterBindings==null
          || parameterInstance.parameterBindings.isEmpty()) {
@@ -59,8 +59,8 @@ public class ListActivityParameter extends ActivityParameter {
   }
 
   @Override
-  public ListActivityParameter id(String id) {
-    super.id(id);
+  public ListActivityParameter name(String id) {
+    super.name(id);
     return this;
   }
 

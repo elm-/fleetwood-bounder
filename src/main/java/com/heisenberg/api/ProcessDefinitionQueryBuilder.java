@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg;
+package com.heisenberg.api;
 
 import java.util.List;
 
-import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.definition.ProcessDefinitionId;
 
 
@@ -39,16 +39,16 @@ public class ProcessDefinitionQueryBuilder {
     return this;
   }
   
-  public ProcessDefinitionImpl get() {
+  public ProcessDefinition get() {
     processDefinitionQuery.setMaxResults(1);
-    List<ProcessDefinitionImpl> processDefinitions = asList();
+    List<ProcessDefinition> processDefinitions = asList();
     if (processDefinitions!=null && !processDefinitions.isEmpty()) {
       return processDefinitions.get(0);
     }
     return null;
   }
 
-  public List<ProcessDefinitionImpl> asList() {
+  public List<ProcessDefinition> asList() {
     return processEngine.findProcessDefinitions(processDefinitionQuery);
   }
 }

@@ -24,8 +24,8 @@ import com.heisenberg.json.Json;
  */
 public class VariableInstance {
 
-  String variableDefinitionId;
-  Object value;
+  public String variableDefinitionId;
+  public Object value;
   
   public VariableInstance() {
   }

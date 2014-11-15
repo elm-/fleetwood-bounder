@@ -1,12 +1,22 @@
 # Roadmap
 
-* types
-* json (de)serialization
-  * process instance
-  * updates & operations
-  * types
+[ ] types
+[ ] json (de)serialization
+  [ ] process instance
+  [ ] updates & operations
+  [ ] types
 * type system 
 * expressions
+* ensure users can do simple versioning on top
+* change startProcessInstance return value into StartProcessInstanceResponse
+  * include process instance full state (as is returned now)
+  * add all process events as a kind of logs
+* split up into multiple modules
+  * one for the api
+  * one for impl + spi
+  * one for each integration
+  * maybe an mvn command (on the parent project?) to bundle them in a single jar
+  * this way we get the minimal classpaths tested
 * activity in / output parameters
 * bpmn process logic coverage
 * bpmn serialization and parsing
@@ -23,44 +33,23 @@
 * static persistable process variables
 * transient execution context variables
 * ensure jackson lib is not required if json is not used
+* process debugger service (separate top level interface required)
+  * based on the in memory process engine
+  * add breakpoints
+  * ensure all async work is executed synchronous 
 
 Unsure if in scope:
 * multi language support ?
 
-# Deployment use cases
-
-+--------------------------------------------------+
-| Test case                                        |
-| +----------------------+   +-------------------+ |
-| | Effektif PVM library |-->| In memory objects | |
-| +----------------------+   +-------------------+ |
-+--------------------------------------------------+
-
-  +--------------------------+
-+--------------------------+ |
-| User Java App            | |         +----------------------+   +----------------+
-| +----------------------+ | |--HTTP-->| Effektif PVM Server  |   | JDBC / MongoDB |
-| | Effektif PVM library | |----HTTP-->| containing library   |-->| Database       |
-| +----------------------+ |-+         +----------------------+   +----------------+
-+--------------------------+
-
-+--------------------------+
-| User Java App            |
-| +----------------------+ |      +-------------------------+
-| | Effektif PVM library |------->| JDBC / MongoDB Database |
-| +----------------------+ |      +-------------------------+
-+--------------------------+
-
-+--------------------------+          +--------------------------+
-| User Java App            |        +--------------------------+ |
-| +----------------------+ |      +--------------------------+ |-+
-| | Effektif PVM library |------->| Sharded MongoDB Database |-+
-| +----------------------+ |      +--------------------------+
-+--------------------------+
-
 # Design principles
 
 * Minimal library dependencies
+
+# Conventions
+
+* properties called 'name' refers to a user defined identifier. Names are typically unique within a certain scope like eg the process definition.
+* properties called 'id' refers to a process engine generated identifier.  Ids are globally unique and refer to database identifiers.
+* properties ending in RefId or RefName means this property is a reference to another object
 
 # Design topics
 

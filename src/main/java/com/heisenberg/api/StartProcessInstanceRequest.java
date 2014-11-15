@@ -12,17 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.definition;
+package com.heisenberg.api;
 
-import com.heisenberg.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class ActivityDefinitionId extends Id {
+public class StartProcessInstanceRequest extends VariableRequest {
 
-  public ActivityDefinitionId(Object state) {
-    super(state);
+  public Object processDefinitionRefId;
+
+  public StartProcessInstanceRequest processDefinitionRefId(Object processDefinitionRefId) {
+    this.processDefinitionRefId = processDefinitionRefId;
+    return this;
+  }
+
+  public StartProcessInstanceRequest variableValue(String variableName, Object value) {
+    super.variableValue(variableName, value);
+    return this;
   }
 }

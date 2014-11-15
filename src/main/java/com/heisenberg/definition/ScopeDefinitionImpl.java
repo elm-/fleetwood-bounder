@@ -19,7 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.ParameterInstance;
+import com.heisenberg.api.definition.ScopeDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.ScopeInstanceImpl;
@@ -37,14 +40,24 @@ public abstract class ScopeDefinitionImpl implements Identifyable {
   public ScopeDefinitionImpl parent;
   public List<ActivityDefinitionImpl> startActivityDefinitions;
   public List<ActivityDefinitionImpl> activityDefinitions;
-  public Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap;
+  public Map<String, ActivityDefinitionImpl> activityDefinitionsMap;
   public List<VariableDefinitionImpl> variableDefinitions;
-  public Map<VariableDefinitionId, VariableDefinitionImpl> variableDefinitionsMap;
+  public Map<String, VariableDefinitionImpl> variableDefinitionsMap;
   public List<TransitionDefinitionImpl> transitionDefinitions;
-  public Map<TransitionDefinitionId, TransitionDefinitionImpl> transitionDefinitionsMap;
   public List<ParameterInstanceImpl> parameterInstances;
   public Map<String, ParameterInstanceImpl> parameterInstancesMap;
   public List<TimerDefinitionImpl> timerDefinitions;
+  
+  protected void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition, ScopeDefinitionImpl parent, ScopeDefinition scopeDefinition) {
+    this.processEngine = processEngine;
+    this.processDefinition = processDefinition;
+    this.parent = parent;
+    if (scopeDefinition.activityDefinitions!=null) {
+      for (ActivityDefinition activityDefinition: scopeDefinition.activityDefinitions) {
+        
+      }
+    }
+  }
   
   public ParameterDefinitionsImpl getParameterDefinitions() {
     return null;
@@ -66,7 +79,6 @@ public abstract class ScopeDefinitionImpl implements Identifyable {
       }
     }
     if (transitionDefinitions!=null) {
-      transitionDefinitionsMap = new HashMap<>();
       for (TransitionDefinitionImpl transitionDefinition: transitionDefinitions) {
         if (startActivityDefinitions!=null) {
           startActivityDefinitions.remove(transitionDefinition.getTo());
@@ -75,7 +87,6 @@ public abstract class ScopeDefinitionImpl implements Identifyable {
         transitionDefinition.setProcessDefinition(processDefinition);
         transitionDefinition.setParent(this);
         Exceptions.checkNotNull(transitionDefinition.getId(), "transitionDefinition.id");
-        transitionDefinitionsMap.put(transitionDefinition.getId(), transitionDefinition);
         transitionDefinition.prepare();
       }
     }

@@ -26,15 +26,15 @@ import com.heisenberg.util.Exceptions;
  */
 public class ScopeDefinition {
 
-  public Object id;
+  public String name;
   public List<ParameterInstance> parameterInstances;
   public List<ActivityDefinition> activityDefinitions;
   public List<VariableDefinition> variableDefinitions;
   public List<TransitionDefinition> transitionDefinitions;
   public List<TimerDefinition> timerDefinitions;
   
-  public ScopeDefinition id(Object id) {
-    this.id = id;
+  public ScopeDefinition name(String name) {
+    this.name = name;
     return this;
   }
   
@@ -46,10 +46,16 @@ public class ScopeDefinition {
     return this;
   }
 
-  public ScopeDefinition transition(Object fromActivityDefinitionId, Object toActivityDefinitionId) {
+  public ScopeDefinition transition(ActivityDefinition fromActivityDefinition, ActivityDefinition toActivityDefinition) {
+    return transition(fromActivityDefinition.name, toActivityDefinition.name);
+  }
+
+  public ScopeDefinition transition(String fromActivityDefinitionName, String toActivityDefinitionName) {
+    Exceptions.checkNotNull(fromActivityDefinitionName, "From activity definition does not have a name");
+    Exceptions.checkNotNull(toActivityDefinitionName, "To activity definition does not have a name");
     transition(new TransitionDefinition()
-      .fromRefId(fromActivityDefinitionId)
-      .toRefId(toActivityDefinitionId)
+      .from(fromActivityDefinitionName)
+      .to(toActivityDefinitionName)
     );
     return this;
   }
@@ -79,15 +85,15 @@ public class ScopeDefinition {
   }
   
   public  ScopeDefinition parameterValue(ActivityParameter activityParameter, Object object) {
-    addParameterValue(activityParameter.id, new ParameterBinding().value(object));
+    addParameterValue(activityParameter.name, new ParameterBinding().value(object));
     return this;
   }
   public  ScopeDefinition parameterExpression(ActivityParameter activityParameter, String expression) {
-    addParameterValue(activityParameter.id, new ParameterBinding().expression(expression));
+    addParameterValue(activityParameter.name, new ParameterBinding().expression(expression));
     return this;
   }
   public  ScopeDefinition parameterVariable(ActivityParameter activityParameter, Object variableDefinitionId) {
-    addParameterValue(activityParameter.id, new ParameterBinding().variableDefinitionId(variableDefinitionId));
+    addParameterValue(activityParameter.name, new ParameterBinding().variableDefinitionId(variableDefinitionId));
     return this;
   }
 

@@ -31,7 +31,7 @@ public class ParameterDefinitionsImpl {
     this.parameterDefinitions = new LinkedHashMap<>();
     if (parameterDefinitions!=null) {
       for (ActivityParameter parameterDefinition: parameterDefinitions) {
-        this.parameterDefinitions.put(parameterDefinition.id, parameterDefinition);
+        this.parameterDefinitions.put(parameterDefinition.name, parameterDefinition);
       }
     }
   }

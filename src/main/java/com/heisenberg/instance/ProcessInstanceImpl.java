@@ -23,7 +23,7 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.ProcessEngine;
+import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.operation.ActivityInstanceStartOperation;

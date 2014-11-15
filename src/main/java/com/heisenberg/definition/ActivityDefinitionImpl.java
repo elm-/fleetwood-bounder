@@ -27,16 +27,16 @@ import com.heisenberg.util.Exceptions;
  */
 public abstract class ActivityDefinitionImpl extends ScopeDefinitionImpl {
 
-  public ActivityDefinitionId id;
+  public String name;
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
-  public ActivityType activityDefinition;
+  public ActivityType activityType;
   
   public abstract void start(ActivityInstanceImpl activityInstance);
 
   public ProcessDefinitionPathImpl getPath() {
-    Exceptions.checkNotNull(id, "Activity definition doesn't have an id yet");
+    Exceptions.checkNotNull(name, "Activity definition doesn't have an name yet");
     Exceptions.checkNotNull(parent, "Activity definition doesn't have an parent yet");
-    return parent.getPath().addActivityInstanceId(id);
+    return parent.getPath().addActivityDefinitionName(name);
   }
 
   public boolean isAsync(ActivityInstanceImpl activityInstance) {
@@ -75,6 +75,6 @@ public abstract class ActivityDefinitionImpl extends ScopeDefinitionImpl {
   }
 
   public String toString() {
-    return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
+    return name!=null ? "["+name.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
 }

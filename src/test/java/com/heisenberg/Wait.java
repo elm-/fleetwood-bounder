@@ -18,9 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityInstance;
+import com.heisenberg.spi.ActivityTypeDescriptor;
 import com.heisenberg.spi.ActivityType;
-import com.heisenberg.util.Id;
 
 
 /**
@@ -28,23 +27,30 @@ import com.heisenberg.util.Id;
  */
 public class Wait implements ActivityType {
   
-  public static final String ID = "wait";
-  
-  protected List<k> activityInstances = new ArrayList<>();
+  public static final String TYPE_ID = "wait";
 
   @Override
-  public void start(ActivityInstance activityInstance) {
-    activityInstances.add(activityInstance);
+  public ActivityTypeDescriptor getActivityTypeDescriptor() {
+    return ActivityTypeDescriptor.typeId(TYPE_ID);
+  }
+
+  public static List<Execution> executions = new ArrayList<>();
+
+  @Override
+  public void start(ActivityInstanceImpl activityInstance) {
+    executions.add(new Execution(activityInstance));
   }
 
   @Override
-  public String getId() {
-    return ID;
+  public void signal(ActivityInstanceImpl activityInstance) {
+    activityInstance.onwards();
   }
 
-  @Override
-  public void signal(ActivityInstance activityInstance) {
+  public class Execution {
+    public ActivityInstanceImpl activityInstance;
+    public Execution(ActivityInstanceImpl activityInstance) {
+      this.activityInstance = activityInstance;
+    }
   }
-  
-  
+
 }

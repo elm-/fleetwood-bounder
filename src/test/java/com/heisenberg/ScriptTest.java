@@ -20,6 +20,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.VariableDefinitionImpl;

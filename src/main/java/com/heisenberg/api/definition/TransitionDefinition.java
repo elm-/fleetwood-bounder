@@ -20,16 +20,18 @@ package com.heisenberg.api.definition;
  */
 public class TransitionDefinition {
 
-  public Object fromRefId;
-  public Object toRefId;
-  
-  public TransitionDefinition fromRefId(Object fromRefId) {
-    this.fromRefId = fromRefId;
+  public String fromActivityDefinitionName;
+  public String toActivityDefinitionName;
+
+  /** Fluent builder to set the source of this transition.
+   * @param fromActivityDefinitionName the name of the activity definition. */
+  public TransitionDefinition from(String fromActivityDefinitionName) {
+    this.fromActivityDefinitionName = fromActivityDefinitionName;
     return this;
   }
 
-  public TransitionDefinition toRefId(Object toRefId) {
-    this.toRefId = toRefId;
+  public TransitionDefinition to(String toActivityDefinitionName) {
+    this.toActivityDefinitionName = toActivityDefinitionName;
     return this;
   }
 }

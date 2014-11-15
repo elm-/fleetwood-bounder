@@ -17,7 +17,7 @@ package com.heisenberg.engine.operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.ProcessEngine;
+import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;

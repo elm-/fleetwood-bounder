@@ -19,12 +19,11 @@ import com.heisenberg.impl.ProcessEngineImpl;
 
 /** super interface for all service provider interfaces.
  * 
- * In the @link {@link ProcessEngineImpl#scanPluggableImplementations()}
+ * In the @link {@link ProcessEngineImpl#initializePluggableImplementations()}
  * we only have to do 1 scan to find all pluggable implementations.  
  * 
  * @author Walter White
  */
 public interface Spi {
 
-  String getId();
 }

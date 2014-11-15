@@ -16,6 +16,8 @@ package com.heisenberg;
 
 import org.junit.Test;
 
+import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;

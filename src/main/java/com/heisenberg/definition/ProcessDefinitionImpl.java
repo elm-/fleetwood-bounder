@@ -14,6 +14,7 @@
  */
 package com.heisenberg.definition;
 
+import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.util.Exceptions;
@@ -24,10 +25,10 @@ import com.heisenberg.util.Exceptions;
  */
 public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
 
-  protected ProcessDefinitionId id;
+  public ProcessDefinitionId id;
 
-  public ProcessDefinitionImpl(ProcessEngineImpl processEngine, ProcessDefinition processDefinition) {
-    
+  public ProcessDefinitionImpl(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinition processDefinition) {
+    parse(processEngine, response, this, null, processDefinition);
   }
 
   public void prepare() {

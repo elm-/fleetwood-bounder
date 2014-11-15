@@ -22,7 +22,7 @@ public class CustomObjectType extends ObjectType {
 
   protected String id;
   
-  public String getId() {
+  public String getActivityTypeId() {
     return id;
   }
 

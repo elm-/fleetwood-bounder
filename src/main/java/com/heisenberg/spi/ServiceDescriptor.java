@@ -15,11 +15,19 @@
 package com.heisenberg.spi;
 
 
+
 /**
  * @author Walter White
  */
-public interface ActivityInstance {
+public class ServiceDescriptor {
 
-  void onwards();
+  public String serviceId;
+  public Class<? extends Service> serviceClass;
 
+  public static ServiceDescriptor typeId(String serviceTypeId) {
+    ServiceDescriptor serviceDescriptor = new ServiceDescriptor();
+    serviceDescriptor.serviceId = serviceTypeId;
+    return serviceDescriptor;
+  }
+  
 }

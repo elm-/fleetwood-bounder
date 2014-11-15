@@ -23,7 +23,7 @@ import com.heisenberg.spi.Type;
  */
 public class VariableDefinition {
 
-  public Object id;
+  public String name;
   public String typeRefId;
   public Object initialValue;
   
@@ -34,13 +34,13 @@ public class VariableDefinition {
   }
   
   public static VariableDefinition type(Type type) {
-    VariableDefinition variableDefinition = new VariableDefinition();
-    variableDefinition.typeRefId = type.getId();
-    return variableDefinition;
+    return type(type.getId());
   }
 
-  public VariableDefinition id(Object id) {
-    this.id = id;
+  /** The user defined name of the variable that can later be used 
+   * for getting and setting variable values. */
+  public VariableDefinition name(String name) {
+    this.name = name;
     return this;
   }
   

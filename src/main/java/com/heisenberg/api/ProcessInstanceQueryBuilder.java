@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg;
+package com.heisenberg.api;
 
 import java.util.List;
 
+import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.instance.ActivityInstanceId;
-import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.ProcessInstanceId;
 
 
@@ -45,16 +45,16 @@ public class ProcessInstanceQueryBuilder {
     return this;
   }
   
-  public ProcessInstanceImpl get() {
+  public ProcessInstance get() {
     processInstanceQuery.setMaxResults(1);
-    List<ProcessInstanceImpl> processInstances = asList();
+    List<ProcessInstance> processInstances = asList();
     if (processInstances!=null && !processInstances.isEmpty()) {
       return processInstances.get(0);
     }
     return null;
   }
 
-  public List<ProcessInstanceImpl> asList() {
+  public List<ProcessInstance> asList() {
     return processEngine.findProcessInstances(processInstanceQuery);
   }
 

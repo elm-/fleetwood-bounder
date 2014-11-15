@@ -26,7 +26,7 @@ import com.heisenberg.spi.Type;
 public class TextType implements Type {
 
   @Override
-  public String getId() {
+  public String getActivityTypeId() {
     return "text";
   }
 

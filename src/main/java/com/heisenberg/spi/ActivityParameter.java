@@ -21,15 +21,15 @@ package com.heisenberg.spi;
  */
 public abstract class ActivityParameter {
 
-  public String id;
+  public String name;
   public Type type;
   
   public ActivityParameter(Type type) {
     this.type = type;
   }
   
-  public ActivityParameter id(String id) {
-    this.id = id;
+  public ActivityParameter name(String name) {
+    this.name = name;
     return this;
   }
 }

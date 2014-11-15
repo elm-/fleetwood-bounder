@@ -35,15 +35,15 @@ public class EnsureIdVisitor extends ProcessDefinitionVisitor {
 
   @Override
   public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    if (processDefinition.getId()==null) {
-      processDefinition.setId(createProcessDefinitionId(processDefinition));
+    if (processDefinition.id==null) {
+      processDefinition.id = createProcessDefinitionId(processDefinition);
     }
   }
   
   @Override
   public void startActivityDefinition(ActivityDefinitionImpl activityDefinition) {
-    if (activityDefinition.getId()==null) {
-      activityDefinition.id(createActivityDefinitionId(activityDefinition));
+    if (activityDefinition.name==null) {
+      activityDefinition.name = createActivityDefinitionName(activityDefinition);
     }
   }
 
@@ -65,18 +65,18 @@ public class EnsureIdVisitor extends ProcessDefinitionVisitor {
     return new ProcessDefinitionId(UUID.randomUUID());
   }
 
-  public ActivityDefinitionId createActivityDefinitionId(ActivityDefinitionImpl activityDefinition) {
-    activityDefinitionsCreated++;
-    return new ActivityDefinitionId("a"+activityDefinitionsCreated);
-  }
-
-  public VariableDefinitionId createVariableDefinitionId(VariableDefinitionImpl variableDefinition) {
-    variableDefinitionsCreated++;
-    return new VariableDefinitionId("v"+variableDefinitionsCreated);
-  }
-
-  public TransitionDefinitionId createTransitionDefinitionId(TransitionDefinitionImpl transitionDefinition) {
-    transitionDefinitionsCreated++;
-    return new TransitionDefinitionId("t"+transitionDefinitionsCreated);
-  }
+//  public ActivityDefinitionId createActivityDefinitionName(ActivityDefinitionImpl activityDefinition) {
+//    activityDefinitionsCreated++;
+//    return new ActivityDefinitionId("a"+activityDefinitionsCreated);
+//  }
+//
+//  public VariableDefinitionId createVariableDefinitionId(VariableDefinitionImpl variableDefinition) {
+//    variableDefinitionsCreated++;
+//    return new VariableDefinitionId("v"+variableDefinitionsCreated);
+//  }
+//
+//  public TransitionDefinitionId createTransitionDefinitionId(TransitionDefinitionImpl transitionDefinition) {
+//    transitionDefinitionsCreated++;
+//    return new TransitionDefinitionId("t"+transitionDefinitionsCreated);
+//  }
 }

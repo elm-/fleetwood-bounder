@@ -22,7 +22,7 @@ import javax.script.SimpleScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.ProcessEngine;
+import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.definition.VariableDefinitionId;
 import com.heisenberg.instance.ScopeInstanceImpl;
 

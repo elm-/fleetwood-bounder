@@ -27,17 +27,16 @@ import com.heisenberg.instance.VariableInstanceImpl;
  */
 public class ScopeInstance {
 
-  Object id;
-  Long start;
-  Long end;
-  Long duration;
-
-  List<ActivityInstance> activityInstances;
-
-  List<VariableInstance> variableInstances;
+  public String id;
+  public Long start;
+  public Long end;
+  public Long duration;
+  public List<ActivityInstance> activityInstances;
+  public List<VariableInstance> variableInstances;
   
   public ScopeInstance() {
   }
+  
   public ScopeInstance(ScopeInstanceImpl scopeInstance) {
     this.start = scopeInstance.start;
     this.end = scopeInstance.end;

@@ -17,7 +17,8 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.spi.ActivityInstance;
+import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.spi.ActivityTypeDescriptor;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.ObjectActivityParameter;
 import com.heisenberg.spi.Type;
@@ -28,36 +29,36 @@ import com.heisenberg.spi.Type;
  */
 public class Go implements ActivityType {
   
-  protected static List<Execution> executions = new ArrayList<>();
+  public static final String TYPE_ID = "go";
 
-  // TODO scan the parameters with reflection
-  
-  public static final String ID = "go";
-  
   public static ObjectActivityParameter PLACE = ObjectActivityParameter
-    .type(Type.TEXT)
-    .id("place");
+          .type(Type.TEXT)
+          .name("place");
+        
+
+  public ActivityTypeDescriptor getActivityTypeDescriptor() {
+    return ActivityTypeDescriptor
+            .typeId(TYPE_ID)
+            .parameter(PLACE);
+  }
+
+  public static List<Execution> executions = new ArrayList<>();
   
   @Override
-  public void start(ActivityInstance activityInstance) {
-    String place = PLACE.get(activityInstance, String.class);
-    executions.add(new Execution(activityInstance, place));
-    activityInstance.onwards();
+  public void start(ActivityInstanceImpl controller) {
+    String place = PLACE.get(controller, String.class);
+    executions.add(new Execution(controller, place));
+    controller.onwards();
   }
 
   @Override
-  public void signal(ActivityInstance activityInstance) {
+  public void signal(ActivityInstanceImpl activityInstance) {
   }
 
-  @Override
-  public String getId() {
-    return ID;
-  }
-  
   public class Execution {
-    public ActivityInstance activityInstance;
+    public ActivityInstanceImpl activityInstance;
     public String place;
-    public Execution(ActivityInstance activityInstance, String place) {
+    public Execution(ActivityInstanceImpl activityInstance, String place) {
       this.activityInstance = activityInstance;
       this.place = place;
     }

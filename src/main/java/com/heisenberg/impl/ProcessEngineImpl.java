@@ -14,6 +14,8 @@
  */
 package com.heisenberg.impl;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,14 +29,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.ProcessDefinitionQueryBuilder;
-import com.heisenberg.ProcessEngine;
-import com.heisenberg.ProcessInstanceQueryBuilder;
-import com.heisenberg.SignalRequest;
-import com.heisenberg.StartProcessInstanceRequest;
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.ProcessDefinitionQueryBuilder;
+import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.ProcessInstanceQueryBuilder;
+import com.heisenberg.api.SignalRequest;
+import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.EnsureIdVisitor;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionId;
@@ -45,7 +48,9 @@ import com.heisenberg.instance.ProcessInstanceId;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.ActivityTypeDescriptor;
 import com.heisenberg.spi.Service;
+import com.heisenberg.spi.ServiceDescriptor;
 import com.heisenberg.spi.Spi;
 import com.heisenberg.spi.Type;
 import com.heisenberg.util.Exceptions;
@@ -59,51 +64,73 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
-  public Map<String,Service> services;
-  public Map<String,ActivityType> activitieDefinitions;
+  public Map<String,ServiceDescriptor> servicesDescriptors;
+  public Map<String,ActivityTypeDescriptor> activityDescriptors;
   public Map<String,Type> types;
   public Executor executor;
   public Json json;
   
-  protected void scanPluggableImplementations() {
-    services = new HashMap<>();
-    activitieDefinitions = new HashMap<>();
+  protected void initializeId() {
+    try {
+      id = InetAddress.getLocalHost().getHostAddress();
+    } catch (UnknownHostException e) {
+      id = "amnesia";
+    }
+  }
+
+  protected void initializePluggableImplementations() {
+    servicesDescriptors = new HashMap<>();
+    activityDescriptors = new HashMap<>();
     types = new HashMap<>();
     Iterator<Spi> spis = ServiceLoader.load(Spi.class).iterator();
     while (spis.hasNext()) {
       Spi spi = spis.next();
       if (spi instanceof Service) {
-        services.put(spi.getId(), (Service) spi);
+        Service service = (Service)spi;
+        ServiceDescriptor serviceDescriptor = service.getServiceDescriptor();
+        serviceDescriptor.serviceClass = service.getClass();
+        servicesDescriptors.put(serviceDescriptor.serviceId, serviceDescriptor);
       }
       if (spi instanceof ActivityType) {
-        activitieDefinitions.put(spi.getId(), (ActivityType) spi);
+        ActivityType activityType = (ActivityType)spi;
+        ActivityTypeDescriptor activityTypeDescriptor = activityType.getActivityTypeDescriptor();
+        activityTypeDescriptor.activityTypeClass = activityType.getClass();
+        activityDescriptors.put(activityTypeDescriptor.activityTypeId, activityTypeDescriptor);
       }
       if (spi instanceof Type) {
-        types.put(spi.getId(), (Type) spi);
+        Type type = (Type)spi;
+        types.put(type.getId(), type);
       }
     }
   }
   
-  protected Executor createDefaultExecutor() {
-    return new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
+  protected void initializeExecutor() {
+    this.executor = new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  public ProcessDefinition saveProcessDefinition(ProcessDefinition processDefinition) {
+  protected void initializeJson() {
+    this.json = new Json();
+  }
+
+  @Override
+  public DeployProcessDefinitionResponse deployProcessDefinition(ProcessDefinition processDefinition) {
     Exceptions.checkNotNull(processDefinition, "processDefinition");
-    ProcessDefinitionImpl processDefinitionImpl = new ProcessDefinitionImpl(this, processDefinition);
-    identifyProcessDefinition(processDefinitionImpl);
-    storeProcessDefinition(processDefinitionImpl);
+    DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
+    ProcessDefinitionImpl processDefinitionImpl = new ProcessDefinitionImpl(this, response, processDefinition);
+
+    identifyProcessDefinition(processDefinition);
+    storeProcessDefinition(processDefinition);
     return processDefinition;
   }
   
   /** ensures that every element in this process definition has an id */
-  protected void identifyProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    processDefinition.visit(new EnsureIdVisitor(this));
+  protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
+    processDefinition.id = UUID.randomUUID().toString();
   }
   
-  protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);
+  protected abstract void storeProcessDefinition(ProcessDefinition processDefinition);
 
-  public ProcessInstanceImpl startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
+  public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
     ProcessDefinitionId processDefinitionId = startProcessInstanceRequest.getProcessDefinitionId();
     Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = buildProcessDefinitionQuery()

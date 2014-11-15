@@ -20,7 +20,7 @@ package com.heisenberg.api.instance;
  */
 public class Lock {
 
-  Long time;
-  String owner;
+  public Long time;
+  public String owner;
 
 }
