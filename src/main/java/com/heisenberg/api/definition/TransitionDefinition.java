@@ -20,6 +20,7 @@ package com.heisenberg.api.definition;
  */
 public class TransitionDefinition {
 
+  public Location location;
   public String fromActivityDefinitionName;
   public String toActivityDefinitionName;
 

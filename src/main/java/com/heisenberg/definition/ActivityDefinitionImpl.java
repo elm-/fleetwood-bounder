@@ -19,23 +19,19 @@ import java.util.List;
 
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
-import com.heisenberg.util.Exceptions;
 
 
 /**
  * @author Walter White
  */
-public abstract class ActivityDefinitionImpl extends ScopeDefinitionImpl {
+public class ActivityDefinitionImpl extends ScopeDefinitionImpl {
 
   public String name;
+  public int index = -1;
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
   public ActivityType activityType;
-  
-  public abstract void start(ActivityInstanceImpl activityInstance);
 
-  public ProcessDefinitionPathImpl getPath() {
-    Exceptions.checkNotNull(name, "Activity definition doesn't have an name yet");
-    Exceptions.checkNotNull(parent, "Activity definition doesn't have an parent yet");
+  public ProcessDefinitionPath getPath() {
     return parent.getPath().addActivityDefinitionName(name);
   }
 

@@ -17,8 +17,8 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityTypeDescriptor;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.ObjectActivityParameter;
 import com.heisenberg.spi.Type;

@@ -22,8 +22,8 @@ package com.heisenberg.definition;
 public class UnresolvedTransitionDefinition {
 
   public TransitionDefinitionImpl transitionDefinition;
-  public ActivityDefinitionId fromId;
-  public ActivityDefinitionId toId;
+  public String fromId;
+  public String toId;
   
   public void resolve(ScopeDefinitionImpl scopeDefinition) {
     ActivityDefinitionImpl from = scopeDefinition.getActivityDefinition(fromId);

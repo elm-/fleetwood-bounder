@@ -21,36 +21,28 @@ import java.util.List;
 /**
  * @author Walter White
  */
-public class ProcessDefinitionPathImpl {
+public class ProcessDefinitionPath {
   
-  public ProcessDefinitionId processDefinitionId;
   public List<String> activityDefinitionNames;
 
-  public ProcessDefinitionPathImpl(ProcessDefinitionId processDefinitionId) {
-    this.processDefinitionId = processDefinitionId;
-  }
-
-  public ProcessDefinitionPathImpl addActivityDefinitionName(String activiyDefinitionName) {
+  public ProcessDefinitionPath addActivityDefinitionName(String activiyDefinitionName) {
     if (activityDefinitionNames==null) {
       activityDefinitionNames = new ArrayList<>();
     }
     activityDefinitionNames.add(activiyDefinitionName);
-    return null;
+    return this;
   }
 
   /** slash separated path */
   public String toString() {
-    if (processDefinitionId==null) {
-      return "-path-without-process-definition-id-";
-    }
-    StringBuilder path = new StringBuilder();
-    path.append(processDefinitionId);
     if (activityDefinitionNames!=null) {
+      StringBuilder path = new StringBuilder();
       for (String activityDefinitionName: activityDefinitionNames) {
         path.append("/");
         path.append(activityDefinitionName);
       }
+      return path.toString();
     }
-    return path.toString();
+    return "/";
   }
 }

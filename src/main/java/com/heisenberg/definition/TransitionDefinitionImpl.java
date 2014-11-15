@@ -15,15 +15,13 @@
 package com.heisenberg.definition;
 
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.util.Identifyable;
 
 
 /**
  * @author Walter White
  */
-public class TransitionDefinitionImpl implements Identifyable {
+public class TransitionDefinitionImpl {
 
-  protected TransitionDefinitionId id;
   protected ActivityDefinitionImpl from;
   protected ActivityDefinitionImpl to;
 
@@ -34,15 +32,6 @@ public class TransitionDefinitionImpl implements Identifyable {
   public void prepare() {
   }
 
-  public TransitionDefinitionId getId() {
-    return id;
-  }
-  
-  public void setId(TransitionDefinitionId id) {
-    this.id = id;
-  }
-
-  
   public ActivityDefinitionImpl getFrom() {
     return from;
   }

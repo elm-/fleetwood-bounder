@@ -17,7 +17,6 @@ package com.heisenberg.definition;
 import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.util.Exceptions;
 
 
 /**
@@ -28,7 +27,9 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
   public ProcessDefinitionId id;
 
   public ProcessDefinitionImpl(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinition processDefinition) {
-    parse(processEngine, response, this, null, processDefinition);
+    this.processEngine = processEngine;
+    this.processDefinition = this;
+    parse(processEngine, response, this, this, processDefinition);
   }
 
   public void prepare() {
@@ -36,9 +37,8 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
     super.prepare();
   }
   
-  public ProcessDefinitionPathImpl getPath() {
-    Exceptions.checkNotNull(id, "Process definition doesn't have an id yet");
-    return new ProcessDefinitionPathImpl(id);
+  public ProcessDefinitionPath getPath() {
+    return new ProcessDefinitionPath();
   }
 
   public ProcessDefinitionId getId() {

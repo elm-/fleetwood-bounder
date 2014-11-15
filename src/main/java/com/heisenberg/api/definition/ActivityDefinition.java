@@ -15,6 +15,7 @@
 package com.heisenberg.api.definition;
 
 import com.heisenberg.spi.ActivityParameter;
+import com.heisenberg.spi.Type;
 
 
 /**
@@ -24,12 +25,16 @@ public class ActivityDefinition extends ScopeDefinition {
   
   public String activityTypeRefId;
   
-  public static ActivityDefinition type(String activityTypeRefId) {
-    ActivityDefinition activityDefinition = new ActivityDefinition();
-    activityDefinition.activityTypeRefId = activityTypeRefId;
-    return activityDefinition;
+  public ActivityDefinition type(String activityTypeRefId) {
+    this.activityTypeRefId = activityTypeRefId;
+    return this;
   }
-
+  
+  public ActivityDefinition type(Type type) {
+    type(type.getId());
+    return this;
+  }
+  
   @Override
   public ActivityDefinition name(String name) {
     super.name(name);

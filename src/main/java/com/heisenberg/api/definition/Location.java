@@ -14,38 +14,36 @@
  */
 package com.heisenberg.api.definition;
 
-import com.heisenberg.spi.Type;
 
-
-
-/**
+/** represent the location in the source file.
+ * 
  * @author Walter White
  */
-public class VariableDefinition {
+public class Location {
+  
+  public String file;
+  public Long lineNumber;
+  public String path;
+  
+  public Location file(String file) {
+    this.file = file;
+    return this;
+  }
+  
+  public Location lineNumber(Long lineNumber) {
+    this.lineNumber = lineNumber;
+    return this;
+  }
 
-  public String name;
-  public String typeRefId;
-  public Object initialValue;
-  public Location location;
-  
-  public VariableDefinition type(String typeRefId) {
-    this.typeRefId = typeRefId;
+  /** path is the logical path in the process structure, If you ensure 
+   * that the name of the elements are set first, then you'll get a 
+   * default path. */
+  public Location path(String path) {
+    this.path = path;
     return this;
   }
   
-  public VariableDefinition type(Type type) {
-    return type(type.getId());
-  }
-
-  /** The user defined name of the variable that can later be used 
-   * for getting and setting variable values. */
-  public VariableDefinition name(String name) {
-    this.name = name;
-    return this;
-  }
-  
-  public VariableDefinition initialValue(Object initialValue) {
-    this.initialValue = initialValue;
-    return this;
+  public String toString() {
+    return (file!=null ? "file("+file+") " : "")+(lineNumber!=null ? "lineNumber("+lineNumber+") " : "")+(path!=null ? "path("+path+") " : "");
   }
 }

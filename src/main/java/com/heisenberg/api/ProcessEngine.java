@@ -36,7 +36,11 @@ public interface ProcessEngine {
   ProcessInstanceQueryBuilder buildProcessInstanceQuery();
   List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
 
+  // TODO change response into StartProcessInstanceResponse
+  //      this way we can include the events/logs of all things that happened during execution.
   ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);
 
+  // TODO change response into SignalResponse
+  //      this way we can include the events/logs of all things that happened during execution.
   ProcessInstance signal(SignalRequest signalRequest);
 }

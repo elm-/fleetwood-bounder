@@ -72,8 +72,7 @@ public class ParameterBindingImpl {
       return value;
     }
     if (variableDefinition!=null) {
-      VariableDefinitionId variableDefinitionId = variableDefinition.getId();
-      return activityInstance.getVariableValueRecursive(variableDefinitionId).getValue();
+      return activityInstance.getVariableValueRecursive(variableDefinition.name).getValue();
     }
     if (expression!=null) {
       // TODO

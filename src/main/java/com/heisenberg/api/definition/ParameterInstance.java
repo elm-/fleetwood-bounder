@@ -15,7 +15,11 @@
 package com.heisenberg.api.definition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.heisenberg.definition.ParameterInstanceImpl;
 
 
 /**
@@ -23,11 +27,12 @@ import java.util.List;
  */
 public class ParameterInstance {
 
-  public String parameterRefId;
+  public String parameterRefName;
   public List<ParameterBinding> parameterBindings;
+  public Location location;
 
-  public ParameterInstance parameterRefId(String parameterRefId) {
-    this.parameterRefId = parameterRefId;
+  public ParameterInstance parameterRefName(String parameterRefName) {
+    this.parameterRefName = parameterRefName;
     return this;
   }
   
@@ -35,7 +40,23 @@ public class ParameterInstance {
     if (parameterBindings==null) {
       parameterBindings = new ArrayList<ParameterBinding>();
     }
+    if (parameterBinding.location==null) {
+      parameterBinding.location = new Location();
+    } 
+    if (parameterBinding.location.path==null) {
+      parameterBinding.location.path = location.path+"["+parameterBindings.size()+"]";
+    }
     parameterBindings.add(parameterBinding);
     return this;
+  }
+
+  public static Map<String,ParameterInstanceImpl> buildParameterInstancesMap(List<ParameterInstanceImpl> parameterInstances) {
+    Map<String,ParameterInstanceImpl> parameterInstancesMap = new HashMap<>();
+    if (parameterInstances!=null) {
+      for (ParameterInstanceImpl parameterInstance: parameterInstances) {
+        parameterInstancesMap.put(parameterInstance.name, parameterInstance);
+      }
+    }
+    return parameterInstancesMap;
   }
 }

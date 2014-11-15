@@ -12,20 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg;
 
-import com.heisenberg.impl.ServiceDescriptor;
+import org.junit.Assert;
 
-
-/** Exposes access to 'things' or 'entities' of another service.
- * 
- * For example: a Google Drive services could expose documents or 
- * a Salesforce service could expose leads.
- * 
+/**
  * @author Walter White
  */
-public interface Service extends Spi {
-
-  ServiceDescriptor getServiceDescriptor();
+public class TestHelper {
   
+  public static void assertTextPresent(String expected, String actual) {
+    if (actual==null || !actual.contains(expected)) {
+      Assert.fail("Expected "+expected+" but was "+actual);
+    }
+  }
 }

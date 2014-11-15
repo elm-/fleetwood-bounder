@@ -12,10 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.heisenberg.spi.ActivityParameter;
+import com.heisenberg.spi.ActivityType;
 
 
 /**
@@ -26,6 +29,7 @@ public class ActivityTypeDescriptor {
   public String activityTypeId;
   public Map<String, ActivityParameter> activityParameters;
   public Class<? extends ActivityType> activityTypeClass;
+  public ActivityType activityType;
   
   public static ActivityTypeDescriptor typeId(String activityTypeId) {
     ActivityTypeDescriptor activityDescriptor = new ActivityTypeDescriptor();

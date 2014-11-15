@@ -53,7 +53,7 @@ public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
   public List<ActivityInstanceImpl> activityInstances;
 
   public List<VariableInstanceImpl> variableInstances;
-  public Map<VariableDefinitionId, VariableInstanceImpl> variableInstancesMap;
+  public Map<String, VariableInstanceImpl> variableInstancesMap;
 
   public ProcessEngineImpl processEngine;
   public ProcessDefinitionImpl processDefinition;
@@ -95,30 +95,30 @@ public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
     }
   }
   
-  public void setVariableValuesRecursive(Map<VariableDefinitionId, Object> variableValues) {
+  public void setVariableValuesRecursive(Map<String, Object> variableValues) {
     if (variableValues!=null) {
-      for (VariableDefinitionId variableDefinitionId: variableValues.keySet()) {
+      for (String variableDefinitionId: variableValues.keySet()) {
         Object value = variableValues.get(variableDefinitionId);
         setVariableValueRecursive(variableDefinitionId, value);
       }
     }
   }
 
-  public void setVariableValueRecursive(VariableDefinitionId variableDefinitionId, Object value) {
+  public void setVariableValueRecursive(String variableDefinitionName, Object value) {
     if (variableInstances!=null) {
-      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
+      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionName);
       if (variableInstance!=null) {
         variableInstance.setValue(value);
       }
     }
     if (parent!=null) {
-      parent.setVariableValueRecursive(variableDefinitionId, value);
+      parent.setVariableValueRecursive(variableDefinitionName, value);
     }
   }
   
-  public TypedValue getVariableValueRecursive(VariableDefinitionId variableDefinitionId) {
+  public TypedValue getVariableValueRecursive(String variableDefinitionName) {
     if (variableInstances!=null) {
-      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
+      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionName);
       if (variableInstance!=null) {
         Type type = variableInstance.getVariableDefinition().getType();
         Object value = variableInstance.getValue();
@@ -126,21 +126,21 @@ public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
       }
     }
     if (parent!=null) {
-      return parent.getVariableValueRecursive(variableDefinitionId);
+      return parent.getVariableValueRecursive(variableDefinitionName);
     }
-    throw new RuntimeException("Variable "+variableDefinitionId+" is not defined in "+getClass().getSimpleName()+" "+getId());
+    throw new RuntimeException("Variable "+variableDefinitionName+" is not defined in "+getClass().getSimpleName()+" "+getId());
   }
   
-  protected VariableInstanceImpl getVariableInstanceLocal(VariableDefinitionId variableDefinitionId) {
+  protected VariableInstanceImpl getVariableInstanceLocal(String variableDefinitionName) {
     ensureVariableInstancesMapInitialized();
-    return variableInstancesMap.get(variableDefinitionId);
+    return variableInstancesMap.get(variableDefinitionName);
   }
 
   protected void ensureVariableInstancesMapInitialized() {
     if (variableInstancesMap==null && variableInstances!=null) {
       variableInstancesMap = new HashMap<>();
       for (VariableInstanceImpl variableInstance: variableInstances) {
-        variableInstancesMap.put(variableInstance.getVariableDefinition().getId(), variableInstance);
+        variableInstancesMap.put(variableInstance.variableDefinition.name, variableInstance);
       }
     }
   }

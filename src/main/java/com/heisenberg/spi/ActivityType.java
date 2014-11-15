@@ -14,6 +14,13 @@
  */
 package com.heisenberg.spi;
 
+import java.util.List;
+import java.util.Map;
+
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.ParameterInstance;
+import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.definition.ParameterInstanceImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 
 
@@ -21,13 +28,33 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-public interface ActivityType extends Spi {
+public abstract class ActivityType implements Spi {
 
-  /** During initialization time of the process engine, 
-   * an object is created and this method is invoked once. */
-  ActivityTypeDescriptor getActivityTypeDescriptor();
-  
-  void start(ActivityInstanceImpl activityInstance);
+  /** The unique id for this activity type. */
+  public abstract String getId();
 
-  void signal(ActivityInstanceImpl activityInstance);
+  public abstract void start(ActivityInstanceImpl activityInstance);
+
+  /** Specifies the input or output parameters for this activity (if any). 
+   * Invoked just once during initialization of the process engine.
+   * If you return activity parameters, you could consider overriding the default 
+   * parameter checking in {@link #checkParameters(ActivityDefinitionImpl, DeployProcessDefinitionResponse)}. */
+  public List<ActivityParameter> getActivityParameters() {
+    return null;
+  }
+
+  /** Checks the parameters during process deployment.
+   * The errors and warnings should be reported with response.addError() and response.addWarning(). */
+  public void checkParameters(ActivityDefinitionImpl activityDefinitionImpl, Map<String,ActivityParameter> activityParameterMap, DeployProcessDefinitionResponse response) {
+    if (activityParameterMap!=null) {
+      Map<String,ParameterInstanceImpl> parameterInstances = ParameterInstance.buildParameterInstancesMap(activityDefinitionImpl.parameterInstances);
+      for (String activityParameterName: activityParameterMap.keySet()) {
+        ActivityParameter activityParameter = activityParameterMap.get(activityParameterName); 
+        activityParameter.checkParameters(parameterInstances, response);
+      }
+    }
+  }
+
+  public void signal(ActivityInstanceImpl activityInstance) {
+  }
 }

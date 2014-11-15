@@ -23,12 +23,11 @@ import com.heisenberg.util.Identifyable;
 /**
  * @author Walter White
  */
-public class VariableDefinitionImpl implements Identifyable {
+public class VariableDefinitionImpl {
 
   protected ProcessEngineImpl processEngine;
   protected ProcessDefinitionImpl processDefinition;  
   protected ScopeDefinitionImpl parent;
-  protected VariableDefinitionId id;
   protected String name;
   protected Type type;
   protected Object initialValue;
@@ -47,14 +46,6 @@ public class VariableDefinitionImpl implements Identifyable {
 
   public void setParent(ScopeDefinitionImpl parent) {
     this.parent = parent;
-  }
-
-  public VariableDefinitionId getId() {
-    return id;
-  }
-
-  public void setId(VariableDefinitionId id) {
-    this.id = id;
   }
 
   public String getName() {

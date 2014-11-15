@@ -22,6 +22,11 @@ import com.heisenberg.spi.Type;
 /**
  * @author Walter White
  */
-public class IdType extends Type {
+public class IdType implements Type {
+
+  @Override
+  public String getId() {
+    return "id";
+  }
 
 }

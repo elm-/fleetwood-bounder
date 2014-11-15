@@ -19,8 +19,9 @@ import com.heisenberg.impl.ProcessEngineImpl;
 
 /** super interface for all service provider interfaces.
  * 
- * In the @link {@link ProcessEngineImpl#initializePluggableImplementations()}
- * we only have to do 1 scan to find all pluggable implementations.  
+ * By using this marker interface, 
+ * we only have to do 1 scan to find all pluggable implementations.
+ * @see ProcessEngineImpl#initializePluggableImplementations()  
  * 
  * @author Walter White
  */

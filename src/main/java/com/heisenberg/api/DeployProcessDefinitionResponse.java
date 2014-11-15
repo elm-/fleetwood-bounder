@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.heisenberg.api.definition.Location;
+
 
 /**
  * @author Walter White
@@ -29,7 +31,7 @@ public class DeployProcessDefinitionResponse {
   
   public class Issue {
     IssueType type;
-    String element;
+    Location location;
     String msg; 
     Object[] msgArgs; // msg and arguments are split so that msg can be translated first.
     public String getFormattedMessage() {
@@ -45,21 +47,21 @@ public class DeployProcessDefinitionResponse {
     warning
   }
   
-  public void addError(String element, String msg, Object... msgArgs) {
-    addIssue(IssueType.error, element, msg, msgArgs);
+  public void addError(Location location, String msg, Object... msgArgs) {
+    addIssue(IssueType.error, location, msg, msgArgs);
   }
   
-  public void addWarning(String element, String msg, Object... msgArgs) {
-    addIssue(IssueType.warning, element, msg, msgArgs);
+  public void addWarning(Location location, String msg, Object... msgArgs) {
+    addIssue(IssueType.warning, location, msg, msgArgs);
   }
   
-  void addIssue(IssueType type, String element, String msg, Object... msgArgs) {
+  void addIssue(IssueType type, Location location, String msg, Object... msgArgs) {
     if (issues==null) {
       issues = new ArrayList<>();
     }
     Issue issue = new Issue();
     issue.type = type;
-    issue.element = element;
+    issue.location = location;
     issue.msg = msg;
     issue.msgArgs = msgArgs;
     issues.add(issue);
@@ -107,8 +109,8 @@ public class DeployProcessDefinitionResponse {
         }
         issueReport.append(issue.getFormattedMessage(l));
         issueReport.append(" | ");
-        issueReport.append(issue.element);
-        issueReport.append(" |\n");
+        issueReport.append(issue.location);
+        issueReport.append("|\n");
       }
       return issueReport.toString();
     }
@@ -117,5 +119,16 @@ public class DeployProcessDefinitionResponse {
 
   public String getProcessDefinitionId() {
     return processDefinitionId;
+  }
+
+  public boolean hasErrors() {
+    if (hasIssues()) {
+      for (Issue issue: issues) {
+        if (IssueType.error==issue.type) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

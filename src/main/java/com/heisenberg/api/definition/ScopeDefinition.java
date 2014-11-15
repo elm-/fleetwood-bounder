@@ -27,6 +27,7 @@ import com.heisenberg.util.Exceptions;
 public class ScopeDefinition {
 
   public String name;
+  public Location location;
   public List<ParameterInstance> parameterInstances;
   public List<ActivityDefinition> activityDefinitions;
   public List<VariableDefinition> variableDefinitions;
@@ -42,6 +43,12 @@ public class ScopeDefinition {
     if (activityDefinitions==null) {
       activityDefinitions = new ArrayList<ActivityDefinition>();
     }
+    if (activityDefinition.location==null) {
+      activityDefinition.location = new Location();
+    } 
+    if (activityDefinition.location.path==null) {
+      activityDefinition.location.path = addPathElement(activityDefinition.name, "activityDefinitions", activityDefinitions.size());
+    }
     activityDefinitions.add(activityDefinition);
     return this;
   }
@@ -51,8 +58,6 @@ public class ScopeDefinition {
   }
 
   public ScopeDefinition transition(String fromActivityDefinitionName, String toActivityDefinitionName) {
-    Exceptions.checkNotNull(fromActivityDefinitionName, "From activity definition does not have a name");
-    Exceptions.checkNotNull(toActivityDefinitionName, "To activity definition does not have a name");
     transition(new TransitionDefinition()
       .from(fromActivityDefinitionName)
       .to(toActivityDefinitionName)
@@ -60,17 +65,29 @@ public class ScopeDefinition {
     return this;
   }
 
-  public ScopeDefinition transition(TransitionDefinition transition) {
+  public ScopeDefinition transition(TransitionDefinition transitionDefinition) {
     if (transitionDefinitions==null) {
       transitionDefinitions = new ArrayList<TransitionDefinition>();
     }
-    transitionDefinitions.add(transition);
+    if (transitionDefinition.location==null) {
+      transitionDefinition.location = new Location();
+    } 
+    if (transitionDefinition.location.path==null) {
+      transitionDefinition.location.path = addPathElement(null, "transitionDefinitions", transitionDefinitions.size());
+    }
+    transitionDefinitions.add(transitionDefinition);
     return this;
   }
 
   public ScopeDefinition variable(VariableDefinition variableDefinition) {
     if (variableDefinitions==null) {
       variableDefinitions = new ArrayList<VariableDefinition>();
+    }
+    if (variableDefinition.location==null) {
+      variableDefinition.location = new Location();
+    } 
+    if (variableDefinition.location.path==null) {
+      variableDefinition.location.path = addPathElement(variableDefinition.name, "variableDefinitions", variableDefinitions.size());
     }
     variableDefinitions.add(variableDefinition);
     return this;
@@ -88,24 +105,30 @@ public class ScopeDefinition {
     addParameterValue(activityParameter.name, new ParameterBinding().value(object));
     return this;
   }
+  
   public  ScopeDefinition parameterExpression(ActivityParameter activityParameter, String expression) {
     addParameterValue(activityParameter.name, new ParameterBinding().expression(expression));
     return this;
   }
+  
   public  ScopeDefinition parameterVariable(ActivityParameter activityParameter, Object variableDefinitionId) {
     addParameterValue(activityParameter.name, new ParameterBinding().variableDefinitionId(variableDefinitionId));
     return this;
   }
 
-  void addParameterValue(String parameterRefId, ParameterBinding parameterBinding) {
-    Exceptions.checkNotNull(parameterRefId, "parameterRefId");
-    Exceptions.checkNotNull(parameterBinding, "parameterBinding");
-    ParameterInstance parameterInstance = findParameterInstance(parameterRefId);
+  void addParameterValue(String parameterRefName, ParameterBinding parameterBinding) {
+    ParameterInstance parameterInstance = findParameterInstance(parameterRefName);
     if (parameterInstance==null) {
       parameterInstance = new ParameterInstance()
-        .parameterRefId(parameterRefId);
+        .parameterRefName(parameterRefName);
       if (parameterInstances==null) {
         parameterInstances = new ArrayList<>();
+      }
+      if (parameterInstance.location==null) {
+        parameterInstance.location = new Location();
+      } 
+      if (parameterInstance.location.path==null) {
+        parameterInstance.location.path = addPathElement(parameterRefName, "parameterInstances", parameterInstances.size());
       }
       parameterInstances.add(parameterInstance);
     }
@@ -121,5 +144,9 @@ public class ScopeDefinition {
       }
     }
     return null;
+  }
+
+  String addPathElement(String indexName, String collectionName, int index) {
+    return (location!=null ? location.path+"." : "")+collectionName+"["+(indexName!=null ? indexName : index+"]");
   }
 }

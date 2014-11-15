@@ -22,9 +22,10 @@ package com.heisenberg.api.definition;
 public class ParameterBinding {
 
   // one of the next 3 specifies the value
-  protected Object value;
-  protected Object variableDefinitionId;
-  protected String expression;
+  public Object value;
+  public Object variableDefinitionId;
+  public String expression;
+  public Location location;
   
   public ParameterBinding value(Object value) {
     this.value = value;

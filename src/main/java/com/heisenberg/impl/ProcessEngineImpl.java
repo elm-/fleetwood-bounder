@@ -18,7 +18,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.UUID;
@@ -40,21 +39,16 @@ import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.VariableDefinitionId;
 import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceId;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityType;
-import com.heisenberg.spi.ActivityTypeDescriptor;
 import com.heisenberg.spi.Service;
-import com.heisenberg.spi.ServiceDescriptor;
 import com.heisenberg.spi.Spi;
 import com.heisenberg.spi.Type;
 import com.heisenberg.util.Exceptions;
-import com.heisenberg.util.Time;
 
 /**
  * @author Walter White
@@ -65,7 +59,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public String id;
   public Map<String,ServiceDescriptor> servicesDescriptors;
-  public Map<String,ActivityTypeDescriptor> activityDescriptors;
+  public Map<String,ActivityTypeDescriptor> activityTypeDescriptors;
   public Map<String,Type> types;
   public Executor executor;
   public Json json;
@@ -80,28 +74,46 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   protected void initializePluggableImplementations() {
     servicesDescriptors = new HashMap<>();
-    activityDescriptors = new HashMap<>();
+    activityTypeDescriptors = new HashMap<>();
     types = new HashMap<>();
     Iterator<Spi> spis = ServiceLoader.load(Spi.class).iterator();
     while (spis.hasNext()) {
       Spi spi = spis.next();
       if (spi instanceof Service) {
         Service service = (Service)spi;
-        ServiceDescriptor serviceDescriptor = service.getServiceDescriptor();
-        serviceDescriptor.serviceClass = service.getClass();
-        servicesDescriptors.put(serviceDescriptor.serviceId, serviceDescriptor);
+        registerService(service);
       }
       if (spi instanceof ActivityType) {
         ActivityType activityType = (ActivityType)spi;
-        ActivityTypeDescriptor activityTypeDescriptor = activityType.getActivityTypeDescriptor();
-        activityTypeDescriptor.activityTypeClass = activityType.getClass();
-        activityDescriptors.put(activityTypeDescriptor.activityTypeId, activityTypeDescriptor);
+        registerActivityType(activityType);
       }
       if (spi instanceof Type) {
         Type type = (Type)spi;
-        types.put(type.getId(), type);
+        registerType(type);
       }
     }
+  }
+
+  public ProcessEngineImpl registerType(Type type) {
+    types.put(type.getId(), type);
+    return this;
+  }
+
+  public ProcessEngineImpl registerService(Service service) {
+    ServiceDescriptor serviceDescriptor = service.getServiceDescriptor();
+    serviceDescriptor.serviceClass = service.getClass();
+    servicesDescriptors.put(serviceDescriptor.serviceId, serviceDescriptor);
+    return this;
+  }
+
+  public ProcessEngineImpl registerActivityType(ActivityType activityType) {
+    ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor();
+    activityTypeDescriptor.activityTypeId = activityType.getId();
+    activityTypeDescriptor.activityParameters = activityType.getActivityParameters();
+    activityTypeDescriptor.activityTypeClass = activityType.getClass();
+    activityTypeDescriptor.activityType = activityType;
+    activityTypeDescriptors.put(activityTypeDescriptor.activityTypeId, activityTypeDescriptor);
+    return this;
   }
   
   protected void initializeExecutor() {
@@ -117,45 +129,49 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     Exceptions.checkNotNull(processDefinition, "processDefinition");
     DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
     ProcessDefinitionImpl processDefinitionImpl = new ProcessDefinitionImpl(this, response, processDefinition);
-
-    identifyProcessDefinition(processDefinition);
-    storeProcessDefinition(processDefinition);
-    return processDefinition;
+    if (!response.hasErrors()) {
+      String generatedId = generateProcessDefinitionId(processDefinitionImpl);
+      processDefinitionImpl.id = new ProcessDefinitionId(generatedId);
+      response.processDefinitionId = generatedId; 
+      storeProcessDefinition(processDefinitionImpl);
+    }
+    return response;
   }
   
   /** ensures that every element in this process definition has an id */
-  protected void identifyProcessDefinition(ProcessDefinition processDefinition) {
-    processDefinition.id = UUID.randomUUID().toString();
+  protected String generateProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+    return UUID.randomUUID().toString();
   }
   
-  protected abstract void storeProcessDefinition(ProcessDefinition processDefinition);
+  protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
-    ProcessDefinitionId processDefinitionId = startProcessInstanceRequest.getProcessDefinitionId();
-    Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
-    ProcessDefinitionImpl processDefinition = buildProcessDefinitionQuery()
-      .processDefinitionId(processDefinitionId)
-      .get();
-    ProcessInstanceId processInstanceId = startProcessInstanceRequest.getProcessInstanceId();
-    ProcessInstanceImpl processInstance = createProcessInstance(processDefinition, processInstanceId);
-    Map<VariableDefinitionId, Object> variableValues = startProcessInstanceRequest.getVariableValues();
-    processInstance.setVariableValuesRecursive(variableValues);
-    log.debug("Starting "+processInstance);
-    processInstance.setStart(Time.now());
-    List<ActivityDefinitionImpl> startActivityDefinitions = processDefinition.getStartActivityDefinitions();
-    if (startActivityDefinitions!=null) {
-      for (ActivityDefinitionImpl startActivityDefinition: startActivityDefinitions) {
-        ActivityInstanceImpl activityInstance = processInstance.createActivityInstance(startActivityDefinition);
-        processInstance.startActivityInstance(activityInstance);
-      }
-    }
-    LockImpl lock = new LockImpl();
-    lock.setTime(Time.now());
-    lock.setOwner(getId());
-    processInstance.setLock(lock);
-    saveProcessInstance(processInstance);
-    processInstance.executeOperations();
-    return processInstance;
+//    ProcessDefinitionId processDefinitionId = startProcessInstanceRequest.getProcessDefinitionId();
+//    Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
+//    ProcessDefinitionImpl processDefinition = buildProcessDefinitionQuery()
+//      .processDefinitionId(processDefinitionId)
+//      .get();
+//    ProcessInstanceId processInstanceId = startProcessInstanceRequest.getProcessInstanceId();
+//    ProcessInstanceImpl processInstance = createProcessInstance(processDefinition, processInstanceId);
+//    Map<VariableDefinitionId, Object> variableValues = startProcessInstanceRequest.getVariableValues();
+//    processInstance.setVariableValuesRecursive(variableValues);
+//    log.debug("Starting "+processInstance);
+//    processInstance.setStart(Time.now());
+//    List<ActivityDefinitionImpl> startActivityDefinitions = processDefinition.getStartActivityDefinitions();
+//    if (startActivityDefinitions!=null) {
+//      for (ActivityDefinitionImpl startActivityDefinition: startActivityDefinitions) {
+//        ActivityInstanceImpl activityInstance = processInstance.createActivityInstance(startActivityDefinition);
+//        processInstance.startActivityInstance(activityInstance);
+//      }
+//    }
+//    LockImpl lock = new LockImpl();
+//    lock.setTime(Time.now());
+//    lock.setOwner(getId());
+//    processInstance.setLock(lock);
+//    saveProcessInstance(processInstance);
+//    processInstance.executeOperations();
+    throw new RuntimeException("TODO");
+    // return processInstance;
   }
 
   protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition, ProcessInstanceId processInstanceId) {
@@ -185,7 +201,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return new ActivityInstanceId(UUID.randomUUID());
   }
 
-  public ProcessInstanceImpl signal(SignalRequest signalRequest) {
+  @Override
+  public ProcessInstance signal(SignalRequest signalRequest) {
     ActivityInstanceId activityInstanceId = signalRequest.getActivityInstanceId();
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
     // TODO set variables and context
@@ -193,7 +210,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
     activityDefinition.signal(activityInstance);
     processInstance.executeOperations();
-    return processInstance;
+    throw new RuntimeException("TODO");
   }
   
   public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId);

@@ -19,7 +19,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ActivityDefinition;
@@ -36,23 +35,25 @@ public class ExampleTest {
   
   @Test
   public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    ProcessEngine processEngine = new MemoryProcessEngine()
+      .registerActivityType(new Go())
+      .registerActivityType(new Wait());
 
     // prepare the ingredients
-    VariableDefinition t = VariableDefinition
+    VariableDefinition t = new VariableDefinition()
       .type(Type.TEXT)
       .name("t");
     
-    ActivityDefinition go = ActivityDefinition
+    ActivityDefinition go = new ActivityDefinition()
       .type(Go.TYPE_ID)
       .parameterValue(Go.PLACE, "Antwerp")
       .name("go");
     
-    ActivityDefinition wait1 = ActivityDefinition
+    ActivityDefinition wait1 = new ActivityDefinition()
       .type(Wait.TYPE_ID)
       .name("wait1");
     
-    ActivityDefinition wait2 = ActivityDefinition
+    ActivityDefinition wait2 = new ActivityDefinition()
       .type(Wait.TYPE_ID)
       .name("wait2");
     

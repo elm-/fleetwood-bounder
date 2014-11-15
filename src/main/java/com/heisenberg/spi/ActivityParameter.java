@@ -14,6 +14,11 @@
  */
 package com.heisenberg.spi;
 
+import java.util.Map;
+
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.definition.ParameterInstanceImpl;
+
 
 
 /**
@@ -23,6 +28,7 @@ public abstract class ActivityParameter {
 
   public String name;
   public Type type;
+  public Boolean required;
   
   public ActivityParameter(Type type) {
     this.type = type;
@@ -31,5 +37,10 @@ public abstract class ActivityParameter {
   public ActivityParameter name(String name) {
     this.name = name;
     return this;
+  }
+
+  public void checkParameters(Map<String, ParameterInstanceImpl> parameterInstances, DeployProcessDefinitionResponse response) {
+    // TODO
+    
   }
 }

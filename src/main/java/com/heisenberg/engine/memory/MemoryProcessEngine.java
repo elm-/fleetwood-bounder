@@ -25,6 +25,7 @@ import java.util.Set;
 import com.heisenberg.api.ProcessDefinitionQuery;
 import com.heisenberg.api.ProcessInstanceQuery;
 import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.updates.Update;
@@ -61,9 +62,9 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected void storeProcessDefinition(ProcessDefinition processDefinition) {
-    ProcessDefinitionImpl processDefinitionImpl = new ProcessDefinitionImpl(this, processDefinition);
-    processDefinitions.put(processDefinitionImpl.id, processDefinitionImpl);
+  protected void storeProcessDefinition(ProcessDefinitionImpl processDefinition) {
+    processDefinition.prepare();
+    processDefinitions.put(processDefinition.id, processDefinition);
   }
 
   @Override
@@ -94,7 +95,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+  public List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
     if (processDefinitionQuery.getProcessDefinitionId()!=null) {
       ProcessDefinitionImpl processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
       return Lists.of(processDefinition);
@@ -109,7 +110,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
   
   @Override
-  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
+  public List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
     if (processInstanceQuery.getProcessInstanceId()!=null) {
       ProcessInstanceImpl processInstance = processInstances.get(processInstanceQuery.getProcessInstanceId());
       return Lists.of(processInstance);
@@ -128,7 +129,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
       .activityInstanceId(activityInstanceId)
       .getQuery();
     processInstanceQuery.setMaxResults(1);
-    List<ProcessInstanceImpl> processInstances = findProcessInstances(processInstanceQuery);
+    List<ProcessInstance> processInstances = findProcessInstances(processInstanceQuery);
     ProcessInstanceImpl processInstance = (!processInstances.isEmpty() ? processInstances.get(0) : null);
     if (processInstance==null) { 
       throw new RuntimeException("Process instance "+id+" doesn't exist");

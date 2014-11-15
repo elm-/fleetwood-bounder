@@ -14,7 +14,6 @@
  */
 package com.heisenberg.type;
 
-import com.heisenberg.spi.I18nString;
 import com.heisenberg.spi.Type;
 
 
@@ -26,17 +25,8 @@ import com.heisenberg.spi.Type;
 public class TextType implements Type {
 
   @Override
-  public String getActivityTypeId() {
+  public String getId() {
     return "text";
   }
 
-  @Override
-  public I18nString getName() {
-    return null;
-  }
-
-  @Override
-  public I18nString getDescription() {
-    return null;
-  }
 }
