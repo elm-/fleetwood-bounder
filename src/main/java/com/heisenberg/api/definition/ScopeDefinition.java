@@ -17,8 +17,6 @@ package com.heisenberg.api.definition;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.spi.ActivityParameter;
-
 
 /**
  * @author Walter White

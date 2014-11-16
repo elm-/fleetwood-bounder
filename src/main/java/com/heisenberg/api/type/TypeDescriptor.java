@@ -14,6 +14,8 @@
  */
 package com.heisenberg.api.type;
 
+import com.heisenberg.spi.Type;
+
 
 /**
  * @author Walter White
@@ -26,5 +28,7 @@ public abstract class TypeDescriptor {
     this.id = id;
     return this;
   }
+
+  public abstract Type createType();
 
 }

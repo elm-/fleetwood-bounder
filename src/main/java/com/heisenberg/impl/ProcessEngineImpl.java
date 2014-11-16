@@ -40,6 +40,7 @@ import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.expressions.Scripts;
 import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.ActivityInstanceImpl;
@@ -49,6 +50,7 @@ import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Service;
 import com.heisenberg.spi.Spi;
 import com.heisenberg.spi.Type;
@@ -179,8 +181,23 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
     ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
-    Map<String, Object> variableValues = startProcessInstanceRequest.variableValues;
-    processInstance.setVariableValuesRecursive(variableValues);
+    if (startProcessInstanceRequest.variableValues!=null) {
+      Map<String, Object> apiValues = startProcessInstanceRequest.variableValues;
+      Map<String, Object> internalValues = new HashMap<>();
+      for (String variableDefinitionName: apiValues.keySet()) {
+        Object apiValue = apiValues.get(variableDefinitionName);
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
+        Object internalValue;
+        try {
+          internalValue = variableDefinition.type.convertApiToInternalValue(apiValue);
+          internalValues.put(variableDefinitionName, internalValue);
+        } catch (InvalidApiValueException e) {
+          throw new RuntimeException("TODO: change return value that sends the variable validation errors back", e);
+        }
+      }
+      processInstance.setVariableValuesRecursive(internalValues);
+    }
+      
     log.debug("Starting "+processInstance);
     processInstance.setStart(Time.now());
     List<ActivityDefinitionImpl> startActivityDefinitions = processDefinition.getStartActivityDefinitions();

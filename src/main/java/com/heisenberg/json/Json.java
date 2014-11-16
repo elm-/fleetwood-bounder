@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.util.Id;
 import com.heisenberg.util.Identifyable;

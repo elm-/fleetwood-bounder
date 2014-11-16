@@ -14,9 +14,16 @@
  */
 package com.heisenberg.definition;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.type.TypeDescriptor;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.spi.Type;
 
 
 /**
@@ -25,10 +32,24 @@ import com.heisenberg.impl.ProcessEngineImpl;
 public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
 
   public ProcessDefinitionId id;
+  public List<Type> types;
+  public Map<String,Type> typesMap;
 
   public ProcessDefinitionImpl(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinition processDefinition) {
     this.processEngine = processEngine;
     this.processDefinition = this;
+    this.processEngine = processEngine; // this is to enable the type lookups @see #findType(String) and VariableDefinitionImpl
+    if (processDefinition.typeDescriptors!=null) {
+      for (TypeDescriptor typeDescriptor: processDefinition.typeDescriptors) {
+        Type type = typeDescriptor.createType();
+        if (types==null) {
+          types = new ArrayList<>();
+          typesMap = new HashMap<>();
+        }
+        types.add(type);
+        typesMap.put(type.getId(), type);
+      }
+    }
     parse(processEngine, response, this, null, processDefinition);
   }
 
@@ -48,7 +69,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
   public void setId(ProcessDefinitionId id) {
     this.id = id;
   }
-
+  
   public String toString() {
     return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
   }
@@ -60,5 +81,13 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
     visitor.startProcessDefinition(this);
     super.visit(visitor);
     visitor.endProcessDefinition(this);
+  }
+
+  public Type findType(String typeId) {
+    Type type = types!=null ? typesMap.get(typeId) : null;
+    if (type!=null) {
+      return type;
+    }
+    return processEngine.types.get(typeId);
   }
 }

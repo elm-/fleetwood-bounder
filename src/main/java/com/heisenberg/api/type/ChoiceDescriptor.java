@@ -17,6 +17,9 @@ package com.heisenberg.api.type;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.spi.Type;
+import com.heisenberg.type.ChoiceType;
+
 
 /**
  * @author Walter White
@@ -39,5 +42,10 @@ public class ChoiceDescriptor extends TypeDescriptor {
       .id(optionId)
       .label(optionLabel));
     return this;
+  }
+
+  @Override
+  public Type createType() {
+    return new ChoiceType(id, options);
   }
 }

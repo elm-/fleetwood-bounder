@@ -21,11 +21,9 @@ import java.util.Map;
 
 import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.definition.ParameterInstance;
 import com.heisenberg.api.definition.ScopeDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.definition.VariableDefinition;
-import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.ScopeInstanceImpl;
@@ -315,7 +313,6 @@ public abstract class ScopeDefinitionImpl {
   }
 
   public VariableDefinitionImpl findVariableDefinitionByName(String variableDefinitionName) {
-    
-    return null;
+    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionName) : null;
   }
 }

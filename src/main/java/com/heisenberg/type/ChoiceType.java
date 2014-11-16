@@ -14,11 +14,14 @@
  */
 package com.heisenberg.type;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.heisenberg.api.type.ChoiceOption;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
+import com.heisenberg.util.Exceptions;
 
 
 /**
@@ -29,11 +32,17 @@ public class ChoiceType extends Type {
   public static final String ID = "choice";
   
   protected String id;
-  protected List<ChoiceOption> options;
+  /** maps option ids to option labels */
+  protected Map<String, String> optionsMap;
   
   public ChoiceType(String id, List<ChoiceOption> options) {
+    Exceptions.checkNotNullParameter(id, "id");
+    Exceptions.checkNotNullParameter(options, "options");
     this.id = id;
-    this.options = options;
+    this.optionsMap = new HashMap<>();
+    for (ChoiceOption option: options) {
+      optionsMap.put(option.id, option.label);
+    }
   }
 
 //  public ChoiceType option(String label) {
@@ -67,6 +76,10 @@ public class ChoiceType extends Type {
 
   @Override
   public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
-    return null;
+    if ( apiValue!=null 
+         && !optionsMap.containsKey(apiValue)) {
+      throw new InvalidApiValueException("Invalid value '"+apiValue+"'.  Expected one of "+optionsMap.keySet()+" (or null)");
+    }
+    return apiValue; 
   }
 }

@@ -97,7 +97,7 @@ public class VariableDefinitionImpl {
       response.addError(variableDefinition.location, "Variable does not have a name");
     }
     if (variableDefinition.typeRefId!=null) {
-      this.type = processEngine.types.get(variableDefinition.typeRefId);
+      this.type = processDefinition.findType(variableDefinition.typeRefId);
       if (this.type==null) {
         response.addError(variableDefinition.location, "Variable '%s' has unknown type '%s'", name, variableDefinition.typeRefId);
       } else {
