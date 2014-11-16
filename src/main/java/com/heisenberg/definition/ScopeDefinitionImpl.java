@@ -42,7 +42,6 @@ public abstract class ScopeDefinitionImpl {
   public List<ActivityDefinitionImpl> activityDefinitions;
   public List<VariableDefinitionImpl> variableDefinitions;
   public List<TransitionDefinitionImpl> transitionDefinitions;
-  public List<ParameterInstanceImpl> parameterInstances;
   public List<TimerDefinitionImpl> timerDefinitions;
 
   // derived fields that are initialized in the prepare() method
@@ -53,7 +52,6 @@ public abstract class ScopeDefinitionImpl {
   public List<ActivityDefinitionImpl> startActivityDefinitions;
   public Map<String, ActivityDefinitionImpl> activityDefinitionsMap;
   public Map<String, VariableDefinitionImpl> variableDefinitionsMap;
-  public Map<String, ParameterInstanceImpl> parameterInstancesMap;
   
   protected void parse(ProcessEngineImpl processEngine, 
           DeployProcessDefinitionResponse response, 
@@ -64,48 +62,21 @@ public abstract class ScopeDefinitionImpl {
     if (scopeDefinition.variableDefinitions!=null) {
       for (VariableDefinition variableDefinition: scopeDefinition.variableDefinitions) {
         VariableDefinitionImpl variableDefinitionImpl = new VariableDefinitionImpl();
+        variableDefinitionImpl.parse(processEngine, response, processDefinition, this, variableDefinition);
         if (variableDefinitions==null) {
           variableDefinitions = new ArrayList<>();
           variableDefinitionsMap = new HashMap<>();
         }
-        variableDefinitionImpl.parse(processEngine, response, processDefinition, this, variableDefinition);
         variableDefinitions.add(variableDefinitionImpl);
         variableDefinitionsMap.put(variableDefinitionImpl.name, variableDefinitionImpl);
       }
     }
-    if (scopeDefinition.parameterInstances!=null) {
-      for (ParameterInstance parameterInstance: scopeDefinition.parameterInstances) {
-        ParameterInstanceImpl parameterInstanceImpl = new ParameterInstanceImpl();
-        if (parameterInstances==null) {
-          parameterInstances = new ArrayList<>();
-          parameterInstancesMap = new HashMap<>();
-        }
-        parameterInstanceImpl.parse(processEngine, response, processDefinition, this, parameterInstance);
-        parameterInstances.add(parameterInstanceImpl);
-        parameterInstancesMap.put(parameterInstanceImpl.name, parameterInstanceImpl);
-      }
-    }
     if (scopeDefinition.activityDefinitions!=null) {
-      Map<String,ActivityTypeDescriptor> activityTypeDescriptors = processEngine.activityTypeDescriptors;
       int index = 0;
       for (ActivityDefinition activityDefinition: scopeDefinition.activityDefinitions) {
         ActivityDefinitionImpl activityDefinitionImpl = new ActivityDefinitionImpl();
-        activityDefinitionImpl.name = activityDefinition.name;
         activityDefinitionImpl.index = index;
-        if (activityDefinition.name==null) {
-          response.addError(activityDefinition.location, "Activity has no name");
-        }
-        ActivityTypeDescriptor activityTypeDescriptor = activityTypeDescriptors.get(activityDefinition.activityTypeRefId);
-        if (activityTypeDescriptor==null) {
-          response.addError(activityDefinition.location, 
-                  "Activity %s has invalid type %s.  Must be one of "+activityTypeDescriptors.keySet(), 
-                  getActivityErrorReferenceText(activityDefinition), 
-                  activityDefinition.activityTypeRefId);
-        } else {
-          activityDefinitionImpl.activityType = activityTypeDescriptor.activityType;
-        }
         activityDefinitionImpl.parse(processEngine, response, processDefinition, activityDefinitionImpl, activityDefinition);
-        activityTypeDescriptor.activityType.checkParameters(activityDefinition.location, activityDefinitionImpl.parameterInstances, activityTypeDescriptor.activityParameters, response);
         if (activityDefinitions==null) {
           activityDefinitions = new ArrayList<ActivityDefinitionImpl>();
           activityDefinitionsMap = new HashMap<>();
@@ -118,14 +89,13 @@ public abstract class ScopeDefinitionImpl {
     if (scopeDefinition.transitionDefinitions!=null) {
       for (TransitionDefinition transitionDefinition: scopeDefinition.transitionDefinitions) {
         TransitionDefinitionImpl transitionDefinitionImpl = new TransitionDefinitionImpl();
+        transitionDefinitionImpl.parse(processEngine, response, processDefinition, this, transitionDefinition);
         if (transitionDefinitions==null) {
           transitionDefinitions = new ArrayList<>();
         }
-        transitionDefinitionImpl.parse(processEngine, response, processDefinition, this, transitionDefinition);
         transitionDefinitions.add(transitionDefinitionImpl);
       }
     }
-
   }
 
   static String getActivityErrorReferenceText(ActivityDefinition activityDefinition) {
@@ -171,22 +141,7 @@ public abstract class ScopeDefinitionImpl {
         variableDefinition.prepare();
       }
     }
-    if (parameterInstances!=null) {
-      parameterInstancesMap = new HashMap<>();
-      for (ParameterInstanceImpl parameterInstance: parameterInstances) {
-        parameterInstance.setProcessEngine(processEngine);
-        String name = parameterInstance.getName();
-        Exceptions.checkNotNull(name, "parameterInstance.name");
-        parameterInstancesMap.put(name, parameterInstance);
-        parameterInstance.prepare();
-      }
-    }
   } 
-  
-  public ParameterInstanceImpl findParameterInstance(String parameterRefId) {
-    return parameterInstancesMap.get(parameterRefId);
-  }
-
   
   public abstract ProcessDefinitionPath getPath();
 

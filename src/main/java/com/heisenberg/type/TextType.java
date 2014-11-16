@@ -14,6 +14,7 @@
  */
 package com.heisenberg.type;
 
+import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 
 
@@ -22,11 +23,18 @@ import com.heisenberg.spi.Type;
 /**
  * @author Walter White
  */
-public class TextType implements Type {
+public class TextType extends Type {
 
   @Override
   public String getId() {
     return "text";
   }
 
+  @Override
+  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+    if (apiValue==null || (apiValue instanceof String)) {
+      return apiValue;
+    }
+    throw new InvalidApiValueException("Expected string, but was "+apiValue.getClass().getSimpleName());
+  }
 }

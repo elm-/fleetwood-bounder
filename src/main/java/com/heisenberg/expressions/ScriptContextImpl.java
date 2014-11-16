@@ -15,7 +15,6 @@
 package com.heisenberg.expressions;
 
 import java.io.Writer;
-import java.util.Map;
 
 import javax.script.SimpleScriptContext;
 
@@ -33,10 +32,10 @@ public class ScriptContextImpl extends SimpleScriptContext {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
   
-  public ScriptContextImpl(ScopeInstanceImpl scopeInstance, Map<String,VariableDefinitionId> scriptVariableBindings, Writer logWriter) {
+  public ScriptContextImpl(ScopeInstanceImpl scopeInstance, Script script, Writer logWriter) {
     setWriter(logWriter);
     setErrorWriter(logWriter);
-    setBindings(new ScriptBindings(scopeInstance, scriptVariableBindings, logWriter), ENGINE_SCOPE);
+    setBindings(new ScriptBindings(script, scopeInstance, logWriter), ENGINE_SCOPE);
   }
 
 }

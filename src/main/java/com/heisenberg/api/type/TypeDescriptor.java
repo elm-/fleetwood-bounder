@@ -12,21 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.type;
-
-import com.heisenberg.spi.Type;
-
-
+package com.heisenberg.api.type;
 
 
 /**
  * @author Walter White
  */
-public class IdType implements Type {
+public abstract class TypeDescriptor {
 
-  @Override
-  public String getId() {
-    return "id";
+  public String id;
+  
+  public TypeDescriptor id(String id) {
+    this.id = id;
+    return this;
   }
 
 }

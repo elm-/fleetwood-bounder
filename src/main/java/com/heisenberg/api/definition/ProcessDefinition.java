@@ -14,8 +14,11 @@
  */
 package com.heisenberg.api.definition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.spi.ActivityParameter;
+import com.heisenberg.api.type.TypeDescriptor;
 
 
 /**
@@ -30,6 +33,7 @@ public class ProcessDefinition extends ScopeDefinition {
   public Object processRefId;
   public Long version;
   public Object organizationRefId;
+  public List<TypeDescriptor> typeDescriptors; 
   
   public ProcessDefinition createdAt(Long createdAt) {
     this.createdAt = createdAt;
@@ -53,6 +57,14 @@ public class ProcessDefinition extends ScopeDefinition {
   
   public ProcessDefinition organizationRefId(Object organizationRefId) {
     this.organizationRefId = organizationRefId;
+    return this;
+  }
+  
+  public ProcessDefinition type(TypeDescriptor typeDescriptor) {
+    if (typeDescriptors==null) {
+      typeDescriptors = new ArrayList<>();
+    }
+    typeDescriptors.add(typeDescriptor);
     return this;
   }
 
@@ -95,24 +107,6 @@ public class ProcessDefinition extends ScopeDefinition {
   @Override
   public ProcessDefinition timer(TimerDefinition timerDefinition) {
     super.timer(timerDefinition);
-    return this;
-  }
-
-  @Override
-  public ProcessDefinition parameterValue(ActivityParameter activityParameter, Object object) {
-    super.parameterValue(activityParameter, object);
-    return this;
-  }
-
-  @Override
-  public ProcessDefinition parameterExpression(ActivityParameter activityParameter, String expression) {
-    super.parameterExpression(activityParameter, expression);
-    return this;
-  }
-
-  @Override
-  public ProcessDefinition parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
-    super.parameterVariable(activityParameter, variableDefinitionRefName);
     return this;
   }
 }

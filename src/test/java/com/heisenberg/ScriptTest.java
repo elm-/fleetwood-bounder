@@ -22,14 +22,15 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
-import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ProcessDefinitionId;
-import com.heisenberg.definition.VariableDefinitionImpl;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
-import com.heisenberg.expressions.JavaScript;
-import com.heisenberg.expressions.ScriptInput;
-import com.heisenberg.expressions.ScriptOutput;
-import com.heisenberg.instance.ProcessInstanceImpl;
+import com.heisenberg.expressions.Script;
+import com.heisenberg.expressions.ScriptResult;
+import com.heisenberg.expressions.Scripts;
+import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.Type;
 
 
@@ -39,34 +40,59 @@ import com.heisenberg.spi.Type;
 public class ScriptTest {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+  
+  // TODO Test if the script engine is thread safe.
+  //      CompiledScript seems to be tied to a ScriptEngine.
+  //      It should be investigated if concurrent script execution can overwrite each other's context.
 
   @Test
   public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    ProcessEngine processEngine = new MemoryProcessEngine()
+      .registerActivityType(new ScriptActivity())
+      .registerType(Type.TEXT);
 
     // prepare the ingredients
-    VariableDefinitionImpl t = new VariableDefinitionImpl()
+    VariableDefinition t = new VariableDefinition()
+      .name("t")
       .type(Type.TEXT);
     
+    ActivityDefinition a = new ActivityDefinition()
+      .type("script")
+      .name("a");
+
     // cook a process batch
-    ProcessDefinitionImpl processDefinition = new ProcessDefinitionImpl()
-      .variable(t);
+    ProcessDefinition processDefinition = new ProcessDefinition()
+      .variable(t)
+      .activity(a);
 
-    processDefinition = processEngine.saveProcessDefinition(processDefinition);
-    ProcessDefinitionId processDefinitionId = processDefinition.getId();
+    String processDefinitionId = processEngine
+      .deployProcessDefinition(processDefinition)
+      .checkNoErrorsAndNoWarnings()
+      .processDefinitionId;
     
-    StartProcessInstanceRequest startProcessInstanceRequest = new StartProcessInstanceRequest();
-    startProcessInstanceRequest.setProcessDefinitionId(processDefinitionId);
-    startProcessInstanceRequest.variableValue(t.getId(), "hello world");
-    ProcessInstanceImpl processInstance = processEngine.startProcessInstance(startProcessInstanceRequest);
+    processEngine.startProcessInstance(new StartProcessInstanceRequest()
+      .processDefinitionRefId(processDefinitionId)
+      .variableValue("t", "hello world"));
 
-    JavaScript javaScript = new JavaScript();
-    ScriptInput scriptInput = new ScriptInput()
-     .scopeInstance(processInstance)
-     .scriptVariableBinding("message", t.getId())
-     .script("'Hi, '+v0;");
-    ScriptOutput scriptOutput = javaScript.evaluateScript(scriptInput);
-    assertEquals("Hi, hello world", scriptOutput.getResult());
+    assertEquals("Hi, hello world", scriptResultMessage);
+    
+  }
+  
+  String scriptResultMessage = null;
+  
+  public class ScriptActivity extends ActivityType {
+    @Override
+    public String getId() {
+      return "script";
+    }
+    @Override
+    public void start(ActivityInstanceImpl activityInstance) {
+      Scripts scripts = activityInstance.processEngine.scripts;
+      Script script = scripts.compile("'Hi, '+message;")
+       .scriptToProcessMapping("message", "t");
+      ScriptResult scriptOutput = scripts.evaluateScript(activityInstance, script);
+      scriptResultMessage = (String) scriptOutput.getResult();
+    }
   }
   
   public static void myFunction(String message) {

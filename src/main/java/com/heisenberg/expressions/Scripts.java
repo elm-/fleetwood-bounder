@@ -18,49 +18,51 @@ import java.io.StringWriter;
 
 import javax.script.Compilable;
 import javax.script.CompiledScript;
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import com.heisenberg.instance.ScopeInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public class JavaScript implements ScriptEvaluator {
-  
-  static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+public class Scripts implements ScriptEvaluator {
 
-  public static Expression buildExpression(String expressionText) {
-    Expression expression = new Expression();
-    expression.setScript(compile(expressionText));
-    return expression;
+  public static final String JAVASCRIPT = "JavaScript";
+
+  protected ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+
+  public Script compile(String script) {
+    return compile(script, null);
+    
+  }
+  public Script compile(String scriptText, String language) {
+    if (language==null) {
+      language = JAVASCRIPT;
+    }
+    CompiledScript compiledScript = buildCompiledScript(scriptText, language);
+    return new Script()
+      .language(language)
+      .compiledScript(compiledScript);
   }
 
-  public static CompiledScript compile(String script) {
+  protected CompiledScript buildCompiledScript(String scriptText, String language) {
     try {
-      return ((Compilable)getScriptEngine()).compile(script);
+      Compilable compilable = (Compilable) scriptEngineManager.getEngineByName(language);
+      return compilable.compile(scriptText);
     } catch (ScriptException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public static ScriptEngine getScriptEngine() {
-    return scriptEngineManager.getEngineByName(getScriptLanguage());
-  }
-
-  public static String getScriptLanguage() {
-    return "JavaScript";
-  }
-
   @Override
-  public ScriptOutput evaluateScript(ScriptInput scriptInput) {
-    ScriptEngine engine = new ScriptEngineManager().getEngineByName(scriptInput.getLanguage());
-    ScriptOutput scriptOutput = new ScriptOutput(engine);
+  public ScriptResult evaluateScript(ScopeInstanceImpl scopeInstance, Script script) {
+    ScriptResult scriptOutput = new ScriptResult();
     try {
       StringWriter logWriter = new StringWriter();
-      ScriptContextImpl scriptContext = new ScriptContextImpl(scriptInput.scopeInstance, scriptInput.scriptVariableBindings, logWriter);
-      engine.setContext(scriptContext);
-      Object result = engine.eval(scriptInput.getScript());
+      ScriptContextImpl scriptContext = new ScriptContextImpl(scopeInstance, script, logWriter);
+      Object result = script.compiledScript.eval(scriptContext);
       scriptOutput.setResult(result);
       scriptOutput.setLogs(logWriter.toString());
     } catch (ScriptException e) {

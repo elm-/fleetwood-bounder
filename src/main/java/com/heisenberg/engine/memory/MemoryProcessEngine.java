@@ -53,10 +53,6 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinitionImpl>());
     processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstanceImpl>());
     lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
-    initializeId();
-    initializeExecutor();
-    initializeJson();
-    initializePluggableImplementations();
   }
 
   @Override
@@ -112,7 +108,6 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     throw new RuntimeException("TODO");
   }
   
-
   public List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
     throw new RuntimeException("TODO");
   }

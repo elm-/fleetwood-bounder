@@ -27,7 +27,6 @@ public class ScopeDefinition {
 
   public String name;
   public Location location;
-  public List<ParameterInstance> parameterInstances;
   public List<ActivityDefinition> activityDefinitions;
   public List<VariableDefinition> variableDefinitions;
   public List<TransitionDefinition> transitionDefinitions;
@@ -100,52 +99,7 @@ public class ScopeDefinition {
     return this;
   }
   
-  public  ScopeDefinition parameterValue(ActivityParameter activityParameter, Object object) {
-    addParameterValue(activityParameter.name, new ParameterBinding().value(object));
-    return this;
-  }
-  
-  public  ScopeDefinition parameterExpression(ActivityParameter activityParameter, String expression) {
-    addParameterValue(activityParameter.name, new ParameterBinding().expression(expression));
-    return this;
-  }
-  
-  public  ScopeDefinition parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
-    addParameterValue(activityParameter.name, new ParameterBinding().variableDefinitionRefName(variableDefinitionRefName));
-    return this;
-  }
-
-  void addParameterValue(String parameterRefName, ParameterBinding parameterBinding) {
-    ParameterInstance parameterInstance = findParameterInstance(parameterRefName);
-    if (parameterInstance==null) {
-      parameterInstance = new ParameterInstance()
-        .parameterRefName(parameterRefName);
-      if (parameterInstances==null) {
-        parameterInstances = new ArrayList<>();
-      }
-      if (parameterInstance.location==null) {
-        parameterInstance.location = new Location();
-      } 
-      if (parameterInstance.location.path==null) {
-        parameterInstance.location.path = addPathElement(parameterRefName, "parameterInstances", parameterInstances.size());
-      }
-      parameterInstances.add(parameterInstance);
-    }
-    parameterInstance.parameterBinding(parameterBinding);
-  }
-
-  ParameterInstance findParameterInstance(String parameterRefId) {
-    if (parameterInstances!=null) {
-      for (ParameterInstance parameterInstance: parameterInstances) {
-        if (parameterRefId.equals(parameterRefId)) {
-          return parameterInstance;
-        }
-      }
-    }
-    return null;
-  }
-
   String addPathElement(String indexName, String collectionName, int index) {
-    return (location!=null ? location.path+"." : "")+collectionName+"["+(indexName!=null ? indexName : index+"]");
+    return (location!=null ? location.path+"." : "")+collectionName+"["+(indexName!=null ? indexName : index)+"]";
   }
 }

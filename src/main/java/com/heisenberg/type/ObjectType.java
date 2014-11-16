@@ -16,6 +16,7 @@ package com.heisenberg.type;
 
 import java.util.List;
 
+import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 
 
@@ -25,5 +26,14 @@ import com.heisenberg.spi.Type;
 public class ObjectType extends Type {
 
   List<ObjectField> fields;
-  
+
+  @Override
+  public String getId() {
+    return null;
+  }
+
+  @Override
+  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+    return null;
+  }
 }

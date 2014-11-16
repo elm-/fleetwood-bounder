@@ -17,6 +17,7 @@ package com.heisenberg.expressions;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,13 +39,15 @@ public class ScriptBindings implements Bindings {
   
   public static final Logger log = LoggerFactory.getLogger(ScriptBindings.class);
   
+  protected Map<String,String> scriptToProcessMappings;
+  protected String language;
   protected ScopeInstanceImpl scopeInstance;
-  protected Map<String,VariableDefinitionId> scriptVariableBindings;
   protected Console console;
 
-  public ScriptBindings(ScopeInstanceImpl scopeInstance, Map<String,VariableDefinitionId> scriptVariableBindings, Writer logWriter) {
+  public ScriptBindings(Script script, ScopeInstanceImpl scopeInstance, Writer logWriter) {
+    this.scriptToProcessMappings = script.scriptToProcessMappings;
+    this.language = script.language;
     this.scopeInstance = scopeInstance;
-    this.scriptVariableBindings = scriptVariableBindings;
     this.console = new Console(logWriter);
   }
   
@@ -55,17 +58,17 @@ public class ScriptBindings implements Bindings {
       return false;
     }
     String name = (String) key;
-    if (NAME_TO_IGNORE.contains(name)) {
+    if (isIgnored(name)) {
       return false;
     }
     if ("console".equals(name)) {
       return true;
     }
-    if (scriptVariableBindings!=null && scriptVariableBindings.containsKey(name)) {
+    if (scriptToProcessMappings!=null && scriptToProcessMappings.containsKey(name)) {
       return true;
     }
     if (name.length()>0) {
-      return scopeInstance.getScopeDefinition().containsVariable(new VariableDefinitionId(name));
+      return scopeInstance.getScopeDefinition().containsVariable(name);
     }
     return false;
   }
@@ -76,116 +79,112 @@ public class ScriptBindings implements Bindings {
     if (!(key instanceof String)) {
       return null;
     }
-    String name = (String) key;
-    if ("console".equals(name)) {
+    String scriptVariableName = (String) key;
+    if ("console".equals(scriptVariableName)) {
       return console;
     }
-    VariableDefinitionId variableDefinitionId = getVariableDefinitionId(name);
-    if (variableDefinitionId!=null) {
-      TypedValue typedValue = scopeInstance.getVariableValueRecursive(variableDefinitionId);
-      Type type = typedValue.getType();
-      Object value = typedValue.getValue();
-      return type.convertValueToJavaScript(value);
-    }
-    return null;
+    TypedValue typedValue = getTypedValue(scriptVariableName);
+    Type type = typedValue.getType();
+    Object value = typedValue.getValue();
+    return type.convertInternalToScriptValue(value, language);
   }
   
-  public TypedValue getTypedValue(String name) {
-    VariableDefinitionId variableDefinitionId = getVariableDefinitionId(name);
-    return getTypedValue(variableDefinitionId);
-  }
-
-  private TypedValue getTypedValue(VariableDefinitionId variableDefinitionId) {
-    if (variableDefinitionId!=null) {
-      return scopeInstance.getVariableValueRecursive(variableDefinitionId);
-    }
-    return null;
-  }
-
-  private VariableDefinitionId getVariableDefinitionId(String name) {
-    VariableDefinitionId variableDefinitionId = null;
-    if (scriptVariableBindings!=null && scriptVariableBindings.containsKey(name)) {
-      variableDefinitionId = scriptVariableBindings.get(name);
-    }
-    if (name.length()>0) {
-      variableDefinitionId = new VariableDefinitionId(name);
-      if (!scopeInstance.getScopeDefinition().containsVariable(variableDefinitionId)) {
-        variableDefinitionId = null;
+  protected String getVariableDefinitionName(String scriptVariableName) {
+    if (scriptToProcessMappings!=null) {
+      String variableDefinitionName = scriptToProcessMappings.get(scriptVariableName);
+      if (variableDefinitionName!=null) {
+        return variableDefinitionName;
       }
     }
-    return variableDefinitionId;
+    return scriptVariableName;
   }
 
-  static final List<String> NAME_TO_IGNORE = Arrays.asList(
-          "context", "print", "println");
+  public TypedValue getTypedValue(String scriptVariableName) {
+    String variableDefinitionName = getVariableDefinitionName(scriptVariableName);
+    return scopeInstance.getVariableValueRecursive(variableDefinitionName);
+  }
+
+  static final Map<String, List<String>> NAME_TO_IGNORE = new HashMap<>();
+  static {
+    NAME_TO_IGNORE.put(Scripts.JAVASCRIPT, Arrays.asList("context", "print", "println"));
+  }
+  protected boolean isIgnored(String scriptVariableName) {
+    List<String> namesToIgnore = NAME_TO_IGNORE.get(language);
+    if (namesToIgnore!=null && namesToIgnore.contains(scriptVariableName)) {
+      return true;
+    }
+    return false;
+  }
   
   @Override
-  public Object put(String name, Object javaScriptValue) {
-    log.debug("ScriptBindings.put("+name+","+javaScriptValue+")");
-    if (NAME_TO_IGNORE.contains(name)) {
+  public Object put(String scriptVariableName, Object scriptValue) {
+    log.debug("ScriptBindings.put("+scriptVariableName+","+scriptValue+")");
+    if (isIgnored(scriptVariableName)){
       return null;
     }
-    VariableDefinitionId variableDefinitionId = getVariableDefinitionId(name);
-    TypedValue typedValue = getTypedValue(variableDefinitionId);
+    TypedValue typedValue = getTypedValue(scriptVariableName);
     if (typedValue!=null) {
+      String variableDefinitionName = getVariableDefinitionName(scriptVariableName);
       Type type = typedValue.getType();
-      Object value = type.convertJavaScriptToValue(javaScriptValue);
-      scopeInstance.setVariableValueRecursive(variableDefinitionId, value);
+      Object value = type.convertScriptValueToInternal(scriptValue, language);
+      scopeInstance.setVariableValueRecursive(variableDefinitionName, value);
     }
     return null;
   }
 
-  // ------------------------------------------------------------------------------------
+  // --- dungeons -------------------------------------------------------------------------
 
   @Override
   public int size() {
     log.debug("ScriptBindings.size()");
-    return 0;
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public boolean isEmpty() {
     log.debug("ScriptBindings.isEmpty()");
-    return false;
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public boolean containsValue(Object value) {
     log.debug("ScriptBindings.containsValue("+value+")");
-    return false;
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public void clear() {
     log.debug("ScriptBindings.clear()");
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Set<String> keySet() {
     log.debug("ScriptBindings.keySet()");
-    return null;
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Collection<Object> values() {
     log.debug("ScriptBindings.values()");
-    return null;
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Set<java.util.Map.Entry<String, Object>> entrySet() {
     log.debug("ScriptBindings.entrySet()");
-    return null;
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public void putAll(Map< ? extends String, ? extends Object> toMerge) {
     log.debug("ScriptBindings.putAll("+toMerge+")");
+    throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Object remove(Object key) {
     log.debug("ScriptBindings.remove("+key+")");
-    return null;
+    throw new UnsupportedOperationException("Please implement me");
   }
 }

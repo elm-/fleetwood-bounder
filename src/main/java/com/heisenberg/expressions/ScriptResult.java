@@ -14,22 +14,16 @@
  */
 package com.heisenberg.expressions;
 
-import javax.script.ScriptEngine;
 
 
 /**
  * @author Walter White
  */
-public class ScriptOutput {
+public class ScriptResult {
 
-  protected ScriptEngine scriptEngine;
   protected Object result;
   protected Throwable exception;
   protected String logs;
-
-  public ScriptOutput(ScriptEngine scriptEngine) {
-    this.scriptEngine = scriptEngine;
-  }
 
   public Object getResult() {
     return result;
@@ -53,13 +47,5 @@ public class ScriptOutput {
   
   public void setLogs(String logs) {
     this.logs = logs;
-  }
-  
-  public ScriptEngine getScriptEngine() {
-    return scriptEngine;
-  }
-  
-  public void setScriptEngine(ScriptEngine scriptEngine) {
-    this.scriptEngine = scriptEngine;
   }
 }

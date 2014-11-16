@@ -44,6 +44,6 @@ public class Location {
   }
   
   public String toString() {
-    return (file!=null ? "file("+file+") " : "")+(lineNumber!=null ? "lineNumber("+lineNumber+") " : "")+(path!=null ? "path("+path+") " : "");
+    return (path!=null ? path : "")+(file!=null ? " file("+file+")" : "")+(lineNumber!=null ? " lineNumber("+lineNumber+")" : "");
   }
 }

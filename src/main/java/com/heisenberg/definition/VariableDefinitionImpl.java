@@ -18,6 +18,7 @@ import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.VariableInstanceImpl;
+import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 
 
@@ -98,13 +99,13 @@ public class VariableDefinitionImpl {
     if (variableDefinition.typeRefId!=null) {
       this.type = processEngine.types.get(variableDefinition.typeRefId);
       if (this.type==null) {
-        response.addError(variableDefinition.location, "Variable '%s' has unknown type '%s' does not exist", name, variableDefinition.typeRefId);
+        response.addError(variableDefinition.location, "Variable '%s' has unknown type '%s'", name, variableDefinition.typeRefId);
       } else {
         if (variableDefinition.initialValue!=null) {
-          if (type.isValidValue(variableDefinition.initialValue)) {
-            this.initialValue = variableDefinition.initialValue;
-          } else {
-            response.addError(variableDefinition.location, "Variable '%s' does not exist", variableDefinition.typeRefId);
+          try {
+            this.initialValue = type.convertApiToInternalValue(variableDefinition.initialValue);
+          } catch (InvalidApiValueException e) {
+            response.addError(variableDefinition.location, "Invalid initial value %s for variable %s (%s)", variableDefinition.initialValue, name, variableDefinition.typeRefId);
           }
         }
       }

@@ -14,9 +14,10 @@
  */
 package com.heisenberg.type;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.api.type.ChoiceOption;
+import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 
 
@@ -25,29 +26,47 @@ import com.heisenberg.spi.Type;
  */
 public class ChoiceType extends Type {
   
+  public static final String ID = "choice";
+  
+  protected String id;
   protected List<ChoiceOption> options;
-
-  public ChoiceType option(String label) {
-    option(label, null);
-    return this;
-  }
-
-  public ChoiceType option(String label, String id) {
-    if (options==null) {
-      options = new ArrayList<>();
-    }
-    options.add(new ChoiceOption()
-      .id(id)
-      .label(label)
-    );
-    return this;
-  }
-
-  public List<ChoiceOption> getOptions() {
-    return options;
-  }
-
-  public void setOptions(List<ChoiceOption> options) {
+  
+  public ChoiceType(String id, List<ChoiceOption> options) {
+    this.id = id;
     this.options = options;
+  }
+
+//  public ChoiceType option(String label) {
+//    option(label, null);
+//    return this;
+//  }
+//
+//  public ChoiceType option(String label, String id) {
+//    if (options==null) {
+//      options = new ArrayList<>();
+//    }
+//    options.add(new ChoiceOption()
+//      .id(id)
+//      .label(label)
+//    );
+//    return this;
+//  }
+//
+//  public List<ChoiceOption> getOptions() {
+//    return options;
+//  }
+//
+//  public void setOptions(List<ChoiceOption> options) {
+//    this.options = options;
+//  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+    return null;
   }
 }

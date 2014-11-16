@@ -25,6 +25,7 @@ public class ParameterBinding {
   public Object value;
   public String variableDefinitionRefName;
   public String expression;
+  public String expressionLanguage;
   public Location location;
   
   public ParameterBinding value(Object value) {
@@ -34,6 +35,11 @@ public class ParameterBinding {
   
   public ParameterBinding expression(String expression) {
     this.expression = expression;
+    return this;
+  }
+  
+  public ParameterBinding expressionLanguage(String expressionLanguage) {
+    this.expressionLanguage = expressionLanguage;
     return this;
   }
   

@@ -14,22 +14,29 @@
  */
 package com.heisenberg.spi;
 
-import com.heisenberg.type.IdType;
 import com.heisenberg.type.TextType;
-
-
 
 
 /**
  * @author Walter White
  */
-public interface Type extends Spi {
+public abstract class Type implements Spi {
   
-  TextType TEXT = new TextType();
-  IdType ID = new IdType();
+  public static TextType TEXT = new TextType();
   
-  String getId();
+  public abstract String getId();
 
-  boolean isValidValue(Object initialValue);
-    
+  public abstract Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException;
+
+  public Object convertInternalToScriptValue(Object internalValue, String language) {
+    return internalValue;
+  }
+
+  public Object convertScriptValueToInternal(Object scriptValue, String language) {
+    return scriptValue;
+  }
+
+  public Object convertInternalToApiValue(Object internalValue) {
+    return internalValue;
+  }
 }

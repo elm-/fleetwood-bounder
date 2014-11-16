@@ -40,6 +40,7 @@ import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.expressions.Scripts;
 import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
@@ -68,7 +69,21 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public Executor executor;
   public Json json;
   public ProcessDefinitionCache processDefinitionCache;
+  public Scripts scripts;
   
+  protected ProcessEngineImpl() {
+    initialize();
+  }
+
+  protected void initialize() {
+    initializeId();
+    initializeExecutor();
+    initializeJson();
+    initializeScripts();
+    initializePluggableImplementations();
+    initializeTypes();
+  }
+
   protected void initializeId() {
     try {
       id = InetAddress.getLocalHost().getHostAddress();
@@ -76,7 +91,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
       id = "amnesia";
     }
   }
-
+  
   protected void initializePluggableImplementations() {
     servicesDescriptors = new HashMap<>();
     activityTypeDescriptors = new HashMap<>();
@@ -128,6 +143,14 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   protected void initializeJson() {
     this.json = new Json();
+  }
+  
+  protected void initializeScripts() {
+    this.scripts = new Scripts();
+  }
+
+  protected void initializeTypes() {
+    registerType(Type.TEXT);
   }
 
   @Override
@@ -216,7 +239,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     // TODO set variables and context
     ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
-    activityDefinition.signal(activityInstance);
+    activityDefinition.activityType.signal(activityInstance);
     processInstance.executeOperations();
     throw new RuntimeException("TODO");
   }

@@ -52,7 +52,7 @@ public class ProcessDefinitionParsingTest {
       .activity(new ActivityDefinition()
       .name("a"));
 
-    TestHelper.assertTextPresent("Activity /a has invalid type", processEngine
+    TestHelper.assertTextPresent("has invalid type null", processEngine
         .deployProcessDefinition(processDefinition)
         .getIssueReport());
   }

@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.expressions;
-
-import com.heisenberg.instance.ScopeInstanceImpl;
-
+package com.heisenberg.spi;
 
 
 /**
  * @author Walter White
  */
-public interface ScriptEvaluator {
-  
-  ScriptResult evaluateScript(ScopeInstanceImpl scopeInstance, Script script);
-  
+public class InvalidApiValueException extends Exception {
+
+  private static final long serialVersionUID = 1L;
+
+  public InvalidApiValueException(String message) {
+    super(message);
+  }
 }

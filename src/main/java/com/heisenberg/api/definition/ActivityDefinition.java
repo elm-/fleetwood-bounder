@@ -14,6 +14,9 @@
  */
 package com.heisenberg.api.definition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.Type;
 
@@ -24,7 +27,8 @@ import com.heisenberg.spi.Type;
 public class ActivityDefinition extends ScopeDefinition {
   
   public String activityTypeRefId;
-  
+  public List<ParameterInstance> parameterInstances;
+
   public ActivityDefinition type(String activityTypeRefId) {
     this.activityTypeRefId = activityTypeRefId;
     return this;
@@ -77,21 +81,48 @@ public class ActivityDefinition extends ScopeDefinition {
     return this;
   }
 
-  @Override
   public ActivityDefinition parameterValue(ActivityParameter activityParameter, Object object) {
-    super.parameterValue(activityParameter, object);
+    addParameterValue(activityParameter.name, new ParameterBinding().value(object));
     return this;
   }
-
-  @Override
+  
   public ActivityDefinition parameterExpression(ActivityParameter activityParameter, String expression) {
-    super.parameterExpression(activityParameter, expression);
+    addParameterValue(activityParameter.name, new ParameterBinding().expression(expression));
+    return this;
+  }
+  
+  public ActivityDefinition parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
+    addParameterValue(activityParameter.name, new ParameterBinding().variableDefinitionRefName(variableDefinitionRefName));
     return this;
   }
 
-  @Override
-  public ActivityDefinition parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
-    super.parameterVariable(activityParameter, variableDefinitionRefName);
-    return this;
+  void addParameterValue(String parameterRefName, ParameterBinding parameterBinding) {
+    ParameterInstance parameterInstance = findParameterInstance(parameterRefName);
+    if (parameterInstance==null) {
+      parameterInstance = new ParameterInstance()
+        .parameterRefName(parameterRefName);
+      if (parameterInstances==null) {
+        parameterInstances = new ArrayList<>();
+      }
+      if (parameterInstance.location==null) {
+        parameterInstance.location = new Location();
+      } 
+      if (parameterInstance.location.path==null) {
+        parameterInstance.location.path = addPathElement(parameterRefName, "parameterInstances", parameterInstances.size());
+      }
+      parameterInstances.add(parameterInstance);
+    }
+    parameterInstance.parameterBinding(parameterBinding);
+  }
+
+  ParameterInstance findParameterInstance(String parameterRefId) {
+    if (parameterInstances!=null) {
+      for (ParameterInstance parameterInstance: parameterInstances) {
+        if (parameterRefId.equals(parameterRefId)) {
+          return parameterInstance;
+        }
+      }
+    }
+    return null;
   }
 }

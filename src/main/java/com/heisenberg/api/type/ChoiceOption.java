@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.type;
+package com.heisenberg.api.type;
 
 
 
@@ -21,8 +21,8 @@ package com.heisenberg.type;
  */
 public class ChoiceOption {
 
-  protected String id;
-  protected String label;
+  public String id;
+  public String label;
   
   public ChoiceOption id(String id) {
     this.id = id;
@@ -32,21 +32,5 @@ public class ChoiceOption {
   public ChoiceOption label(String label) {
     this.label = label;
     return this;
-  }
-  
-  public String getId() {
-    return id;
-  }
-  
-  public void setId(String id) {
-    this.id = id;
-  }
-  
-  public String getLabel() {
-    return label;
-  }
-  
-  public void setLabel(String label) {
-    this.label = label;
   }
 }

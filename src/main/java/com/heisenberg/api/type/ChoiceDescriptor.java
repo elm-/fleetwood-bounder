@@ -12,15 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.definition;
+package com.heisenberg.api.type;
 
-import com.heisenberg.spi.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * @author Walter White
  */
-public class TypeImpl {
+public class ChoiceDescriptor extends TypeDescriptor {
 
-  public Type type;
+  public List<ChoiceOption> options;
+  
+  @Override
+  public ChoiceDescriptor id(String id) {
+    super.id(id);
+    return this;
+  }
+
+  public ChoiceDescriptor option(String optionId, String optionLabel) {
+    if (options==null) {
+      options = new ArrayList<>();
+    }
+    options.add(new ChoiceOption()
+      .id(optionId)
+      .label(optionLabel));
+    return this;
+  }
 }

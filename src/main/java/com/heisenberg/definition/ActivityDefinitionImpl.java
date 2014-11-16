@@ -15,10 +15,18 @@
 package com.heisenberg.definition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.ParameterInstance;
+import com.heisenberg.impl.ActivityTypeDescriptor;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
+import com.heisenberg.util.Exceptions;
 
 
 /**
@@ -30,6 +38,27 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl {
   public int index = -1;
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
   public ActivityType activityType;
+  public List<ParameterInstanceImpl> parameterInstances;
+  public Map<String, ParameterInstanceImpl> parameterInstancesMap;
+
+  @Override
+  public void prepare() {
+    super.prepare();
+    if (parameterInstances!=null) {
+      parameterInstancesMap = new HashMap<>();
+      for (ParameterInstanceImpl parameterInstance: parameterInstances) {
+        parameterInstance.setProcessEngine(processEngine);
+        String name = parameterInstance.getName();
+        Exceptions.checkNotNull(name, "parameterInstance.name");
+        parameterInstancesMap.put(name, parameterInstance);
+        parameterInstance.prepare();
+      }
+    }
+  }
+
+  public ParameterInstanceImpl findParameterInstance(String parameterRefId) {
+    return parameterInstancesMap.get(parameterRefId);
+  }
 
   public ProcessDefinitionPath getPath() {
     return parent.getPath().addActivityDefinitionName(name);
@@ -37,10 +66,6 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl {
 
   public boolean isAsync(ActivityInstanceImpl activityInstance) {
     return false;
-  }
-
-  public void signal(ActivityInstanceImpl activityInstance) {
-    activityInstance.onwards();
   }
 
   @Override
@@ -72,5 +97,35 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl {
 
   public String toString() {
     return name!=null ? "["+name.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
+  }
+
+  protected void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
+          ScopeDefinitionImpl parent, ActivityDefinition activityDefinition) {
+    this.name = activityDefinition.name;
+    if (activityDefinition.name==null) {
+      response.addError(activityDefinition.location, "Activity has no name");
+    }
+    ActivityTypeDescriptor activityTypeDescriptor = processEngine.activityTypeDescriptors.get(activityDefinition.activityTypeRefId);
+    if (activityTypeDescriptor==null) {
+      response.addError(activityDefinition.location, 
+              "Activity %s has invalid type %s.  Must be one of "+processEngine.activityTypeDescriptors.keySet(), 
+              getActivityErrorReferenceText(activityDefinition), 
+              activityDefinition.activityTypeRefId);
+    } else {
+      this.activityType = activityTypeDescriptor.activityType;
+    }
+    if (activityDefinition.parameterInstances!=null) {
+      for (ParameterInstance parameterInstance: activityDefinition.parameterInstances) {
+        ParameterInstanceImpl parameterInstanceImpl = new ParameterInstanceImpl();
+        parameterInstanceImpl.parse(processEngine, response, processDefinition, this, parameterInstance);
+        if (parameterInstances==null) {
+          parameterInstances = new ArrayList<>();
+          parameterInstancesMap = new HashMap<>();
+        }
+        parameterInstances.add(parameterInstanceImpl);
+        parameterInstancesMap.put(parameterInstanceImpl.name, parameterInstanceImpl);
+      }
+    }
+    super.parse(processEngine, response, processDefinition, parent, activityDefinition);
   }
 }

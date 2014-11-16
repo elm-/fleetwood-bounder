@@ -16,6 +16,7 @@ package com.heisenberg.definition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.heisenberg.api.DeployProcessDefinitionResponse;
 import com.heisenberg.api.definition.ParameterBinding;
@@ -103,17 +104,28 @@ public class ParameterInstanceImpl {
   }
 
   public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
-          ScopeDefinitionImpl parent, ParameterInstance parameterInstance) {
-    this.name = parameterInstance.parameterRefName;
-    if (this.name==null) {
+          ActivityDefinitionImpl activityDefinitionImpl, ParameterInstance parameterInstance) {
+    if (parameterInstance.parameterRefName==null) {
       response.addError(parameterInstance.location, "Parameter instance does not have a name");
-    }
-    if (parameterInstance.parameterBindings!=null && !parameterInstance.parameterBindings.isEmpty()) {
-      this.parameterBindings = new ArrayList<ParameterBindingImpl>();
-      for (ParameterBinding parameterBinding : parameterInstance.parameterBindings) {
-        ParameterBindingImpl parameterBindingImpl = new ParameterBindingImpl();
-        parameterBindingImpl.parse(processEngine, response, processDefinition, parent, this, parameterBinding);
-        parameterBindings.add(parameterBindingImpl);
+    } else {
+      this.name = parameterInstance.parameterRefName;
+      String activityTypeId = activityDefinitionImpl.activityType.getId();
+      Map<String, ActivityParameter> activityParameters = processEngine
+              .activityTypeDescriptors
+              .get(activityTypeId)
+              .activityParameters;
+      ActivityParameter activityParameter = activityParameters!=null ? activityParameters.get(name) : null;
+      if (activityParameter==null) {
+        response.addError(parameterInstance.location, "Invalid parameter '%s' for activity type '%s': Must be one of %s", name, activityTypeId, activityParameters.keySet());
+      } else {
+        if (parameterInstance.parameterBindings!=null && !parameterInstance.parameterBindings.isEmpty()) {
+          this.parameterBindings = new ArrayList<ParameterBindingImpl>();
+          for (ParameterBinding parameterBinding : parameterInstance.parameterBindings) {
+            ParameterBindingImpl parameterBindingImpl = new ParameterBindingImpl();
+            parameterBindingImpl.parse(processEngine, response, processDefinition, activityDefinitionImpl, this, activityParameter, parameterBinding);
+            parameterBindings.add(parameterBindingImpl);
+          }
+        }
       }
     }
   }
