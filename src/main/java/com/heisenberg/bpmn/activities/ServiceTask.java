@@ -14,14 +14,21 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.spi.ActivityType;
 
 
 /**
  * @author Walter White
  */
-public abstract class ServiceTask extends ActivityDefinitionImpl {
+public abstract class ServiceTask extends ActivityType {
+
+  public static final String ID = "serviceTask";
+
+  @Override
+  public String getId() {
+    return ID;
+  }
 
   @Override
   public void start(ActivityInstanceImpl activityInstance) {
@@ -29,10 +36,5 @@ public abstract class ServiceTask extends ActivityDefinitionImpl {
     activityInstance.onwards();
   }
   
-  @Override
-  public boolean isAsync(ActivityInstanceImpl activityInstance) {
-    return true;
-  }
-
   public abstract void invokeService(ActivityInstanceImpl activityInstance);
 }

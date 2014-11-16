@@ -12,26 +12,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.bpmn.activities;
+package com.heisenberg.type;
 
-import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
+import java.util.Map;
+
+import com.heisenberg.spi.InvalidApiValueException;
+import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class EndEvent extends ActivityType {
-
-  public static final String ID = "endEvent";
+public class JavaType extends Type {
+  
+  Class<?> javaClass;
+  
+  public JavaType(Class< ? > javaClass) {
+    this.javaClass = javaClass;
+  }
 
   @Override
   public String getId() {
-    return ID;
+    return javaClass.getName();
   }
 
   @Override
-  public void start(ActivityInstanceImpl activityInstance) {
-    activityInstance.end();
+  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+    if (apiValue==null) return null;
+    if (javaClass.isAssignableFrom(apiValue.getClass())) {
+      return apiValue;
+    }
+    if (Map.class.isAssignableFrom(apiValue.getClass())) {
+      
+    }
+    return null;
   }
+
 }

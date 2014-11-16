@@ -54,6 +54,7 @@ import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Service;
 import com.heisenberg.spi.Spi;
 import com.heisenberg.spi.Type;
+import com.heisenberg.type.JavaType;
 import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Time;
 
@@ -118,6 +119,11 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public ProcessEngineImpl registerType(Type type) {
     types.put(type.getId(), type);
+    return this;
+  }
+
+  public ProcessEngineImpl registerType(Class<?> javaClass) {
+    registerType(new JavaType(javaClass));
     return this;
   }
 

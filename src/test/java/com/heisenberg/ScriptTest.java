@@ -16,6 +16,9 @@ package com.heisenberg;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +34,6 @@ import com.heisenberg.expressions.ScriptResult;
 import com.heisenberg.expressions.Scripts;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
-import com.heisenberg.spi.Type;
 
 
 /**
@@ -49,12 +51,12 @@ public class ScriptTest {
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
       .registerActivityType(new ScriptActivity())
-      .registerType(Type.TEXT);
+      .registerType(Money.class);
 
     // prepare the ingredients
     VariableDefinition t = new VariableDefinition()
-      .name("t")
-      .type(Type.TEXT);
+      .name("m")
+      .type(Money.class);
     
     ActivityDefinition a = new ActivityDefinition()
       .type("script")
@@ -70,12 +72,15 @@ public class ScriptTest {
       .checkNoErrorsAndNoWarnings()
       .processDefinitionId;
     
+    Map<String,Object> fiveDollars = new HashMap<>();
+    fiveDollars.put("amount", 5d);
+    fiveDollars.put("currency", "USD");
+    
     processEngine.startProcessInstance(new StartProcessInstanceRequest()
       .processDefinitionRefId(processDefinitionId)
-      .variableValue("t", "hello world"));
+      .variableValue("m", new Money(5d, "USD")));
 
-    assertEquals("Hi, hello world", scriptResultMessage);
-    
+    assertEquals("It costs 5, which is in USD\nAnd mmmoney is 5.0 USD", scriptResultMessage);
   }
   
   String scriptResultMessage = null;
@@ -88,14 +93,17 @@ public class ScriptTest {
     @Override
     public void start(ActivityInstanceImpl activityInstance) {
       Scripts scripts = activityInstance.processEngine.scripts;
-      Script script = scripts.compile("'Hi, '+message;")
-       .scriptToProcessMapping("message", "t");
-      ScriptResult scriptOutput = scripts.evaluateScript(activityInstance, script);
-      scriptResultMessage = (String) scriptOutput.getResult();
+      Script script = scripts.compile(
+             // Each variable is automatically available with it's variableDefinitionName
+             // Individual fields (and on Rhino also properties) can be dereferenced
+             "'It costs '+m.amount+', which is in '+m.currency+'\\n"
+             // Script to process variable mappings can be defined
+             // The toString of the money java object will be used 
+             +"And mmmoney is '+mmmoney")
+        .scriptToProcessMapping("mmmoney", "m");
+      ScriptResult scriptResult = scripts.evaluateScript(activityInstance, script);
+      scriptResultMessage = (String) scriptResult.getResult();
+      activityInstance.onwards();
     }
-  }
-  
-  public static void myFunction(String message) {
-    log.debug(message);
   }
 }

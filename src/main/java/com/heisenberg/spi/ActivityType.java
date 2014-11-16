@@ -14,14 +14,8 @@
  */
 package com.heisenberg.spi;
 
-import java.util.List;
-import java.util.Map;
-
 import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.definition.Location;
-import com.heisenberg.api.definition.ParameterInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.ParameterInstanceImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 
 
@@ -42,19 +36,6 @@ public abstract class ActivityType implements Spi {
    * parameter checking in {@link #checkParameters(ActivityDefinitionImpl, DeployProcessDefinitionResponse)}. */
   public ActivityParameter[] getActivityParameters() {
     return null;
-  }
-
-  /** Checks the parameters during process deployment.
-   * The errors and warnings should be reported with response.addError() and response.addWarning(). 
-   * @param parameterInstances2 */
-  public void checkParameters(Location activityDefinitionLocation, List<ParameterInstanceImpl> parameterInstances, Map<String,ActivityParameter> activityParameterMap, DeployProcessDefinitionResponse response) {
-    if (activityParameterMap!=null) {
-      Map<String,ParameterInstanceImpl> parameterInstanceMap = ParameterInstance.buildParameterInstancesMap(parameterInstances);
-      for (String activityParameterName: activityParameterMap.keySet()) {
-        ActivityParameter activityParameter = activityParameterMap.get(activityParameterName); 
-        activityParameter.checkParameters(activityDefinitionLocation, parameterInstanceMap, response);
-      }
-    }
   }
 
   public void signal(ActivityInstanceImpl activityInstance) {

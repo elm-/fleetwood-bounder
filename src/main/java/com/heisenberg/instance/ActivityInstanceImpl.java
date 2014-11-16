@@ -40,7 +40,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl {
   public ActivityInstance serializeToJson() {
     ActivityInstance activityInstance = new ActivityInstance();
     activityInstance.id = id.toString();
-    activityInstance.activityDefinitionName = activityDefinition.name;
+    activityInstance.activityDefinitionRefName = activityDefinition.name;
     serialize(activityInstance);
     return activityInstance;
   }

@@ -23,6 +23,6 @@ package com.heisenberg.api.instance;
  */
 public class ActivityInstance extends ScopeInstance {
 
-  public String activityDefinitionName;
+  public String activityDefinitionRefName;
 
 }

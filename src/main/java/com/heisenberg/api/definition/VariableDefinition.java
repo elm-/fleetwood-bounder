@@ -37,6 +37,10 @@ public class VariableDefinition {
     return type(type.getId());
   }
 
+  public VariableDefinition type(Class<?> javaClass) {
+    return type(javaClass.getName());
+  }
+
   /** The user defined name of the variable that can later be used 
    * for getting and setting variable values. */
   public VariableDefinition name(String name) {

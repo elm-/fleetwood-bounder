@@ -75,6 +75,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl {
   public ProcessInstance serializeToJson() {
     ProcessInstance processInstance = new ProcessInstance();
     processInstance.id = id.toString();
+    processInstance.processDefinitionRefId = processDefinition.id.toString();
     super.serialize(processInstance);
     return processInstance;
   }
