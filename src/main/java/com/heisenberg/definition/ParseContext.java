@@ -24,6 +24,7 @@ import java.util.Stack;
 
 import com.heisenberg.api.Issue;
 import com.heisenberg.api.Issue.IssueType;
+import com.heisenberg.spi.Type;
 
 
 /**
@@ -37,6 +38,7 @@ public class ParseContext {
     typeNames.put(VariableDefinitionImpl.class, ".variableDefinitions");
     typeNames.put(TimerDefinitionImpl.class, ".timerDefinitions");
     typeNames.put(ParameterInstanceImpl.class, ".parameterInstances");
+    typeNames.put(Type.class, ".type");
   }
   
   public LinkedList<String> path = new LinkedList<>();
@@ -70,7 +72,7 @@ public class ParseContext {
   }
   
   public void addError(Long line, Long column, String message, Object... messageArgs) {
-    addIssue(IssueType.error, line, column, message, messageArgs, path);
+    addIssue(IssueType.error, line, column, message, messageArgs);
   }
 
   public void addWarning(Long line, Long column, String message, Object... messageArgs) {

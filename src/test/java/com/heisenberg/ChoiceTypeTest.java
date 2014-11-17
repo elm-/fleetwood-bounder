@@ -19,10 +19,9 @@ import org.junit.Test;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessBuilder;
-import com.heisenberg.api.definition.VariableBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.type.ChoiceDescriptor;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
+import com.heisenberg.type.ChoiceType;
 
 /**
  * @author Walter White
@@ -35,26 +34,22 @@ public class ChoiceTypeTest {
       .registerActivityType(new Go())
       .registerActivityType(new Wait());
 
-    // prepare the ingredients
-    ChoiceDescriptor countryType = new ChoiceDescriptor()
+    ChoiceType countryType = new ChoiceType()
       .id("country")
       .option("be", "Belgium")
       .option("us", "US")
       .option("de", "Germany")
       .option("fr", "France");
+
+    ProcessBuilder processBuilder = processEngine.newProcess()
+            .type(countryType);
     
-    VariableBuilder c = new VariableBuilder()
+    processBuilder.newVariable()
       .type("country")
       .name("c");
 
-    
-    // cook the process
-    ProcessBuilder processDefinition = new ProcessBuilder()
-      .activityType(countryType)
-      .variable(c);
-
     String processDefinitionId = processEngine
-      .deployProcessDefinition(processDefinition)
+      .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
@@ -62,4 +57,5 @@ public class ChoiceTypeTest {
       .processDefinitionRefId(processDefinitionId)
       .variableValue("c", "be"));
   }
+
 }

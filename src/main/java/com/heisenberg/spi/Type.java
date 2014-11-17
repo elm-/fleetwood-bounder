@@ -14,6 +14,7 @@
  */
 package com.heisenberg.spi;
 
+import com.heisenberg.definition.ParseContext;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.type.ProcessDefinitionIdType;
 import com.heisenberg.type.TextType;
@@ -26,7 +27,6 @@ public abstract class Type implements Spi {
   
   public static final TextType TEXT = new TextType();
   public static final Type PROCESS_DEFINITION_ID = new ProcessDefinitionIdType();
-  
   
   protected ProcessEngineImpl processEngine;
   
@@ -44,5 +44,8 @@ public abstract class Type implements Spi {
 
   public Object convertScriptValueToInternal(Object scriptValue, String language) {
     return scriptValue;
+  }
+
+  public void parse(ParseContext parseContext) {
   }
 }

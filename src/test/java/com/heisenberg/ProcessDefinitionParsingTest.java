@@ -17,7 +17,6 @@ package com.heisenberg;
 import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.definition.ActivityBuilder;
 import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 
@@ -33,12 +32,13 @@ public class ProcessDefinitionParsingTest {
       .registerActivityType(new Go());
     
     // cook the process
-    ProcessBuilder processDefinition = new ProcessBuilder()
-      .activity(new ActivityBuilder()
-      .activityType(Go.ID));
+    ProcessBuilder processBuilder = processEngine.newProcess();
+    
+    processBuilder.newActivity()
+      .activityType(Go.ID);
 
     TestHelper.assertTextPresent("Activity has no name", processEngine
-        .deployProcessDefinition(processDefinition)
+        .deployProcessDefinition(processBuilder)
         .getIssueReport());
   }
 
@@ -47,13 +47,13 @@ public class ProcessDefinitionParsingTest {
     ProcessEngine processEngine = new MemoryProcessEngine()
       .registerActivityType(new Go());
     
-    // cook the process
-    ProcessBuilder processDefinition = new ProcessBuilder()
-      .activity(new ActivityBuilder()
-      .name("a"));
+    ProcessBuilder processBuilder = processEngine.newProcess();
+    
+    processBuilder.newActivity()
+      .name("a");
 
     TestHelper.assertTextPresent("has invalid type null", processEngine
-        .deployProcessDefinition(processDefinition)
+        .deployProcessDefinition(processBuilder)
         .getIssueReport());
   }
 }

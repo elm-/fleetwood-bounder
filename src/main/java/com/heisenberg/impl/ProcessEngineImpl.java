@@ -36,9 +36,9 @@ import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.definition.ParseContext;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ParseContext;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.expressions.Scripts;
 import com.heisenberg.instance.ActivityInstanceId;
@@ -163,7 +163,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   /// Process Definition Builder 
   
   @Override
-  public ProcessBuilder newProcessDefinition() {
+  public ProcessBuilder newProcess() {
     ProcessDefinitionImpl processDefinition = new ProcessDefinitionImpl();
     processDefinition.processDefinition = processDefinition;
     processDefinition.processEngine = this;
@@ -315,4 +315,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public void setJson(Json json) {
     this.json = json;
   }
+
+  public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
+
+  public abstract List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
 }

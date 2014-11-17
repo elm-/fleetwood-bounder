@@ -25,9 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
-import com.heisenberg.api.definition.ActivityBuilder;
 import com.heisenberg.api.definition.ProcessBuilder;
-import com.heisenberg.api.definition.VariableBuilder;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
@@ -53,22 +51,18 @@ public class ScriptTest {
       .registerActivityType(new ScriptActivity())
       .registerType(Money.class);
 
-    // prepare the ingredients
-    VariableBuilder t = new VariableBuilder()
+    ProcessBuilder processBuilder = processEngine.newProcess();
+    
+    processBuilder.newVariable()
       .name("m")
       .type(Money.class);
     
-    ActivityBuilder a = new ActivityBuilder()
+    processBuilder.newActivity()
       .activityType("script")
       .name("a");
 
-    // cook a process batch
-    ProcessBuilder processDefinition = new ProcessBuilder()
-      .variable(t)
-      .activity(a);
-
     String processDefinitionId = processEngine
-      .deployProcessDefinition(processDefinition)
+      .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
       .processDefinitionId;
     

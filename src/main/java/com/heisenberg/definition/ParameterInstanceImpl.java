@@ -65,7 +65,6 @@ public class ParameterInstanceImpl {
         parseContext.addError(buildLine, buildColumn, "Invalid parameter '%s' for activity type '%s': Must be one of %s", name, activityTypeId, activityParameters.keySet());
       } else {
         if (parameterBindings!=null && !parameterBindings.isEmpty()) {
-          this.parameterBindings = new ArrayList<ParameterBindingImpl>();
           for (int i=0; i<parameterBindings.size(); i++) {
             ParameterBindingImpl parameterBinding = parameterBindings.get(i);
             parseContext.pushPathElement(parameterBinding, null, i);

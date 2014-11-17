@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.heisenberg.api.definition.ProcessBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.updates.Update;
+import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceId;
@@ -91,22 +91,24 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     return processDefinitions.get(processDefinitionId);
   }
 
-  @Override
-  public List<ProcessBuilder> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+    List<ProcessDefinitionImpl> result = new ArrayList<>();
     if (processDefinitionQuery.getProcessDefinitionId()!=null) {
       ProcessDefinitionImpl processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
-      throw new RuntimeException("TODO");
-    }
-    List<ProcessDefinitionImpl> result = new ArrayList<>();
-    for (ProcessDefinitionImpl processDefinition: processDefinitions.values()) {
-      if (processDefinitionQuery.satisfiesCriteria(processDefinition)) {
+      if (processDefinition!=null) {
         result.add(processDefinition);
       }
+    } else {
+      for (ProcessDefinitionImpl processDefinition: processDefinitions.values()) {
+        if (processDefinitionQuery.satisfiesCriteria(processDefinition)) {
+          result.add(processDefinition);
+        }
+      }
     }
-    throw new RuntimeException("TODO");
+    return result;
   }
   
-  public List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
+  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
     throw new RuntimeException("TODO");
   }
   
@@ -124,9 +126,8 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
-    ProcessInstanceQuery processInstanceQuery = buildProcessInstanceQuery()
-      .activityInstanceId(activityInstanceId)
-      .getQuery();
+    ProcessInstanceQuery processInstanceQuery = new ProcessInstanceQuery(this)
+      .activityInstanceId(activityInstanceId);
     processInstanceQuery.setMaxResults(1);
     ProcessInstanceImpl processInstance = findProcessInstance(processInstanceQuery);
     if (processInstance==null) { 

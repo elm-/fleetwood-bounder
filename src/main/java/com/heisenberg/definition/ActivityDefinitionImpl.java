@@ -147,7 +147,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 
   public void parse(ParseContext parseContext) {
     if (name==null || "".equals(name)) {
-      parseContext.addError(buildLine, buildColumn, "Activity does not have a name");
+      parseContext.addError(buildLine, buildColumn, "Activity has no name");
     }
     ActivityTypeDescriptor activityTypeDescriptor = processEngine.activityTypeDescriptors.get(buildActivityTypeRefId);
     if (activityTypeDescriptor==null) {
@@ -155,7 +155,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
               "Activity %s has invalid type %s.  Must be one of %s", 
               name, 
               buildActivityTypeRefId,
-              processEngine.activityTypeDescriptors.keySet());
+              processEngine.activityTypeDescriptors.keySet().toString());
     } else {
       this.activityType = activityTypeDescriptor.activityType;
     }
@@ -163,7 +163,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
       parameterInstancesMap = new HashMap<>();
       for (int i=0; i<parameterInstances.size(); i++) {
         ParameterInstanceImpl parameterInstance = parameterInstances.get(i);
-        parseContext.pushPathElement("parameterInstances", parameterInstance.name, i);
+        parseContext.pushPathElement(parameterInstance, parameterInstance.name, i);
         parameterInstance.parse(parseContext);
         parseContext.popPathElement();
         parameterInstancesMap.put(parameterInstance.name, parameterInstance);
@@ -171,39 +171,6 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     }
     super.parse(parseContext);
   }
-
-  
-//  protected void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
-//          ScopeDefinitionImpl parent, ActivityBuilder activityDefinition) {
-//    this.name = activityDefinition.name;
-//    if (activityDefinition.name==null) {
-//      response.addError(activityDefinition.location, "Activity has no name");
-//    }
-//    ActivityTypeDescriptor activityTypeDescriptor = processEngine.activityTypeDescriptors.get(activityDefinition.activityTypeRefId);
-//    if (activityTypeDescriptor==null) {
-//      response.addError(activityDefinition.location, 
-//              "Activity %s has invalid type %s.  Must be one of "+processEngine.activityTypeDescriptors.keySet(), 
-//              getActivityErrorReferenceText(activityDefinition), 
-//              activityDefinition.activityTypeRefId);
-//    } else {
-//      this.activityType = activityTypeDescriptor.activityType;
-//    }
-//    if (activityDefinition.parameterInstances!=null) {
-//      for (ParameterInstance parameterInstance: activityDefinition.parameterInstances) {
-//        ParameterInstanceImpl parameterInstanceImpl = new ParameterInstanceImpl();
-//        parameterInstanceImpl.parse(processEngine, response, processDefinition, this, parameterInstance);
-//        if (parameterInstances==null) {
-//          parameterInstances = new ArrayList<>();
-//          parameterInstancesMap = new HashMap<>();
-//        }
-//        parameterInstances.add(parameterInstanceImpl);
-//        parameterInstancesMap.put(parameterInstanceImpl.name, parameterInstanceImpl);
-//      }
-//    }
-//    super.parse(processEngine, response, processDefinition, parent, activityDefinition);
-//  }
-
-
 
   /// other methods ////////////////////////////
 

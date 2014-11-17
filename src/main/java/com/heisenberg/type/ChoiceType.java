@@ -15,13 +15,10 @@
 package com.heisenberg.type;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.heisenberg.api.type.ChoiceOption;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
-import com.heisenberg.util.Exceptions;
 
 
 /**
@@ -33,41 +30,20 @@ public class ChoiceType extends Type {
   
   protected String id;
   /** maps option ids to option labels */
-  protected Map<String, String> optionsMap;
+  protected Map<String, String> options;
   
-  public ChoiceType(String id, List<ChoiceOption> options) {
-    Exceptions.checkNotNullParameter(id, "id");
-    Exceptions.checkNotNullParameter(options, "options");
-    this.id = id;
-    this.optionsMap = new HashMap<>();
-    for (ChoiceOption option: options) {
-      optionsMap.put(option.id, option.label);
+  public ChoiceType option(String id, String label) {
+    if (options==null) {
+      options = new HashMap<>();
     }
+    options.put(id, label);
+    return this;
   }
-
-//  public ChoiceType option(String label) {
-//    option(label, null);
-//    return this;
-//  }
-//
-//  public ChoiceType option(String label, String id) {
-//    if (options==null) {
-//      options = new ArrayList<>();
-//    }
-//    options.add(new ChoiceOption()
-//      .id(id)
-//      .label(label)
-//    );
-//    return this;
-//  }
-//
-//  public List<ChoiceOption> getOptions() {
-//    return options;
-//  }
-//
-//  public void setOptions(List<ChoiceOption> options) {
-//    this.options = options;
-//  }
+  
+  public ChoiceType id(String id) {
+    this.id = id;
+    return this;
+  }
 
   @Override
   public String getId() {
@@ -77,9 +53,13 @@ public class ChoiceType extends Type {
   @Override
   public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
     if ( apiValue!=null 
-         && !optionsMap.containsKey(apiValue) ) {
-      throw new InvalidApiValueException("Invalid value '"+apiValue+"'.  Expected one of "+optionsMap.keySet()+" (or null)");
+         && !options.containsKey(apiValue) ) {
+      throw new InvalidApiValueException("Invalid value '"+apiValue+"'.  Expected one of "+options.keySet()+" (or null)");
     }
     return apiValue; 
   }
+
+//  @Override
+//  public void parse(ParseContext parseContext) {
+//  }
 }

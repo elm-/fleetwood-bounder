@@ -15,6 +15,7 @@
 package com.heisenberg.definition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -139,11 +140,33 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     types.add(type);
     return this;
   }
+  
+  public void parse(ParseContext parseContext) {
+    if (types!=null) {
+      typesMap = new HashMap<>();
+      for (int i=0; i<types.size(); i++) {
+        Type type = types.get(i);
+        parseContext.pushPathElement(type, type.getId(), i);
+        type.parse(parseContext);
+        parseContext.popPathElement();
+        typesMap.put(type.getId(), type);
+      }
+      
+    }
 
+    super.parse(parseContext);
+  }
+  
   // other methods ////////////////////////////////////////////////////////////////////
   
   public void prepare() {
     this.processDefinition = this;
+    if (types!=null) {
+      typesMap = new HashMap<>();
+      for (Type type: types) {
+        typesMap.put(type.getId(), type);
+      }
+    }
     super.prepare();
   }
   
@@ -173,7 +196,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
 
   public Type findType(String typeId) {
-    Type type = types!=null ? typesMap.get(typeId) : null;
+    Type type = typesMap!=null ? typesMap.get(typeId) : null;
     if (type!=null) {
       return type;
     }

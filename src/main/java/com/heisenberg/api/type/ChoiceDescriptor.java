@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.heisenberg.spi.Type;
-import com.heisenberg.type.ChoiceType;
 
 
 /**
@@ -46,6 +45,6 @@ public class ChoiceDescriptor extends TypeDescriptor {
 
   @Override
   public Type createType() {
-    return new ChoiceType(id, options);
+    throw new RuntimeException("TODO");
   }
 }

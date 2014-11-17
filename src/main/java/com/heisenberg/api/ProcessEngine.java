@@ -27,7 +27,7 @@ import com.heisenberg.api.instance.ProcessInstance;
  */
 public interface ProcessEngine {
   
-  ProcessBuilder newProcessDefinition();
+  ProcessBuilder newProcess();
   
   /** potentially changes the passed processDefinition (assigning ids) 
    * and returns the same object as a way to indicate it may have changed. */

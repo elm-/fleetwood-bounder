@@ -38,7 +38,7 @@ public class ExampleTest {
       .registerActivityType(new Wait())
       .registerType(Type.TEXT);
 
-    ProcessBuilder processBuilder = processEngine.newProcessDefinition();
+    ProcessBuilder processBuilder = processEngine.newProcess();
 
     processBuilder.newVariable()
       .name("t")

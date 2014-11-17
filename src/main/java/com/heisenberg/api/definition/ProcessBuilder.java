@@ -34,6 +34,10 @@ public interface ProcessBuilder {
   
   ProcessBuilder type(Type type);
 
+//  ProcessBuilder type(TypeDescriptor typeDescriptor);
+//
+//  ProcessBuilder type(Class<?> javaType);
+
   ProcessBuilder name(String processDefinitionName);
 
   ProcessBuilder line(Long lineNumber);
