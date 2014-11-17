@@ -12,29 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
-
-
+package com.heisenberg.api.definition;
 
 
 /**
  * @author Walter White
  */
-public class VariableInstance {
+public interface TimerBuilder {
 
-  public String variableDefinitionRefName;
-  public String typeRefId;
-  public Object value;
-  
-  public String getVariableDefinitionRefName() {
-    return variableDefinitionRefName;
-  }
-  
-  public String getTypeRefId() {
-    return typeRefId;
-  }
-  
-  public Object getValue() {
-    return value;
-  }
 }

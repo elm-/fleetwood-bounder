@@ -18,9 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.definition.ParameterBinding;
-import com.heisenberg.api.definition.ParameterInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.spi.ActivityParameter;
 
@@ -35,15 +32,57 @@ public class ParameterInstanceImpl {
   public ScopeDefinitionImpl parent;
   
   public String name;
-  public ActivityParameter parameterDefinition;
+  public ActivityParameter activityParameter;
   public List<ParameterBindingImpl> parameterBindings;
   
-  public void addParameterBinding(ParameterBindingImpl parameterBinding) {
+  public Long buildLine;
+  public Long buildColumn;
+  
+  public ParameterBindingImpl newParameterBinding() {
+    ParameterBindingImpl parameterBinding = new ParameterBindingImpl();
+    parameterBinding.processEngine = processEngine;
+    parameterBinding.processDefinition = processDefinition;
+    parameterBinding.parent = this;
     if (parameterBindings==null) {
       parameterBindings = new ArrayList<ParameterBindingImpl>();
     }
     parameterBindings.add(parameterBinding);
+    return parameterBinding;
   }
+
+  public void parse(ParseContext parseContext) {
+    if (name==null) {
+      parseContext.addError(buildLine, buildColumn, "Parameter instance does not have a name");
+    } else {
+      ActivityDefinitionImpl activityDefinitionmpl = parseContext.getContextObject(ActivityDefinitionImpl.class);
+      String activityTypeId = activityDefinitionmpl.activityType.getId();
+      Map<String, ActivityParameter> activityParameters = processEngine
+              .activityTypeDescriptors
+              .get(activityTypeId)
+              .activityParameters;
+      activityParameter = activityParameters!=null ? activityParameters.get(name) : null;
+      if (activityParameter==null) {
+        parseContext.addError(buildLine, buildColumn, "Invalid parameter '%s' for activity type '%s': Must be one of %s", name, activityTypeId, activityParameters.keySet());
+      } else {
+        if (parameterBindings!=null && !parameterBindings.isEmpty()) {
+          this.parameterBindings = new ArrayList<ParameterBindingImpl>();
+          for (int i=0; i<parameterBindings.size(); i++) {
+            ParameterBindingImpl parameterBinding = parameterBindings.get(i);
+            parseContext.pushPathElement(parameterBinding, null, i);
+            parameterBinding.parse(parseContext);
+            parseContext.popPathElement();
+          }
+        } else {
+          if (Boolean.TRUE.equals(activityParameter.required)) {
+            parseContext.addError(buildLine, buildColumn, "Parameter %s is not provided", name);
+          } else if (Boolean.TRUE.equals(activityParameter.recommended)) {
+            parseContext.addWarning(buildLine, buildColumn, "Parameter %s is not provided", name);
+          }
+        }
+      }
+    }
+  }
+
   
   public void prepare() {
   }
@@ -56,12 +95,12 @@ public class ParameterInstanceImpl {
     this.name = name;
   }
   
-  public ActivityParameter getParameterDefinition() {
-    return parameterDefinition;
+  public ActivityParameter getActivityParameter() {
+    return activityParameter;
   }
   
-  public void setParameterDefinition(ActivityParameter parameterDefinition) {
-    this.parameterDefinition = parameterDefinition;
+  public void setActivityParameter(ActivityParameter parameterDefinition) {
+    this.activityParameter = parameterDefinition;
   }
   
   public ProcessEngineImpl getProcessEngine() {
@@ -103,30 +142,4 @@ public class ParameterInstanceImpl {
     this.parameterBindings = values;
   }
 
-  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
-          ActivityDefinitionImpl activityDefinitionImpl, ParameterInstance parameterInstance) {
-    if (parameterInstance.parameterRefName==null) {
-      response.addError(parameterInstance.location, "Parameter instance does not have a name");
-    } else {
-      this.name = parameterInstance.parameterRefName;
-      String activityTypeId = activityDefinitionImpl.activityType.getId();
-      Map<String, ActivityParameter> activityParameters = processEngine
-              .activityTypeDescriptors
-              .get(activityTypeId)
-              .activityParameters;
-      ActivityParameter activityParameter = activityParameters!=null ? activityParameters.get(name) : null;
-      if (activityParameter==null) {
-        response.addError(parameterInstance.location, "Invalid parameter '%s' for activity type '%s': Must be one of %s", name, activityTypeId, activityParameters.keySet());
-      } else {
-        if (parameterInstance.parameterBindings!=null && !parameterInstance.parameterBindings.isEmpty()) {
-          this.parameterBindings = new ArrayList<ParameterBindingImpl>();
-          for (ParameterBinding parameterBinding : parameterInstance.parameterBindings) {
-            ParameterBindingImpl parameterBindingImpl = new ParameterBindingImpl();
-            parameterBindingImpl.parse(processEngine, response, processDefinition, activityDefinitionImpl, this, activityParameter, parameterBinding);
-            parameterBindings.add(parameterBindingImpl);
-          }
-        }
-      }
-    }
-  }
 }

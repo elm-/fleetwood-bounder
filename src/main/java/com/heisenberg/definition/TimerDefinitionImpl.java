@@ -14,10 +14,21 @@
  */
 package com.heisenberg.definition;
 
+import com.heisenberg.api.definition.TimerBuilder;
+import com.heisenberg.impl.ProcessEngineImpl;
+
 
 /**
  * @author Walter White
  */
-public class TimerDefinitionImpl {
+public class TimerDefinitionImpl implements TimerBuilder {
+
+  public String name;
+  public ProcessEngineImpl processEngine;
+  public ProcessDefinitionImpl processDefinition;
+  public ScopeDefinitionImpl parent;
+  
+  public void validate(ParseContext parseContext) {
+  }
 
 }

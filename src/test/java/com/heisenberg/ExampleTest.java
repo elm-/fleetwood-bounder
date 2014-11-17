@@ -21,9 +21,7 @@ import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.definition.ProcessDefinition;
-import com.heisenberg.api.definition.VariableDefinition;
+import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.spi.Type;
@@ -40,34 +38,31 @@ public class ExampleTest {
       .registerActivityType(new Wait())
       .registerType(Type.TEXT);
 
-    // prepare the ingredients
-    VariableDefinition t = new VariableDefinition()
-      .type(Type.TEXT)
-      .name("t");
-    
-    ActivityDefinition go = new ActivityDefinition()
-      .type(Go.ID)
+    ProcessBuilder processBuilder = processEngine.newProcessDefinition();
+
+    processBuilder.newVariable()
+      .name("t")
+      .type(Type.TEXT);
+
+    processBuilder.newActivity()
+      .activityType(Go.ID)
       .parameterValue(Go.PLACE, "Antwerp")
       .name("go");
     
-    ActivityDefinition wait1 = new ActivityDefinition()
-      .type(Wait.ID)
+    processBuilder.newActivity()
+      .activityType(Wait.ID)
       .name("wait1");
     
-    ActivityDefinition wait2 = new ActivityDefinition()
-      .type(Wait.ID)
+    processBuilder.newActivity()
+      .activityType(Wait.ID)
       .name("wait2");
     
-    // cook the process
-    ProcessDefinition processDefinition = new ProcessDefinition()
-      .activity(go)
-      .activity(wait1)
-      .activity(wait2)
-      .transition(wait1, wait2)
-      .variable(t);
-
+    processBuilder.newTransition()
+      .from("wait1")
+      .to("wait2");
+    
     String processDefinitionId = processEngine
-      .deployProcessDefinition(processDefinition)
+      .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
@@ -83,7 +78,7 @@ public class ExampleTest {
     assertEquals(Go.class, goExecution.activityInstance.activityDefinition.activityType.getClass());
     assertEquals("Antwerp", goExecution.place);
     
-//    ActivityInstanceImpl goInstance = processInstance.getActivityInstances().get(0);
+//    ActivityInstance goInstance = processInstance.activityInstances.get(0);
 //    assertTrue(goInstance.isEnded());
 //    assertEquals(go, goInstance.getActivityDefinition());
 //    

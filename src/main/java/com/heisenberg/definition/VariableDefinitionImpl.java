@@ -14,8 +14,7 @@
  */
 package com.heisenberg.definition;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.definition.VariableDefinition;
+import com.heisenberg.api.definition.VariableBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.VariableInstanceImpl;
 import com.heisenberg.spi.InvalidApiValueException;
@@ -25,20 +24,80 @@ import com.heisenberg.spi.Type;
 /**
  * @author Walter White
  */
-public class VariableDefinitionImpl {
+public class VariableDefinitionImpl implements VariableBuilder {
+
+  public String name;
+  public Type type;
+  public Object initialValue;
 
   public ProcessEngineImpl processEngine;
   public ProcessDefinitionImpl processDefinition;  
   public ScopeDefinitionImpl parent;
-  public String name;
-  public Type type;
-  public Object initialValue;
-  
+
+  protected Long buildLine;
+  protected Long buildColumn;
+  protected String buildTypeRefId;
+
+  public VariableDefinitionImpl name(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public VariableDefinitionImpl line(Long line) {
+    this.buildLine = line;
+    return this;
+  }
+
+  public VariableDefinitionImpl column(Long column) {
+    this.buildColumn = column;
+    return this;
+  }
+
+  public VariableDefinitionImpl type(String typeRefId) {
+    this.buildTypeRefId = typeRefId;
+    return this;
+  }
+
+  public VariableDefinitionImpl type(Class<?> javaClass) {
+    this.buildTypeRefId = javaClass.getName();
+    return this;
+  }
+
   public VariableDefinitionImpl type(Type type) {
     this.type = type;
     return this;
   }
+
+  public VariableDefinitionImpl initialValue(Object initialValue) {
+    this.initialValue = initialValue;
+    return this;
+  }
   
+  public void validate(ParseContext parseContext) {
+    if (name==null) {
+      parseContext.addError(buildLine, buildColumn, "Variable does not have a name");
+    }
+    if (buildTypeRefId!=null || type!=null) {
+      if (type==null) {
+        this.type = processDefinition.findType(buildTypeRefId);
+        if (this.type==null) {
+          parseContext.addError(buildLine, buildColumn, "Variable '%s' has unknown type '%s'", name, buildTypeRefId);
+        }
+      }
+      if (type!=null) {
+        if (initialValue!=null) {
+          try {
+            this.initialValue = type.convertApiToInternalValue(initialValue);
+          } catch (InvalidApiValueException e) {
+            parseContext.addError(buildLine, buildColumn, "Invalid initial value %s for variable %s (%s)", initialValue, name, buildTypeRefId);
+          }
+        }
+      }
+    } else {
+      parseContext.addError(buildLine, buildColumn, "Variable '%s' does not have a type", name);
+    }
+  }
+
   public void prepare() {
   }
   
@@ -89,28 +148,5 @@ public class VariableDefinitionImpl {
     variableInstance.setVariableDefinition(this);
     variableInstance.setValue(initialValue);
     return variableInstance;
-  }
-
-  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition, ScopeDefinitionImpl parent, VariableDefinition variableDefinition) {
-    this.name = variableDefinition.name;
-    if (this.name==null) {
-      response.addError(variableDefinition.location, "Variable does not have a name");
-    }
-    if (variableDefinition.typeRefId!=null) {
-      this.type = processDefinition.findType(variableDefinition.typeRefId);
-      if (this.type==null) {
-        response.addError(variableDefinition.location, "Variable '%s' has unknown type '%s'", name, variableDefinition.typeRefId);
-      } else {
-        if (variableDefinition.initialValue!=null) {
-          try {
-            this.initialValue = type.convertApiToInternalValue(variableDefinition.initialValue);
-          } catch (InvalidApiValueException e) {
-            response.addError(variableDefinition.location, "Invalid initial value %s for variable %s (%s)", variableDefinition.initialValue, name, variableDefinition.typeRefId);
-          }
-        }
-      }
-    } else {
-      response.addError(variableDefinition.location, "Variable '%s' does not have a type", name);
-    }
   }
 }

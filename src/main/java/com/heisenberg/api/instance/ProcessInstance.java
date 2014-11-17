@@ -23,4 +23,9 @@ package com.heisenberg.api.instance;
 public class ProcessInstance extends ScopeInstance {
 
   public String processDefinitionRefId;
+
+  
+  public String getProcessDefinitionRefId() {
+    return processDefinitionRefId;
+  }
 }

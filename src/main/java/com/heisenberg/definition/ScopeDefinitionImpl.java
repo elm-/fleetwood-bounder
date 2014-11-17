@@ -19,11 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.definition.ScopeDefinition;
-import com.heisenberg.api.definition.TransitionDefinition;
-import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.ScopeInstanceImpl;
@@ -36,7 +31,8 @@ import com.heisenberg.util.Exceptions;
 public abstract class ScopeDefinitionImpl {
 
   // parsed and stored member fields
-  
+
+  public String name;
   public List<ActivityDefinitionImpl> activityDefinitions;
   public List<VariableDefinitionImpl> variableDefinitions;
   public List<TransitionDefinitionImpl> transitionDefinitions;
@@ -50,59 +46,116 @@ public abstract class ScopeDefinitionImpl {
   public List<ActivityDefinitionImpl> startActivityDefinitions;
   public Map<String, ActivityDefinitionImpl> activityDefinitionsMap;
   public Map<String, VariableDefinitionImpl> variableDefinitionsMap;
+
+  public Long buildLine;
+  public Long buildColumn;
   
-  protected void parse(ProcessEngineImpl processEngine, 
-          DeployProcessDefinitionResponse response, 
-          ProcessDefinitionImpl processDefinition, 
-          ScopeDefinitionImpl parent, 
-          ScopeDefinition scopeDefinition) {
-    this.parent = parent;
-    if (scopeDefinition.variableDefinitions!=null) {
-      for (VariableDefinition variableDefinition: scopeDefinition.variableDefinitions) {
-        VariableDefinitionImpl variableDefinitionImpl = new VariableDefinitionImpl();
-        variableDefinitionImpl.parse(processEngine, response, processDefinition, this, variableDefinition);
-        if (variableDefinitions==null) {
-          variableDefinitions = new ArrayList<>();
-          variableDefinitionsMap = new HashMap<>();
-        }
-        variableDefinitions.add(variableDefinitionImpl);
-        variableDefinitionsMap.put(variableDefinitionImpl.name, variableDefinitionImpl);
+  /// Process Definition Builder methods //////////////////////////////////////////
+  
+  public ActivityDefinitionImpl newActivity() {
+    ActivityDefinitionImpl activityDefinition = new ActivityDefinitionImpl();
+    activityDefinition.processEngine = this.processEngine;
+    activityDefinition.processDefinition = this.processDefinition;
+    activityDefinition.parent = this;
+    if (activityDefinitions==null) {
+      activityDefinitions = new ArrayList<>();
+    }
+    activityDefinitions.add(activityDefinition);
+    return activityDefinition;
+  }
+
+  public VariableDefinitionImpl newVariable() {
+    VariableDefinitionImpl variableDefinition = new VariableDefinitionImpl();
+    variableDefinition.processEngine = this.processEngine;
+    variableDefinition.processDefinition = this.processDefinition;
+    variableDefinition.parent = this;
+    if (variableDefinitions==null) {
+      variableDefinitions = new ArrayList<>();
+    }
+    variableDefinitions.add(variableDefinition);
+    return variableDefinition;
+  }
+
+  public TransitionDefinitionImpl newTransition() {
+    TransitionDefinitionImpl transitionDefinition = new TransitionDefinitionImpl();
+    transitionDefinition.processEngine = this.processEngine;
+    transitionDefinition.processDefinition = this.processDefinition;
+    transitionDefinition.parent = this;
+    if (transitionDefinitions==null) {
+      transitionDefinitions = new ArrayList<>();
+    }
+    transitionDefinitions.add(transitionDefinition);
+    return transitionDefinition;
+  }
+
+  public TimerDefinitionImpl newTimer() {
+    TimerDefinitionImpl timerDefinition = new TimerDefinitionImpl();
+    timerDefinition.processEngine = this.processEngine;
+    timerDefinition.processDefinition = this.processDefinition;
+    timerDefinition.parent = this;
+    if (timerDefinitions==null) {
+      timerDefinitions = new ArrayList<>();
+    }
+    timerDefinitions.add(timerDefinition);
+    return timerDefinition;
+  }
+
+  public ScopeDefinitionImpl name(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public ScopeDefinitionImpl line(Long line) {
+    this.buildLine = line;
+    return this;
+  }
+
+  public ScopeDefinitionImpl column(Long column) {
+    this.buildColumn = column;
+    return this;
+  }
+
+  public void parse(ParseContext parseContext) {
+    if (variableDefinitions!=null) {
+      variableDefinitionsMap = new HashMap<>();
+      for (int i=0; i<variableDefinitions.size(); i++) {
+        VariableDefinitionImpl variableDefinition = variableDefinitions.get(i);
+        parseContext.pushPathElement(variableDefinition, variableDefinition.name, i);
+        variableDefinition.validate(parseContext);
+        parseContext.popPathElement();
+        variableDefinitionsMap.put(variableDefinition.name, variableDefinition);
       }
     }
-    if (scopeDefinition.activityDefinitions!=null) {
-      int index = 0;
-      for (ActivityDefinition activityDefinition: scopeDefinition.activityDefinitions) {
-        ActivityDefinitionImpl activityDefinitionImpl = new ActivityDefinitionImpl();
-        activityDefinitionImpl.index = index;
-        activityDefinitionImpl.parse(processEngine, response, processDefinition, activityDefinitionImpl, activityDefinition);
-        if (activityDefinitions==null) {
-          activityDefinitions = new ArrayList<ActivityDefinitionImpl>();
-          activityDefinitionsMap = new HashMap<>();
-        }
-        activityDefinitions.add(activityDefinitionImpl);
-        activityDefinitionsMap.put(activityDefinitionImpl.name, activityDefinitionImpl);
-        index++;
+    if (activityDefinitions!=null) {
+      activityDefinitionsMap = new HashMap<>();
+      for (int i=0; i<activityDefinitions.size(); i++) {
+        ActivityDefinitionImpl activityDefinition = activityDefinitions.get(i);
+        parseContext.pushPathElement(activityDefinition, activityDefinition.name, i);
+        activityDefinition.parse(parseContext);
+        parseContext.popPathElement();
+        activityDefinitionsMap.put(activityDefinition.name, activityDefinition);
       }
     }
-    if (scopeDefinition.transitionDefinitions!=null) {
-      for (TransitionDefinition transitionDefinition: scopeDefinition.transitionDefinitions) {
-        TransitionDefinitionImpl transitionDefinitionImpl = new TransitionDefinitionImpl();
-        transitionDefinitionImpl.parse(processEngine, response, processDefinition, this, transitionDefinition);
-        if (transitionDefinitions==null) {
-          transitionDefinitions = new ArrayList<>();
-        }
-        transitionDefinitions.add(transitionDefinitionImpl);
+    if (transitionDefinitions!=null) {
+      for (int i=0; i<transitionDefinitions.size(); i++) {
+        TransitionDefinitionImpl transitionDefinition = transitionDefinitions.get(i);
+        parseContext.pushPathElement(transitionDefinition, transitionDefinition.name, i);
+        transitionDefinition.validate(parseContext);
+        parseContext.popPathElement();
+      }
+    }
+    if (timerDefinitions!=null) {
+      for (int i=0; i<timerDefinitions.size(); i++) {
+        TimerDefinitionImpl timerDefinition = timerDefinitions.get(i);
+        parseContext.pushPathElement(timerDefinition, timerDefinition.name, i);
+        timerDefinition.validate(parseContext);
+        parseContext.popPathElement();
       }
     }
   }
 
-  static String getActivityErrorReferenceText(ActivityDefinition activityDefinition) {
-    return activityDefinition.location!=null ? activityDefinition.location.path : activityDefinition.name;
-  }
-  
-  public ParameterDefinitionsImpl getParameterDefinitions() {
-    return null;
-  }
+
+  /// Process Definition Parsing methods //////////////////////////////////////////
 
   /** performs initializations after the activity is constructed and before the process is used in execution.
    * eg calculating the start activities */ 

@@ -12,23 +12,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.definition;
+package com.heisenberg.api.definition;
 
+import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class UnresolvedTransitionDefinition {
+public interface ProcessBuilder {
 
-  public TransitionDefinitionImpl transitionDefinition;
-  public String fromId;
-  public String toId;
+  ProcessBuilder deployedAt(Long createdAt);
   
-  public void resolve(ScopeDefinitionImpl scopeDefinition) {
-    ActivityDefinitionImpl from = scopeDefinition.getActivityDefinition(fromId);
-    ActivityDefinitionImpl to = scopeDefinition.getActivityDefinition(toId);
-    transitionDefinition.setFrom(from);
-    transitionDefinition.setTo(to);
-  }
+  ProcessBuilder deployedByRefId(String deployedByRefId);
+
+  ProcessBuilder processRefId(String processRefId);
+  
+  ProcessBuilder version(Long version);
+  
+  ProcessBuilder organizationRefId(String organizationRefId);
+  
+  ProcessBuilder type(Type type);
+
+  ProcessBuilder name(String processDefinitionName);
+
+  ProcessBuilder line(Long lineNumber);
+
+  ActivityBuilder newActivity();
+
+  TransitionBuilder newTransition();
+
+  VariableBuilder newVariable();
+
+  TimerBuilder newTimer();
 }

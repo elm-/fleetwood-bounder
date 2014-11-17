@@ -25,4 +25,7 @@ public class ActivityInstance extends ScopeInstance {
 
   public String activityDefinitionRefName;
 
+  public String getActivityDefinitionRefName() {
+    return activityDefinitionRefName;
+  }
 }

@@ -18,8 +18,8 @@ import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
-import com.heisenberg.api.definition.ProcessDefinition;
-import com.heisenberg.api.definition.VariableDefinition;
+import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.definition.VariableBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.ChoiceDescriptor;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
@@ -43,14 +43,14 @@ public class ChoiceTypeTest {
       .option("de", "Germany")
       .option("fr", "France");
     
-    VariableDefinition c = new VariableDefinition()
+    VariableBuilder c = new VariableBuilder()
       .type("country")
       .name("c");
 
     
     // cook the process
-    ProcessDefinition processDefinition = new ProcessDefinition()
-      .type(countryType)
+    ProcessBuilder processDefinition = new ProcessBuilder()
+      .activityType(countryType)
       .variable(c);
 
     String processDefinitionId = processEngine

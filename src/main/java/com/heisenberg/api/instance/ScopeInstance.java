@@ -29,4 +29,27 @@ public class ScopeInstance {
   public List<ActivityInstance> activityInstances;
   public List<VariableInstance> variableInstances;
   
+  public String getId() {
+    return id;
+  }
+  
+  public Long getStart() {
+    return start;
+  }
+  
+  public Long getEnd() {
+    return end;
+  }
+  
+  public Long getDuration() {
+    return duration;
+  }
+  
+  public List<ActivityInstance> getActivityInstances() {
+    return activityInstances;
+  }
+  
+  public List<VariableInstance> getVariableInstances() {
+    return variableInstances;
+  }
 }

@@ -14,8 +14,6 @@
  */
 package com.heisenberg.definition;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.definition.ParameterBinding;
 import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
 import com.heisenberg.expressions.Scripts;
@@ -29,27 +27,83 @@ import com.heisenberg.spi.InvalidApiValueException;
  * @author Walter White
  */
 public class ParameterBindingImpl {
-
-  // one of the next 3 specifies the value
+  
+  // one of the next 3 specifies the how the value is determined at runtime
   protected Object value;
   protected VariableDefinitionImpl variableDefinition;
   protected Script expression;
-  
+
+  public ProcessEngineImpl processEngine;
+  public ProcessDefinitionImpl processDefinition;
+  public ParameterInstanceImpl parent;
+
+  protected String buildVariableDefinitionRefName;
+  protected String buildExpression;
+  protected String buildExpressionLanguage;
+  protected Long buildLine;
+  protected Long buildColumn;
+
   public ParameterBindingImpl value(Object value) {
     this.value = value;
     return this;
   }
   
-  public ParameterBindingImpl expression(Script expression) {
-    this.expression = expression;
+  public ParameterBindingImpl expression(String expression) {
+    this.buildExpression = expression;
     return this;
   }
   
-  public ParameterBindingImpl variableDefinition(VariableDefinitionImpl variableDefinition) {
-    this.variableDefinition = variableDefinition;
+  public ParameterBindingImpl expressionLanguage(String expressionLanguage) {
+    this.buildExpressionLanguage = expressionLanguage;
+    return this;
+  }
+  
+  public ParameterBindingImpl variable(String variableDefinitionRefName) {
+    this.buildVariableDefinitionRefName = variableDefinitionRefName;
     return this;
   }
 
+  public void parse(ParseContext parseContext) {
+    int valueSpecifications = 0;
+    ParameterInstanceImpl parameterInstance = parseContext.getContextObject(ParameterInstanceImpl.class);
+    ScopeDefinitionImpl scopeDefinition = parseContext.getContextObject(ScopeDefinitionImpl.class);
+    ActivityParameter activityParameter = parameterInstance.activityParameter;
+    if (value!=null) {
+      try {
+        value = activityParameter.type.convertApiToInternalValue(value);
+      } catch (InvalidApiValueException e) {
+        parseContext.addError(buildLine, buildColumn, "Couldn't parse parameter %s binding value %s as a %s: %s", parameterInstance.name, value, activityParameter.type, e.getMessage());
+      }
+      valueSpecifications++;
+    }
+    if (buildVariableDefinitionRefName!=null) {
+      variableDefinition = scopeDefinition.findVariableDefinitionByName(buildVariableDefinitionRefName);
+      if (!variableDefinition.type.equals(activityParameter.type)) {
+        parseContext.addError(buildLine, buildColumn, "Variable %s (%s) can't be bound to parameter %s (%s) because the types don't match", 
+                buildVariableDefinitionRefName, 
+                variableDefinition.type.getId(), 
+                parameterInstance.name,
+                activityParameter.type.getId());
+      }
+      valueSpecifications++;
+    }
+    if (this.expression!=null) {
+      String expressionLanguage = buildExpressionLanguage!=null ? buildExpressionLanguage : Scripts.JAVASCRIPT;
+      try {
+        expression = processEngine.scripts.compile(buildExpression, expressionLanguage);
+      } catch (Exception e) {
+        parseContext.addError(buildLine, buildColumn, "Couldn't compile %s expression: %s: %s", expressionLanguage, e.getMessage(), this.expression);
+      }
+      valueSpecifications++;
+    }
+    if (valueSpecifications==0) {
+      parseContext.addWarning(buildLine, buildColumn, "No value, variableDefinitionName or expression specified");
+    }
+    if (valueSpecifications>1) {
+      parseContext.addWarning(buildLine, buildColumn, "More then one value specified");
+    }
+  }
+  
   public Object getValue(ActivityInstanceImpl activityInstance) {
     if (value!=null) {
       return value;
@@ -64,42 +118,5 @@ public class ParameterBindingImpl {
     return null;
   }
 
-  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
-          ScopeDefinitionImpl scopeDefinitionImpl, ParameterInstanceImpl parentParameterInstance, ActivityParameter activityParameter, ParameterBinding parameterBinding) {
-    int valueSpecifications = 0;
-    if (parameterBinding.value!=null) {
-      try {
-        value = activityParameter.type.convertApiToInternalValue(parameterBinding.value);
-      } catch (InvalidApiValueException e) {
-        response.addError(parameterBinding.location, "Couldn't parse parameter %s binding value %s as a %s: %s", parentParameterInstance.name, parameterBinding.value, activityParameter.type, e.getMessage());
-      }
-      valueSpecifications++;
-    }
-    if (parameterBinding.variableDefinitionRefName!=null) {
-      variableDefinition = scopeDefinitionImpl.findVariableDefinitionByName(parameterBinding.variableDefinitionRefName);
-      if (!variableDefinition.type.equals(activityParameter.type)) {
-        response.addError(parameterBinding.location, "Variable %s (%s) can't be bound to parameter %s (%s) because the types don't match", 
-                parameterBinding.variableDefinitionRefName, 
-                variableDefinition.type.getId(), 
-                parameterBinding.variableDefinitionRefName,
-                variableDefinition.type.getId());
-      }
-      valueSpecifications++;
-    }
-    if (parameterBinding.expression!=null) {
-      String language = parameterBinding.expressionLanguage != null ? parameterBinding.expressionLanguage : Scripts.JAVASCRIPT;
-      try {
-        expression = processEngine.scripts.compile(parameterBinding.expression, language);
-      } catch (Exception e) {
-        response.addError(parameterBinding.location, "Couldn't compile %s expression: %s: %s", language, e.getMessage(), parameterBinding.expression);
-      }
-      valueSpecifications++;
-    }
-    if (valueSpecifications==0) {
-      response.addWarning(parameterBinding.location, "No value, variableDefinitionName or expression specified");
-    }
-    if (valueSpecifications>1) {
-      response.addWarning(parameterBinding.location, "More then one value specified");
-    }
-  }
+
 }

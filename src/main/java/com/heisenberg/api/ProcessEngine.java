@@ -14,28 +14,25 @@
  */
 package com.heisenberg.api;
 
-import java.util.List;
-
-import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 
 
-
-/**
+/** Start here.
+ * 
+ * Obtain a process engine by instantiating one of the concrete classes like this:
+ *   ProcessEngine processEngine = new MemoryProcessEngine();
+ * 
  * @author Walter White
  */
 public interface ProcessEngine {
   
+  ProcessBuilder newProcessDefinition();
+  
   /** potentially changes the passed processDefinition (assigning ids) 
    * and returns the same object as a way to indicate it may have changed. */
-  DeployProcessDefinitionResponse deployProcessDefinition(ProcessDefinition processDefinition);
+  DeployProcessDefinitionResponse deployProcessDefinition(ProcessBuilder processDefinition);
   
-  ProcessDefinitionQueryBuilder buildProcessDefinitionQuery();
-  List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
-
-  ProcessInstanceQueryBuilder buildProcessInstanceQuery();
-  List<ProcessInstance> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
-
   // TODO change response into StartProcessInstanceResponse
   //      this way we can include the events/logs of all things that happened during execution.
   ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);

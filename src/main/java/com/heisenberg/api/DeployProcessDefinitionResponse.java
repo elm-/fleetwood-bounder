@@ -14,11 +14,8 @@
  */
 package com.heisenberg.api;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import com.heisenberg.api.definition.Location;
 
 
 /**
@@ -28,44 +25,6 @@ public class DeployProcessDefinitionResponse {
 
   public String processDefinitionId;
   public List<Issue> issues;
-  
-  public class Issue {
-    IssueType type;
-    Location location;
-    String msg; 
-    Object[] msgArgs; // msg and arguments are split so that msg can be translated first.
-    public String getFormattedMessage() {
-      return getFormattedMessage(null);
-    }
-    public String getFormattedMessage(Locale l) {
-      return String.format(l, msg, msgArgs);
-    }
-  }
-  
-  public enum IssueType {
-    error,
-    warning
-  }
-  
-  public void addError(Location location, String msg, Object... msgArgs) {
-    addIssue(IssueType.error, location, msg, msgArgs);
-  }
-  
-  public void addWarning(Location location, String msg, Object... msgArgs) {
-    addIssue(IssueType.warning, location, msg, msgArgs);
-  }
-  
-  void addIssue(IssueType type, Location location, String msg, Object... msgArgs) {
-    if (issues==null) {
-      issues = new ArrayList<>();
-    }
-    Issue issue = new Issue();
-    issue.type = type;
-    issue.location = location;
-    issue.msg = msg;
-    issue.msgArgs = msgArgs;
-    issues.add(issue);
-  }
   
   /** throws a RuntimeException if there were errors deploying the process */
   public DeployProcessDefinitionResponse checkNoErrors() {
@@ -82,7 +41,7 @@ public class DeployProcessDefinitionResponse {
   void checkNoIssues(boolean throwIfWarning) {
     if (issues!=null) {
       for (Issue issue: issues) {
-        if (issue.type==IssueType.error || throwIfWarning) {
+        if (issue.type==Issue.IssueType.error || throwIfWarning) {
           throw new RuntimeException(getIssueReport());
         }
       }
@@ -102,15 +61,8 @@ public class DeployProcessDefinitionResponse {
       StringBuilder issueReport = new StringBuilder();
       issueReport.append("Issues: \n");
       for (Issue issue: issues) {
-        if (IssueType.error==issue.type) {
-          issueReport.append("| ERROR   | ");
-        } else {
-          issueReport.append("| warning | ");
-        }
-        issueReport.append(issue.getFormattedMessage(l));
-        issueReport.append(" | ");
-        issueReport.append(issue.location);
-        issueReport.append("|\n");
+        issueReport.append(issue.toString());
+        issueReport.append("\n");
       }
       return issueReport.toString();
     }
@@ -124,7 +76,7 @@ public class DeployProcessDefinitionResponse {
   public boolean hasErrors() {
     if (hasIssues()) {
       for (Issue issue: issues) {
-        if (IssueType.error==issue.type) {
+        if (Issue.IssueType.error==issue.type) {
           return true;
         }
       }

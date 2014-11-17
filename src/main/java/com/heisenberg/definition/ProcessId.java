@@ -12,12 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.definition;
+
+import com.heisenberg.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class TimerDefinition {
+public class ProcessId extends Id {
+
+  public ProcessId(Object internal) {
+    super(internal);
+  }
 
 }

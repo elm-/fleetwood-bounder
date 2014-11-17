@@ -35,8 +35,8 @@ public class Scripts implements ScriptEvaluator {
 
   public Script compile(String script) {
     return compile(script, null);
-    
   }
+  
   public Script compile(String scriptText, String language) {
     if (language==null) {
       language = JAVASCRIPT;

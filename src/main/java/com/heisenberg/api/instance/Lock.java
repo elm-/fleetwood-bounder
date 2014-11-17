@@ -22,5 +22,12 @@ public class Lock {
 
   public Long time;
   public String owner;
-
+  
+  public Long getTime() {
+    return time;
+  }
+  
+  public String getOwner() {
+    return owner;
+  }
 }

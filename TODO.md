@@ -1,3 +1,7 @@
+# Tasks
+
+- [ ] Change Long to our own Date type.  This way, date serialization can be customized. 
+
 # In progress
 
 - [x] simple api 

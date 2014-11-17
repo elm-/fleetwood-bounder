@@ -30,16 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.ProcessDefinitionQueryBuilder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.ProcessInstanceQueryBuilder;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
-import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.definition.ParseContext;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.expressions.Scripts;
 import com.heisenberg.instance.ActivityInstanceId;
@@ -160,18 +159,36 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   protected void initializeTypes() {
     registerType(Type.TEXT);
   }
+  
+  /// Process Definition Builder 
+  
+  @Override
+  public ProcessBuilder newProcessDefinition() {
+    ProcessDefinitionImpl processDefinition = new ProcessDefinitionImpl();
+    processDefinition.processDefinition = processDefinition;
+    processDefinition.processEngine = this;
+    return processDefinition;
+  }
 
   @Override
-  public DeployProcessDefinitionResponse deployProcessDefinition(ProcessDefinition processDefinition) {
-    Exceptions.checkNotNull(processDefinition, "processDefinition");
+  public DeployProcessDefinitionResponse deployProcessDefinition(ProcessBuilder processBuilder) {
+    Exceptions.checkNotNull(processBuilder, "processDefinition");
+
     DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
-    ProcessDefinitionImpl processDefinitionImpl = new ProcessDefinitionImpl(this, response, processDefinition);
+
+    ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) processBuilder;
+    ParseContext parseContext = new ParseContext();
+    parseContext.pushPathElement(processDefinition, null, -1);
+    processDefinition.parse(parseContext);
+    response.issues = parseContext.issues;
+    
     if (!response.hasErrors()) {
-      String generatedId = generateProcessDefinitionId(processDefinitionImpl);
-      processDefinitionImpl.id = new ProcessDefinitionId(generatedId);
+      String generatedId = generateProcessDefinitionId(processDefinition);
+      processDefinition.id = new ProcessDefinitionId(generatedId);
       response.processDefinitionId = generatedId; 
-      storeProcessDefinition(processDefinitionImpl);
+      storeProcessDefinition(processDefinition);
     }
+    
     return response;
   }
   
@@ -268,16 +285,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
   
   public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId);
-
-  @Override
-  public ProcessDefinitionQueryBuilder buildProcessDefinitionQuery() {
-    return new ProcessDefinitionQueryBuilder(this);
-  }
-
-  @Override
-  public ProcessInstanceQueryBuilder buildProcessInstanceQuery() {
-    return new ProcessInstanceQueryBuilder(this);
-  }
 
   public abstract void saveProcessInstance(ProcessInstanceImpl processInstance);
 

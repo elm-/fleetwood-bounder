@@ -15,44 +15,133 @@
 package com.heisenberg.definition;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.definition.ProcessDefinition;
-import com.heisenberg.api.type.TypeDescriptor;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.api.Issue;
+import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class ProcessDefinitionImpl extends ScopeDefinitionImpl {
+public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements ProcessBuilder {
 
+  /** The globally unique identifier for this process definition. */
   public ProcessDefinitionId id;
+  
+  /** the types defined on the process definition level.
+   * This field is the reference for serialization and storage of types.
+   * @link {@link #typesMap} is derived from this field. */
   public List<Type> types;
-  public Map<String,Type> typesMap;
 
-  public ProcessDefinitionImpl(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinition processDefinition) {
-    this.processEngine = processEngine;
-    this.processDefinition = this;
-    this.processEngine = processEngine; // this is to enable the type lookups @see #findType(String) and VariableDefinitionImpl
-    if (processDefinition.typeDescriptors!=null) {
-      for (TypeDescriptor typeDescriptor: processDefinition.typeDescriptors) {
-        Type type = typeDescriptor.createType();
-        if (types==null) {
-          types = new ArrayList<>();
-          typesMap = new HashMap<>();
-        }
-        types.add(type);
-        typesMap.put(type.getId(), type);
-      }
-    }
-    parse(processEngine, response, this, null, processDefinition);
+  /** optional time when the process was deployed.
+   * This field just serves as a read/write property and is not used during process execution. */
+  public Long deployedAt;
+
+  /** optional reference to the user that deployed the process definition.
+   * This field just serves as a read/write property and is not used during process execution. */
+  public UserId deployedByRefId;
+
+  /** optional reference to the organization (aka tenant or workspace) that deployed the process definition.
+   * This field just serves as a read/write property and is not used during process execution. */
+  public OrganizationId organizationRefId;
+
+  /** optional reference to the the source process for which this process definition is one version.
+   * This field just serves as a read/write property and is not used during process execution. */
+  public ProcessId processRefId;
+
+  /** optional version number of this process definition, related to @link {@link #processRefId}.
+   * This combined with the @link {@link ScopeDefinitionImpl#name} should be unique. */
+  public Long version;
+
+  /** derived from @link {@link #types} */
+  public Map<String,Type> typesMap;
+  
+  public List<Issue> parseIssues;
+  
+  /// Process Definition Builder methods /////////////////////////////////////////////
+
+  @Override
+  public ProcessDefinitionImpl name(String name) {
+    super.name(name);
+    return this;
   }
 
+  @Override
+  public ProcessDefinitionImpl deployedAt(Long deployedAt) {
+    this.deployedAt = deployedAt;
+    return this;
+  }
+
+  @Override
+  public ProcessDefinitionImpl deployedByRefId(String deployedByRefId) {
+    this.deployedByRefId = new UserId(deployedByRefId);
+    return this;
+  }
+
+  @Override
+  public ProcessDefinitionImpl processRefId(String processRefId) {
+    this.processRefId = new ProcessId(processRefId);
+    return this;
+  }
+
+  @Override
+  public ProcessDefinitionImpl version(Long version) {
+    this.version = version;
+    return this;
+  }
+  
+  @Override
+  public ProcessDefinitionImpl organizationRefId(String organizationRefId) {
+    this.organizationRefId = new OrganizationId(organizationRefId);
+    return this;
+  }
+  
+  @Override
+  public ProcessDefinitionImpl line(Long line) {
+    super.line(line);
+    return this;
+  }
+
+  @Override
+  public ProcessDefinitionImpl column(Long column) {
+    super.column(column);
+    return this;
+  }
+  
+  @Override
+  public ActivityDefinitionImpl newActivity() {
+    return super.newActivity();
+  }
+
+  @Override
+  public VariableDefinitionImpl newVariable() {
+    return super.newVariable();
+  }
+
+  @Override
+  public TransitionDefinitionImpl newTransition() {
+    return super.newTransition();
+  }
+
+  @Override
+  public TimerDefinitionImpl newTimer() {
+    return super.newTimer();
+  }
+  
+  @Override
+  public ProcessDefinitionImpl type(Type type) {
+    if (types==null) {
+      types = new ArrayList<Type>();
+    }
+    types.add(type);
+    return this;
+  }
+
+  // other methods ////////////////////////////////////////////////////////////////////
+  
   public void prepare() {
     this.processDefinition = this;
     super.prepare();

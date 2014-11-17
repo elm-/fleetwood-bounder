@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.heisenberg.api.ProcessDefinitionQuery;
-import com.heisenberg.api.ProcessInstanceQuery;
-import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
@@ -94,7 +92,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public List<ProcessDefinition> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+  public List<ProcessBuilder> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
     if (processDefinitionQuery.getProcessDefinitionId()!=null) {
       ProcessDefinitionImpl processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
       throw new RuntimeException("TODO");

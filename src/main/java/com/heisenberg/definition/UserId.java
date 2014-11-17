@@ -12,29 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.definition;
 
-
+import com.heisenberg.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class VariableInstance {
+public class UserId extends Id {
 
-  public String variableDefinitionRefName;
-  public String typeRefId;
-  public Object value;
-  
-  public String getVariableDefinitionRefName() {
-    return variableDefinitionRefName;
+  public UserId(Object internal) {
+    super(internal);
   }
-  
-  public String getTypeRefId() {
-    return typeRefId;
-  }
-  
-  public Object getValue() {
-    return value;
-  }
+
 }

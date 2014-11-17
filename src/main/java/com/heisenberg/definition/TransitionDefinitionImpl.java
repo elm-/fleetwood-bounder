@@ -16,22 +16,75 @@ package com.heisenberg.definition;
 
 import java.util.Map;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.definition.TransitionDefinition;
+import com.heisenberg.api.definition.TransitionBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
 /**
  * @author Walter White
  */
-public class TransitionDefinitionImpl {
+public class TransitionDefinitionImpl implements TransitionBuilder {
 
+  protected String name;
   protected ActivityDefinitionImpl from;
   protected ActivityDefinitionImpl to;
 
   protected ProcessEngineImpl processEngine;
   protected ProcessDefinitionImpl processDefinition;
   protected ScopeDefinitionImpl parent;
+  
+  protected String buildFromActivityDefinitionName;
+  protected String buildToActivityDefinitionName;
+  protected Long buildLine;
+  protected Long buildColumn;
+
+  public TransitionDefinitionImpl name(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public TransitionDefinitionImpl line(Long line) {
+    this.buildLine = line;
+    return this;
+  }
+
+  public TransitionDefinitionImpl column(Long column) {
+    this.buildColumn = column;
+    return this;
+  }
+  
+  /** Fluent builder to set the source of this transition.
+   * @param fromActivityDefinitionName the name of the activity definition. */
+  public TransitionDefinitionImpl from(String fromActivityDefinitionName) {
+    this.buildFromActivityDefinitionName = fromActivityDefinitionName;
+    return this;
+  }
+
+  public TransitionDefinitionImpl to(String toActivityDefinitionName) {
+    this.buildToActivityDefinitionName = toActivityDefinitionName;
+    return this;
+  }
+
+  public void validate(ParseContext parseContext) {
+    ScopeDefinitionImpl scopeDefinitionmpl = parseContext.getContextObject(ScopeDefinitionImpl.class);
+    Map<String, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionmpl.activityDefinitionsMap;
+    if (buildFromActivityDefinitionName==null) {
+      parseContext.addWarning(buildLine, buildColumn, "Transition does not have from (source) specified");
+    } else {
+      from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(buildFromActivityDefinitionName) : null);
+      if (from==null) {
+        parseContext.addError(buildLine, buildColumn, "Transition has an invalid from (source) '%s' : Should be one of "+activityDefinitionsMap.keySet(), buildFromActivityDefinitionName);
+      }
+    }
+    if (buildToActivityDefinitionName==null) {
+      parseContext.addWarning(buildLine, buildColumn, "Transition does not have to (destination) specified");
+    } else {
+      to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(buildToActivityDefinitionName) : null);
+      if (to==null) {
+        parseContext.addError(buildLine, buildColumn, "Transition has an invalid to (destination) '%s' : Should be one of "+activityDefinitionsMap.keySet(), buildToActivityDefinitionName);
+      }
+    }
+  }
 
   public void prepare() {
   }
@@ -82,24 +135,4 @@ public class TransitionDefinitionImpl {
     this.processDefinition = processDefinition;
   }
 
-  public void parse(ProcessEngineImpl processEngine, DeployProcessDefinitionResponse response, ProcessDefinitionImpl processDefinition,
-          ScopeDefinitionImpl scopeDefinitionImpl, TransitionDefinition transitionDefinition) {
-    Map<String, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionImpl.activityDefinitionsMap;
-    if (transitionDefinition.fromActivityDefinitionName==null) {
-      response.addWarning(transitionDefinition.location, "Transition does not have from (source) specified");
-    } else {
-      from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transitionDefinition.fromActivityDefinitionName) : null);
-      if (from==null) {
-        response.addError(transitionDefinition.location, "Transition has an invalid from (source) '%s' : Should be one of "+activityDefinitionsMap.keySet(), transitionDefinition.fromActivityDefinitionName);
-      }
-    }
-    if (transitionDefinition.toActivityDefinitionName==null) {
-      response.addWarning(transitionDefinition.location, "Transition does not have to (destination) specified");
-    } else {
-      to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transitionDefinition.toActivityDefinitionName) : null);
-      if (to==null) {
-        response.addError(transitionDefinition.location, "Transition has an invalid to (destination) '%s' : Should be one of "+activityDefinitionsMap.keySet(), transitionDefinition.toActivityDefinitionName);
-      }
-    }
-  }
 }

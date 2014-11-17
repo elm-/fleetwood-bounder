@@ -14,25 +14,24 @@
  */
 package com.heisenberg.api.definition;
 
+import com.heisenberg.spi.Type;
+
+
 
 /**
  * @author Walter White
  */
-public class TransitionDefinition {
+public interface VariableBuilder {
 
-  public Location location;
-  public String fromActivityDefinitionName;
-  public String toActivityDefinitionName;
+  /** The user defined name of the variable that can later be used 
+   * for getting and setting variable values. */
+  VariableBuilder name(String name);
+  
+  VariableBuilder type(String typeRefId);
+  
+  VariableBuilder type(Type type);
 
-  /** Fluent builder to set the source of this transition.
-   * @param fromActivityDefinitionName the name of the activity definition. */
-  public TransitionDefinition from(String fromActivityDefinitionName) {
-    this.fromActivityDefinitionName = fromActivityDefinitionName;
-    return this;
-  }
+  VariableBuilder type(Class<?> javaClass);
 
-  public TransitionDefinition to(String toActivityDefinitionName) {
-    this.toActivityDefinitionName = toActivityDefinitionName;
-    return this;
-  }
+  VariableBuilder initialValue(Object initialValue);
 }
