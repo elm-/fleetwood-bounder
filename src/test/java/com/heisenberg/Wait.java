@@ -33,6 +33,11 @@ public class Wait extends ActivityType {
     return ID;
   }
 
+  @Override
+  public String getLabel() {
+    return "Wait";
+  }
+
   public static List<Execution> executions = new ArrayList<>();
 
   @Override

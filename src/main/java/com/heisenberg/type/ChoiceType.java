@@ -29,6 +29,7 @@ public class ChoiceType extends Type {
   public static final String ID = "choice";
   
   protected String id;
+  protected String label;
   /** maps option ids to option labels */
   protected Map<String, String> options;
   
@@ -42,6 +43,11 @@ public class ChoiceType extends Type {
   
   public ChoiceType id(String id) {
     this.id = id;
+    return this;
+  }
+
+  public ChoiceType label(String label) {
+    this.label = label;
     return this;
   }
 
@@ -59,7 +65,8 @@ public class ChoiceType extends Type {
     return apiValue; 
   }
 
-//  @Override
-//  public void parse(ParseContext parseContext) {
-//  }
+  @Override
+  public String getLabel() {
+    return label;
+  }
 }

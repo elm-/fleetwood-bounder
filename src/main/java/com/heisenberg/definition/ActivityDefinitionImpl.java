@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityBuilder;
 import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.instance.ActivityInstanceImpl;
@@ -32,18 +33,20 @@ import com.heisenberg.util.Exceptions;
  */
 public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder {
 
-  public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
+  @JsonIgnore
   public ActivityType activityType;
+
+  public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
   public List<ParameterInstanceImpl> parameterInstances;
   public Map<String, ParameterInstanceImpl> parameterInstancesMap;
 
   // only used during construction
-  public String buildActivityTypeRefId;
+  public String activityTypeId;
   
   /// Activity Definition Builder methods ////////////////////////////////////////////////
 
-  public ActivityDefinitionImpl activityType(String activityTypeRefId) {
-    this.buildActivityTypeRefId = activityTypeRefId;
+  public ActivityDefinitionImpl activityTypeId(String activityTypeId) {
+    this.activityTypeId = activityTypeId;
     return this;
   }
   
@@ -147,14 +150,14 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 
   public void parse(ParseContext parseContext) {
     if (name==null || "".equals(name)) {
-      parseContext.addError(buildLine, buildColumn, "Activity has no name");
+      parseContext.addError(line, column, "Activity has no name");
     }
-    ActivityTypeDescriptor activityTypeDescriptor = processEngine.activityTypeDescriptors.get(buildActivityTypeRefId);
+    ActivityTypeDescriptor activityTypeDescriptor = processEngine.activityTypeDescriptors.get(activityTypeId);
     if (activityTypeDescriptor==null) {
-      parseContext.addError(buildLine, buildColumn,  
+      parseContext.addError(line, column,  
               "Activity %s has invalid type %s.  Must be one of %s", 
               name, 
-              buildActivityTypeRefId,
+              activityTypeId,
               processEngine.activityTypeDescriptors.keySet().toString());
     } else {
       this.activityType = activityTypeDescriptor.activityType;

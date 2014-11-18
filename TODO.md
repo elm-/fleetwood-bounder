@@ -1,6 +1,10 @@
 # Tasks
 
-- [ ] Change Long to our own Date type.  This way, date serialization can be customized. 
+- [ ] Figure out how to secure java script for our own servers 
+- [ ] Configuration of pluggable types, activities 
+- [ ] Change Long to our own Date type.  This way, date serialization can be customized.
+- [ ] Consider separate methods in the api for setting java values and setting rest json values
+- [ ] Turn ProcessDefintionImpl.parse into a visitor  
 
 # In progress
 

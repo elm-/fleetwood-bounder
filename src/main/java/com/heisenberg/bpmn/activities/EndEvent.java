@@ -34,4 +34,9 @@ public class EndEvent extends ActivityType {
   public void start(ActivityInstanceImpl activityInstance) {
     activityInstance.end();
   }
+
+  @Override
+  public String getLabel() {
+    return null;
+  }
 }

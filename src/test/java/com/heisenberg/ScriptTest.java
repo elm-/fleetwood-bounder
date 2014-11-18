@@ -58,7 +58,7 @@ public class ScriptTest {
       .type(Money.class);
     
     processBuilder.newActivity()
-      .activityType("script")
+      .activityTypeId("script")
       .name("a");
 
     String processDefinitionId = processEngine
@@ -83,6 +83,10 @@ public class ScriptTest {
     @Override
     public String getId() {
       return "script";
+    }
+    @Override
+    public String getLabel() {
+      return "Script";
     }
     @Override
     public void start(ActivityInstanceImpl activityInstance) {

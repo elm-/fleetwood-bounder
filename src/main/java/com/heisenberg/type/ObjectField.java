@@ -14,6 +14,12 @@
  */
 package com.heisenberg.type;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+
+import com.heisenberg.form.FormField;
+import com.heisenberg.spi.Binding;
+import com.heisenberg.spi.Label;
 import com.heisenberg.spi.Type;
 
 
@@ -22,7 +28,39 @@ import com.heisenberg.spi.Type;
  */
 public class ObjectField {
 
-  protected String name;
-  protected Type type;
+  public String name;
+  public String label;
+  public String typeRefId;
   
+  public ObjectField(Field javaField) {
+    this.name = javaField.getName();
+    Label label = javaField.getAnnotation(Label.class);
+    this.label = label!=null ? label.value() : null;
+    Class<?> fieldType = javaField.getType();
+    if (String.class == fieldType) {
+      typeRefId = Type.TEXT.getId();
+    } else if (Binding.class == fieldType) {
+      java.lang.reflect.Type javaFieldType = javaField.getGenericType();
+      java.lang.reflect.Type targetType = null;
+      if (javaFieldType instanceof ParameterizedType) {
+        ParameterizedType parametrizedType = (ParameterizedType) javaFieldType;
+        java.lang.reflect.Type[] actualTypeArguments = parametrizedType.getActualTypeArguments();
+        if (actualTypeArguments.length==1) {
+          targetType = actualTypeArguments[0];
+        }
+      }
+      if (targetType==null) {
+        throw new RuntimeException("Expected single generic type binding for a Binding field");
+      }
+      typeRefId = new BindingType(targetType).getId();
+    }
+  }
+
+  public FormField getConfigurationFormField() {
+    FormField formField = new FormField();
+    formField.typeRefId = typeRefId;
+    formField.id = name;
+    formField.label = label;
+    return formField;
+  }
 }

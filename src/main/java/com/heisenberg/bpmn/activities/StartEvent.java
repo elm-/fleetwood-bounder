@@ -34,4 +34,9 @@ public class StartEvent extends ActivityType {
   public void start(ActivityInstanceImpl activityInstance) {
     activityInstance.onwards();
   }
+
+  @Override
+  public String getLabel() {
+    return null;
+  }
 }

@@ -12,13 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.json;
+package com.heisenberg.form;
 
 
 /**
  * @author Walter White
  */
-public interface Jsonnable {
+public class FormField {
 
-  Object serializeToJson();
+  public String id;
+  public String label;
+  public String typeRefId;
+  public Boolean required;
+  public Boolean readOnly;
+  public Object value;
 }

@@ -14,7 +14,8 @@
  */
 package com.heisenberg.type;
 
-import com.heisenberg.definition.ProcessDefinitionId;
+import java.lang.reflect.TypeVariable;
+
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 
@@ -22,23 +23,35 @@ import com.heisenberg.spi.Type;
 /**
  * @author Walter White
  */
-public class ProcessDefinitionIdType extends Type {
+public class BindingType extends Type {
+  
+  String id;
+  String label;
 
-  @Override
-  public String getId() {
-    return "processDefinitionId";
+  public BindingType(java.lang.reflect.Type targetType) {
+    Class< ? > targetJavaType = (Class<?>)targetType;
+    // TODO get the id from some flyweight
+    try {
+      String targetTypeId = ((Type)targetJavaType.newInstance()).getId();
+      id = "binding<"+targetTypeId+">";
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public String getLabel() {
-    return "Process definition";
+    return label;
+  }
+
+  @Override
+  public String getId() {
+    return id;
   }
 
   @Override
   public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
-    if (apiValue==null) return null;
-    if (apiValue instanceof ProcessDefinitionIdType) return apiValue;
-    if (apiValue instanceof String) return new ProcessDefinitionId(apiValue);
-    throw new InvalidApiValueException("Invalid process definition id: "+apiValue);
+    return apiValue;
   }
+
 }

@@ -14,18 +14,12 @@
  */
 package com.heisenberg.spi;
 
-import com.heisenberg.impl.ServiceDescriptor;
 
-
-/** Exposes access to 'things' or 'entities' of another service.
- * 
- * For example: a Google Drive services could expose documents or 
- * a Salesforce service could expose leads.
- * 
+/**
  * @author Walter White
  */
-public interface Service extends Spi {
+public enum SpiType {
 
-  ServiceDescriptor getServiceDescriptor();
-  
+  type,
+  activity
 }

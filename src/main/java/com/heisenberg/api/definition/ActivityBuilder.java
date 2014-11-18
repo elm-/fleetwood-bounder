@@ -23,7 +23,7 @@ import com.heisenberg.spi.ActivityParameter;
  */
 public interface ActivityBuilder {
 
-  ActivityBuilder activityType(String activityTypeRefId);
+  ActivityBuilder activityTypeId(String activityTypeRefId);
 
   ActivityBuilder name(String activityDefinitionName);
 

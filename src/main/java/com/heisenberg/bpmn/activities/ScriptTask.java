@@ -36,4 +36,9 @@ public class ScriptTask extends ActivityType {
     // invoke javascript
     // perform dirty checking on the variables
   }
+
+  @Override
+  public String getLabel() {
+    return null;
+  }
 }

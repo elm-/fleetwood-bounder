@@ -18,22 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.spi.ActivityParameter;
 
 
-/**
+/** replaced by Binding member field directly in the Spi classes
  * @author Walter White
  */
+@Deprecated
 public class ParameterInstanceImpl {
 
-  public ProcessEngineImpl processEngine;
-  public ProcessDefinitionImpl processDefinition;
-  public ScopeDefinitionImpl parent;
-  
   public String name;
   public ActivityParameter activityParameter;
   public List<ParameterBindingImpl> parameterBindings;
+
+  @JsonIgnore
+  public ProcessEngineImpl processEngine;
+  @JsonIgnore
+  public ProcessDefinitionImpl processDefinition;
+  @JsonIgnore
+  public ScopeDefinitionImpl parent;
   
   public Long buildLine;
   public Long buildColumn;
@@ -140,5 +145,4 @@ public class ParameterInstanceImpl {
   public void setParameterBindings(List<ParameterBindingImpl> values) {
     this.parameterBindings = values;
   }
-
 }

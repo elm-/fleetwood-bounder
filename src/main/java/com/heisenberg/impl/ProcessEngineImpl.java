@@ -16,6 +16,7 @@ package com.heisenberg.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.Provider.Service;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,7 +51,6 @@ import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.spi.Service;
 import com.heisenberg.spi.Spi;
 import com.heisenberg.spi.Type;
 import com.heisenberg.type.JavaType;
@@ -65,7 +65,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
-  public Map<String,ServiceDescriptor> servicesDescriptors;
   public Map<String,ActivityTypeDescriptor> activityTypeDescriptors;
   public Map<String,Type> types;
   public Executor executor;
@@ -95,16 +94,11 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
   
   protected void initializePluggableImplementations() {
-    servicesDescriptors = new HashMap<>();
     activityTypeDescriptors = new HashMap<>();
     types = new HashMap<>();
     Iterator<Spi> spis = ServiceLoader.load(Spi.class).iterator();
     while (spis.hasNext()) {
       Spi spi = spis.next();
-      if (spi instanceof Service) {
-        Service service = (Service)spi;
-        registerService(service);
-      }
       if (spi instanceof ActivityType) {
         ActivityType activityType = (ActivityType)spi;
         registerActivityType(activityType);
@@ -123,13 +117,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public ProcessEngineImpl registerType(Class<?> javaClass) {
     registerType(new JavaType(javaClass));
-    return this;
-  }
-
-  public ProcessEngineImpl registerService(Service service) {
-    ServiceDescriptor serviceDescriptor = service.getServiceDescriptor();
-    serviceDescriptor.serviceClass = service.getClass();
-    servicesDescriptors.put(serviceDescriptor.serviceId, serviceDescriptor);
     return this;
   }
 

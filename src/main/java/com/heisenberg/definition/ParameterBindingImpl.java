@@ -14,6 +14,7 @@
  */
 package com.heisenberg.definition;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
 import com.heisenberg.expressions.Scripts;
@@ -23,9 +24,11 @@ import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.InvalidApiValueException;
 
 
-/**
+/** replaced by Binding member field directly in the Spi classes
+ * 
  * @author Walter White
  */
+@Deprecated
 public class ParameterBindingImpl {
   
   // one of the next 3 specifies the how the value is determined at runtime
@@ -33,8 +36,11 @@ public class ParameterBindingImpl {
   protected VariableDefinitionImpl variableDefinition;
   protected Script expression;
 
+  @JsonIgnore
   public ProcessEngineImpl processEngine;
+  @JsonIgnore
   public ProcessDefinitionImpl processDefinition;
+  @JsonIgnore
   public ParameterInstanceImpl parent;
 
   protected String buildVariableDefinitionRefName;

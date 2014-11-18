@@ -54,4 +54,9 @@ public class CallActivity extends ActivityType {
       activityInstance.getProcessEngine().startProcessInstance(startProcessInstanceRequest);
     }
   }
+
+  @Override
+  public String getLabel() {
+    return null;
+  }
 }

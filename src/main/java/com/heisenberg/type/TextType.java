@@ -31,6 +31,11 @@ public class TextType extends Type {
   }
 
   @Override
+  public String getLabel() {
+    return "Text";
+  }
+
+  @Override
   public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
     if (apiValue==null || (apiValue instanceof String)) {
       return apiValue;

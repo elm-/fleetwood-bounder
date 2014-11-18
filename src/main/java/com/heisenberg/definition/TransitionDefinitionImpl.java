@@ -16,6 +16,7 @@ package com.heisenberg.definition;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.TransitionBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 
@@ -26,17 +27,22 @@ import com.heisenberg.impl.ProcessEngineImpl;
 public class TransitionDefinitionImpl implements TransitionBuilder {
 
   protected String name;
+  @JsonIgnore
   protected ActivityDefinitionImpl from;
+  @JsonIgnore
   protected ActivityDefinitionImpl to;
 
+  @JsonIgnore
   protected ProcessEngineImpl processEngine;
+  @JsonIgnore
   protected ProcessDefinitionImpl processDefinition;
+  @JsonIgnore
   protected ScopeDefinitionImpl parent;
   
-  protected String buildFromActivityDefinitionName;
-  protected String buildToActivityDefinitionName;
-  protected Long buildLine;
-  protected Long buildColumn;
+  protected String fromName;
+  protected String toName;
+  protected Long line;
+  protected Long column;
 
   public TransitionDefinitionImpl name(String name) {
     this.name = name;
@@ -44,44 +50,49 @@ public class TransitionDefinitionImpl implements TransitionBuilder {
   }
 
   public TransitionDefinitionImpl line(Long line) {
-    this.buildLine = line;
+    this.line = line;
     return this;
   }
 
   public TransitionDefinitionImpl column(Long column) {
-    this.buildColumn = column;
+    this.column = column;
     return this;
   }
   
   /** Fluent builder to set the source of this transition.
    * @param fromActivityDefinitionName the name of the activity definition. */
-  public TransitionDefinitionImpl from(String fromActivityDefinitionName) {
-    this.buildFromActivityDefinitionName = fromActivityDefinitionName;
+  public TransitionDefinitionImpl from(String fromName) {
+    this.fromName = fromName;
     return this;
   }
 
-  public TransitionDefinitionImpl to(String toActivityDefinitionName) {
-    this.buildToActivityDefinitionName = toActivityDefinitionName;
+  public TransitionDefinitionImpl to(String toName) {
+    this.toName = toName;
     return this;
   }
-
+  
+  public void preSerialize() {
+    if (from!=null) fromName = from.name;
+    if (to!=null) toName = to.name;
+  }
+  
   public void validate(ParseContext parseContext) {
     ScopeDefinitionImpl scopeDefinitionmpl = parseContext.getContextObject(ScopeDefinitionImpl.class);
     Map<String, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionmpl.activityDefinitionsMap;
-    if (buildFromActivityDefinitionName==null) {
-      parseContext.addWarning(buildLine, buildColumn, "Transition does not have from (source) specified");
+    if (fromName==null) {
+      parseContext.addWarning(line, column, "Transition does not have from (source) specified");
     } else {
-      from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(buildFromActivityDefinitionName) : null);
+      from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(fromName) : null);
       if (from==null) {
-        parseContext.addError(buildLine, buildColumn, "Transition has an invalid from (source) '%s' : Should be one of "+activityDefinitionsMap.keySet(), buildFromActivityDefinitionName);
+        parseContext.addError(line, column, "Transition has an invalid from (source) '%s' : Should be one of "+activityDefinitionsMap.keySet(), fromName);
       }
     }
-    if (buildToActivityDefinitionName==null) {
-      parseContext.addWarning(buildLine, buildColumn, "Transition does not have to (destination) specified");
+    if (toName==null) {
+      parseContext.addWarning(line, column, "Transition does not have to (destination) specified");
     } else {
-      to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(buildToActivityDefinitionName) : null);
+      to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(toName) : null);
       if (to==null) {
-        parseContext.addError(buildLine, buildColumn, "Transition has an invalid to (destination) '%s' : Should be one of "+activityDefinitionsMap.keySet(), buildToActivityDefinitionName);
+        parseContext.addError(line, column, "Transition has an invalid to (destination) '%s' : Should be one of "+activityDefinitionsMap.keySet(), toName);
       }
     }
   }

@@ -14,6 +14,8 @@
  */
 package com.heisenberg.spi;
 
+import java.io.InputStream;
+
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
@@ -26,5 +28,10 @@ import com.heisenberg.impl.ProcessEngineImpl;
  * @author Walter White
  */
 public interface Spi {
+
+  String getLabel();
+  // String getDescription();
+  // InputStream getIconInputStream();
+  // String getIconMimeType();
 
 }

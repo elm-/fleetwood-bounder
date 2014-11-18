@@ -33,4 +33,9 @@ public class SubProcess extends ActivityType {
   @Override
   public void start(ActivityInstanceImpl activityInstance) {
   }
+
+  @Override
+  public String getLabel() {
+    return null;
+  }
 }

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.ScopeInstanceImpl;
@@ -40,15 +41,21 @@ public abstract class ScopeDefinitionImpl {
 
   // derived fields that are initialized in the prepare() method
 
+  @JsonIgnore
   public ProcessEngineImpl processEngine;
+  @JsonIgnore
   public ProcessDefinitionImpl processDefinition;
+  @JsonIgnore
   public ScopeDefinitionImpl parent;
+  @JsonIgnore
   public List<ActivityDefinitionImpl> startActivityDefinitions;
+  @JsonIgnore
   public Map<String, ActivityDefinitionImpl> activityDefinitionsMap;
+  @JsonIgnore
   public Map<String, VariableDefinitionImpl> variableDefinitionsMap;
 
-  public Long buildLine;
-  public Long buildColumn;
+  public Long line;
+  public Long column;
   
   /// Process Definition Builder methods //////////////////////////////////////////
   
@@ -106,12 +113,12 @@ public abstract class ScopeDefinitionImpl {
   }
 
   public ScopeDefinitionImpl line(Long line) {
-    this.buildLine = line;
+    this.line = line;
     return this;
   }
 
   public ScopeDefinitionImpl column(Long column) {
-    this.buildColumn = column;
+    this.column = column;
     return this;
   }
 

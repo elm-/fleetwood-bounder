@@ -14,8 +14,12 @@
  */
 package com.heisenberg.type;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.form.Form;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 
@@ -25,15 +29,54 @@ import com.heisenberg.spi.Type;
  */
 public class ObjectType extends Type {
 
-  List<ObjectField> fields;
-
-  @Override
-  public String getId() {
-    return null;
-  }
+  protected String id; // the id is the fully qualified java class name
+  protected List<ObjectField> fields;
 
   @Override
   public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
     return null;
+  }
+
+  @Override
+  public String getLabel() {
+    return null;
+  }
+
+  public ObjectType(Class< ? > type) {
+    scanFields(type);
+  }
+
+  void scanFields(Class< ? > type) {
+    Field[] javaFields = type.getDeclaredFields();
+    if (javaFields!=null) {
+      for (Field javaField: javaFields) {
+        if (!Modifier.isStatic(javaField.getModifiers())) {
+          addField(new ObjectField(javaField));
+        }
+      }
+    }
+    Class< ? > superclass = type.getSuperclass();
+    if (superclass!=null && superclass!=Object.class) {
+      scanFields(superclass);
+    }
+  }
+
+  void addField(ObjectField field) {
+    if (fields==null) {
+      fields = new ArrayList<>();
+    }
+    fields.add(field);
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public Form getConfigurationForm() {
+    Form form = new Form();
+    for (ObjectField field: fields) {
+      form.addField(field.getConfigurationFormField());
+    }
+    return form;
   }
 }

@@ -14,6 +14,9 @@
  */
 package com.heisenberg.api.definition;
 
+import com.heisenberg.definition.OrganizationId;
+import com.heisenberg.definition.ProcessId;
+import com.heisenberg.definition.UserId;
 import com.heisenberg.spi.Type;
 
 
@@ -22,21 +25,17 @@ import com.heisenberg.spi.Type;
  */
 public interface ProcessBuilder {
 
-  ProcessBuilder deployedAt(Long createdAt);
+  ProcessBuilder deployedTime(Long deployedTime);
   
-  ProcessBuilder deployedByRefId(String deployedByRefId);
+  ProcessBuilder deployedUserId(UserId deployedUserId);
 
-  ProcessBuilder processRefId(String processRefId);
+  ProcessBuilder processId(ProcessId processId);
   
   ProcessBuilder version(Long version);
   
-  ProcessBuilder organizationRefId(String organizationRefId);
+  ProcessBuilder organizationId(OrganizationId organizationId);
   
   ProcessBuilder type(Type type);
-
-//  ProcessBuilder type(TypeDescriptor typeDescriptor);
-//
-//  ProcessBuilder type(Class<?> javaType);
 
   ProcessBuilder name(String processDefinitionName);
 

@@ -32,17 +32,16 @@ import com.heisenberg.definition.ScopeDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.json.Jsonnable;
+import com.heisenberg.json.JsonnableDeprecated;
 import com.heisenberg.spi.Type;
 import com.heisenberg.type.TypedValue;
-import com.heisenberg.util.Identifyable;
 import com.heisenberg.util.Time;
 
 
 /**
  * @author Walter White
  */
-public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
+public abstract class ScopeInstanceImpl implements JsonnableDeprecated {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -148,7 +147,7 @@ public abstract class ScopeInstanceImpl implements Identifyable, Jsonnable {
     if (parent!=null) {
       return parent.getVariableValueRecursive(variableDefinitionName);
     }
-    throw new RuntimeException("Variable "+variableDefinitionName+" is not defined in "+getClass().getSimpleName()+" "+getId());
+    throw new RuntimeException("Variable "+variableDefinitionName+" is not defined in "+getClass().getSimpleName()+" "+toString());
   }
   
   protected VariableInstanceImpl getVariableInstanceLocal(String variableDefinitionName) {

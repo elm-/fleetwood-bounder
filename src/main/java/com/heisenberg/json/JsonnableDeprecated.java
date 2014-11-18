@@ -12,24 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl;
-
-import com.heisenberg.spi.Service;
-
+package com.heisenberg.json;
 
 
 /**
  * @author Walter White
  */
-public class ServiceDescriptor {
+@Deprecated
+public interface JsonnableDeprecated {
 
-  public String serviceId;
-  public Class<? extends Service> serviceClass;
-
-  public static ServiceDescriptor typeId(String serviceTypeId) {
-    ServiceDescriptor serviceDescriptor = new ServiceDescriptor();
-    serviceDescriptor.serviceId = serviceTypeId;
-    return serviceDescriptor;
-  }
-  
+  Object serializeToJson();
 }

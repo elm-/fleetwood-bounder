@@ -62,7 +62,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   @Override
   public void saveProcessInstance(ProcessInstanceImpl processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
-    log.debug("Saving: "+json.toJsonStringPretty(processInstance));
+    log.debug("Saving: "+json.objectToJsonStringPretty(processInstance));
   }
 
   @Override
@@ -83,7 +83,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     lockedProcessInstances.remove(processInstance.getId());
     processInstance.removeLock();
     flush(processInstance);
-    log.debug("Process instance should be: "+json.toJsonStringPretty(processInstance));
+    log.debug("Process instance should be: "+json.objectToJsonStringPretty(processInstance));
   }
 
   @Override
@@ -142,7 +142,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     lock.setTime(Time.now());
     lock.setOwner(getId());
     processInstance.setLock(lock);
-    log.debug("Locked process instance: "+json.toJsonStringPretty(processInstance));
+    log.debug("Locked process instance: "+json.objectToJsonStringPretty(processInstance));
     return processInstance;
   }
 }

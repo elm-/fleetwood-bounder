@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.heisenberg.api.Issue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.spi.Type;
 
@@ -43,7 +43,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /** optional reference to the user that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
-  public UserId deployedByRefId;
+  public UserId deployedBy;
 
   /** optional reference to the organization (aka tenant or workspace) that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
@@ -58,9 +58,8 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   public Long version;
 
   /** derived from @link {@link #types} */
+  @JsonIgnore
   public Map<String,Type> typesMap;
-  
-  public List<Issue> parseIssues;
   
   /// Process Definition Builder methods /////////////////////////////////////////////
 
@@ -71,20 +70,20 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
 
   @Override
-  public ProcessDefinitionImpl deployedAt(Long deployedAt) {
+  public ProcessDefinitionImpl deployedTime(Long deployedAt) {
     this.deployedAt = deployedAt;
     return this;
   }
 
   @Override
-  public ProcessDefinitionImpl deployedByRefId(String deployedByRefId) {
-    this.deployedByRefId = new UserId(deployedByRefId);
+  public ProcessDefinitionImpl deployedUserId(UserId deployedBy) {
+    this.deployedBy = deployedBy;
     return this;
   }
 
   @Override
-  public ProcessDefinitionImpl processRefId(String processRefId) {
-    this.processRefId = new ProcessId(processRefId);
+  public ProcessDefinitionImpl processId(ProcessId processId) {
+    this.processRefId = processId;
     return this;
   }
 
@@ -95,8 +94,8 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
   
   @Override
-  public ProcessDefinitionImpl organizationRefId(String organizationRefId) {
-    this.organizationRefId = new OrganizationId(organizationRefId);
+  public ProcessDefinitionImpl organizationId(OrganizationId organizationId) {
+    this.organizationRefId = organizationId;
     return this;
   }
   
@@ -151,9 +150,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
         parseContext.popPathElement();
         typesMap.put(type.getId(), type);
       }
-      
     }
-
     super.parse(parseContext);
   }
   

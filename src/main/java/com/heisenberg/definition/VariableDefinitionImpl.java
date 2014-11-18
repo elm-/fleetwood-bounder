@@ -14,6 +14,7 @@
  */
 package com.heisenberg.definition;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.VariableBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.VariableInstanceImpl;
@@ -30,13 +31,16 @@ public class VariableDefinitionImpl implements VariableBuilder {
   public Type type;
   public Object initialValue;
 
+  @JsonIgnore
   public ProcessEngineImpl processEngine;
+  @JsonIgnore
   public ProcessDefinitionImpl processDefinition;  
+  @JsonIgnore
   public ScopeDefinitionImpl parent;
 
-  protected Long buildLine;
-  protected Long buildColumn;
-  protected String buildTypeRefId;
+  public Long line;
+  public Long column;
+  public String typeId;
 
   public VariableDefinitionImpl name(String name) {
     this.name = name;
@@ -44,22 +48,22 @@ public class VariableDefinitionImpl implements VariableBuilder {
   }
 
   public VariableDefinitionImpl line(Long line) {
-    this.buildLine = line;
+    this.line = line;
     return this;
   }
 
   public VariableDefinitionImpl column(Long column) {
-    this.buildColumn = column;
+    this.column = column;
     return this;
   }
 
   public VariableDefinitionImpl type(String typeRefId) {
-    this.buildTypeRefId = typeRefId;
+    this.typeId = typeRefId;
     return this;
   }
 
   public VariableDefinitionImpl type(Class<?> javaClass) {
-    this.buildTypeRefId = javaClass.getName();
+    this.typeId = javaClass.getName();
     return this;
   }
 
@@ -75,13 +79,13 @@ public class VariableDefinitionImpl implements VariableBuilder {
   
   public void validate(ParseContext parseContext) {
     if (name==null) {
-      parseContext.addError(buildLine, buildColumn, "Variable does not have a name");
+      parseContext.addError(line, column, "Variable does not have a name");
     }
-    if (buildTypeRefId!=null || type!=null) {
+    if (typeId!=null || type!=null) {
       if (type==null) {
-        this.type = processDefinition.findType(buildTypeRefId);
+        this.type = processDefinition.findType(typeId);
         if (this.type==null) {
-          parseContext.addError(buildLine, buildColumn, "Variable '%s' has unknown type '%s'", name, buildTypeRefId);
+          parseContext.addError(line, column, "Variable '%s' has unknown type '%s'", name, typeId);
         }
       }
       if (type!=null) {
@@ -89,12 +93,12 @@ public class VariableDefinitionImpl implements VariableBuilder {
           try {
             this.initialValue = type.convertApiToInternalValue(initialValue);
           } catch (InvalidApiValueException e) {
-            parseContext.addError(buildLine, buildColumn, "Invalid initial value %s for variable %s (%s)", initialValue, name, buildTypeRefId);
+            parseContext.addError(line, column, "Invalid initial value %s for variable %s (%s)", initialValue, name, typeId);
           }
         }
       }
     } else {
-      parseContext.addError(buildLine, buildColumn, "Variable '%s' does not have a type", name);
+      parseContext.addError(line, column, "Variable '%s' does not have a type", name);
     }
   }
 

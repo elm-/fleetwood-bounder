@@ -36,6 +36,11 @@ public class Go extends ActivityType {
     return ID;
   }
 
+  @Override
+  public String getLabel() {
+    return "Go";
+  }
+
   public static ObjectActivityParameter PLACE = ObjectActivityParameter
           .type(Type.TEXT)
           .name("place");

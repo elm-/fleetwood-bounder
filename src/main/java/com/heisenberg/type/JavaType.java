@@ -48,4 +48,8 @@ public class JavaType extends Type {
     return null;
   }
 
+  @Override
+  public String getLabel() {
+    return null;
+  }
 }

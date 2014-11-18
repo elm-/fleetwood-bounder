@@ -45,16 +45,16 @@ public class ExampleTest {
       .type(Type.TEXT);
 
     processBuilder.newActivity()
-      .activityType(Go.ID)
+      .activityTypeId(Go.ID)
       .parameterValue(Go.PLACE, "Antwerp")
       .name("go");
     
     processBuilder.newActivity()
-      .activityType(Wait.ID)
+      .activityTypeId(Wait.ID)
       .name("wait1");
     
     processBuilder.newActivity()
-      .activityType(Wait.ID)
+      .activityTypeId(Wait.ID)
       .name("wait2");
     
     processBuilder.newTransition()
