@@ -35,17 +35,17 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.id.ActivityInstanceId;
+import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.expressions.Scripts;
-import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
-import com.heisenberg.instance.ProcessInstanceId;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityParameter;
@@ -224,7 +224,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     processInstance.setLock(lock);
     saveProcessInstance(processInstance);
     processInstance.executeOperations();
-    return processInstance.serializeToJson();
+    return processInstance;
   }
 
   protected ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(ProcessDefinitionId processDefinitionId) {

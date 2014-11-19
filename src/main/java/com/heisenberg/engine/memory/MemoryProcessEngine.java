@@ -22,15 +22,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.heisenberg.definition.ProcessDefinitionId;
+import com.heisenberg.api.id.ActivityInstanceId;
+import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.updates.Update;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
-import com.heisenberg.instance.ActivityInstanceId;
 import com.heisenberg.instance.LockImpl;
-import com.heisenberg.instance.ProcessInstanceId;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.util.Time;
 

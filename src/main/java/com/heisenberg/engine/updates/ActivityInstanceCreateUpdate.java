@@ -21,7 +21,7 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-@JsonTypeName("aiCreate")
+@JsonTypeName("activityInstanceCreate")
 public class ActivityInstanceCreateUpdate extends ActivityInstanceUpdate {
 
   public static final String FIELD_ACTIVITY_INSTANCE_CREATED = "activityInstance";

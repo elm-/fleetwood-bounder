@@ -12,22 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.api.id;
+
+import com.heisenberg.util.Id;
 
 
 /**
  * @author Walter White
  */
-public class Lock {
+public class ProcessId extends Id {
 
-  public Long time;
-  public String owner;
-  
-  public Long getTime() {
-    return time;
+  public ProcessId(Object internal) {
+    super(internal);
   }
-  
-  public String getOwner() {
-    return owner;
-  }
+
 }

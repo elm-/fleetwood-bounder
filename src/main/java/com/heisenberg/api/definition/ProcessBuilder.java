@@ -14,9 +14,9 @@
  */
 package com.heisenberg.api.definition;
 
-import com.heisenberg.definition.OrganizationId;
-import com.heisenberg.definition.ProcessId;
-import com.heisenberg.definition.UserId;
+import com.heisenberg.api.id.OrganizationId;
+import com.heisenberg.api.id.ProcessId;
+import com.heisenberg.api.id.UserId;
 import com.heisenberg.spi.Type;
 
 

@@ -21,6 +21,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.id.OrganizationId;
+import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessId;
+import com.heisenberg.api.id.UserId;
 import com.heisenberg.spi.Type;
 
 

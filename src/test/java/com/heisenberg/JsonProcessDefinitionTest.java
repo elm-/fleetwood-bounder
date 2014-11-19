@@ -21,10 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.OrganizationId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ProcessId;
-import com.heisenberg.definition.UserId;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.json.Json;
@@ -32,6 +29,9 @@ import com.heisenberg.spi.Type;
 import com.heisenberg.type.ChoiceType;
 import com.heisenberg.util.Time;
 import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.id.OrganizationId;
+import com.heisenberg.api.id.ProcessId;
+import com.heisenberg.api.id.UserId;
 
 /**
  * @author Walter White
@@ -65,6 +65,7 @@ public class JsonProcessDefinitionTest {
       .initialValue("iv")
       .type(Type.TEXT)
       .line(3l)
+      
       .column(4l);
     
     processBuilder.newActivity()

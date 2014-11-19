@@ -14,6 +14,7 @@
  */
 package com.heisenberg.engine.updates;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.instance.ActivityInstanceImpl;
 
 
@@ -22,6 +23,7 @@ import com.heisenberg.instance.ActivityInstanceImpl;
  */
 public abstract class ActivityInstanceUpdate implements Update {
 
+  @JsonIgnore
   protected ActivityInstanceImpl activityInstance;
   
   public ActivityInstanceUpdate(ActivityInstanceImpl activityInstance) {

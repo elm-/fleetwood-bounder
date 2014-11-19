@@ -58,9 +58,9 @@ public class TypeDeclarationTest {
       .processDefinitionRefId(processDefinitionId)
       .variableValue("m", new Money(5d, "USD")));
     
-    VariableInstance mInstance = processInstance.variableInstances.get(0);
-    assertEquals(Money.class.getName(), mInstance.typeRefId);
-    Money money = (Money) mInstance.value;
+    VariableInstance mInstance = processInstance.getVariableInstances().get(0);
+    assertEquals(Money.class.getName(), mInstance.getTypeId());
+    Money money = (Money) mInstance.getValue();
     assertEquals(5d, money.amount, 0.000001d);
     assertEquals("USD", money.currency);
   }

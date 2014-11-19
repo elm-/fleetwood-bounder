@@ -20,36 +20,18 @@ import java.util.List;
 /**
  * @author Walter White
  */
-public class ScopeInstance {
+public interface ScopeInstance {
 
-  public String id;
-  public Long start;
-  public Long end;
-  public Long duration;
-  public List<ActivityInstance> activityInstances;
-  public List<VariableInstance> variableInstances;
   
-  public String getId() {
-    return id;
-  }
+  String getId();
   
-  public Long getStart() {
-    return start;
-  }
+  Long getStart();
   
-  public Long getEnd() {
-    return end;
-  }
+  Long getEnd();
   
-  public Long getDuration() {
-    return duration;
-  }
+  Long getDuration();
   
-  public List<ActivityInstance> getActivityInstances() {
-    return activityInstances;
-  }
+  List<ActivityInstance> getActivityInstances();
   
-  public List<VariableInstance> getVariableInstances() {
-    return variableInstances;
-  }
+  List<VariableInstance> getVariableInstances();
 }

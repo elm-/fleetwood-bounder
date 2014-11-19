@@ -22,17 +22,15 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ScopeDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.json.JsonnableDeprecated;
 import com.heisenberg.spi.Type;
 import com.heisenberg.type.TypedValue;
 import com.heisenberg.util.Time;
@@ -41,7 +39,7 @@ import com.heisenberg.util.Time;
 /**
  * @author Walter White
  */
-public abstract class ScopeInstanceImpl implements JsonnableDeprecated {
+public abstract class ScopeInstanceImpl {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -49,33 +47,44 @@ public abstract class ScopeInstanceImpl implements JsonnableDeprecated {
   public Long end;
   public Long duration;
   public List<ActivityInstanceImpl> activityInstances;
-
   public List<VariableInstanceImpl> variableInstances;
+
+  @JsonIgnore
   public Map<String, VariableInstanceImpl> variableInstancesMap;
 
+  @JsonIgnore
   public ProcessEngineImpl processEngine;
+  @JsonIgnore
   public ProcessDefinitionImpl processDefinition;
+  @JsonIgnore
   public ScopeDefinitionImpl scopeDefinition;
+  @JsonIgnore
   public ProcessInstanceImpl processInstance;
+  @JsonIgnore
   public ScopeInstanceImpl parent;
   
   
-  public void serialize(ScopeInstance scopeInstance) {
-    scopeInstance.start = start;
-    scopeInstance.end = end;
-    scopeInstance.duration = duration;
+  protected void visitCompositeInstance(ProcessInstanceVisitor visitor) {
+    visitActivityInstances(visitor);
+    visitVariableInstances(visitor);
+  }
+
+  protected void visitActivityInstances(ProcessInstanceVisitor visitor) {
     if (activityInstances!=null) {
-      scopeInstance.activityInstances = new ArrayList<>(activityInstances.size());
-      for (ActivityInstanceImpl activityInstanceImpl: activityInstances) {
-        ActivityInstance activityInstance = activityInstanceImpl.serializeToJson();
-        scopeInstance.activityInstances.add(activityInstance);
+      for (int i=0; i<activityInstances.size(); i++) {
+        ActivityInstanceImpl activityInstance = activityInstances.get(i);
+        visitor.startActivityInstance(activityInstance, i);
+        activityInstance.visit(visitor, i);
+        visitor.endActivityInstance(activityInstance, i);
       }
     }
+  }
+
+  protected void visitVariableInstances(ProcessInstanceVisitor visitor) {
     if (variableInstances!=null) {
-      scopeInstance.variableInstances = new ArrayList<>(variableInstances.size());
-      for (VariableInstanceImpl variableInstanceImpl: variableInstances) {
-        VariableInstance variableInstance = variableInstanceImpl.serialize();
-        scopeInstance.variableInstances.add(variableInstance);
+      for (int i=0; i<variableInstances.size(); i++) {
+        VariableInstanceImpl variableInstance = variableInstances.get(i);
+        visitor.variableInstance(variableInstance, i);
       }
     }
   }

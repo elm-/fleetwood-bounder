@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.instance;
+package com.heisenberg.api.id;
 
 import com.heisenberg.util.Id;
 
@@ -20,10 +20,9 @@ import com.heisenberg.util.Id;
 /**
  * @author Walter White
  */
-public class ProcessInstanceId extends Id {
+public class ProcessDefinitionId extends Id {
 
-  public ProcessInstanceId(Object state) {
-    super(state);
+  public ProcessDefinitionId(Object id) {
+    super(id);
   }
-
 }

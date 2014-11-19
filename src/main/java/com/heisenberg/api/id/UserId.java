@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.instance;
+package com.heisenberg.api.id;
 
 import com.heisenberg.util.Id;
 
@@ -20,9 +20,10 @@ import com.heisenberg.util.Id;
 /**
  * @author Walter White
  */
-public class ActivityInstanceId extends Id {
+public class UserId extends Id {
 
-  public ActivityInstanceId(Object state) {
-    super(state);
+  public UserId(Object internal) {
+    super(internal);
   }
+
 }

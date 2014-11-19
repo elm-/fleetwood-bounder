@@ -70,8 +70,8 @@ public class ExampleTest {
       .processDefinitionRefId(processDefinitionId)
       .variableValue("t", "hello world"));
 
-    assertNotNull(processInstance.id);
-    assertEquals("Expected 2 but was "+processInstance.activityInstances, 2, processInstance.activityInstances.size());
+    assertNotNull(processInstance.getId());
+    assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
 
     assertEquals(1, Go.executions.size());
     Go.Execution goExecution = Go.executions.get(0);

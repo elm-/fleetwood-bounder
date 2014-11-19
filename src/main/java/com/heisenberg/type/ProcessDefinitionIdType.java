@@ -14,7 +14,7 @@
  */
 package com.heisenberg.type;
 
-import com.heisenberg.definition.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 

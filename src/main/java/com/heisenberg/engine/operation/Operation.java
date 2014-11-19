@@ -14,16 +14,39 @@
  */
 package com.heisenberg.engine.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public interface Operation {
+@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
+public abstract class Operation {
 
-  boolean isAsync();
+  @JsonIgnore
+  public ActivityInstanceImpl activityInstance;
+  
+  public ActivityInstanceId activityInstanceId;
 
-  void execute(ProcessEngineImpl processEngine);
+  public Operation(ActivityInstanceImpl activityInstance) {
+    this.activityInstance = activityInstance;
+  }
 
+  public abstract boolean isAsync();
+
+  public abstract void execute(ProcessEngineImpl processEngine);
+
+  public ActivityInstanceImpl getActivityInstance() {
+    return activityInstance;
+  }
+
+  public void setActivityInstance(ActivityInstanceImpl activityInstance) {
+    this.activityInstance = activityInstance;
+  }
 }

@@ -26,15 +26,14 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-public class ActivityInstanceStartOperation implements Operation {
+public class ActivityInstanceStartOperation extends Operation {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
-  protected ActivityInstanceImpl activityInstance;
 
   public ActivityInstanceStartOperation(ActivityInstanceImpl activityInstance) {
-    this.activityInstance = activityInstance;
+    super(activityInstance);
   }
 
   @Override
@@ -46,13 +45,5 @@ public class ActivityInstanceStartOperation implements Operation {
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
     log.debug("Starting "+activityInstance);
     activityDefinition.activityType.start(activityInstance);
-  }
-  
-  public ActivityInstanceImpl getActivityInstance() {
-    return activityInstance;
-  }
-  
-  public void setActivityInstance(ActivityInstanceImpl activityInstance) {
-    this.activityInstance = activityInstance;
   }
 }

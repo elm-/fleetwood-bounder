@@ -16,9 +16,9 @@ package com.heisenberg.impl;
 
 import java.util.List;
 
-import com.heisenberg.instance.ActivityInstanceId;
+import com.heisenberg.api.id.ActivityInstanceId;
+import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.instance.ProcessInstanceId;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.ScopeInstanceImpl;
 

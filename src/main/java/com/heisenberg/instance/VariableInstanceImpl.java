@@ -14,6 +14,7 @@
  */
 package com.heisenberg.instance;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
@@ -23,17 +24,24 @@ import com.heisenberg.spi.Type;
 /**
  * @author Walter White
  */
-public class VariableInstanceImpl {
+public class VariableInstanceImpl implements VariableInstance {
 
+  @JsonIgnore
   public ProcessEngineImpl processEngine;
+  @JsonIgnore
   public ScopeInstanceImpl parent;
+  @JsonIgnore
   public ProcessInstanceImpl processInstance;
   
+  @JsonIgnore
   public VariableDefinitionImpl variableDefinition;
+  @JsonIgnore
   public Type type;
-  
+
   public Object value;
-  
+  public String typeId;
+  public String variableDefinitionName;
+
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
   }
@@ -82,11 +90,13 @@ public class VariableInstanceImpl {
     this.variableDefinition = variableDefinition;
   }
 
-  public VariableInstance serialize() {
-    VariableInstance variableInstance = new VariableInstance();
-    variableInstance.variableDefinitionRefName = variableDefinition.name;
-    variableInstance.typeRefId = type.getId();
-    variableInstance.value = value;
-    return variableInstance;
+  @Override
+  public String getVariableDefinitionName() {
+    return variableDefinitionName;
+  }
+
+  @Override
+  public String getTypeId() {
+    return typeId;
   }
 }

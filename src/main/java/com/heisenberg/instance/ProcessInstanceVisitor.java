@@ -14,9 +14,6 @@
  */
 package com.heisenberg.instance;
 
-import java.util.List;
-import java.util.Queue;
-
 import com.heisenberg.engine.operation.Operation;
 import com.heisenberg.engine.updates.Update;
 
@@ -24,65 +21,63 @@ import com.heisenberg.engine.updates.Update;
 /**
  * @author Walter White
  */
-public class ProcessInstanceVisitor {
+public interface ProcessInstanceVisitor {
   
-  public void visitProcessInstance(ProcessInstanceImpl processInstance) {
-    startProcessInstance(processInstance);
-    visitActivityInstances(processInstance.getActivityInstances());
-    visitOperations(processInstance.getOperations());
-    visitUpdates(processInstance.getUpdates());
-    if (processInstance.getLock()!=null) visitLock(processInstance.getLock());
-    endProcessInstance(processInstance);
-  }
+  void startProcessInstance(ProcessInstanceImpl processInstance);
+
+  void endProcessInstance(ProcessInstanceImpl processInstance);
+
+  void lock(LockImpl lock);
+
+  void update(Update update, int index);
   
-  protected void visitActivityInstances(List<ActivityInstanceImpl> activityInstances) {
-    if (activityInstances!=null) {
-      for (ActivityInstanceImpl activityInstance: activityInstances) {
-        visitActivityInstance(activityInstance);
-      }
-    }
-  }
-
-  protected void visitActivityInstance(ActivityInstanceImpl activityInstance) {
-    startActivityInstance(activityInstance);
-    visitActivityInstances(activityInstance.getActivityInstances());
-    endActivityInstance(activityInstance);
-  }
+  void operation(Operation operation, int index);
   
-  protected void visitUpdates(List<Update> updates) {
-    if (updates!=null) {
-      for (Update update: updates) {
-        visitUpdate(update);
-      }
-    }
-  }
+  void asyncOperation(Operation operation, int index);
 
-  protected void visitUpdate(Update update) {
-  }
+  void startActivityInstance(ActivityInstanceImpl activityInstance, int index);
 
-  protected void visitOperations(Queue<Operation> operations) {
-    if (operations!=null) {
-      for (Operation operation: operations) {
-        visitOperation(operation);
-      }
-    }
-  }
-
-  protected void visitOperation(Operation operation) {
-  }
+  void endActivityInstance(ActivityInstanceImpl activityInstance,int index);
   
-  protected void visitLock(LockImpl lock) {
-  }
+  void variableInstance(VariableInstanceImpl variableInstance, int index);
 
-  protected void startProcessInstance(ProcessInstanceImpl processInstance) {
-  }
-
-  protected void endProcessInstance(ProcessInstanceImpl processInstance) {
-  }
-
-  protected void startActivityInstance(ActivityInstanceImpl activityInstance) {
-  }
-
-  protected void endActivityInstance(ActivityInstanceImpl activityInstance) {
-  }
+//  protected void visitActivityInstances(List<ActivityInstanceImpl> activityInstances) {
+//    if (activityInstances!=null) {
+//      for (ActivityInstanceImpl activityInstance: activityInstances) {
+//        visitActivityInstance(activityInstance);
+//      }
+//    }
+//  }
+//
+//  protected void visitActivityInstance(ActivityInstanceImpl activityInstance) {
+//    startActivityInstance(activityInstance);
+//    visitActivityInstances(activityInstance.getActivityInstances());
+//    endActivityInstance(activityInstance);
+//  }
+//  
+//  protected void visitUpdates(List<Update> updates) {
+//    if (updates!=null) {
+//      for (Update update: updates) {
+//        visitUpdate(update);
+//      }
+//    }
+//  }
+//
+//  protected void visitUpdate(Update update) {
+//  }
+//
+//  protected void visitOperations(Queue<Operation> operations) {
+//    if (operations!=null) {
+//      for (Operation operation: operations) {
+//        visitOperation(operation);
+//      }
+//    }
+//  }
+//
+//  protected void visitOperation(Operation operation) {
+//  }
+//  
+//  protected void visitLock(LockImpl lock) {
+//  }
+//
 }

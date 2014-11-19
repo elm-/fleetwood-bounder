@@ -14,7 +14,7 @@
  */
 package com.heisenberg.impl;
 
-import com.heisenberg.definition.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 
 

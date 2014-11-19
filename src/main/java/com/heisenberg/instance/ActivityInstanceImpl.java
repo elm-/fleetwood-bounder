@@ -17,7 +17,9 @@ package com.heisenberg.instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.TransitionDefinitionImpl;
@@ -29,21 +31,16 @@ import com.heisenberg.util.Time;
 /**
  * @author Walter White
  */
-public class ActivityInstanceImpl extends ScopeInstanceImpl {
+public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public ActivityInstanceId id;
+  
+  @JsonIgnore
   public ActivityDefinitionImpl activityDefinition;
   
-  @Override
-  public ActivityInstance serializeToJson() {
-    ActivityInstance activityInstance = new ActivityInstance();
-    activityInstance.id = id.toString();
-    activityInstance.activityDefinitionRefName = activityDefinition.name;
-    serialize(activityInstance);
-    return activityInstance;
-  }
+  public String activityDefinitionName;
 
   public void onwards() {
     log.debug("Onwards "+this);
@@ -127,5 +124,16 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl {
       this.duration = end-start;
     }
     processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
+  }
+
+  @Override
+  public String getActivityDefinitionName() {
+    return activityDefinitionName;
+  }
+
+  public void visit(ProcessInstanceVisitor visitor, int index) {
+    visitor.startActivityInstance(this, index);
+    visitCompositeInstance(visitor);
+    visitor.endActivityInstance(this, index);
   }
 }

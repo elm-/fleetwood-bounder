@@ -14,18 +14,31 @@
  */
 package com.heisenberg.api.instance;
 
+import java.util.List;
+
+import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessInstanceId;
+
 
 
 
 /**
  * @author Walter White
  */
-public class ProcessInstance extends ScopeInstance {
+public interface ProcessInstance {
 
-  public String processDefinitionRefId;
-
+  ProcessDefinitionId getProcessDefinitionId();
   
-  public String getProcessDefinitionRefId() {
-    return processDefinitionRefId;
-  }
+  ProcessInstanceId getId();
+  
+  Long getStart();
+  
+  Long getEnd();
+  
+  Long getDuration();
+  
+  List<? extends ActivityInstance> getActivityInstances();
+  
+  List<? extends VariableInstance> getVariableInstances();
+
 }

@@ -21,11 +21,7 @@ package com.heisenberg.api.instance;
 /**
  * @author Walter White
  */
-public class ActivityInstance extends ScopeInstance {
+public interface ActivityInstance {
 
-  public String activityDefinitionRefName;
-
-  public String getActivityDefinitionRefName() {
-    return activityDefinitionRefName;
-  }
+  String getActivityDefinitionName();
 }

@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.instance.ActivityInstanceId;
+import com.heisenberg.api.id.ActivityInstanceId;
 
 
 /**

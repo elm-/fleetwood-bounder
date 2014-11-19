@@ -20,21 +20,11 @@ package com.heisenberg.api.instance;
 /**
  * @author Walter White
  */
-public class VariableInstance {
+public interface VariableInstance {
 
-  public String variableDefinitionRefName;
-  public String typeRefId;
-  public Object value;
+  String getVariableDefinitionName();
   
-  public String getVariableDefinitionRefName() {
-    return variableDefinitionRefName;
-  }
+  String getTypeId();
   
-  public String getTypeRefId() {
-    return typeRefId;
-  }
-  
-  public Object getValue() {
-    return value;
-  }
+  Object getValue();
 }

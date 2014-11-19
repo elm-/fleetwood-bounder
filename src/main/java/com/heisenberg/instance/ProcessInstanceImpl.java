@@ -15,6 +15,7 @@
 package com.heisenberg.instance;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -24,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
@@ -43,7 +46,7 @@ import com.heisenberg.util.Time;
 /**
  * @author Walter White
  */
-public class ProcessInstanceImpl extends ScopeInstanceImpl {
+public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -52,7 +55,12 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl {
   public Queue<Operation> operations;
   public Queue<Operation> asyncOperations;
   public List<Update> updates;
-  public boolean isAsync;
+  public Boolean isAsync;
+  
+  public ProcessDefinitionId processDefinitionId;
+  
+  public ProcessInstanceImpl() {
+  }
   
   public ProcessInstanceImpl(ProcessEngineImpl processEngine, ProcessDefinitionImpl processDefinition, ProcessInstanceId processInstanceId) {
     setId(processInstanceId);
@@ -71,15 +79,6 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl {
     addOperation(new ActivityInstanceStartOperation(activityInstance));
   }
   
-  @Override
-  public ProcessInstance serializeToJson() {
-    ProcessInstance processInstance = new ProcessInstance();
-    processInstance.id = id.toString();
-    processInstance.processDefinitionRefId = processDefinition.id.toString();
-    super.serialize(processInstance);
-    return processInstance;
-  }
-
   void addOperation(Operation operation) {
     if (isAsync || !operation.isAsync()) {
       if (operations==null) {
@@ -234,5 +233,59 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl {
     }
     // when we add call activity we will need:
     // addUpdate(new ProcessInstanceEndUpdate(this));
+  }
+  
+  public void visit(ProcessInstanceVisitor visitor) {
+    visitor.startProcessInstance(this);
+    visitLock(visitor);
+    visitOperations(visitor);
+    visitAsyncOperations(visitor);
+    visitUpdates(visitor);
+    visitCompositeInstance(visitor);
+    visitor.endProcessInstance(this);
+  }
+
+  protected void visitLock(ProcessInstanceVisitor visitor) {
+    if (lock!=null) {
+      visitor.lock(lock);
+    }
+  }
+
+  protected void visitOperations(ProcessInstanceVisitor visitor) {
+    if (operations!=null) {
+      int i=0;
+      Iterator<Operation> iter = operations.iterator();
+      while (iter.hasNext()) {
+        Operation operation = iter.next();
+        visitor.operation(operation, i);
+        i++;
+      }
+    }
+  }
+
+  protected void visitAsyncOperations(ProcessInstanceVisitor visitor) {
+    if (asyncOperations!=null) {
+      int i=0;
+      Iterator<Operation> iter = asyncOperations.iterator();
+      while (iter.hasNext()) {
+        Operation operation = iter.next();
+        visitor.asyncOperation(operation, i);
+        i++;
+      }
+    }
+  }
+
+  protected void visitUpdates(ProcessInstanceVisitor visitor) {
+    if (updates!=null) {
+      for (int i =0; i<updates.size(); i++) {
+        Update update = updates.get(i);
+        visitor.update(update, i);
+      }
+    }
+  }
+
+  @Override
+  public ProcessDefinitionId getProcessDefinitionId() {
+    return processDefinitionId;
   }
 }

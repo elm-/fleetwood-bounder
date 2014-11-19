@@ -22,13 +22,10 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-public class NotifyActivityInstanceEndToParent implements Operation {
+public class NotifyActivityInstanceEndToParent extends  Operation {
 
-  public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
-  protected ActivityInstanceImpl activityInstance;
-  
   public NotifyActivityInstanceEndToParent(ActivityInstanceImpl activityInstance) {
-    this.activityInstance = activityInstance;
+    super(activityInstance);
   }
 
   @Override
@@ -37,14 +34,6 @@ public class NotifyActivityInstanceEndToParent implements Operation {
     parentDefinition.notifyActivityInstanceEnded(activityInstance);
   }
   
-  public ActivityInstanceImpl getActivityInstance() {
-    return activityInstance;
-  }
-
-  public void setActivityInstance(ActivityInstanceImpl activityInstance) {
-    this.activityInstance = activityInstance;
-  }
-
   @Override
   public boolean isAsync() {
     return false;

@@ -36,14 +36,16 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.heisenberg.definition.OrganizationId;
+import com.heisenberg.api.id.OrganizationId;
+import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.api.id.ProcessId;
+import com.heisenberg.api.id.UserId;
 import com.heisenberg.definition.PrepareProcessDefinitionForSerialization;
-import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ProcessId;
-import com.heisenberg.definition.UserId;
 import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.instance.PrepareProcessInstanceForSerialization;
+import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.type.ChoiceType;
 import com.heisenberg.type.TextType;
 import com.heisenberg.util.Id;
@@ -95,16 +97,20 @@ public class Json {
     return stringWriter.toString();
   }
 
-  static final PrepareProcessDefinitionForSerialization PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new PrepareProcessDefinitionForSerialization();
   public void objectToJson(Object object, Writer writer) {
-    if (object instanceof ProcessDefinitionImpl) {
-      ((ProcessDefinitionImpl)object).visit(PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION);
-    }
     objectToJson(object, writer, objectMapper.writer());
   }
 
+  static final PrepareProcessDefinitionForSerialization PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new PrepareProcessDefinitionForSerialization();
+  static final PrepareProcessInstanceForSerialization PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION = new PrepareProcessInstanceForSerialization();
+
   protected void objectToJson(Object object, Writer writer, ObjectWriter objectWriter) {
     try {
+      if (object instanceof ProcessDefinitionImpl) {
+        ((ProcessDefinitionImpl)object).visit(PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION);
+      } else if (object instanceof ProcessInstanceImpl) {
+        ((ProcessInstanceImpl)object).visit(PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION);
+      }
       objectWriter
         // .withAttribute("processEngine", processEngine)
         .writeValue(writer, object);
