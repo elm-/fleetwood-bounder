@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.VariableBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.VariableInstanceImpl;
-import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 
 
@@ -57,8 +56,8 @@ public class VariableDefinitionImpl implements VariableBuilder {
     return this;
   }
 
-  public VariableDefinitionImpl type(String typeRefId) {
-    this.typeId = typeRefId;
+  public VariableDefinitionImpl type(String typeId) {
+    this.typeId = typeId;
     return this;
   }
 
@@ -77,31 +76,6 @@ public class VariableDefinitionImpl implements VariableBuilder {
     return this;
   }
   
-  public void validate(ParseContext parseContext) {
-    if (name==null) {
-      parseContext.addError(line, column, "Variable does not have a name");
-    }
-    if (typeId!=null || type!=null) {
-      if (type==null) {
-        this.type = processDefinition.findType(typeId);
-        if (this.type==null) {
-          parseContext.addError(line, column, "Variable '%s' has unknown type '%s'", name, typeId);
-        }
-      }
-      if (type!=null) {
-        if (initialValue!=null) {
-          try {
-            this.initialValue = type.convertApiToInternalValue(initialValue);
-          } catch (InvalidApiValueException e) {
-            parseContext.addError(line, column, "Invalid initial value %s for variable %s (%s)", initialValue, name, typeId);
-          }
-        }
-      }
-    } else {
-      parseContext.addError(line, column, "Variable '%s' does not have a type", name);
-    }
-  }
-
   public void prepare() {
   }
   

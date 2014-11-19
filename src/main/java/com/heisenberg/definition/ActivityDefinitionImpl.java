@@ -21,7 +21,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityBuilder;
-import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.ActivityType;
@@ -134,45 +133,18 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return parameterInstance;
   }
   
-  public ParameterInstanceImpl findParameterInstance(String parameterRefId) {
+  public ParameterInstanceImpl findParameterInstance(String parameterId) {
     if (parameterInstancesMap!=null) {
-      return parameterInstancesMap.get(parameterRefId);
+      return parameterInstancesMap.get(parameterId);
     }
     if (parameterInstances!=null) {
       for (ParameterInstanceImpl parameterInstance: parameterInstances) {
-        if (parameterRefId.equals(parameterRefId)) {
+        if (parameterId.equals(parameterId)) {
           return parameterInstance;
         }
       }
     }
     return null;
-  }
-
-  public void parse(ParseContext parseContext) {
-    if (name==null || "".equals(name)) {
-      parseContext.addError(line, column, "Activity has no name");
-    }
-    ActivityTypeDescriptor activityTypeDescriptor = processEngine.activityTypeDescriptors.get(activityTypeId);
-    if (activityTypeDescriptor==null) {
-      parseContext.addError(line, column,  
-              "Activity %s has invalid type %s.  Must be one of %s", 
-              name, 
-              activityTypeId,
-              processEngine.activityTypeDescriptors.keySet().toString());
-    } else {
-      this.activityType = activityTypeDescriptor.activityType;
-    }
-    if (parameterInstances!=null) {
-      parameterInstancesMap = new HashMap<>();
-      for (int i=0; i<parameterInstances.size(); i++) {
-        ParameterInstanceImpl parameterInstance = parameterInstances.get(i);
-        parseContext.pushPathElement(parameterInstance, parameterInstance.name, i);
-        parameterInstance.parse(parseContext);
-        parseContext.popPathElement();
-        parameterInstancesMap.put(parameterInstance.name, parameterInstance);
-      }
-    }
-    super.parse(parseContext);
   }
 
   /// other methods ////////////////////////////
@@ -200,11 +172,15 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return false;
   }
 
-  @Override
-  public void visit(ProcessDefinitionVisitor visitor) {
-    visitor.startActivityDefinition(this);
+  public void visit(ProcessDefinitionVisitor visitor, int index) {
+    // If some visitor needs to control the order of types vs other content visited, 
+    // then this is the idea you should consider 
+    //   if (visitor instanceof OrderedProcessDefinitionVisitor) {
+    //     ... also delegate the ordering of this visit to the visitor ... 
+    //   } else { ... perform the default as below
+    visitor.startActivityDefinition(this, index);
     super.visit(visitor);
-    visitor.endActivityDefinition(this);
+    visitor.endActivityDefinition(this, index);
   }
 
   public void addOutgoingTransition(TransitionDefinitionImpl transitionDefinition) {

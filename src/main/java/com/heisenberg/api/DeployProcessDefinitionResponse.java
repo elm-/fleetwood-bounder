@@ -14,73 +14,37 @@
  */
 package com.heisenberg.api;
 
-import java.util.List;
-import java.util.Locale;
 
 
 /**
  * @author Walter White
  */
-public class DeployProcessDefinitionResponse {
+public class DeployProcessDefinitionResponse extends ParseIssues {
 
-  public String processDefinitionId;
-  public List<Issue> issues;
+  protected String processDefinitionId;
   
-  /** throws a RuntimeException if there were errors deploying the process */
+  public String getProcessDefinitionId() {
+    return processDefinitionId;
+  }
+  
+  public void setProcessDefinitionId(String processDefinitionId) {
+    this.processDefinitionId = processDefinitionId;
+  }
+  
+  public void setIssues(ParseIssues parseIssues) {
+    this.issues = parseIssues.issues;
+  }
+  
   public DeployProcessDefinitionResponse checkNoErrors() {
-    checkNoIssues(false);
+    checkNoErrors();
     return this;
   }
 
   /** throws a RuntimeException if there were errors or warnings while deploying the process */
   public DeployProcessDefinitionResponse checkNoErrorsAndNoWarnings() {
-    checkNoIssues(true);
+    checkNoErrorsAndNoWarnings();
     return this;
   }
 
-  void checkNoIssues(boolean throwIfWarning) {
-    if (issues!=null) {
-      for (Issue issue: issues) {
-        if (issue.type==Issue.IssueType.error || throwIfWarning) {
-          throw new RuntimeException(getIssueReport());
-        }
-      }
-    }
-  }
-  
-  public boolean hasIssues() {
-    return issues!=null && !issues.isEmpty();
-  }
 
-  public String getIssueReport() {
-    return getIssueReport(null);
-  }
-
-  public String getIssueReport(Locale l) {
-    if (hasIssues()) {
-      StringBuilder issueReport = new StringBuilder();
-      issueReport.append("Issues: \n");
-      for (Issue issue: issues) {
-        issueReport.append(issue.toString());
-        issueReport.append("\n");
-      }
-      return issueReport.toString();
-    }
-    return null;
-  }
-
-  public String getProcessDefinitionId() {
-    return processDefinitionId;
-  }
-
-  public boolean hasErrors() {
-    if (hasIssues()) {
-      for (Issue issue: issues) {
-        if (Issue.IssueType.error==issue.type) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
 }

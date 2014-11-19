@@ -14,8 +14,6 @@
  */
 package com.heisenberg.spi;
 
-import java.io.InputStream;
-
 import com.heisenberg.impl.ProcessEngineImpl;
 
 

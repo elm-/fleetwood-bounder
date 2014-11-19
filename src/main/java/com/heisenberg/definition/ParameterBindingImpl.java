@@ -69,23 +69,23 @@ public class ParameterBindingImpl {
     return this;
   }
 
-  public void parse(ParseContext parseContext) {
+  public void parse(ValidateProcessDefinitionAfterDeserialization validateProcessDefinitionAfterDeserialization) {
     int valueSpecifications = 0;
-    ParameterInstanceImpl parameterInstance = parseContext.getContextObject(ParameterInstanceImpl.class);
-    ScopeDefinitionImpl scopeDefinition = parseContext.getContextObject(ScopeDefinitionImpl.class);
+    ParameterInstanceImpl parameterInstance = validateProcessDefinitionAfterDeserialization.getContextObject(ParameterInstanceImpl.class);
+    ScopeDefinitionImpl scopeDefinition = validateProcessDefinitionAfterDeserialization.getContextObject(ScopeDefinitionImpl.class);
     ActivityParameter activityParameter = parameterInstance.activityParameter;
     if (value!=null) {
       try {
         value = activityParameter.type.convertApiToInternalValue(value);
       } catch (InvalidApiValueException e) {
-        parseContext.addError(buildLine, buildColumn, "Couldn't parse parameter %s binding value %s as a %s: %s", parameterInstance.name, value, activityParameter.type, e.getMessage());
+        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Couldn't parse parameter %s binding value %s as a %s: %s", parameterInstance.name, value, activityParameter.type, e.getMessage());
       }
       valueSpecifications++;
     }
     if (buildVariableDefinitionRefName!=null) {
       variableDefinition = scopeDefinition.findVariableDefinitionByName(buildVariableDefinitionRefName);
       if (!variableDefinition.type.equals(activityParameter.type)) {
-        parseContext.addError(buildLine, buildColumn, "Variable %s (%s) can't be bound to parameter %s (%s) because the types don't match", 
+        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Variable %s (%s) can't be bound to parameter %s (%s) because the types don't match", 
                 buildVariableDefinitionRefName, 
                 variableDefinition.type.getId(), 
                 parameterInstance.name,
@@ -98,15 +98,15 @@ public class ParameterBindingImpl {
       try {
         expression = processEngine.scripts.compile(buildExpression, expressionLanguage);
       } catch (Exception e) {
-        parseContext.addError(buildLine, buildColumn, "Couldn't compile %s expression: %s: %s", expressionLanguage, e.getMessage(), this.expression);
+        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Couldn't compile %s expression: %s: %s", expressionLanguage, e.getMessage(), this.expression);
       }
       valueSpecifications++;
     }
     if (valueSpecifications==0) {
-      parseContext.addWarning(buildLine, buildColumn, "No value, variableDefinitionName or expression specified");
+      validateProcessDefinitionAfterDeserialization.addWarning(buildLine, buildColumn, "No value, variableDefinitionName or expression specified");
     }
     if (valueSpecifications>1) {
-      parseContext.addWarning(buildLine, buildColumn, "More then one value specified");
+      validateProcessDefinitionAfterDeserialization.addWarning(buildLine, buildColumn, "More then one value specified");
     }
   }
   

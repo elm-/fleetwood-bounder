@@ -20,7 +20,7 @@ import java.util.Locale;
 /**
  * @author Walter White
  */
-public class Issue {
+public class ParseIssue {
   
   IssueType type;
   String message; 
@@ -29,7 +29,7 @@ public class Issue {
   Long line;
   Long column;
 
-  public Issue(IssueType type, String path, Long line, Long column, String message, Object[] messageArgs) {
+  public ParseIssue(IssueType type, String path, Long line, Long column, String message, Object[] messageArgs) {
     this.type = type;
     this.message = message;
     this.messageArgs = messageArgs;

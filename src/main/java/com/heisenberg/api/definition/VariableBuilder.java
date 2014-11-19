@@ -34,4 +34,8 @@ public interface VariableBuilder {
   VariableBuilder type(Class<?> javaClass);
 
   VariableBuilder initialValue(Object initialValue);
+  
+  VariableBuilder line(Long lineNumber);
+  
+  VariableBuilder column(Long columnNumber);
 }

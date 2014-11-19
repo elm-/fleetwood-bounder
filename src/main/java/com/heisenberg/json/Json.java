@@ -29,7 +29,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -38,13 +37,15 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.heisenberg.definition.OrganizationId;
-import com.heisenberg.definition.ParseContext;
 import com.heisenberg.definition.PrepareProcessDefinitionForSerialization;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ProcessId;
 import com.heisenberg.definition.UserId;
+import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.type.ChoiceType;
+import com.heisenberg.type.TextType;
 import com.heisenberg.util.Id;
 
 
@@ -53,47 +54,25 @@ import com.heisenberg.util.Id;
  */
 public class Json {
   
-  public JsonFactory jsonFactory;
   public ProcessEngineImpl processEngine;
+  public JsonFactory jsonFactory;
   public ObjectMapper objectMapper;
 
-  public Json() {
-    jsonFactory = new JsonFactory();
+  public Json(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
+    this.jsonFactory = new JsonFactory();
     
-    objectMapper = new ObjectMapper()
+    this.objectMapper = new ObjectMapper()
       .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
       .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
-      .setSerializationInclusion(Include.NON_NULL)
-      .registerModule(buildModule())
-      ;
+      .setSerializationInclusion(Include.NON_NULL);
 
-//  SimpleModule module = new SimpleModule("heisenbergModule", new Version(1, 0, 0, null, null, null));
-//  module.addSerializer(new StdSerializer<Type>(Type.class) {
-//    @Override
-//    public void serialize(Type type, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-//      jsonGenerator.writeString(type.getId());
-//    }
-//  });
-//  module.addDeserializer(Type.class, new StdDeserializer<Type>(Type.class) {
-//    private static final long serialVersionUID = 1L;
-//    @Override
-//    public Type deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-//      ProcessEngineImpl processEngine = (ProcessEngineImpl) ctxt.getAttribute("processEngine");
-//      String typeId = jp.getText();
-//      processEngine.getTypeById()
-//      return null;
-//    }
-//  });
-
-//    objectMapper
-//      .getDeserializationConfig().getSubtypeResolver()
-//        .registerSubtypes(
-//                JsonActivityInstanceCreateUpdate.class
-//                );
-  }
-
-  private Module buildModule() {
+    this.objectMapper.getDeserializationConfig().getSubtypeResolver().registerSubtypes(
+       TextType.class,
+       ChoiceType.class
+       );
+    
     SimpleModule module = new SimpleModule("heisenbergModule", new Version(1, 0, 0, null, null, null));
     module.addSerializer(new IdSerializer());
     module.addSerializer(new IdSerializer());
@@ -101,7 +80,7 @@ public class Json {
     module.addDeserializer(ProcessId.class, new ProcessIdDeserializer());
     module.addDeserializer(OrganizationId.class, new OrganizationIdDeserializer());
     module.addDeserializer(UserId.class, new UserIdDeserializer());
-    return module;
+    this.objectMapper.registerModule(module);
   }
 
   public String objectToJsonString(Object object) {
@@ -156,8 +135,9 @@ public class Json {
       // .withAttribute("processEngine", processEngine)
       .readValue(jsonParser);
     if (type==ProcessDefinitionImpl.class) {
-      ParseContext parseContext = new ParseContext();
-      ((ProcessDefinitionImpl)object).parse(parseContext);
+      ValidateProcessDefinitionAfterDeserialization validate = new ValidateProcessDefinitionAfterDeserialization(processEngine);
+      ((ProcessDefinitionImpl)object).visit(validate);
+      validate.getIssues().checkNoErrors();
     }
     return object;
   }

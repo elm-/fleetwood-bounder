@@ -41,6 +41,8 @@ public interface ProcessBuilder {
 
   ProcessBuilder line(Long lineNumber);
 
+  ProcessBuilder column(Long columnNumber);
+
   ActivityBuilder newActivity();
 
   TransitionBuilder newTransition();

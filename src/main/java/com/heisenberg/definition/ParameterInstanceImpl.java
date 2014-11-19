@@ -55,11 +55,11 @@ public class ParameterInstanceImpl {
     return parameterBinding;
   }
 
-  public void parse(ParseContext parseContext) {
+  public void parse(ValidateProcessDefinitionAfterDeserialization validateProcessDefinitionAfterDeserialization) {
     if (name==null) {
-      parseContext.addError(buildLine, buildColumn, "Parameter instance does not have a name");
+      validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Parameter instance does not have a name");
     } else {
-      ActivityDefinitionImpl activityDefinitionmpl = parseContext.getContextObject(ActivityDefinitionImpl.class);
+      ActivityDefinitionImpl activityDefinitionmpl = validateProcessDefinitionAfterDeserialization.getContextObject(ActivityDefinitionImpl.class);
       String activityTypeId = activityDefinitionmpl.activityType.getId();
       Map<String, ActivityParameter> activityParameters = processEngine
               .activityTypeDescriptors
@@ -67,20 +67,20 @@ public class ParameterInstanceImpl {
               .activityParameters;
       activityParameter = activityParameters!=null ? activityParameters.get(name) : null;
       if (activityParameter==null) {
-        parseContext.addError(buildLine, buildColumn, "Invalid parameter '%s' for activity type '%s': Must be one of %s", name, activityTypeId, activityParameters.keySet());
+        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Invalid parameter '%s' for activity type '%s': Must be one of %s", name, activityTypeId, activityParameters.keySet());
       } else {
         if (parameterBindings!=null && !parameterBindings.isEmpty()) {
           for (int i=0; i<parameterBindings.size(); i++) {
             ParameterBindingImpl parameterBinding = parameterBindings.get(i);
-            parseContext.pushPathElement(parameterBinding, null, i);
-            parameterBinding.parse(parseContext);
-            parseContext.popPathElement();
+            validateProcessDefinitionAfterDeserialization.pushPathElement(parameterBinding, null, i);
+            parameterBinding.parse(validateProcessDefinitionAfterDeserialization);
+            validateProcessDefinitionAfterDeserialization.popPathElement();
           }
         } else {
           if (Boolean.TRUE.equals(activityParameter.required)) {
-            parseContext.addError(buildLine, buildColumn, "Parameter %s is not provided", name);
+            validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Parameter %s is not provided", name);
           } else if (Boolean.TRUE.equals(activityParameter.recommended)) {
-            parseContext.addWarning(buildLine, buildColumn, "Parameter %s is not provided", name);
+            validateProcessDefinitionAfterDeserialization.addWarning(buildLine, buildColumn, "Parameter %s is not provided", name);
           }
         }
       }

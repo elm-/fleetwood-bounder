@@ -14,38 +14,52 @@
  */
 package com.heisenberg.definition;
 
+import com.heisenberg.spi.Type;
+
 
 
 /** 
  * @author Walter White
  */
-public class PrepareProcessDefinitionForSerialization extends ProcessDefinitionVisitor {
+public class PrepareProcessDefinitionForSerialization implements ProcessDefinitionVisitor {
 
   @Override
   public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
   }
 
   @Override
-  public void startActivityDefinition(ActivityDefinitionImpl activityDefinition) {
+  public void startActivityDefinition(ActivityDefinitionImpl activityDefinition, int index) {
     if (activityDefinition.activityTypeId==null && activityDefinition.activityType!=null) {
       activityDefinition.activityTypeId = activityDefinition.activityType.getId();
     }
   }
 
   @Override
-  public void variableDefinition(VariableDefinitionImpl variableDefinition) {
+  public void variableDefinition(VariableDefinitionImpl variableDefinition, int index) {
     if (variableDefinition.typeId==null && variableDefinition.type!=null) {
       variableDefinition.typeId = variableDefinition.type.getId();
     }
   }
 
   @Override
-  public void transitionDefinition(TransitionDefinitionImpl transitionDefinition) {
+  public void transitionDefinition(TransitionDefinitionImpl transitionDefinition, int index) {
     if (transitionDefinition.fromName==null && transitionDefinition.from!=null) {
       transitionDefinition.fromName = transitionDefinition.from.name;
     }
     if (transitionDefinition.toName==null && transitionDefinition.to!=null) {
       transitionDefinition.toName = transitionDefinition.to.name;
     }
+  }
+
+  @Override
+  public void endProcessDefinition(ProcessDefinitionImpl processDefinition) {
+  }
+
+  @Override
+  public void endActivityDefinition(ActivityDefinitionImpl activityDefinition, int index) {
+  }
+
+  @Override
+  public void type(Type type, int index) {
   }
 }

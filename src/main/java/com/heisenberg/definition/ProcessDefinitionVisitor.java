@@ -14,69 +14,34 @@
  */
 package com.heisenberg.definition;
 
-import java.util.List;
+import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class ProcessDefinitionVisitor {
+public interface ProcessDefinitionVisitor {
 
   /** invoked only for process definitions */
-  public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
-  }
-  
+  void startProcessDefinition(ProcessDefinitionImpl processDefinition);
+
   /** invoked only for process definitions */
-  public void endProcessDefinition(ProcessDefinitionImpl processDefinition) {
-  }
-  
-  /** invoked only for process definitions and activity definitions */
-  public void startActivityDefinition(ActivityDefinitionImpl activityDefinition) {
-  }
+  void endProcessDefinition(ProcessDefinitionImpl processDefinition);
+
+  /** invoked for types inside a process definitions.
+   * This will be invoked after the startProcessDefinition and before any of the other elements inside the process definition. */
+  void type(Type type, int index);
 
   /** invoked only for process definitions and activity definitions */
-  public void endActivityDefinition(ActivityDefinitionImpl activityDefinition) {
-  }
+  void startActivityDefinition(ActivityDefinitionImpl activityDefinition, int index);
+
+  /** invoked only for process definitions and activity definitions */
+  void endActivityDefinition(ActivityDefinitionImpl activityDefinition, int index);
 
   /** visit variable definitions */
-  public void variableDefinition(VariableDefinitionImpl variableDefinition) {
-  }
+  void variableDefinition(VariableDefinitionImpl variableDefinition, int index);
 
   /** visit transition definitions */
-  public void transitionDefinition(TransitionDefinitionImpl transitionDefinition) {
-  }
+  void transitionDefinition(TransitionDefinitionImpl transitionDefinition, int index);
 
-  /** overwrite if you want to change the order */
-  protected void visitCompositeDefinition(ScopeDefinitionImpl scopeDefinition) {
-    visitCompositeActivityDefinitions(scopeDefinition);
-    visitCompositeTransitionDefinitions(scopeDefinition);
-    visitCompositeVariableDefinitions(scopeDefinition);
-  }
-
-  protected void visitCompositeActivityDefinitions(ScopeDefinitionImpl scopeDefinition) {
-    List<ActivityDefinitionImpl> activityDefinitions = scopeDefinition.activityDefinitions;
-    if (activityDefinitions!=null) {
-      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
-        activityDefinition.visit(this);
-      }
-    }
-  }
-
-  protected void visitCompositeVariableDefinitions(ScopeDefinitionImpl scopeDefinition) {
-    List<VariableDefinitionImpl> variableDefinitions = scopeDefinition.variableDefinitions;
-    if (variableDefinitions!=null) {
-      for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
-        variableDefinition(variableDefinition);
-      }
-    }
-  }
-
-  protected void visitCompositeTransitionDefinitions(ScopeDefinitionImpl scopeDefinition) {
-    List<TransitionDefinitionImpl> transitionDefinitions = scopeDefinition.transitionDefinitions;
-    if (transitionDefinitions!=null) {
-      for (TransitionDefinitionImpl transitionDefinition: transitionDefinitions) {
-        transitionDefinition(transitionDefinition);
-      }
-    }
-  }
 }

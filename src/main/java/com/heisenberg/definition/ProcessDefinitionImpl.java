@@ -47,13 +47,13 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /** optional reference to the organization (aka tenant or workspace) that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
-  public OrganizationId organizationRefId;
+  public OrganizationId organizationId;
 
   /** optional reference to the the source process for which this process definition is one version.
    * This field just serves as a read/write property and is not used during process execution. */
-  public ProcessId processRefId;
+  public ProcessId processId;
 
-  /** optional version number of this process definition, related to @link {@link #processRefId}.
+  /** optional version number of this process definition, related to @link {@link #processId}.
    * This combined with the @link {@link ScopeDefinitionImpl#name} should be unique. */
   public Long version;
 
@@ -83,7 +83,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   @Override
   public ProcessDefinitionImpl processId(ProcessId processId) {
-    this.processRefId = processId;
+    this.processId = processId;
     return this;
   }
 
@@ -95,7 +95,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   
   @Override
   public ProcessDefinitionImpl organizationId(OrganizationId organizationId) {
-    this.organizationRefId = organizationId;
+    this.organizationId = organizationId;
     return this;
   }
   
@@ -140,20 +140,6 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     return this;
   }
   
-  public void parse(ParseContext parseContext) {
-    if (types!=null) {
-      typesMap = new HashMap<>();
-      for (int i=0; i<types.size(); i++) {
-        Type type = types.get(i);
-        parseContext.pushPathElement(type, type.getId(), i);
-        type.parse(parseContext);
-        parseContext.popPathElement();
-        typesMap.put(type.getId(), type);
-      }
-    }
-    super.parse(parseContext);
-  }
-  
   // other methods ////////////////////////////////////////////////////////////////////
   
   public void prepare() {
@@ -183,20 +169,35 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
   }
 
-  public void visit(ProcessDefinitionVisitor visitor) {
-    if (visitor==null) {
-      return;
-    }
-    visitor.startProcessDefinition(this);
-    super.visit(visitor);
-    visitor.endProcessDefinition(this);
-  }
-
   public Type findType(String typeId) {
     Type type = typesMap!=null ? typesMap.get(typeId) : null;
     if (type!=null) {
       return type;
     }
     return processEngine.types.get(typeId);
+  }
+
+  public void visit(ProcessDefinitionVisitor visitor) {
+    if (visitor==null) {
+      return;
+    }
+    // If some visitor needs to control the order of types vs other content visited, 
+    // then this is the idea you should consider 
+    //   if (visitor instanceof OrderedProcessDefinitionVisitor) {
+    //     ... also delegate the ordering of this visit to the visitor ... 
+    //   } else { ... perform the default as below
+    visitor.startProcessDefinition(this);
+    visitTypes(visitor);
+    super.visit(visitor);
+    visitor.endProcessDefinition(this);
+  }
+
+  public void visitTypes(ProcessDefinitionVisitor visitor) {
+    if (types!=null) {
+      for (int i=0; i<types.size(); i++) {
+        Type type = types.get(i);
+        visitor.type(type, i);
+      }
+    }
   }
 }

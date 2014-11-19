@@ -14,8 +14,6 @@
  */
 package com.heisenberg.definition;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.TransitionBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
@@ -76,27 +74,6 @@ public class TransitionDefinitionImpl implements TransitionBuilder {
     if (to!=null) toName = to.name;
   }
   
-  public void validate(ParseContext parseContext) {
-    ScopeDefinitionImpl scopeDefinitionmpl = parseContext.getContextObject(ScopeDefinitionImpl.class);
-    Map<String, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionmpl.activityDefinitionsMap;
-    if (fromName==null) {
-      parseContext.addWarning(line, column, "Transition does not have from (source) specified");
-    } else {
-      from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(fromName) : null);
-      if (from==null) {
-        parseContext.addError(line, column, "Transition has an invalid from (source) '%s' : Should be one of "+activityDefinitionsMap.keySet(), fromName);
-      }
-    }
-    if (toName==null) {
-      parseContext.addWarning(line, column, "Transition does not have to (destination) specified");
-    } else {
-      to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(toName) : null);
-      if (to==null) {
-        parseContext.addError(line, column, "Transition has an invalid to (destination) '%s' : Should be one of "+activityDefinitionsMap.keySet(), toName);
-      }
-    }
-  }
-
   public void prepare() {
   }
 

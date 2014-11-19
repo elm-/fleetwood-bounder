@@ -16,7 +16,6 @@ package com.heisenberg.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.Provider.Service;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,15 +30,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.ParseContext;
 import com.heisenberg.definition.ProcessDefinitionId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.expressions.Scripts;
 import com.heisenberg.instance.ActivityInstanceId;
@@ -136,7 +136,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
 
   protected void initializeJson() {
-    this.json = new Json();
+    this.json = new Json(this);
   }
   
   protected void initializeScripts() {
@@ -164,16 +164,17 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
 
     ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) processBuilder;
-    ParseContext parseContext = new ParseContext();
-    parseContext.pushPathElement(processDefinition, null, -1);
-    processDefinition.parse(parseContext);
-    response.issues = parseContext.issues;
+    ValidateProcessDefinitionAfterDeserialization validate = new ValidateProcessDefinitionAfterDeserialization(this);
+    processDefinition.visit(validate);
+    ParseIssues issues = validate.getIssues();
     
-    if (!response.hasErrors()) {
+    if (!issues.hasErrors()) {
       String generatedId = generateProcessDefinitionId(processDefinition);
       processDefinition.id = new ProcessDefinitionId(generatedId);
-      response.processDefinitionId = generatedId; 
+      response.setProcessDefinitionId(generatedId); 
       storeProcessDefinition(processDefinition);
+    } else {
+      response.setIssues(issues);
     }
     
     return response;

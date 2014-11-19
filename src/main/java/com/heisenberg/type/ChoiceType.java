@@ -55,6 +55,10 @@ public class ChoiceType extends Type {
   public String getId() {
     return id;
   }
+  
+  public Map<String,String> getOptions() {
+    return options;
+  }
 
   @Override
   public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {

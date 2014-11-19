@@ -64,7 +64,7 @@ public class ScriptTest {
     String processDefinitionId = processEngine
       .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
-      .processDefinitionId;
+      .getProcessDefinitionId();
     
     Map<String,Object> fiveDollars = new HashMap<>();
     fiveDollars.put("amount", 5d);

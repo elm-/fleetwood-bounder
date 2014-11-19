@@ -14,19 +14,24 @@
  */
 package com.heisenberg;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.OrganizationId;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ProcessId;
 import com.heisenberg.definition.UserId;
+import com.heisenberg.engine.memory.MemoryProcessEngine;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.Type;
 import com.heisenberg.type.ChoiceType;
 import com.heisenberg.util.Time;
-
+import com.heisenberg.api.definition.ProcessBuilder;
 
 /**
  * @author Walter White
@@ -37,14 +42,14 @@ public class JsonProcessDefinitionTest {
 
   @Test
   public void testProcessDefinitionJson() {
-    ProcessDefinitionImpl processDefinition = new ProcessDefinitionImpl()
-    .deployedUserId(new UserId("me"))
+    ProcessBuilder processBuilder = new ProcessDefinitionImpl();
+    processBuilder.deployedUserId(new UserId("me"))
     .deployedTime(Time.now())
     .organizationId(new OrganizationId("myorg"))
     .processId(new ProcessId("myprocess"))
     .version(6l)
     .line(1l)
-    .column(1l)
+    .column(2l)
     .type(new ChoiceType()
       .id("country")
       .label("Country")
@@ -55,26 +60,43 @@ public class JsonProcessDefinitionTest {
       .option("us", "US")
     );
     
-    processDefinition.newVariable()
+    processBuilder.newVariable()
       .name("t")
       .initialValue("iv")
-      .type(Type.TEXT);
+      .type(Type.TEXT)
+      .line(3l)
+      .column(4l);
     
-    processDefinition.newActivity()
+    processBuilder.newActivity()
       .activityTypeId(Go.ID)
       .line(20l)
       .column(30l)
-      .parameterValue(Go.PLACE, "Antwerp")
-      .name("go");
+      .name("one");
+
+    processBuilder.newActivity()
+      .activityTypeId(Go.ID)
+      .name("two");
+
+    processBuilder.newTransition()
+      .from("one")
+      .to("two");
     
-    processDefinition.newTransition()
-      .from("wait1")
-      .to("wait2");
+    ProcessEngineImpl processEngine = new MemoryProcessEngine()
+      .registerActivityType(new Go());
     
-    Json json = new Json();
+    Json json = processEngine.json;
     
-    String processDefinitionJsonText = json.objectToJsonStringPretty(processDefinition);
+    String processDefinitionJsonText = json.objectToJsonStringPretty(processBuilder);
 
     log.debug(processDefinitionJsonText);
+    
+    ProcessDefinitionImpl processDefinition = json.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
+    assertNotNull(processDefinition);
+    assertEquals("myorg", processDefinition.organizationId.getInternal());
+    ChoiceType choiceType = (ChoiceType) processDefinition.typesMap.get("country");
+    assertEquals("Belgium", choiceType.getOptions().get("be"));
+    ActivityDefinitionImpl one = processDefinition.getActivityDefinition("one");
+    assertEquals("one", one.name);
+    assertEquals(Go.class, one.activityType.getClass());
   }
 }

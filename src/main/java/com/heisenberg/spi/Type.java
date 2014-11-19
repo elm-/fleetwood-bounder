@@ -17,7 +17,6 @@ package com.heisenberg.spi;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.heisenberg.definition.ParseContext;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.type.ProcessDefinitionIdType;
 import com.heisenberg.type.TextType;
@@ -48,8 +47,5 @@ public abstract class Type implements Spi {
 
   public Object convertScriptValueToInternal(Object scriptValue, String language) {
     return scriptValue;
-  }
-
-  public void parse(ParseContext parseContext) {
   }
 }

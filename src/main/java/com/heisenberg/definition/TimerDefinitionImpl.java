@@ -28,7 +28,7 @@ public class TimerDefinitionImpl implements TimerBuilder {
   public ProcessDefinitionImpl processDefinition;
   public ScopeDefinitionImpl parent;
   
-  public void validate(ParseContext parseContext) {
+  public void validate(ValidateProcessDefinitionAfterDeserialization validateProcessDefinitionAfterDeserialization) {
   }
 
 }

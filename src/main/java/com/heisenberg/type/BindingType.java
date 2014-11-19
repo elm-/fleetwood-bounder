@@ -14,8 +14,6 @@
  */
 package com.heisenberg.type;
 
-import java.lang.reflect.TypeVariable;
-
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
 

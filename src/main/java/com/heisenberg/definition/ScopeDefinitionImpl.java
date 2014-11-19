@@ -122,46 +122,6 @@ public abstract class ScopeDefinitionImpl {
     return this;
   }
 
-  public void parse(ParseContext parseContext) {
-    if (variableDefinitions!=null) {
-      variableDefinitionsMap = new HashMap<>();
-      for (int i=0; i<variableDefinitions.size(); i++) {
-        VariableDefinitionImpl variableDefinition = variableDefinitions.get(i);
-        parseContext.pushPathElement(variableDefinition, variableDefinition.name, i);
-        variableDefinition.validate(parseContext);
-        parseContext.popPathElement();
-        variableDefinitionsMap.put(variableDefinition.name, variableDefinition);
-      }
-    }
-    if (activityDefinitions!=null) {
-      activityDefinitionsMap = new HashMap<>();
-      for (int i=0; i<activityDefinitions.size(); i++) {
-        ActivityDefinitionImpl activityDefinition = activityDefinitions.get(i);
-        parseContext.pushPathElement(activityDefinition, activityDefinition.name, i);
-        activityDefinition.parse(parseContext);
-        parseContext.popPathElement();
-        activityDefinitionsMap.put(activityDefinition.name, activityDefinition);
-      }
-    }
-    if (transitionDefinitions!=null) {
-      for (int i=0; i<transitionDefinitions.size(); i++) {
-        TransitionDefinitionImpl transitionDefinition = transitionDefinitions.get(i);
-        parseContext.pushPathElement(transitionDefinition, transitionDefinition.name, i);
-        transitionDefinition.validate(parseContext);
-        parseContext.popPathElement();
-      }
-    }
-    if (timerDefinitions!=null) {
-      for (int i=0; i<timerDefinitions.size(); i++) {
-        TimerDefinitionImpl timerDefinition = timerDefinitions.get(i);
-        parseContext.pushPathElement(timerDefinition, timerDefinition.name, i);
-        timerDefinition.validate(parseContext);
-        parseContext.popPathElement();
-      }
-    }
-  }
-
-
   /// Process Definition Parsing methods //////////////////////////////////////////
 
   /** performs initializations after the activity is constructed and before the process is used in execution.
@@ -345,7 +305,41 @@ public abstract class ScopeDefinitionImpl {
 
   
   public void visit(ProcessDefinitionVisitor visitor) {
-    visitor.visitCompositeDefinition(this);
+    // If some visitor needs to control the order of types vs other content visited, 
+    // then this is the idea you should consider 
+    //   if (visitor instanceof OrderedProcessDefinitionVisitor) {
+    //     ... also delegate the ordering of this visit to the visitor ... 
+    //   } else { ... perform the default as below
+    visitCompositeActivityDefinitions(visitor);
+    visitCompositeTransitionDefinitions(visitor);
+    visitCompositeVariableDefinitions(visitor);
+  }
+
+  protected void visitCompositeActivityDefinitions(ProcessDefinitionVisitor visitor) {
+    if (activityDefinitions!=null) {
+      for (int i=0; i<activityDefinitions.size(); i++) {
+        ActivityDefinitionImpl activityDefinition = activityDefinitions.get(i);
+        activityDefinition.visit(visitor, i);
+      }
+    }
+  }
+
+  protected void visitCompositeVariableDefinitions(ProcessDefinitionVisitor visitor) {
+    if (variableDefinitions!=null) {
+      for (int i=0; i<variableDefinitions.size(); i++) {
+        VariableDefinitionImpl variableDefinition = variableDefinitions.get(i);
+        visitor.variableDefinition(variableDefinition, i);
+      }
+    }
+  }
+
+  protected void visitCompositeTransitionDefinitions(ProcessDefinitionVisitor visitor) {
+    if (transitionDefinitions!=null) {
+      for (int i=0; i<transitionDefinitions.size(); i++) {
+        TransitionDefinitionImpl transitionDefinition = transitionDefinitions.get(i);
+        visitor.transitionDefinition(transitionDefinition, i);
+      }
+    }
   }
 
   public void notifyActivityInstanceEnded(ActivityInstanceImpl activityInstance) {
@@ -374,5 +368,14 @@ public abstract class ScopeDefinitionImpl {
 
   public VariableDefinitionImpl findVariableDefinitionByName(String variableDefinitionName) {
     return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionName) : null;
+  }
+
+  public void initializeActivityDefinitionsMap() {
+    if (activityDefinitionsMap==null && activityDefinitions!=null) {
+      activityDefinitionsMap = new HashMap<>();
+      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
+        activityDefinitionsMap.put(activityDefinition.name, activityDefinition);
+      }
+    }
   }
 }

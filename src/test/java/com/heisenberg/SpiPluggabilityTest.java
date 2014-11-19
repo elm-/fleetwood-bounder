@@ -18,7 +18,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.form.Form;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityType;
@@ -37,7 +39,9 @@ public class SpiPluggabilityTest {
 
   @Test
   public void testOne() {
-    Json json = new Json();
+    ProcessEngineImpl processEngine = new MemoryProcessEngine();
+    
+    Json json = new Json(processEngine);
     SpiDescriptor spiDescriptor = new SpiDescriptor(MyCustomType.class);
     log.debug("From oss on-premise to SaaS process builder:");
     log.debug(json.objectToJsonStringPretty(spiDescriptor)+"\n");
