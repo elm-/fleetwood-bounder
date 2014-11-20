@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.Binding;
-import com.heisenberg.type.TextType;
 
 
 /**
@@ -32,16 +31,16 @@ public class Go extends AbstractActivityType {
   
   public static List<Execution> executions = new ArrayList<>();
   
-  Binding<TextType> placeBinding;
+  Binding<String> placeBinding;
 
-  public Go placeBinding(Binding<TextType> placeBinding) {
+  public Go placeBinding(Binding<String> placeBinding) {
     this.placeBinding = placeBinding;
     return this;
   }
 
   @Override
   public void start(ActivityInstanceImpl activityInstance) {
-    String place = placeBinding.getValue(activityInstance, String.class);
+    String place = placeBinding.getValue(activityInstance);
     executions.add(new Execution(activityInstance, place));
     activityInstance.onwards();
   }

@@ -26,7 +26,6 @@ import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.spi.Binding;
 import com.heisenberg.spi.Type;
-import com.heisenberg.type.TextType;
 
 /**
  * @author Walter White
@@ -46,7 +45,7 @@ public class ExampleTest {
       .type(Type.TEXT);
 
     processBuilder.newActivity()
-      .activityType(new Go().placeBinding(new Binding<TextType>().value("Antwerp")))
+      .activityType(new Go().placeBinding(new Binding<String>().value("Antwerp")))
       .name("go");
     
     processBuilder.newActivity()

@@ -31,8 +31,8 @@ import com.heisenberg.definition.ScopeDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.TypedValue;
 import com.heisenberg.spi.Type;
-import com.heisenberg.type.TypedValue;
 import com.heisenberg.util.Time;
 
 

@@ -18,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.type.ProcessDefinitionIdType;
-import com.heisenberg.type.TextType;
 
 
 /**

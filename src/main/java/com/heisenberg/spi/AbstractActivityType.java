@@ -23,21 +23,18 @@ import com.heisenberg.instance.ActivityInstanceImpl;
  */
 public abstract class AbstractActivityType implements ActivityType {
   
-  String id;
-  String label;
-
   public abstract void start(ActivityInstanceImpl activityInstance);
 
   public void signal(ActivityInstanceImpl activityInstance) {
   }
 
   @Override
-  public String getLabel() {
-    return label;
+  public String getId() {
+    return null;
   }
 
   @Override
-  public String getId() {
-    return id;
+  public String getLabel() {
+    return null;
   }
 }

@@ -30,21 +30,21 @@ public class Binding<T> {
   public Script expressionScript;
 
   @SuppressWarnings("unchecked")
-  public <V> V getValue(ActivityInstanceImpl activityInstance, Class<V> valueClass) {
+  public T getValue(ActivityInstanceImpl activityInstance) {
     if (value!=null) {
-      return (V) value;
+      return (T) value;
     }
     if (variableName!=null) {
-      return (V) activityInstance.getVariableValueRecursive(variableName).getValue();
+      return (T) activityInstance.getVariableValueRecursive(variableName).getValue();
     }
     if (expressionScript!=null) {
       ScriptResult result = activityInstance.processEngine.scripts.evaluateScript(activityInstance, expressionScript);
-      return (V) result.getResult();
+      return (T) result.getResult();
     }
     return null;
   }
   
-  public Binding<T> value(String value) {
+  public Binding<T> value(T value) {
     this.value = value;
     return this;
   }

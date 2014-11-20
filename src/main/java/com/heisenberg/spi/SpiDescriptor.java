@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.form.Form;
 import com.heisenberg.form.FormField;
-import com.heisenberg.type.ObjectField;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Reflection;
 
@@ -33,6 +33,9 @@ import com.heisenberg.util.Reflection;
  */
 public class SpiDescriptor {
 
+  @JsonIgnore
+  public ProcessEngineImpl processEngine;
+  
   public SpiType spiType;
   public String typeName;
   public String label;
@@ -42,12 +45,13 @@ public class SpiDescriptor {
 
   @JsonIgnore
   public Class<?> spiClass;
-  public List<ObjectField> configurationFields;
+  public List<SpiDescriptorField> configurationFields;
 
-  public SpiDescriptor(Spi spiObject) {
+  public SpiDescriptor(ProcessEngineImpl processEngine, Spi spiObject) {
+    this.processEngine = processEngine;
     this.spiClass = spiObject.getClass();
     initializeSpiType();
-    initializeConfigurationForm();
+    initializeConfigurationFields();
     initializeTypeName(); 
   }
 
@@ -61,12 +65,14 @@ public class SpiDescriptor {
     }
   }
   
-  protected void initializeConfigurationForm() {
-    List<Field> fields =  Reflection.getFieldsRecursive(spiClass, Reflection.NOT_STATIC);
+  protected void initializeConfigurationFields() {
+    List<Field> fields =  Reflection.getFieldsRecursive(spiClass);
     if (!fields.isEmpty()) {
-      configurationFields = new ArrayList<ObjectField>(fields.size());
+      configurationFields = new ArrayList<SpiDescriptorField>(fields.size());
       for (Field field : fields) {
-        configurationFields.add(new ObjectField(field));
+        if (field.getAnnotation(ConfigurationField.class)!=null) {
+          configurationFields.add(new SpiDescriptorField(processEngine, field));
+        }
       }
     }
   }
@@ -79,7 +85,7 @@ public class SpiDescriptor {
     return spiClass;
   }
 
-  public List<ObjectField> getConfigurationFields() {
+  public List<SpiDescriptorField> getConfigurationFields() {
     return configurationFields;
   }
 

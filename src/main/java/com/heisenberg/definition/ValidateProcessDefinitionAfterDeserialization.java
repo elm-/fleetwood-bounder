@@ -78,6 +78,9 @@ public class ValidateProcessDefinitionAfterDeserialization implements ProcessDef
     if (activity.name==null || "".equals(activity.name)) {
       addError(activity.line, activity.column, "Activity has no name");
     }
+    if (activity.activityType==null) {
+      addError(activity.line, activity.column, "Activity '%s' has no activityType configured", activity.name);
+    }
 //    Map<String, ActivityTypeDescriptor> descriptors = processEngine.activityTypeDescriptors;
 //    ActivityTypeDescriptor descriptor = (descriptors!=null ? descriptors.get(activity.activityTypeId) : null);
 //    if (descriptor!=null) {

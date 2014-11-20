@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
@@ -42,6 +43,11 @@ public class JsonProcessDefinitionTest {
 
   @Test
   public void testProcessDefinitionJson() {
+    ProcessEngineImpl processEngine = new MemoryProcessEngine()
+      .registerActivityType(Go.class);
+  
+    processEngine.json.objectMapper.registerSubtypes(new NamedType(Go.class, "go"));
+
     ProcessBuilder processBuilder = new ProcessDefinitionImpl();
     processBuilder.deployedUserId(new UserId("me"))
     .deployedTime(Time.now())
@@ -81,9 +87,6 @@ public class JsonProcessDefinitionTest {
     processBuilder.newTransition()
       .from("one")
       .to("two");
-    
-    ProcessEngineImpl processEngine = new MemoryProcessEngine()
-      .registerActivityType(Go.class);
     
     Json json = processEngine.json;
     

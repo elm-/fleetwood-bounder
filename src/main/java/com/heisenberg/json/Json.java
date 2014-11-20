@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -48,6 +49,7 @@ import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessId;
 import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.id.UserId;
+import com.heisenberg.api.type.TextType;
 import com.heisenberg.definition.PrepareProcessDefinitionForSerialization;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
@@ -67,7 +69,6 @@ import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.PrepareProcessInstanceForSerialization;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.type.ChoiceType;
-import com.heisenberg.type.TextType;
 import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Id;
 
@@ -91,8 +92,8 @@ public class Json {
       .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
       .setSerializationInclusion(Include.NON_NULL);
-
-    this.objectMapper.getDeserializationConfig().getSubtypeResolver().registerSubtypes(
+    
+    this.objectMapper.registerSubtypes(
        TextType.class,
        ChoiceType.class,
        
@@ -111,16 +112,6 @@ public class Json {
     
     SimpleModule module = new SimpleModule("heisenbergModule", new Version(1, 0, 0, null, null, null));
     module.addSerializer(new IdSerializer());
-    module.setSerializerModifier(new BeanSerializerModifier() {
-      @SuppressWarnings("unchecked")
-      @Override
-      public JsonSerializer< ? > modifySerializer(SerializationConfig config, BeanDescription beanDesc, JsonSerializer< ? > serializer) {
-        if (beanDesc.getBeanClass()==FormField.class) {
-          return new FormFieldSerializer((JsonSerializer<FormField>) serializer);
-        }
-        return serializer; 
-      }
-    });
     module.addDeserializer(ProcessDefinitionId.class, new ProcessDefinitionIdDeserializer());
     module.addDeserializer(ProcessInstanceId.class, new ProcessInstanceIdDeserializer());
     module.addDeserializer(ActivityInstanceId.class, new ActivityInstanceIdDeserializer());
@@ -149,7 +140,7 @@ public class Json {
   public void objectToJson(Object object, Writer writer) {
     objectToJson(object, writer, objectMapper.writer());
   }
-
+  
   static final PrepareProcessDefinitionForSerialization PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new PrepareProcessDefinitionForSerialization();
   static final PrepareProcessInstanceForSerialization PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION = new PrepareProcessInstanceForSerialization();
 
@@ -184,6 +175,10 @@ public class Json {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  public <T> T jsonMapToObject(Map<String,Object> jsonMap, Class<T> type) {
+    return objectMapper.convertValue(jsonMap, type);
   }
 
   protected <T> T jsonToObject(JsonParser jsonParser, Class<T> type) throws IOException {
@@ -282,35 +277,6 @@ public class Json {
     public ActivityInstanceId deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
       String idText = jp.getText();
       return idText!=null ? new ActivityInstanceId(idText) : null;
-    }
-  }
-
-  private static class FormFieldSerializer extends StdSerializer<FormField> implements ResolvableSerializer {
-    JsonSerializer<FormField> defaultSerializer;
-    protected FormFieldSerializer(JsonSerializer<FormField> defaultSerializer) {
-      super(FormField.class);
-      this.defaultSerializer = defaultSerializer;
-    }
-    @Override
-    public void resolve(SerializerProvider provider) throws JsonMappingException {
-      ((ResolvableSerializer) defaultSerializer).resolve(provider);
-    }
-    @Override
-    public void serialize(FormField formField, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-      // update json value
-      ProcessEngineImpl processEngine = (ProcessEngineImpl) provider.getAttribute(Json.ATTRIBUTE_KEY_PROCESS_ENGINE);
-      if (formField!=null) {
-        if (formField.value!=null) {
-          formField.jsonValue = null;
-        }
-        if (formField.type==null) {
-          Exceptions.checkNotNull(formField.typeId, "No typeId for form field "+formField.id);
-          formField.type = processEngine.types.get(formField.typeId);
-          Exceptions.checkNotNull(formField.type, "Type "+formField.typeId+" doesn't exist in form field "+formField.id);
-        }
-        formField.jsonValue = formField.type.convertInternalToJsonValue(formField.value);
-      }
-      defaultSerializer.serialize(formField, jgen, provider);
     }
   }
 }

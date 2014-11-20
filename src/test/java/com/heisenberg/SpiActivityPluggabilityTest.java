@@ -14,7 +14,10 @@
  */
 package com.heisenberg;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,30 +25,30 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.AbstractActivityType;
-import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.Binding;
-import com.heisenberg.spi.Label;
+import com.heisenberg.spi.ConfigurationField;
 import com.heisenberg.spi.SpiDescriptor;
 import com.heisenberg.spi.Type;
-import com.heisenberg.type.TextType;
 
 
 /**
  * @author Walter White
  */
-public class SpiPluggabilityTest {
+public class SpiActivityPluggabilityTest {
   
-  public static final Logger log = LoggerFactory.getLogger(SpiPluggabilityTest.class);
+  public static final Logger log = LoggerFactory.getLogger(SpiActivityPluggabilityTest.class);
 
   @Test
-  public void testOne() {
+  public void testOne() throws Exception {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
+      .registerJavaBeanType(Money.class)
       .registerActivityType(MyCustomType.class);
     
     Json json = new Json(processEngine);
@@ -56,11 +59,11 @@ public class SpiPluggabilityTest {
     log.debug("SaaS process builder shows the activity in the pallete");
 
     ProcessBuilder processBuilder = processEngine.newProcess();
-    processBuilder.newActivity()
+    ActivityDefinitionImpl a = (ActivityDefinitionImpl) processBuilder.newActivity()
       .name("a")
       .activityType(new MyCustomType()
         .functionName("functOne")
-        .parameterOne(new Binding<TextType>().variableName("v"))
+        .parameterOne(new Binding<String>().variableName("v"))
       );
     processBuilder.newVariable()
       .name("v")
@@ -69,9 +72,21 @@ public class SpiPluggabilityTest {
     log.debug("The process as it is deployed into the engine:");
     String processJson = json.objectToJsonStringPretty(processBuilder);
     log.debug(processJson+"\n");
-    
+
     ProcessDefinitionImpl processDefinition = json.jsonToObject(processJson, ProcessDefinitionImpl.class);
-    assertNotNull(processDefinition);
+    log.debug(processJson+"\n");
+
+    String aJsonText = json.objectToJsonStringPretty(a.activityType);
+    log.debug(aJsonText+"\n");
+
+    @SuppressWarnings("unchecked")
+    Map<String,Object> aJsonMap = (Map<String,Object>)json.objectMapper.readValue(aJsonText, Map.class);
+    
+    processBuilder = processEngine.newProcess();
+    processBuilder.newActivity()
+      .activityTypeJson(aJsonMap);
+    
+    processDefinition = (ProcessDefinitionImpl) processBuilder;
     
     MyCustomType myCustomActivity = (MyCustomType) processDefinition.activityDefinitions.get(0).activityType;
     assertEquals("functOne", myCustomActivity.functionName);
@@ -79,17 +94,20 @@ public class SpiPluggabilityTest {
   }
 
   public static class MyCustomType extends AbstractActivityType {
-
-    @Label("Function name")
+    
+    @ConfigurationField("Function name")
     String functionName;
 
-    @Label("Parameter one")
-    Binding<TextType> parameterOne; 
+    @ConfigurationField("Parameter one")
+    Binding<String> parameterOne;
+    
+    @ConfigurationField("Billable bills")
+    List<Binding<Money>> moneyBindings;
     
     @Override
     public void start(ActivityInstanceImpl activityInstance) {
       log.debug("Function name: "+functionName);
-      log.debug("Parameter one: "+parameterOne.getValue(activityInstance, String.class));
+      log.debug("Parameter one: "+parameterOne.getValue(activityInstance));
     }
     
     public MyCustomType functionName(String functionName) {
@@ -97,7 +115,7 @@ public class SpiPluggabilityTest {
       return this;
     }
     
-    public MyCustomType parameterOne(Binding<TextType> parameterOne) {
+    public MyCustomType parameterOne(Binding<String> parameterOne) {
       this.parameterOne = parameterOne;
       return this;
     }

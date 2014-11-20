@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
@@ -27,17 +28,19 @@ import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
+import com.heisenberg.spi.InvalidApiValueException;
+import com.heisenberg.type.ChoiceType;
 
 
 /**
  * @author Walter White
  */
-public class TypeDeclarationTest {
+public class SpiTypePluggabilityTest {
 
   @Test
   public void testProcessEngineJavaTypeDeclaration() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerType(Money.class);
+      .registerJavaBeanType(Money.class);
 
     ProcessBuilder processBuilder = processEngine.newProcess();
     
@@ -65,50 +68,43 @@ public class TypeDeclarationTest {
     assertEquals("USD", money.currency);
   }
   
-//  @Test
-//  public void testProcessChoiceDeclaration() {
-//    ProcessEngine processEngine = new MemoryProcessEngine()
-//      .registerActivityType(Go.class)
-//      .registerActivityType(Wait.class);
-//
-//    // prepare the ingredients
-//    ChoiceDescriptor countryType = new ChoiceDescriptor()
-//      .id("country")
-//      .option("be", "Belgium")
-//      .option("us", "US")
-//      .option("de", "Germany")
-//      .option("fr", "France");
-//    
-//    VariableBuilder c = new VariableBuilder()
-//      .type("country")
-//      .name("c");
-//
-//    // cook the process
-//    ProcessBuilder processDefinition = new ProcessBuilder()
-//      .activityType(countryType)
-//      .variable(c);
-//
-//    String processDefinitionId = processEngine
-//      .deployProcessDefinition(processDefinition)
-//      .checkNoErrorsAndNoWarnings()
-//      .getProcessDefinitionId();
-//
-//    // a valid value
-//    ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
-//      .processDefinitionRefId(processDefinitionId)
-//      .variableValue("c", "be"));
-//    VariableInstance cInstance = processInstance.variableInstances.get(0);
-//    assertEquals("country", cInstance.typeRefId);
-//    assertEquals("be", cInstance.value);
-//
-//    // a valid value
-//    try {
-//      processEngine.startProcessInstance(new StartProcessInstanceRequest()
-//        .processDefinitionRefId(processDefinitionId)
-//        .variableValue("c", "xxx"));
-//      Assert.fail("expectedException");
-//    } catch (Exception e) {
-//      assertEquals(InvalidApiValueException.class, e.getCause().getClass());
-//    }
-//  }
+  @Test
+  public void testProcessChoiceDeclaration() {
+    ProcessEngine processEngine = new MemoryProcessEngine()
+      .registerType(new ChoiceType()
+        .id("country")
+        .option("be", "Belgium")
+        .option("us", "US")
+        .option("de", "Germany")
+        .option("fr", "France"));
+
+    ProcessBuilder process = processEngine.newProcess();
+    
+    process.newVariable()
+      .type("country")
+      .name("c");
+
+    String processDefinitionId = processEngine
+      .deployProcessDefinition(process)
+      .checkNoErrorsAndNoWarnings()
+      .getProcessDefinitionId();
+
+    // a valid value
+    ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
+      .processDefinitionRefId(processDefinitionId)
+      .variableValue("c", "be"));
+    VariableInstance cInstance = processInstance.getVariableInstances().get(0);
+    assertEquals("country", cInstance.getTypeId());
+    assertEquals("be", cInstance.getValue());
+
+    // an invalid value
+    try {
+      processEngine.startProcessInstance(new StartProcessInstanceRequest()
+        .processDefinitionRefId(processDefinitionId)
+        .variableValue("c", "xxx"));
+      Assert.fail("expected exception");
+    } catch (Exception e) {
+      assertEquals(InvalidApiValueException.class, e.getCause().getClass());
+    }
+  }
 }

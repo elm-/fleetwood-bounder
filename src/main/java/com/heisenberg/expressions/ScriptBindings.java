@@ -27,9 +27,9 @@ import javax.script.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.impl.TypedValue;
 import com.heisenberg.instance.ScopeInstanceImpl;
 import com.heisenberg.spi.Type;
-import com.heisenberg.type.TypedValue;
 
 
 /**

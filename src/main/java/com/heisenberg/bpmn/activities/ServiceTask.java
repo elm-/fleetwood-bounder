@@ -15,13 +15,13 @@
 package com.heisenberg.bpmn.activities;
 
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.AbstractActivityType;
 
 
 /**
  * @author Walter White
  */
-public abstract class ServiceTask extends ActivityType {
+public abstract class ServiceTask extends AbstractActivityType {
 
   public static final String ID = "serviceTask";
 

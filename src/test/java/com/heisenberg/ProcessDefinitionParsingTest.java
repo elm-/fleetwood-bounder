@@ -52,7 +52,7 @@ public class ProcessDefinitionParsingTest {
     processBuilder.newActivity()
       .name("a");
 
-    TestHelper.assertTextPresent("has invalid type null", processEngine
+    TestHelper.assertTextPresent("Activity 'a' has no activityType configured", processEngine
         .deployProcessDefinition(processBuilder)
         .getIssueReport());
   }

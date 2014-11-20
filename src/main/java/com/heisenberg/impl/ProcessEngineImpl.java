@@ -39,6 +39,7 @@ import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.type.TextType;
 import com.heisenberg.bpmn.activities.StartEvent;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
@@ -56,7 +57,6 @@ import com.heisenberg.spi.SpiDescriptor;
 import com.heisenberg.spi.SpiType;
 import com.heisenberg.spi.Type;
 import com.heisenberg.type.JavaBeanType;
-import com.heisenberg.type.TextType;
 import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Reflection;
 import com.heisenberg.util.Time;
@@ -103,6 +103,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     activityDescriptors = new HashMap<>();
     typeDescriptors = new HashMap<>();
     types = new HashMap<>();
+    activityTypes = new HashMap<>();
     Iterator<Spi> spis = ServiceLoader.load(Spi.class).iterator();
     while (spis.hasNext()) {
       Spi spiObject = spis.next();
@@ -153,7 +154,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
         throw new RuntimeException("Unknown Spi type: "+spiObject.getClass().getName());
       }
     } else {
-      SpiDescriptor spiDescriptor = new SpiDescriptor(spiObject);
+      SpiDescriptor spiDescriptor = new SpiDescriptor(this, spiObject);
       if (spiDescriptor.spiType==SpiType.type) {
         typeDescriptors.put(spiDescriptor.getTypeName(), spiDescriptor);
       } else if (spiObject instanceof ActivityType) {

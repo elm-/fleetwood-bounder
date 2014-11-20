@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
  * @author Walter White
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Label {
+public @interface ConfigurationField {
 
   String value();
 }

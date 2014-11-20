@@ -16,6 +16,7 @@ package com.heisenberg.definition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.heisenberg.api.definition.ActivityBuilder;
 import com.heisenberg.instance.ActivityInstanceImpl;
@@ -34,6 +35,11 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 
   public ActivityDefinitionImpl activityType(ActivityType activityType) {
     this.activityType = activityType;
+    return this;
+  }
+  
+  public ActivityDefinitionImpl activityTypeJson(Map<String,Object> activityTypeJsonMap) {
+    this.activityType = processEngine.json.jsonMapToObject(activityTypeJsonMap, ActivityType.class);
     return this;
   }
   

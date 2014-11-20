@@ -14,6 +14,7 @@
  */
 package com.heisenberg.definition;
 
+import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.Type;
 
 
@@ -29,6 +30,11 @@ public class PrepareProcessDefinitionForSerialization implements ProcessDefiniti
 
   @Override
   public void startActivityDefinition(ActivityDefinitionImpl activityDefinition, int index) {
+//    ActivityType activityType = activityDefinition.activityType;
+//    if (activityType!=null && activityType.getId()!=null) {
+//      activityDefinition.activityTypeId = activityType.getId();
+//      activityDefinition.activityType = null;
+//    }
   }
 
   @Override

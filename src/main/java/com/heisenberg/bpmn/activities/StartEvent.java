@@ -15,14 +15,14 @@
 package com.heisenberg.bpmn.activities;
 
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.Spi;
 
 
 /**
  * @author Walter White
  */
-public class StartEvent extends ActivityType {
+public class StartEvent extends AbstractActivityType {
 
   public static final Spi INSTANCE = new StartEvent();
 

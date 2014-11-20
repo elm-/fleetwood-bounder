@@ -32,7 +32,7 @@ import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
 import com.heisenberg.expressions.Scripts;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.AbstractActivityType;
 
 
 /**
@@ -49,7 +49,6 @@ public class ScriptTest {
   @Test
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(ScriptActivity.class)
       .registerJavaBeanType(Money.class);
 
     ProcessBuilder processBuilder = processEngine.newProcess();
@@ -59,7 +58,7 @@ public class ScriptTest {
       .type(Money.class);
     
     processBuilder.newActivity()
-      .activityTypeId("script")
+      .activityType(new ScriptActivity())
       .name("a");
 
     String processDefinitionId = processEngine
@@ -81,7 +80,7 @@ public class ScriptTest {
   String scriptResultMessage = null;
 
   @JsonTypeName("script")
-  public class ScriptActivity extends ActivityType {
+  public class ScriptActivity extends AbstractActivityType {
     @Override
     public String getLabel() {
       return "Script";
