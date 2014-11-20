@@ -14,19 +14,25 @@
  */
 package com.heisenberg;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
-import com.heisenberg.form.Form;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.json.Json;
+import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.Binding;
 import com.heisenberg.spi.Label;
 import com.heisenberg.spi.SpiDescriptor;
+import com.heisenberg.spi.Type;
 import com.heisenberg.type.TextType;
 
 
@@ -39,48 +45,41 @@ public class SpiPluggabilityTest {
 
   @Test
   public void testOne() {
-    ProcessEngineImpl processEngine = new MemoryProcessEngine();
+    ProcessEngineImpl processEngine = new MemoryProcessEngine()
+      .registerActivityType(MyCustomType.class);
     
     Json json = new Json(processEngine);
-    SpiDescriptor spiDescriptor = new SpiDescriptor(MyCustomType.class);
+    SpiDescriptor spiDescriptor = processEngine.activityDescriptors.get(MyCustomType.class.getName());
     log.debug("From oss on-premise to SaaS process builder:");
     log.debug(json.objectToJsonStringPretty(spiDescriptor)+"\n");
     
     log.debug("SaaS process builder shows the activity in the pallete");
 
-    Form configurationForm = spiDescriptor.getConfigurationForm();
-    log.debug("SaaS process builder shows following configuration form:");
-    log.debug(json.objectToJsonStringPretty(configurationForm)+"\n");
+    ProcessBuilder processBuilder = processEngine.newProcess();
+    processBuilder.newActivity()
+      .name("a")
+      .activityType(new MyCustomType()
+        .functionName("functOne")
+        .parameterOne(new Binding<TextType>().variableName("v"))
+      );
+    processBuilder.newVariable()
+      .name("v")
+      .type(Type.TEXT);
+
+    log.debug("The process as it is deployed into the engine:");
+    String processJson = json.objectToJsonStringPretty(processBuilder);
+    log.debug(processJson+"\n");
     
-    configurationForm.fields.get(0).value = "hela";
-    Binding<TextType> binding = new Binding<>();
-    binding.variableName = "v"; 
-    configurationForm.fields.get(1).value = binding;
+    ProcessDefinitionImpl processDefinition = json.jsonToObject(processJson, ProcessDefinitionImpl.class);
+    assertNotNull(processDefinition);
     
-    log.debug("SaaS process sends following configuration form back as part of the process that is exported:");
-    String configurationFormText = json.objectToJsonStringPretty(configurationForm);
-    log.debug(configurationFormText+"\n");
-    
-    Form configurationFormInstance = json.jsonToObject(configurationFormText, Form.class);
-    // json parsing post processing
-    configurationFormInstance.parseValues(configurationForm);
-    
-    MyCustomType myCustomType = (MyCustomType) spiDescriptor.instantiateAndConfigure(configurationFormInstance);
-    myCustomType.start(null);
+    MyCustomType myCustomActivity = (MyCustomType) processDefinition.activityDefinitions.get(0).activityType;
+    assertEquals("functOne", myCustomActivity.functionName);
+    assertEquals("v", myCustomActivity.parameterOne.variableName);
   }
 
-  public static class MyCustomType extends ActivityType {
-    private static final String ID = "mca";
+  public static class MyCustomType extends AbstractActivityType {
 
-    @Override
-    public String getLabel() {
-      return "SAP mybapi";
-    }
-    @Override
-    public String getId() {
-      return ID;
-    }
-    
     @Label("Function name")
     String functionName;
 
@@ -91,6 +90,16 @@ public class SpiPluggabilityTest {
     public void start(ActivityInstanceImpl activityInstance) {
       log.debug("Function name: "+functionName);
       log.debug("Parameter one: "+parameterOne.getValue(activityInstance, String.class));
+    }
+    
+    public MyCustomType functionName(String functionName) {
+      this.functionName = functionName;
+      return this;
+    }
+    
+    public MyCustomType parameterOne(Binding<TextType> parameterOne) {
+      this.parameterOne = parameterOne;
+      return this;
     }
   }
 }

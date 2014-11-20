@@ -21,8 +21,11 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-@JsonTypeName("aiEnd")
+@JsonTypeName("activityInstanceEnd")
 public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
+
+  public ActivityInstanceEndUpdate() {
+  }
 
   public ActivityInstanceEndUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);

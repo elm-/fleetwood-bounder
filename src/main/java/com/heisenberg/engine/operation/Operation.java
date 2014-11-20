@@ -34,6 +34,9 @@ public abstract class Operation {
   
   public ActivityInstanceId activityInstanceId;
 
+  public Operation() {
+  }
+
   public Operation(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }

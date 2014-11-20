@@ -14,6 +14,9 @@
  */
 package com.heisenberg.form;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.spi.Type;
+
 
 /**
  * @author Walter White
@@ -22,8 +25,19 @@ public class FormField {
 
   public String id;
   public String label;
-  public String typeRefId;
   public Boolean required;
   public Boolean readOnly;
+  
+  /** Refers to a type in the processEngineImpl.types.
+   * Either typeId or type must be specified. */
+  public String typeId;
+
+  /** A configured type defined inline.
+   * This type could have been copied from the process definition variable declaration. */
+  public Type type; 
+  
+  @JsonIgnore
   public Object value;
+  public Object jsonValue;
+  
 }

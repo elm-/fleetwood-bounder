@@ -35,7 +35,7 @@ public class ProcessDefinitionIdType extends Type {
   }
 
   @Override
-  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
     if (apiValue==null) return null;
     if (apiValue instanceof ProcessDefinitionIdType) return apiValue;
     if (apiValue instanceof String) return new ProcessDefinitionId(apiValue);

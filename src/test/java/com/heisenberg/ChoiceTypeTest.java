@@ -31,8 +31,8 @@ public class ChoiceTypeTest {
   @Test
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(new Go())
-      .registerActivityType(new Wait());
+      .registerActivityType(Go.class)
+      .registerActivityType(Wait.class);
 
     ChoiceType countryType = new ChoiceType()
       .id("country")

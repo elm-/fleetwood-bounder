@@ -24,13 +24,13 @@ import com.heisenberg.spi.ActivityType;
 /**
  * @author Walter White
  */
-public class Wait extends ActivityType {
+public class Wait implements ActivityType {
   
-  public static final String ID = "wait";
+  public static final Wait INSTANCE = new Wait();
 
   @Override
   public String getId() {
-    return ID;
+    return "wait";
   }
 
   @Override

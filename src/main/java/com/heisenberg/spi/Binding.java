@@ -43,4 +43,63 @@ public class Binding<T> {
     }
     return null;
   }
+  
+  public Binding<T> value(String value) {
+    this.value = value;
+    return this;
+  }
+  
+  public Binding<T> variableName(String variableName) {
+    this.variableName = variableName;
+    return this;
+  }
+  
+  public Binding<T> expression(String expression) {
+    this.expression = expression;
+    return this;
+  }
+  
+// Old parsing code for binding that might come in handy
+// 
+//  public void parse(ValidateProcessDefinitionAfterDeserialization validateProcessDefinitionAfterDeserialization) {
+//    int valueSpecifications = 0;
+//    ParameterInstanceImpl parameterInstance = validateProcessDefinitionAfterDeserialization.getContextObject(ParameterInstanceImpl.class);
+//    ScopeDefinitionImpl scopeDefinition = validateProcessDefinitionAfterDeserialization.getContextObject(ScopeDefinitionImpl.class);
+//    ActivityParameter activityParameter = parameterInstance.activityParameter;
+//    if (value!=null) {
+//      try {
+//        value = activityParameter.type.convertApiToInternalValue(value);
+//      } catch (InvalidApiValueException e) {
+//        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Couldn't parse parameter %s binding value %s as a %s: %s", parameterInstance.name, value, activityParameter.type, e.getMessage());
+//      }
+//      valueSpecifications++;
+//    }
+//    if (buildVariableDefinitionRefName!=null) {
+//      variableDefinition = scopeDefinition.findVariableDefinitionByName(buildVariableDefinitionRefName);
+//      if (!variableDefinition.type.equals(activityParameter.type)) {
+//        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Variable %s (%s) can't be bound to parameter %s (%s) because the types don't match", 
+//                buildVariableDefinitionRefName, 
+//                variableDefinition.type.getId(), 
+//                parameterInstance.name,
+//                activityParameter.type.getId());
+//      }
+//      valueSpecifications++;
+//    }
+//    if (this.expression!=null) {
+//      String expressionLanguage = buildExpressionLanguage!=null ? buildExpressionLanguage : Scripts.JAVASCRIPT;
+//      try {
+//        expression = processEngine.scripts.compile(buildExpression, expressionLanguage);
+//      } catch (Exception e) {
+//        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Couldn't compile %s expression: %s: %s", expressionLanguage, e.getMessage(), this.expression);
+//      }
+//      valueSpecifications++;
+//    }
+//    if (valueSpecifications==0) {
+//      validateProcessDefinitionAfterDeserialization.addWarning(buildLine, buildColumn, "No value, variableDefinitionName or expression specified");
+//    }
+//    if (valueSpecifications>1) {
+//      validateProcessDefinitionAfterDeserialization.addWarning(buildLine, buildColumn, "More then one value specified");
+//    }
+//  }
+
 }

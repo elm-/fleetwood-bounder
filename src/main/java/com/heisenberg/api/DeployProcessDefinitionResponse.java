@@ -36,13 +36,13 @@ public class DeployProcessDefinitionResponse extends ParseIssues {
   }
   
   public DeployProcessDefinitionResponse checkNoErrors() {
-    checkNoErrors();
+    super.checkNoErrors();
     return this;
   }
 
   /** throws a RuntimeException if there were errors or warnings while deploying the process */
   public DeployProcessDefinitionResponse checkNoErrorsAndNoWarnings() {
-    checkNoErrorsAndNoWarnings();
+    super.checkNoErrorsAndNoWarnings();
     return this;
   }
 

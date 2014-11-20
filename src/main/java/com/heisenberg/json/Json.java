@@ -28,26 +28,47 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.id.OrganizationId;
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessId;
+import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.id.UserId;
 import com.heisenberg.definition.PrepareProcessDefinitionForSerialization;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
+import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
+import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
+import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
+import com.heisenberg.engine.updates.ActivityInstanceEndUpdate;
+import com.heisenberg.engine.updates.ActivityInstanceStartUpdate;
+import com.heisenberg.engine.updates.AsyncOperationAddUpdate;
+import com.heisenberg.engine.updates.LockAcquireUpdate;
+import com.heisenberg.engine.updates.LockReleaseUpdate;
+import com.heisenberg.engine.updates.OperationAddUpdate;
+import com.heisenberg.engine.updates.OperationRemoveUpdate;
+import com.heisenberg.engine.updates.Update;
+import com.heisenberg.form.FormField;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.PrepareProcessInstanceForSerialization;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.type.ChoiceType;
 import com.heisenberg.type.TextType;
+import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Id;
 
 
@@ -59,6 +80,7 @@ public class Json {
   public ProcessEngineImpl processEngine;
   public JsonFactory jsonFactory;
   public ObjectMapper objectMapper;
+  private static final String ATTRIBUTE_KEY_PROCESS_ENGINE = "processEngine";
 
   public Json(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
@@ -72,17 +94,44 @@ public class Json {
 
     this.objectMapper.getDeserializationConfig().getSubtypeResolver().registerSubtypes(
        TextType.class,
-       ChoiceType.class
+       ChoiceType.class,
+       
+       ActivityInstanceStartOperation.class,
+       NotifyActivityInstanceEndToParent.class,
+       
+       ActivityInstanceCreateUpdate.class,
+       ActivityInstanceEndUpdate.class,
+       ActivityInstanceStartUpdate.class,
+       AsyncOperationAddUpdate.class,
+       LockAcquireUpdate.class,
+       LockReleaseUpdate.class,
+       OperationAddUpdate.class,
+       OperationRemoveUpdate.class
        );
     
     SimpleModule module = new SimpleModule("heisenbergModule", new Version(1, 0, 0, null, null, null));
     module.addSerializer(new IdSerializer());
-    module.addSerializer(new IdSerializer());
+    module.setSerializerModifier(new BeanSerializerModifier() {
+      @SuppressWarnings("unchecked")
+      @Override
+      public JsonSerializer< ? > modifySerializer(SerializationConfig config, BeanDescription beanDesc, JsonSerializer< ? > serializer) {
+        if (beanDesc.getBeanClass()==FormField.class) {
+          return new FormFieldSerializer((JsonSerializer<FormField>) serializer);
+        }
+        return serializer; 
+      }
+    });
     module.addDeserializer(ProcessDefinitionId.class, new ProcessDefinitionIdDeserializer());
+    module.addDeserializer(ProcessInstanceId.class, new ProcessInstanceIdDeserializer());
+    module.addDeserializer(ActivityInstanceId.class, new ActivityInstanceIdDeserializer());
     module.addDeserializer(ProcessId.class, new ProcessIdDeserializer());
     module.addDeserializer(OrganizationId.class, new OrganizationIdDeserializer());
     module.addDeserializer(UserId.class, new UserIdDeserializer());
     this.objectMapper.registerModule(module);
+  }
+  
+  public void registerSubtype(Class<?> subtype) {
+    this.objectMapper.registerSubtypes(subtype);
   }
 
   public String objectToJsonString(Object object) {
@@ -110,9 +159,11 @@ public class Json {
         ((ProcessDefinitionImpl)object).visit(PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION);
       } else if (object instanceof ProcessInstanceImpl) {
         ((ProcessInstanceImpl)object).visit(PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION);
+      } else if (object instanceof Update) {
+        PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION.update((Update)object, -1);
       }
       objectWriter
-        // .withAttribute("processEngine", processEngine)
+        .withAttribute("processEngine", processEngine)
         .writeValue(writer, object);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -138,7 +189,7 @@ public class Json {
   protected <T> T jsonToObject(JsonParser jsonParser, Class<T> type) throws IOException {
     T object = objectMapper
       .reader(type)
-      // .withAttribute("processEngine", processEngine)
+      .withAttribute("processEngine", processEngine)
       .readValue(jsonParser);
     if (type==ProcessDefinitionImpl.class) {
       ValidateProcessDefinitionAfterDeserialization validate = new ValidateProcessDefinitionAfterDeserialization(processEngine);
@@ -207,6 +258,59 @@ public class Json {
     public ProcessId deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
       String idText = jp.getText();
       return idText!=null ? new ProcessId(idText) : null;
+    }
+  }
+  
+  private static class ProcessInstanceIdDeserializer extends StdDeserializer<ProcessInstanceId> {
+    private static final long serialVersionUID = 1L;
+    protected ProcessInstanceIdDeserializer() {
+      super(ProcessInstanceId.class);
+    }
+    @Override
+    public ProcessInstanceId deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+      String idText = jp.getText();
+      return idText!=null ? new ProcessInstanceId(idText) : null;
+    }
+  }
+
+  private static class ActivityInstanceIdDeserializer extends StdDeserializer<ActivityInstanceId> {
+    private static final long serialVersionUID = 1L;
+    protected ActivityInstanceIdDeserializer() {
+      super(ActivityInstanceId.class);
+    }
+    @Override
+    public ActivityInstanceId deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+      String idText = jp.getText();
+      return idText!=null ? new ActivityInstanceId(idText) : null;
+    }
+  }
+
+  private static class FormFieldSerializer extends StdSerializer<FormField> implements ResolvableSerializer {
+    JsonSerializer<FormField> defaultSerializer;
+    protected FormFieldSerializer(JsonSerializer<FormField> defaultSerializer) {
+      super(FormField.class);
+      this.defaultSerializer = defaultSerializer;
+    }
+    @Override
+    public void resolve(SerializerProvider provider) throws JsonMappingException {
+      ((ResolvableSerializer) defaultSerializer).resolve(provider);
+    }
+    @Override
+    public void serialize(FormField formField, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+      // update json value
+      ProcessEngineImpl processEngine = (ProcessEngineImpl) provider.getAttribute(Json.ATTRIBUTE_KEY_PROCESS_ENGINE);
+      if (formField!=null) {
+        if (formField.value!=null) {
+          formField.jsonValue = null;
+        }
+        if (formField.type==null) {
+          Exceptions.checkNotNull(formField.typeId, "No typeId for form field "+formField.id);
+          formField.type = processEngine.types.get(formField.typeId);
+          Exceptions.checkNotNull(formField.type, "Type "+formField.typeId+" doesn't exist in form field "+formField.id);
+        }
+        formField.jsonValue = formField.type.convertInternalToJsonValue(formField.value);
+      }
+      defaultSerializer.serialize(formField, jgen, provider);
     }
   }
 }

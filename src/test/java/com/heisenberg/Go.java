@@ -17,46 +17,33 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityParameter;
-import com.heisenberg.spi.ActivityType;
-import com.heisenberg.spi.ObjectActivityParameter;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.AbstractActivityType;
+import com.heisenberg.spi.Binding;
+import com.heisenberg.type.TextType;
 
 
 /**
  * @author Walter White
  */
-public class Go extends ActivityType {
+@JsonTypeName("go")
+public class Go extends AbstractActivityType {
   
-  public static final String ID = "go";
-
-  @Override
-  public String getId() {
-    return ID;
-  }
-
-  @Override
-  public String getLabel() {
-    return "Go";
-  }
-
-  public static ObjectActivityParameter PLACE = ObjectActivityParameter
-          .type(Type.TEXT)
-          .name("place");
-        
-  @Override
-  public ActivityParameter[] getActivityParameters() {
-    return new ActivityParameter[]{PLACE};
-  }
-
   public static List<Execution> executions = new ArrayList<>();
   
+  Binding<TextType> placeBinding;
+
+  public Go placeBinding(Binding<TextType> placeBinding) {
+    this.placeBinding = placeBinding;
+    return this;
+  }
+
   @Override
-  public void start(ActivityInstanceImpl controller) {
-    String place = PLACE.get(controller, String.class);
-    executions.add(new Execution(controller, place));
-    controller.onwards();
+  public void start(ActivityInstanceImpl activityInstance) {
+    String place = placeBinding.getValue(activityInstance, String.class);
+    executions.add(new Execution(activityInstance, place));
+    activityInstance.onwards();
   }
 
   @Override

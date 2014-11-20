@@ -20,8 +20,11 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-@JsonTypeName("aiStart")
+@JsonTypeName("activityInstanceStart")
 public class ActivityInstanceStartUpdate extends ActivityInstanceUpdate {
+
+  public ActivityInstanceStartUpdate() {
+  }
 
   public ActivityInstanceStartUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);

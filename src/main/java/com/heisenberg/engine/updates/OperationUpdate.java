@@ -22,8 +22,10 @@ import com.heisenberg.engine.operation.Operation;
  */
 public abstract class OperationUpdate implements Update {
 
-  public static final String FIELD_OPERATION = "operation";
   protected Operation operation;
+
+  public OperationUpdate() {
+  }
 
   public OperationUpdate(Operation operation) {
     this.operation = operation;

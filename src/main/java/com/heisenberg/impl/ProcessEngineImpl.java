@@ -39,6 +39,7 @@ import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.bpmn.activities.StartEvent;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
@@ -48,13 +49,16 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.json.Json;
-import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Spi;
+import com.heisenberg.spi.SpiDescriptor;
+import com.heisenberg.spi.SpiType;
 import com.heisenberg.spi.Type;
-import com.heisenberg.type.JavaType;
+import com.heisenberg.type.JavaBeanType;
+import com.heisenberg.type.TextType;
 import com.heisenberg.util.Exceptions;
+import com.heisenberg.util.Reflection;
 import com.heisenberg.util.Time;
 
 /**
@@ -65,8 +69,10 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
-  public Map<String,ActivityTypeDescriptor> activityTypeDescriptors;
+  public Map<String,ActivityType> activityTypes;
+  public Map<String,SpiDescriptor> activityDescriptors;
   public Map<String,Type> types;
+  public Map<String,SpiDescriptor> typeDescriptors;
   public Executor executor;
   public Json json;
   public ProcessDefinitionCache processDefinitionCache;
@@ -82,7 +88,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     initializeJson();
     initializeScripts();
     initializePluggableImplementations();
-    initializeTypes();
+    initializeDefaultSpis();
   }
 
   protected void initializeId() {
@@ -94,43 +100,69 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
   
   protected void initializePluggableImplementations() {
-    activityTypeDescriptors = new HashMap<>();
+    activityDescriptors = new HashMap<>();
+    typeDescriptors = new HashMap<>();
     types = new HashMap<>();
     Iterator<Spi> spis = ServiceLoader.load(Spi.class).iterator();
     while (spis.hasNext()) {
-      Spi spi = spis.next();
-      if (spi instanceof ActivityType) {
-        ActivityType activityType = (ActivityType)spi;
-        registerActivityType(activityType);
-      }
-      if (spi instanceof Type) {
-        Type type = (Type)spi;
-        registerType(type);
-      }
+      Spi spiObject = spis.next();
+      registerSpi(spiObject);
     }
   }
+  
+  protected void initializeDefaultSpis() {
+    registerSpi(TextType.INSTANCE);
+    registerSpi(StartEvent.INSTANCE);
+  }
 
-  public ProcessEngineImpl registerType(Type type) {
-    types.put(type.getId(), type);
+  public ProcessEngineImpl registerJavaBeanType(Class<?> javaBeanClass) {
+    registerSpi(new JavaBeanType(javaBeanClass));
     return this;
   }
 
-  public ProcessEngineImpl registerType(Class<?> javaClass) {
-    registerType(new JavaType(javaClass));
+  public ProcessEngineImpl registerType(Class<? extends Type> typeClass) {
+    registerSpi(Reflection.newInstance(typeClass));
+    return this;
+  }
+
+  public ProcessEngineImpl registerType(Type type) {
+    registerSpi(type);
+    return this;
+  }
+
+  public ProcessEngineImpl registerActivityType(Class<? extends ActivityType> activityTypeClass) {
+    registerSpi(Reflection.newInstance(activityTypeClass));
     return this;
   }
 
   public ProcessEngineImpl registerActivityType(ActivityType activityType) {
-    ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor();
-    activityTypeDescriptor.activityTypeId = activityType.getId();
-    Exceptions.checkNotNull(activityTypeDescriptor.activityTypeId, "id of "+activityType.getClass().getName()+" can not be null");
-    activityTypeDescriptor.activityParameters = ActivityParameter.buildActivityParameterMap(activityType.getActivityParameters());
-    activityTypeDescriptor.activityTypeClass = activityType.getClass();
-    activityTypeDescriptor.activityType = activityType;
-    activityTypeDescriptors.put(activityTypeDescriptor.activityTypeId, activityTypeDescriptor);
+    registerSpi(activityType);
     return this;
   }
-  
+
+  void registerSpi(Spi spiObject) {
+    if (spiObject==null) {
+      return;
+    }
+    if (spiObject.getId()!=null) {
+      if (spiObject instanceof Type) {
+        types.put(spiObject.getId(), (Type)spiObject);
+      } else if (spiObject instanceof ActivityType) {
+        activityTypes.put(spiObject.getId(), (ActivityType)spiObject);
+      } else {
+        throw new RuntimeException("Unknown Spi type: "+spiObject.getClass().getName());
+      }
+    } else {
+      SpiDescriptor spiDescriptor = new SpiDescriptor(spiObject);
+      if (spiDescriptor.spiType==SpiType.type) {
+        typeDescriptors.put(spiDescriptor.getTypeName(), spiDescriptor);
+      } else if (spiObject instanceof ActivityType) {
+        activityDescriptors.put(spiDescriptor.getTypeName(), spiDescriptor);
+      }
+    }
+    json.registerSubtype(spiObject.getClass());
+  }
+
   protected void initializeExecutor() {
     this.executor = new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
@@ -143,10 +175,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     this.scripts = new Scripts();
   }
 
-  protected void initializeTypes() {
-    registerType(Type.TEXT);
-  }
-  
   /// Process Definition Builder 
   
   @Override
@@ -200,7 +228,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
         VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
         Object internalValue;
         try {
-          internalValue = variableDefinition.type.convertApiToInternalValue(apiValue);
+          internalValue = variableDefinition.type.convertJsonToInternalValue(apiValue);
           internalValues.put(variableDefinitionName, internalValue);
         } catch (InvalidApiValueException e) {
           throw new RuntimeException("TODO: change return value that sends the variable validation errors back", e);

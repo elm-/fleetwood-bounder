@@ -80,7 +80,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   }
   
   void addOperation(Operation operation) {
-    if (isAsync || !operation.isAsync()) {
+    if (Boolean.TRUE.equals(isAsync) || !operation.isAsync()) {
       if (operations==null) {
         operations = new LinkedList<>();
       }

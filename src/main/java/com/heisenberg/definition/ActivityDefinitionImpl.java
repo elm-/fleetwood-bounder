@@ -15,16 +15,11 @@
 package com.heisenberg.definition;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityBuilder;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityParameter;
 import com.heisenberg.spi.ActivityType;
-import com.heisenberg.util.Exceptions;
 
 
 /**
@@ -32,20 +27,13 @@ import com.heisenberg.util.Exceptions;
  */
 public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder {
 
-  @JsonIgnore
   public ActivityType activityType;
-
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
-  public List<ParameterInstanceImpl> parameterInstances;
-  public Map<String, ParameterInstanceImpl> parameterInstancesMap;
 
-  // only used during construction
-  public String activityTypeId;
-  
   /// Activity Definition Builder methods ////////////////////////////////////////////////
 
-  public ActivityDefinitionImpl activityTypeId(String activityTypeId) {
-    this.activityTypeId = activityTypeId;
+  public ActivityDefinitionImpl activityType(ActivityType activityType) {
+    this.activityType = activityType;
     return this;
   }
   
@@ -84,85 +72,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return super.newTimer();
   }
 
-  public ActivityDefinitionImpl parameterValue(ActivityParameter parameter, Object object) {
-    return parameterValue(parameter.name, object);
-  }
-
-  public ActivityDefinitionImpl parameterValue(String parameterName, Object object) {
-    getParameterInstance(parameterName)
-      .newParameterBinding()
-      .value(object);
-    return this;
-  }
-  
-  public ActivityDefinitionImpl parameterExpression(ActivityParameter activityParameter, String expression) {
-    return parameterValue(activityParameter.name, expression);
-  }
-  
-  public ActivityDefinitionImpl parameterExpression(String parameterName, String expression) {
-    getParameterInstance(parameterName)
-      .newParameterBinding()
-      .expression(expression);
-    return this;
-  }
-  
-  public ActivityDefinitionImpl parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName) {
-    return parameterVariable(activityParameter.name, variableDefinitionRefName);
-  }
-
-  public ActivityDefinitionImpl parameterVariable(String parameterName, String variableDefinitionRefName) {
-    getParameterInstance(parameterName)
-      .newParameterBinding()
-      .variable(variableDefinitionRefName);
-    return this;
-  }
-
-  ParameterInstanceImpl getParameterInstance(String parameterRefName) {
-    ParameterInstanceImpl parameterInstance = findParameterInstance(parameterRefName);
-    if (parameterInstance==null) {
-      parameterInstance = new ParameterInstanceImpl();
-      parameterInstance.processEngine = processEngine;
-      parameterInstance.processDefinition = processDefinition;
-      parameterInstance.parent = this;
-      parameterInstance.name = parameterRefName;
-      if (parameterInstances==null) {
-        parameterInstances = new ArrayList<>();
-      }
-      parameterInstances.add(parameterInstance);
-    }
-    return parameterInstance;
-  }
-  
-  public ParameterInstanceImpl findParameterInstance(String parameterId) {
-    if (parameterInstancesMap!=null) {
-      return parameterInstancesMap.get(parameterId);
-    }
-    if (parameterInstances!=null) {
-      for (ParameterInstanceImpl parameterInstance: parameterInstances) {
-        if (parameterId.equals(parameterId)) {
-          return parameterInstance;
-        }
-      }
-    }
-    return null;
-  }
-
   /// other methods ////////////////////////////
-
-  @Override
-  public void prepare() {
-    super.prepare();
-    if (parameterInstances!=null) {
-      parameterInstancesMap = new HashMap<>();
-      for (ParameterInstanceImpl parameterInstance: parameterInstances) {
-        parameterInstance.setProcessEngine(processEngine);
-        String name = parameterInstance.getName();
-        Exceptions.checkNotNull(name, "parameterInstance.name");
-        parameterInstancesMap.put(name, parameterInstance);
-        parameterInstance.prepare();
-      }
-    }
-  }
 
   public ProcessDefinitionPath getPath() {
     return parent.getPath().addActivityDefinitionName(name);

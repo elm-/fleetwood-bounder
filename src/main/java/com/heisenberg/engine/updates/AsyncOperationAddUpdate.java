@@ -24,6 +24,9 @@ import com.heisenberg.engine.operation.Operation;
 @JsonTypeName("asyncOperationAdd")
 public class AsyncOperationAddUpdate extends OperationUpdate {
 
+  public AsyncOperationAddUpdate() {
+  }
+
   public AsyncOperationAddUpdate(Operation operation) {
     super(operation);
   }

@@ -48,7 +48,7 @@ public class BindingType extends Type {
   }
 
   @Override
-  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
     return apiValue;
   }
 

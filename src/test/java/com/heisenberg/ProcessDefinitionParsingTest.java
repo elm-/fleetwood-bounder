@@ -29,13 +29,13 @@ public class ProcessDefinitionParsingTest {
   @Test
   public void testActivityDefinitionWithoutName() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(new Go());
+      .registerActivityType(Go.class);
     
     // cook the process
     ProcessBuilder processBuilder = processEngine.newProcess();
     
     processBuilder.newActivity()
-      .activityTypeId(Go.ID);
+      .activityType(new Go());
 
     TestHelper.assertTextPresent("Activity has no name", processEngine
         .deployProcessDefinition(processBuilder)
@@ -45,7 +45,7 @@ public class ProcessDefinitionParsingTest {
   @Test
   public void testActivityDefinitionWithoutType() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(new Go());
+      .registerActivityType(Go.class);
     
     ProcessBuilder processBuilder = processEngine.newProcess();
     

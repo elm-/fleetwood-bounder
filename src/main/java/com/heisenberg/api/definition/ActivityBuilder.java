@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.definition;
 
-import com.heisenberg.spi.ActivityParameter;
+import com.heisenberg.spi.ActivityType;
 
 
 
@@ -23,7 +23,7 @@ import com.heisenberg.spi.ActivityParameter;
  */
 public interface ActivityBuilder {
 
-  ActivityBuilder activityTypeId(String activityTypeRefId);
+  ActivityBuilder activityType(ActivityType activityType);
 
   ActivityBuilder name(String activityDefinitionName);
 
@@ -38,13 +38,4 @@ public interface ActivityBuilder {
   ActivityBuilder line(Long lineNumber);
   
   ActivityBuilder column(Long columnNumber);
-
-  ActivityBuilder parameterValue(ActivityParameter activityParameter, Object object);
-  ActivityBuilder parameterValue(String activityParameterName, Object object);
-  
-  ActivityBuilder parameterExpression(ActivityParameter activityParameter, String expression);
-  ActivityBuilder parameterExpression(String activityParameterName, String expression);
-  
-  ActivityBuilder parameterVariable(ActivityParameter activityParameter, String variableDefinitionRefName);
-  ActivityBuilder parameterVariable(String activityParameterName, String variableDefinitionRefName);
 }

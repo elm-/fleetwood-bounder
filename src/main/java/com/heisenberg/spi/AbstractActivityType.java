@@ -12,30 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.bpmn.activities;
+package com.heisenberg.spi;
 
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
+
 
 
 /**
  * @author Walter White
  */
-public class Task extends ActivityType {
+public abstract class AbstractActivityType implements ActivityType {
+  
+  String id;
+  String label;
 
-  public static final String ID = "task";
+  public abstract void start(ActivityInstanceImpl activityInstance);
 
-  @Override
-  public String getId() {
-    return ID;
-  }
-
-  @Override
-  public void start(ActivityInstanceImpl activityInstance) {
+  public void signal(ActivityInstanceImpl activityInstance) {
   }
 
   @Override
   public String getLabel() {
-    return null;
+    return label;
+  }
+
+  @Override
+  public String getId() {
+    return id;
   }
 }

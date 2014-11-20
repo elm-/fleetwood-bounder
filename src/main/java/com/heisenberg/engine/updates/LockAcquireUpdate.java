@@ -24,9 +24,11 @@ import com.heisenberg.instance.LockImpl;
 @JsonTypeName("lockAcquire")
 public class LockAcquireUpdate implements Update {
 
-  public static final String FIELD_LOCK = "lock";
   protected LockImpl lock;
-  
+
+  public LockAcquireUpdate() {
+  }
+
   public LockAcquireUpdate(LockImpl lock) {
     this.lock = lock;
   }

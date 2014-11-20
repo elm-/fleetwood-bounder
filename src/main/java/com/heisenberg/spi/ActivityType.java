@@ -14,8 +14,9 @@
  */
 package com.heisenberg.spi;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.heisenberg.instance.ActivityInstanceImpl;
 
 
@@ -23,21 +24,10 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-public abstract class ActivityType implements Spi {
+@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="type")
+public interface ActivityType extends Spi {
 
-  /** The unique id for this activity type. */
-  public abstract String getId();
+  void start(ActivityInstanceImpl activityInstance);
 
-  public abstract void start(ActivityInstanceImpl activityInstance);
-
-  /** Specifies the input or output parameters for this activity (if any). 
-   * Invoked just once during initialization of the process engine.
-   * If you return activity parameters, you could consider overriding the default 
-   * parameter checking in {@link #checkParameters(ActivityDefinitionImpl, DeployProcessDefinitionResponse)}. */
-  public ActivityParameter[] getActivityParameters() {
-    return null;
-  }
-
-  public void signal(ActivityInstanceImpl activityInstance) {
-  }
+  void signal(ActivityInstanceImpl activityInstance);
 }

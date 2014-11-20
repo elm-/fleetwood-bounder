@@ -20,6 +20,6 @@ package com.heisenberg.spi;
  */
 public enum SpiType {
 
-  type,
-  activity
+  activity,
+  type
 }

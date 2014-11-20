@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessBuilder;
@@ -48,8 +49,8 @@ public class ScriptTest {
   @Test
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(new ScriptActivity())
-      .registerType(Money.class);
+      .registerActivityType(ScriptActivity.class)
+      .registerJavaBeanType(Money.class);
 
     ProcessBuilder processBuilder = processEngine.newProcess();
     
@@ -78,12 +79,9 @@ public class ScriptTest {
   }
   
   String scriptResultMessage = null;
-  
+
+  @JsonTypeName("script")
   public class ScriptActivity extends ActivityType {
-    @Override
-    public String getId() {
-      return "script";
-    }
     @Override
     public String getLabel() {
       return "Script";

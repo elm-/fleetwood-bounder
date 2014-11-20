@@ -16,6 +16,7 @@ package com.heisenberg.bpmn.activities;
 
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.Spi;
 
 
 /**
@@ -23,20 +24,20 @@ import com.heisenberg.spi.ActivityType;
  */
 public class StartEvent extends ActivityType {
 
-  public static final String ID = "startEvent";
+  public static final Spi INSTANCE = new StartEvent();
 
   @Override
   public String getId() {
-    return ID;
+    return "startEvent";
+  }
+
+  @Override
+  public String getLabel() {
+    return "Start event";
   }
 
   @Override
   public void start(ActivityInstanceImpl activityInstance) {
     activityInstance.onwards();
-  }
-
-  @Override
-  public String getLabel() {
-    return null;
   }
 }

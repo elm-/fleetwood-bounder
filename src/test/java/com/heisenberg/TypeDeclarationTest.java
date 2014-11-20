@@ -68,8 +68,8 @@ public class TypeDeclarationTest {
 //  @Test
 //  public void testProcessChoiceDeclaration() {
 //    ProcessEngine processEngine = new MemoryProcessEngine()
-//      .registerActivityType(new Go())
-//      .registerActivityType(new Wait());
+//      .registerActivityType(Go.class)
+//      .registerActivityType(Wait.class);
 //
 //    // prepare the ingredients
 //    ChoiceDescriptor countryType = new ChoiceDescriptor()

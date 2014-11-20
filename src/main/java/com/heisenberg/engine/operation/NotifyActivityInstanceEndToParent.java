@@ -24,6 +24,9 @@ import com.heisenberg.instance.ActivityInstanceImpl;
  */
 public class NotifyActivityInstanceEndToParent extends  Operation {
 
+  public NotifyActivityInstanceEndToParent() {
+  }
+
   public NotifyActivityInstanceEndToParent(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }

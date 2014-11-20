@@ -26,6 +26,9 @@ import com.heisenberg.engine.operation.Operation;
 @JsonTypeName("operationRemove")
 public class OperationRemoveUpdate extends OperationUpdate {
 
+  public OperationRemoveUpdate() {
+  }
+
   public OperationRemoveUpdate(Operation operation) {
     super(operation);
   }

@@ -71,7 +71,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     if (updates!=null) {
       log.debug("Flushing updates: ");
       for (Update update : updates) {
-        log.debug("  " + update.toString());
+        log.debug("  " + json.objectToJsonString(update));
       }
     } else {
       log.debug("No updates to flush");

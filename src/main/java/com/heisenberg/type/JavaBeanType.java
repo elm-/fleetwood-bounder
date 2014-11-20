@@ -12,33 +12,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.bpmn.activities;
+package com.heisenberg.type;
 
-import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
+import java.util.Map;
+
+import com.heisenberg.spi.InvalidApiValueException;
+import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class ScriptTask extends ActivityType {
+public class JavaBeanType extends Type {
   
-  public static final String ID = "scriptTask";
-
-  @Override
-  public String getId() {
-    return ID;
+  Class<?> javaClass;
+  
+  public JavaBeanType(Class< ? > javaClass) {
+    this.javaClass = javaClass;
   }
 
   @Override
-  public void start(ActivityInstanceImpl activityInstance) {
-    // clone the variable values
-    // invoke javascript
-    // perform dirty checking on the variables
+  public String getId() {
+    return javaClass.getName();
+  }
+
+  @Override
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
+    if (apiValue==null) return null;
+    if (javaClass.isAssignableFrom(apiValue.getClass())) {
+      return apiValue;
+    }
+    if (Map.class.isAssignableFrom(apiValue.getClass())) {
+      
+    }
+    return null;
   }
 
   @Override
   public String getLabel() {
-    return null;
+    return javaClass.getSimpleName();
   }
 }

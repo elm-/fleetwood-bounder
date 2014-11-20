@@ -26,11 +26,6 @@ public abstract class ServiceTask extends ActivityType {
   public static final String ID = "serviceTask";
 
   @Override
-  public String getId() {
-    return ID;
-  }
-
-  @Override
   public void start(ActivityInstanceImpl activityInstance) {
     invokeService(activityInstance);
     activityInstance.onwards();

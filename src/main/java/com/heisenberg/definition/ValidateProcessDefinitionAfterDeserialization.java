@@ -22,7 +22,6 @@ import java.util.Stack;
 
 import com.heisenberg.api.ParseIssue.IssueType;
 import com.heisenberg.api.ParseIssues;
-import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
@@ -79,17 +78,17 @@ public class ValidateProcessDefinitionAfterDeserialization implements ProcessDef
     if (activity.name==null || "".equals(activity.name)) {
       addError(activity.line, activity.column, "Activity has no name");
     }
-    Map<String, ActivityTypeDescriptor> descriptors = processEngine.activityTypeDescriptors;
-    ActivityTypeDescriptor descriptor = (descriptors!=null ? descriptors.get(activity.activityTypeId) : null);
-    if (descriptor!=null) {
-      activity.activityType = descriptor.activityType;
-    } else {
-      addError(activity.line, activity.column,  
-              "Activity %s has invalid type %s.  Must be one of %s", 
-              activity.name, 
-              activity.activityTypeId,
-              descriptors.keySet().toString());
-    }
+//    Map<String, ActivityTypeDescriptor> descriptors = processEngine.activityTypeDescriptors;
+//    ActivityTypeDescriptor descriptor = (descriptors!=null ? descriptors.get(activity.activityTypeId) : null);
+//    if (descriptor!=null) {
+//      activity.activityType = descriptor.activityType;
+//    } else {
+//      addError(activity.line, activity.column,  
+//              "Activity %s has invalid type %s.  Must be one of %s", 
+//              activity.name, 
+//              activity.activityTypeId,
+//              descriptors.keySet().toString());
+//    }
   }
 
   @Override
@@ -113,7 +112,7 @@ public class ValidateProcessDefinitionAfterDeserialization implements ProcessDef
       if (variable.type!=null) {
         if (variable.initialValue!=null) {
           try {
-            variable.initialValue = variable.type.convertApiToInternalValue(variable.initialValue);
+            variable.initialValue = variable.type.convertJsonToInternalValue(variable.initialValue);
           } catch (InvalidApiValueException e) {
             addError(variable.line, variable.column, "Invalid initial value %s for variable %s (%s)", variable.initialValue, variable.name, variable.typeId);
           }

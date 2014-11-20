@@ -24,8 +24,9 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 @JsonTypeName("activityInstanceCreate")
 public class ActivityInstanceCreateUpdate extends ActivityInstanceUpdate {
 
-  public static final String FIELD_ACTIVITY_INSTANCE_CREATED = "activityInstance";
-
+  public ActivityInstanceCreateUpdate() {
+  }
+  
   public ActivityInstanceCreateUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }

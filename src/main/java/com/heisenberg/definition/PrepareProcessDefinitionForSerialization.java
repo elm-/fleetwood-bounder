@@ -29,9 +29,6 @@ public class PrepareProcessDefinitionForSerialization implements ProcessDefiniti
 
   @Override
   public void startActivityDefinition(ActivityDefinitionImpl activityDefinition, int index) {
-    if (activityDefinition.activityTypeId==null && activityDefinition.activityType!=null) {
-      activityDefinition.activityTypeId = activityDefinition.activityType.getId();
-    }
   }
 
   @Override

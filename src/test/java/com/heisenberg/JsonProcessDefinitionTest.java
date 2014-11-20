@@ -69,13 +69,13 @@ public class JsonProcessDefinitionTest {
       .column(4l);
     
     processBuilder.newActivity()
-      .activityTypeId(Go.ID)
+      .activityType(new Go())
       .line(20l)
       .column(30l)
       .name("one");
 
     processBuilder.newActivity()
-      .activityTypeId(Go.ID)
+      .activityType(new Go())
       .name("two");
 
     processBuilder.newTransition()
@@ -83,7 +83,7 @@ public class JsonProcessDefinitionTest {
       .to("two");
     
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
-      .registerActivityType(new Go());
+      .registerActivityType(Go.class);
     
     Json json = processEngine.json;
     

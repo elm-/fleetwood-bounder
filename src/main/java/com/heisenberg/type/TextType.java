@@ -25,6 +25,8 @@ import com.heisenberg.spi.Type;
  */
 public class TextType extends Type {
 
+  public static final TextType INSTANCE = new TextType();
+
   @Override
   public String getId() {
     return "text";
@@ -36,7 +38,7 @@ public class TextType extends Type {
   }
 
   @Override
-  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
     if (apiValue==null || (apiValue instanceof String)) {
       return apiValue;
     }

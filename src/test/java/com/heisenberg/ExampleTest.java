@@ -24,7 +24,9 @@ import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
+import com.heisenberg.spi.Binding;
 import com.heisenberg.spi.Type;
+import com.heisenberg.type.TextType;
 
 /**
  * @author Walter White
@@ -34,9 +36,8 @@ public class ExampleTest {
   @Test
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(new Go())
-      .registerActivityType(new Wait())
-      .registerType(Type.TEXT);
+      .registerActivityType(Go.class)
+      .registerActivityType(Wait.class);
 
     ProcessBuilder processBuilder = processEngine.newProcess();
 
@@ -45,16 +46,15 @@ public class ExampleTest {
       .type(Type.TEXT);
 
     processBuilder.newActivity()
-      .activityTypeId(Go.ID)
-      .parameterValue(Go.PLACE, "Antwerp")
+      .activityType(new Go().placeBinding(new Binding<TextType>().value("Antwerp")))
       .name("go");
     
     processBuilder.newActivity()
-      .activityTypeId(Wait.ID)
+      .activityType(Wait.INSTANCE)
       .name("wait1");
     
     processBuilder.newActivity()
-      .activityTypeId(Wait.ID)
+      .activityType(Wait.INSTANCE)
       .name("wait2");
     
     processBuilder.newTransition()

@@ -30,7 +30,8 @@ public class ActivityInstanceStartOperation extends Operation {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
-  public static final String FIELD_ACTIVITY_INSTANCE_ID = "activityInstanceId";
+  public ActivityInstanceStartOperation() {
+  }
 
   public ActivityInstanceStartOperation(ActivityInstanceImpl activityInstance) {
     super(activityInstance);

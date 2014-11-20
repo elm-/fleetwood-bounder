@@ -61,7 +61,7 @@ public class ChoiceType extends Type {
   }
 
   @Override
-  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
     if ( apiValue!=null 
          && !options.containsKey(apiValue) ) {
       throw new InvalidApiValueException("Invalid value '"+apiValue+"'.  Expected one of "+options.keySet()+" (or null)");

@@ -33,7 +33,6 @@ import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
-import com.heisenberg.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
@@ -53,7 +52,7 @@ public class JsonProcessInstanceTest {
   @Test
   public void testProcessInstanceJson() {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
-      .registerActivityType(new Go());
+      .registerActivityType(Go.class);
     
     ProcessDefinitionImpl p = new ProcessDefinitionImpl();
     p.id = new ProcessDefinitionId("pdid");
@@ -63,11 +62,11 @@ public class JsonProcessInstanceTest {
       .type(Type.TEXT);
     
     ActivityDefinitionImpl a = (ActivityDefinitionImpl) p.newActivity()
-      .activityTypeId(Go.ID)
+      .activityType(new Go())
       .name("one");
   
     p.newActivity()
-      .activityTypeId(Go.ID)
+      .activityType(new Go())
       .name("two");
     
     ProcessInstanceImpl processInstance = new ProcessInstanceImpl();

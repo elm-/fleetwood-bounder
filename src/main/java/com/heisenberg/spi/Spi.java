@@ -27,6 +27,9 @@ import com.heisenberg.impl.ProcessEngineImpl;
  */
 public interface Spi {
 
+  /** returns null for abstract configurable types and 
+   * a value for types that are configured. */
+  String getId();
   String getLabel();
   // String getDescription();
   // InputStream getIconInputStream();

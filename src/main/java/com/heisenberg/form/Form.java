@@ -48,8 +48,4 @@ public class Form {
     }
     return null;
   }
-
-  public void parseValues(Form configurationForm) {
-    
-  }
 }

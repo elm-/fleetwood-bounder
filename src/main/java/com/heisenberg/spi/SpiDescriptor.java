@@ -15,84 +15,80 @@
 package com.heisenberg.spi;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.form.Form;
+import com.heisenberg.form.FormField;
 import com.heisenberg.type.ObjectField;
-import com.heisenberg.type.ObjectType;
 import com.heisenberg.util.Exceptions;
+import com.heisenberg.util.Reflection;
+
 
 
 /**
  * @author Walter White
  */
-public class SpiDescriptor extends ObjectType {
+public class SpiDescriptor {
 
-  protected SpiType spiType;
-  protected String label;
+  public SpiType spiType;
+  public String typeName;
+  public String label;
   // TODO protected String description;
   // TODO protected byte[] icon;
   // TODO protected String iconMimeType;
-  
+
   @JsonIgnore
-  protected Class<?> spiClass;
+  public Class<?> spiClass;
+  public List<ObjectField> configurationFields;
 
-  public SpiDescriptor(Class<?> spiClass) {
-    this(spiClass, instantiate(spiClass));
+  public SpiDescriptor(Spi spiObject) {
+    this.spiClass = spiObject.getClass();
+    initializeSpiType();
+    initializeConfigurationForm();
+    initializeTypeName(); 
   }
 
-  public SpiDescriptor(Object spiObject) {
-    this(spiObject.getClass(), spiObject);
-  }
-
-  public SpiDescriptor(Class<?> spiClass, Object spiObject) {
-    super(spiClass);
-    this.spiClass = spiClass;
-    this.id = spiObject.getClass().getName();
-    if (spiObject instanceof Type) {
+  protected void initializeSpiType() {
+    if (Type.class.isAssignableFrom(spiClass)) {
       this.spiType = SpiType.type;
-    } else if (spiObject instanceof ActivityType) {
+    } else if (ActivityType.class.isAssignableFrom(spiClass)) {
       this.spiType = SpiType.activity;
     } else {
-      throw new RuntimeException(id+" doesn't implement "+Type.class.getName()+" nor "+ActivityType.class.getName());
-    }
-  }
-
-  static Object instantiate(Class< ? > spiClass) {
-    Exceptions.checkNotNullParameter(spiClass, "spiClass");
-    try {
-      return spiClass.newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException("Couldn't instantiate "+spiClass+" with the default constructor: "+e.getMessage(), e);
+      throw new RuntimeException(spiClass.getName()+" doesn't implement "+Type.class.getName()+" nor "+ActivityType.class.getName());
     }
   }
   
-  public Object instantiateAndConfigure(Form configurationInProcessExport) {
-    if (spiClass==null) {
-      try {
-        spiClass = Class.forName(id);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException("Couldn't load class for instantiating and configuring an spi "+id, e);
+  protected void initializeConfigurationForm() {
+    List<Field> fields =  Reflection.getFieldsRecursive(spiClass, Reflection.NOT_STATIC);
+    if (!fields.isEmpty()) {
+      configurationFields = new ArrayList<ObjectField>(fields.size());
+      for (Field field : fields) {
+        configurationFields.add(new ObjectField(field));
       }
     }
-    Object spiObject = instantiate(spiClass);
-    if (fields!=null) {
-      for (ObjectField objectField: fields) {
-        try {
-          Object formFieldValue = configurationInProcessExport.getFieldValue(objectField.name);
-          Field field = spiClass.getDeclaredField(objectField.name);
-          field.setAccessible(true);
-          field.set(spiObject, formFieldValue);
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
-    }
-    return spiObject;
+  }
+  
+  protected void initializeTypeName() {
+    this.typeName = spiClass.getName();
+  }
+
+  public Class< ? > getSpiClass() {
+    return spiClass;
+  }
+
+  public List<ObjectField> getConfigurationFields() {
+    return configurationFields;
   }
 
   public SpiType getSpiType() {
     return spiType;
+  }
+  
+  public String getTypeName() {
+    return typeName;
   }
   
   public String getLabel() {

@@ -19,9 +19,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.form.Form;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Type;
+import com.heisenberg.util.Reflection;
 
 
 /**
@@ -33,7 +33,7 @@ public class ObjectType extends Type {
   protected List<ObjectField> fields;
 
   @Override
-  public Object convertApiToInternalValue(Object apiValue) throws InvalidApiValueException {
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
     return null;
   }
 
@@ -47,17 +47,14 @@ public class ObjectType extends Type {
   }
 
   void scanFields(Class< ? > type) {
-    Field[] javaFields = type.getDeclaredFields();
-    if (javaFields!=null) {
+    List<Field> javaFields = Reflection.getFieldsRecursive(type, Reflection.NOT_STATIC);
+    if (javaFields.isEmpty()) {
+      fields = new ArrayList<ObjectField>(javaFields.size());
       for (Field javaField: javaFields) {
         if (!Modifier.isStatic(javaField.getModifiers())) {
           addField(new ObjectField(javaField));
         }
       }
-    }
-    Class< ? > superclass = type.getSuperclass();
-    if (superclass!=null && superclass!=Object.class) {
-      scanFields(superclass);
     }
   }
 
@@ -70,13 +67,5 @@ public class ObjectType extends Type {
 
   public String getId() {
     return id;
-  }
-
-  public Form getConfigurationForm() {
-    Form form = new Form();
-    for (ObjectField field: fields) {
-      form.addField(field.getConfigurationFormField());
-    }
-    return form;
   }
 }

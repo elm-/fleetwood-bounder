@@ -26,6 +26,9 @@ public abstract class ActivityInstanceUpdate implements Update {
   @JsonIgnore
   protected ActivityInstanceImpl activityInstance;
   
+  public ActivityInstanceUpdate() {
+  }
+
   public ActivityInstanceUpdate(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
