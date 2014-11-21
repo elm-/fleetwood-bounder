@@ -21,25 +21,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.ActivityInstanceQuery;
 import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.Page;
 import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
-import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessInstanceId;
+import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.bpmn.activities.StartEvent;
@@ -51,7 +53,7 @@ import com.heisenberg.expressions.ScriptRunnerImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceImpl;
-import com.heisenberg.json.LocalDateTimeSerializer;
+import com.heisenberg.instance.ScopeInstanceImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.DataType;
@@ -242,30 +244,15 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
     ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
-    if (startProcessInstanceRequest.variableValues!=null) {
-      Map<String, Object> apiValues = startProcessInstanceRequest.variableValues;
-      Map<String, Object> internalValues = new HashMap<>();
-      for (String variableDefinitionName: apiValues.keySet()) {
-        Object apiValue = apiValues.get(variableDefinitionName);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
-        Object internalValue;
-        try {
-          internalValue = variableDefinition.dataType.convertJsonToInternalValue(apiValue);
-          internalValues.put(variableDefinitionName, internalValue);
-        } catch (InvalidApiValueException e) {
-          throw new RuntimeException("TODO: change return value that sends the variable validation errors back", e);
-        }
-      }
-      processInstance.setVariableValuesRecursive(apiValues);
-    }
+    Map<String, Object> apiValues = startProcessInstanceRequest.variableValues;
+    setVariableApiValues(processInstance, apiValues);
       
     log.debug("Starting "+processInstance);
     processInstance.setStart(Time.now());
-    List<ActivityDefinitionImpl> startActivityDefinitions = processDefinition.getStartActivityDefinitions();
+    List<ActivityDefinition> startActivityDefinitions = processDefinition.getStartActivities();
     if (startActivityDefinitions!=null) {
-      for (ActivityDefinitionImpl startActivityDefinition: startActivityDefinitions) {
-        ActivityInstanceImpl activityInstance = processInstance.createActivityInstance(startActivityDefinition);
-        processInstance.startActivityInstance(activityInstance);
+      for (ActivityDefinition startActivityDefinition: startActivityDefinitions) {
+        processInstance.start(startActivityDefinition);
       }
     }
     LockImpl lock = new LockImpl();
@@ -275,6 +262,25 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     saveProcessInstance(processInstance);
     processInstance.executeOperations();
     return processInstance;
+  }
+
+  private void setVariableApiValues(ScopeInstanceImpl scopeInstance, Map<String, Object> apiValues) {
+    if (apiValues!=null) {
+      ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition; 
+      Map<String, Object> internalValues = new HashMap<>();
+      for (String variableDefinitionName: apiValues.keySet()) {
+        Object apiValue = apiValues.get(variableDefinitionName);
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
+        Object internalValue;
+        try {
+          internalValue = variableDefinition.dataType.convertJsonToInternalValue(apiValue);
+          internalValues.put(variableDefinitionName, internalValue);
+        } catch (InvalidApiValueException e) {
+          throw new RuntimeException("TODO: this error message should somehow end up in the response", e);
+        }
+      }
+      scopeInstance.setVariableValuesRecursive(apiValues);
+    }
   }
 
   protected ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(ProcessDefinitionId processDefinitionId) {
@@ -316,10 +322,11 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
     // TODO set variables and context
     ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
+    log.debug("Signalling "+activityInstance);
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
     activityDefinition.activityType.signal(activityInstance);
     processInstance.executeOperations();
-    throw new RuntimeException("TODO");
+    return processInstance;
   }
   
   public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId);
@@ -329,6 +336,11 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public abstract void flush(ProcessInstanceImpl processInstance);
 
   public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
+  
+  @Override
+  public ActivityInstanceQuery createActivityInstanceQuery() {
+    return new ActivityInstanceQueryImpl(this);
+  }
 
   public String getId() {
     return id;
@@ -366,6 +378,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public abstract List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
 
+  public abstract Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl);
+
   public ActivityType findActivityType(String activityTypeId) {
     if (activityTypeId==null) {
       return null;
@@ -399,4 +413,5 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     }
     return null;
   }
+
 }

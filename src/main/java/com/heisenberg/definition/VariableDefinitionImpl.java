@@ -17,7 +17,7 @@ package com.heisenberg.definition;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.definition.VariableBuilder;
+import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.VariableInstanceImpl;

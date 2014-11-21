@@ -14,7 +14,7 @@
  */
 package com.heisenberg.definition;
 
-import com.heisenberg.api.definition.TimerBuilder;
+import com.heisenberg.api.builder.TimerBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 

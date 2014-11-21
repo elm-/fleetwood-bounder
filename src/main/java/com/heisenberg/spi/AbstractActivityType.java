@@ -14,6 +14,10 @@
  */
 package com.heisenberg.spi;
 
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.instance.ScopeInstance;
+
 
 
 
@@ -25,10 +29,18 @@ public abstract class AbstractActivityType implements ActivityType {
   public abstract void start(ControllableActivityInstance activityInstance);
 
   public void signal(ControllableActivityInstance activityInstance) {
+    activityInstance.onwards();
   }
   
+  public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
+    ScopeInstance parentScopeInstance = activityInstance.getParent();
+    if (!parentScopeInstance.hasUnfinishedActivityInstances()) {
+      parentScopeInstance.end();
+    }
+  }
+
   @Override
-  public void validate(Validator validator) {
+  public void validate(ActivityDefinition activityDefinition, Validator validator) {
   }
 
   @Override

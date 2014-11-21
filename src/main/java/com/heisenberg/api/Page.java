@@ -12,40 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.form;
+package com.heisenberg.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * @author Walter White
  */
-public class Form {
-  
-  public List<FormField> fields;
+public interface Page<T> {
 
-  public void addField(FormField field) {
-    if (fields==null) {
-      fields = new ArrayList<>();
-    }
-    fields.add(field);
-  }
+  List<T> getResults();
 
-  public Object getFieldValue(String fieldId) {
-    FormField field = getField(fieldId);
-    return field!=null ? field.value : null;
-  }
-
-  public FormField getField(String fieldId) {
-    if (fieldId==null) return null;
-    if (fields!=null) {
-      for (FormField field: fields) {
-        if (fieldId.equals(field.id)) {
-          return field;
-        }
-      }
-    }
-    return null;
-  }
 }

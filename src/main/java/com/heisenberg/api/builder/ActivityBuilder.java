@@ -12,38 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.api.builder;
 
-import org.joda.time.LocalDateTime;
+import java.util.Map;
 
-import com.heisenberg.api.id.OrganizationId;
-import com.heisenberg.api.id.ProcessId;
-import com.heisenberg.api.id.UserId;
-import com.heisenberg.spi.DataType;
+import com.heisenberg.spi.ActivityType;
+
 
 
 /**
  * @author Walter White
  */
-public interface ProcessBuilder {
+public interface ActivityBuilder {
 
-  ProcessBuilder deployedTime(LocalDateTime deployedTime);
-  
-  ProcessBuilder deployedUserId(UserId deployedUserId);
+  ActivityBuilder activityType(ActivityType activityType);
+  ActivityBuilder activityTypeJson(Map<String,Object> activityTypeJson);
 
-  ProcessBuilder processId(ProcessId processId);
-  
-  ProcessBuilder version(Long version);
-  
-  ProcessBuilder organizationId(OrganizationId organizationId);
-  
-  ProcessBuilder dataType(DataType dataType);
-
-  ProcessBuilder name(String processDefinitionName);
-
-  ProcessBuilder line(Long lineNumber);
-
-  ProcessBuilder column(Long columnNumber);
+  ActivityBuilder name(String activityDefinitionName);
 
   ActivityBuilder newActivity();
 
@@ -52,4 +37,8 @@ public interface ProcessBuilder {
   VariableBuilder newVariable();
 
   TimerBuilder newTimer();
+
+  ActivityBuilder line(Long lineNumber);
+  
+  ActivityBuilder column(Long columnNumber);
 }

@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 
 
@@ -36,6 +36,8 @@ public interface ProcessEngine {
   // TODO change response into StartProcessInstanceResponse
   //      this way we can include the events/logs of all things that happened during execution.
   ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);
+  
+  ActivityInstanceQuery createActivityInstanceQuery(); 
 
   // TODO change response into SignalResponse
   //      this way we can include the events/logs of all things that happened during execution.

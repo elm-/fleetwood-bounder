@@ -29,7 +29,7 @@ import com.heisenberg.spi.ControllableActivityInstance;
 @JsonTypeName("go")
 public class Go extends AbstractActivityType {
   
-  public static List<Execution> executions = new ArrayList<>();
+  public List<Execution> executions = new ArrayList<>();
   
   Binding<String> placeBinding;
 
@@ -40,7 +40,7 @@ public class Go extends AbstractActivityType {
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    String place = placeBinding.getValue(activityInstance);
+    String place = (placeBinding!=null ? placeBinding.getValue(activityInstance) : null);
     executions.add(new Execution(activityInstance, place));
     activityInstance.onwards();
   }

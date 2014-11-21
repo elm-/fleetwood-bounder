@@ -12,26 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
-
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.id.ActivityInstanceId;
-
-
+package com.heisenberg.api.builder;
 
 
 
 /**
  * @author Walter White
  */
-public interface ActivityInstance extends ScopeInstance {
-  
-  ActivityInstanceId getId();
+public interface TransitionBuilder {
 
-  ActivityDefinition getActivityDefinition();
+  /** Fluent builder to set the source of this transition.
+   * @param fromActivityDefinitionName the name of the activity definition. */
+  TransitionBuilder from(String fromActivityDefinitionName);
 
-  String getActivityDefinitionName();
-
-  ScopeInstance getParent();
-
+  TransitionBuilder to(String toActivityDefinitionName);
 }

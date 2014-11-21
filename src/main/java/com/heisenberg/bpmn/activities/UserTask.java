@@ -12,18 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.bpmn.activities;
 
+import com.heisenberg.spi.AbstractActivityType;
+import com.heisenberg.spi.ControllableActivityInstance;
 
 
 /**
  * @author Walter White
  */
-public interface TransitionBuilder {
+public class UserTask extends AbstractActivityType {
 
-  /** Fluent builder to set the source of this transition.
-   * @param fromActivityDefinitionName the name of the activity definition. */
-  TransitionBuilder from(String fromActivityDefinitionName);
-
-  TransitionBuilder to(String toActivityDefinitionName);
+  @Override
+  public void start(ControllableActivityInstance activityInstance) {
+  }
 }

@@ -14,7 +14,6 @@
  */
 package com.heisenberg.engine.operation;
 
-import com.heisenberg.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 
@@ -22,7 +21,7 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-public class NotifyActivityInstanceEndToParent extends  Operation {
+public class NotifyActivityInstanceEndToParent extends Operation {
 
   public NotifyActivityInstanceEndToParent() {
   }
@@ -33,8 +32,7 @@ public class NotifyActivityInstanceEndToParent extends  Operation {
 
   @Override
   public void execute(ProcessEngineImpl processEngine) {
-    ScopeDefinitionImpl parentDefinition = activityInstance.getParent().getScopeDefinition();
-    parentDefinition.notifyActivityInstanceEnded(activityInstance);
+    activityInstance.parent.ended(activityInstance);
   }
   
   @Override

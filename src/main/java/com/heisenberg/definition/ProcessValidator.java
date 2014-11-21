@@ -14,14 +14,18 @@
  */
 package com.heisenberg.definition;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ParseIssue.IssueType;
 import com.heisenberg.api.ParseIssues;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.InvalidApiValueException;
@@ -76,21 +80,24 @@ public class ProcessValidator implements ProcessDefinitionVisitor, Validator {
   public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
     this.processDefinition = processDefinition;
     this.processDefinition.processEngine = processEngine;
+
     pushContext(processDefinition, null, 0, processDefinition.line, processDefinition.column);
+    processDefinition.initializeDataTypesMap();
     processDefinition.initializeActivityDefinitionsMap();
   }
 
   @Override
   public void endProcessDefinition(ProcessDefinitionImpl processDefinition) {
+    processDefinition.initializeStartActivities(this);
     popContext();
   }
 
   @Override
   public void dataType(DataType dataType, int index) {
-    if (processDefinition.typesMap==null) {
-      processDefinition.typesMap = new HashMap<>();
+    if (processDefinition.dataTypesMap==null) {
+      processDefinition.dataTypesMap = new HashMap<>();
     }
-    processDefinition.typesMap.put(dataType.getId(), dataType);
+    processDefinition.dataTypesMap.put(dataType.getId(), dataType);
   }
   
   @Override
@@ -113,18 +120,20 @@ public class ProcessValidator implements ProcessDefinitionVisitor, Validator {
     }
     if (activity.activityType==null) {
       addError("Activity '%s' has no activityType configured", activity.name);
-    } else {
-      activity.activityType.validate(this);
     }
   }
 
   @Override
-  public void endActivityDefinition(ActivityDefinitionImpl activityDefinition, int index) {
+  public void endActivityDefinition(ActivityDefinitionImpl activity, int index) {
+    if (activity.activityType!=null) {
+      activity.activityType.validate(activity, this);
+    }
     popContext();
   }
 
   @Override
   public void variableDefinition(VariableDefinitionImpl variable, int index) {
+    ScopeDefinitionImpl scopeDefinition = getContextObject(ScopeDefinitionImpl.class);
     pushContext(variable, variable.name, index, variable.line, variable.column);
     if (variable.name==null) {
       addError("Variable does not have a name");
@@ -154,6 +163,14 @@ public class ProcessValidator implements ProcessDefinitionVisitor, Validator {
           addError("Invalid initial value %s for variable %s (%s)", variable.initialValue, variable.name, variable.dataTypeId);
         }
       }
+      if (scopeDefinition.variableDefinitionsMap==null) {
+        scopeDefinition.variableDefinitionsMap = new HashMap<>();
+      }
+      if (!scopeDefinition.variableDefinitionsMap.containsKey(variable.name)) {
+        scopeDefinition.variableDefinitionsMap.put(variable.name, variable);
+      } else {
+        addError("Duplicate variable definition %s", variable.name);
+      }
     }
     popContext();
   }
@@ -167,7 +184,9 @@ public class ProcessValidator implements ProcessDefinitionVisitor, Validator {
       addWarning("Transition does not have from (source) specified");
     } else {
       transition.from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transition.fromName) : null);
-      if (transition.from==null) {
+      if (transition.from!=null) {
+        transition.from.addOutgoingTransition(transition);
+      } else {
         addError("Transition has an invalid from (source) '%s' : %s", transition.fromName, getExistingActivityNamesText(activityDefinitionsMap));
       }
     }
@@ -203,8 +222,8 @@ public class ProcessValidator implements ProcessDefinitionVisitor, Validator {
   
   protected String getPathText() {
     StringBuilder pathText = new StringBuilder();
-    for (int i=contextStack.size()-1; i>=0; i--) {
-      pathText.append(contextStack.get(i).pathElement);
+    for (ValidationContext validationContext: contextStack) {
+      pathText.append(validationContext.pathElement);
     }
     return pathText.toString();
   }

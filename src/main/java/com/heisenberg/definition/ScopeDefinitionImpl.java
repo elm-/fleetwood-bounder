@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.instance.ScopeInstanceImpl;
+import com.heisenberg.spi.Validator;
 import com.heisenberg.util.Exceptions;
 
 
@@ -48,11 +48,11 @@ public abstract class ScopeDefinitionImpl {
   @JsonIgnore
   public ScopeDefinitionImpl parent;
   @JsonIgnore
-  public List<ActivityDefinitionImpl> startActivityDefinitions;
-  @JsonIgnore
   public Map<String, ActivityDefinitionImpl> activityDefinitionsMap;
   @JsonIgnore
   public Map<String, VariableDefinitionImpl> variableDefinitionsMap;
+  @JsonIgnore
+  public List<ActivityDefinitionImpl> startActivities;
 
   public Long line;
   public Long column;
@@ -124,51 +124,15 @@ public abstract class ScopeDefinitionImpl {
 
   /// Process Definition Parsing methods //////////////////////////////////////////
 
-  /** performs initializations after the activity is constructed and before the process is used in execution.
-   * eg calculating the start activities */ 
-  public void prepare() {
-    if (activityDefinitions!=null) {
-      startActivityDefinitions = new ArrayList<>(activityDefinitions);
-      activityDefinitionsMap = new HashMap<>();
-      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
-        activityDefinition.setProcessEngine(processEngine);
-        activityDefinition.setProcessDefinition(processDefinition);
-        activityDefinition.setParent(this);
-        activityDefinitionsMap.put(activityDefinition.name, activityDefinition);
-        activityDefinition.prepare();
-      }
-    }
-    if (transitionDefinitions!=null) {
-      for (TransitionDefinitionImpl transitionDefinition: transitionDefinitions) {
-        if (startActivityDefinitions!=null) {
-          startActivityDefinitions.remove(transitionDefinition.getTo());
-        }
-        transitionDefinition.setProcessEngine(processEngine);
-        transitionDefinition.setProcessDefinition(processDefinition);
-        transitionDefinition.setParent(this);
-        transitionDefinition.prepare();
-      }
-    }
-    if (variableDefinitions!=null) {
-      variableDefinitionsMap = new HashMap<>();
-      for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
-        variableDefinition.setProcessEngine(processEngine);
-        variableDefinition.setProcessDefinition(processDefinition);
-        variableDefinition.setParent(this);
-        variableDefinitionsMap.put(variableDefinition.name, variableDefinition);
-        variableDefinition.prepare();
-      }
-    }
-  } 
-  
   public abstract ProcessDefinitionPath getPath();
 
-  public List<ActivityDefinitionImpl> getStartActivityDefinitions() {
-    return startActivityDefinitions;
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public List<ActivityDefinition> getStartActivities() {
+    return (List)startActivities;
   }
   
-  public void setStartActivityDefinitions(List<ActivityDefinitionImpl> startActivityDefinitions) {
-    this.startActivityDefinitions = startActivityDefinitions;
+  public void setStartActivities(List<ActivityDefinitionImpl> startActivityDefinitions) {
+    this.startActivities = startActivityDefinitions;
   }
 
   public ProcessDefinitionImpl getProcessDefinition() {
@@ -250,14 +214,101 @@ public abstract class ScopeDefinitionImpl {
     return this;
   }
   
+  /// visistor ////////////////////////////////////////////////////////////
+
+  public void visit(ProcessDefinitionVisitor visitor) {
+    // If some visitor needs to control the order of types vs other content visited, 
+    // then this is the idea you should consider 
+    //   if (visitor instanceof OrderedProcessDefinitionVisitor) {
+    //     ... also delegate the ordering of this visit to the visitor ... 
+    //   } else { ... perform the default as below
+    visitCompositeActivityDefinitions(visitor);
+    visitCompositeTransitionDefinitions(visitor);
+    visitCompositeVariableDefinitions(visitor);
+  }
+
+  protected void visitCompositeActivityDefinitions(ProcessDefinitionVisitor visitor) {
+    if (activityDefinitions!=null) {
+      for (int i=0; i<activityDefinitions.size(); i++) {
+        ActivityDefinitionImpl activityDefinition = activityDefinitions.get(i);
+        activityDefinition.visit(visitor, i);
+      }
+    }
+  }
+
+  protected void visitCompositeVariableDefinitions(ProcessDefinitionVisitor visitor) {
+    if (variableDefinitions!=null) {
+      for (int i=0; i<variableDefinitions.size(); i++) {
+        VariableDefinitionImpl variableDefinition = variableDefinitions.get(i);
+        visitor.variableDefinition(variableDefinition, i);
+      }
+    }
+  }
+
+  protected void visitCompositeTransitionDefinitions(ProcessDefinitionVisitor visitor) {
+    if (transitionDefinitions!=null) {
+      for (int i=0; i<transitionDefinitions.size(); i++) {
+        TransitionDefinitionImpl transitionDefinition = transitionDefinitions.get(i);
+        visitor.transitionDefinition(transitionDefinition, i);
+      }
+    }
+  }
+
+  public boolean containsVariable(String variableDefinitionName) {
+    if (variableDefinitionName==null) {
+      return false;
+    }
+    if (variableDefinitions!=null) {
+      for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
+        if (variableDefinitionName.equals(variableDefinition.name)) {
+          return true;
+        }
+      }
+    }
+    ScopeDefinitionImpl parent = getParent();
+    if (parent!=null) {
+      return parent.containsVariable(variableDefinitionName);
+    }
+    return false;
+  }
+
+  public VariableDefinitionImpl findVariableDefinitionByName(String variableDefinitionName) {
+    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionName) : null;
+  }
+
+  public void initializeActivityDefinitionsMap() {
+    if (activityDefinitionsMap==null && activityDefinitions!=null) {
+      activityDefinitionsMap = new HashMap<>();
+      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
+        activityDefinitionsMap.put(activityDefinition.name, activityDefinition);
+      }
+    }
+  }
+  
+  public void initializeStartActivities(Validator validator) {
+    if (activityDefinitions!=null && !activityDefinitions.isEmpty()) {
+      this.startActivities = new ArrayList<>(activityDefinitions);
+      if (transitionDefinitions!=null) {
+        for (TransitionDefinitionImpl transition: transitionDefinitions) {
+          this.startActivities.remove(transition.getTo());
+        }
+      }
+    }
+    if (startActivities==null) {
+      validator.addError("No start activities in %s", name);
+    }
+  }
+
+  // getters and setters ////////////////////////////////////////////////////////////
+  
   public boolean hasTransitionDefinitions() {
     return transitionDefinitions!=null && !transitionDefinitions.isEmpty();
   } 
   
-  public List<ActivityDefinitionImpl> getActivityDefinitions() {
-    return activityDefinitions;
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public List<ActivityDefinition> getActivityDefinitions() {
+    return (List<ActivityDefinition>) (List) activityDefinitions;
   }
-
   
   public void setActivityDefinitions(List<ActivityDefinitionImpl> activityDefinitions) {
     this.activityDefinitions = activityDefinitions;
@@ -303,79 +354,42 @@ public abstract class ScopeDefinitionImpl {
     this.transitionDefinitions = transitionDefinitions;
   }
 
+  public String getName() {
+    return name;
+  }
+
   
-  public void visit(ProcessDefinitionVisitor visitor) {
-    // If some visitor needs to control the order of types vs other content visited, 
-    // then this is the idea you should consider 
-    //   if (visitor instanceof OrderedProcessDefinitionVisitor) {
-    //     ... also delegate the ordering of this visit to the visitor ... 
-    //   } else { ... perform the default as below
-    visitCompositeActivityDefinitions(visitor);
-    visitCompositeTransitionDefinitions(visitor);
-    visitCompositeVariableDefinitions(visitor);
+  public void setName(String name) {
+    this.name = name;
   }
 
-  protected void visitCompositeActivityDefinitions(ProcessDefinitionVisitor visitor) {
-    if (activityDefinitions!=null) {
-      for (int i=0; i<activityDefinitions.size(); i++) {
-        ActivityDefinitionImpl activityDefinition = activityDefinitions.get(i);
-        activityDefinition.visit(visitor, i);
-      }
-    }
+  
+  public List<TimerDefinitionImpl> getTimerDefinitions() {
+    return timerDefinitions;
   }
 
-  protected void visitCompositeVariableDefinitions(ProcessDefinitionVisitor visitor) {
-    if (variableDefinitions!=null) {
-      for (int i=0; i<variableDefinitions.size(); i++) {
-        VariableDefinitionImpl variableDefinition = variableDefinitions.get(i);
-        visitor.variableDefinition(variableDefinition, i);
-      }
-    }
+  
+  public void setTimerDefinitions(List<TimerDefinitionImpl> timerDefinitions) {
+    this.timerDefinitions = timerDefinitions;
   }
 
-  protected void visitCompositeTransitionDefinitions(ProcessDefinitionVisitor visitor) {
-    if (transitionDefinitions!=null) {
-      for (int i=0; i<transitionDefinitions.size(); i++) {
-        TransitionDefinitionImpl transitionDefinition = transitionDefinitions.get(i);
-        visitor.transitionDefinition(transitionDefinition, i);
-      }
-    }
+  
+  public Long getLine() {
+    return line;
   }
 
-  public void notifyActivityInstanceEnded(ActivityInstanceImpl activityInstance) {
-    ScopeInstanceImpl parentCompositeInstance = activityInstance.getParent();
-    if (!parentCompositeInstance.hasUnfinishedActivityInstances()) {
-      parentCompositeInstance.end();
-    }
-  }
-  public boolean containsVariable(String variableDefinitionName) {
-    if (variableDefinitionName==null) {
-      return false;
-    }
-    if (variableDefinitions!=null) {
-      for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
-        if (variableDefinitionName.equals(variableDefinition.name)) {
-          return true;
-        }
-      }
-    }
-    ScopeDefinitionImpl parent = getParent();
-    if (parent!=null) {
-      return parent.containsVariable(variableDefinitionName);
-    }
-    return false;
+  
+  public void setLine(Long line) {
+    this.line = line;
   }
 
-  public VariableDefinitionImpl findVariableDefinitionByName(String variableDefinitionName) {
-    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionName) : null;
+  
+  public Long getColumn() {
+    return column;
   }
 
-  public void initializeActivityDefinitionsMap() {
-    if (activityDefinitionsMap==null && activityDefinitions!=null) {
-      activityDefinitionsMap = new HashMap<>();
-      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
-        activityDefinitionsMap.put(activityDefinition.name, activityDefinition);
-      }
-    }
+  
+  public void setColumn(Long column) {
+    this.column = column;
   }
 }

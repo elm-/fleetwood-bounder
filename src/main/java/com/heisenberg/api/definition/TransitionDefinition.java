@@ -15,9 +15,13 @@
 package com.heisenberg.api.definition;
 
 
+
 /**
  * @author Walter White
  */
 public interface TransitionDefinition {
+
+  ActivityDefinition getTo();
+  ActivityDefinition getFrom();
 
 }

@@ -86,14 +86,6 @@ public class ParseIssues {
     return false;
   }
   
-  public void addError(String path, Long line, Long column, String message, Object... messageArgs) {
-    addIssue(IssueType.error, path, line, column, message, messageArgs);
-  }
-
-  public void addWarning(String path, Long line, Long column, String message, Object... messageArgs) {
-    addIssue(IssueType.warning, path, line, column, message, messageArgs);
-  }
-
   public void addIssue(IssueType issueType, String path, Long line, Long column, String message, Object... messageArgs) {
     if (issues==null) {
       issues = new ArrayList<>();

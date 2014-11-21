@@ -12,33 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.impl;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.heisenberg.spi.ActivityType;
-
+import com.heisenberg.api.Page;
 
 
 /**
  * @author Walter White
  */
-public interface ActivityBuilder {
-
-  ActivityBuilder activityType(ActivityType activityType);
-  ActivityBuilder activityTypeJson(Map<String,Object> activityTypeJson);
-
-  ActivityBuilder name(String activityDefinitionName);
-
-  ActivityBuilder newActivity();
-
-  TransitionBuilder newTransition();
-
-  VariableBuilder newVariable();
-
-  TimerBuilder newTimer();
-
-  ActivityBuilder line(Long lineNumber);
+public class PageImpl<T> implements Page<T> {
   
-  ActivityBuilder column(Long columnNumber);
+  List<T> results = new ArrayList<T>();
+
+  public PageImpl(ActivityInstanceQueryImpl activityInstanceQuery) {
+  }
+
+  @Override
+  public List<T> getResults() {
+    return results;
+  }
+
+  public void add(T result) {
+    if (result!=null) {
+      results.add(result);
+    }
+  }
 }

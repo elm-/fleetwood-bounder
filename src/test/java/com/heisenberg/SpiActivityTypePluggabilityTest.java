@@ -23,8 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ProcessValidator;

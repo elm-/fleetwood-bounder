@@ -12,12 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.api;
+
+import com.heisenberg.api.instance.ActivityInstance;
 
 
 /**
  * @author Walter White
  */
-public interface TimerBuilder {
+public interface ActivityInstanceQuery {
 
+  ActivityInstanceQuery activityType(Class<?> activityTypeClass);
+  
+  Page<ActivityInstance> loadPage();
 }

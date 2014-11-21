@@ -16,16 +16,18 @@ package com.heisenberg.instance;
 
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
-import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.TransitionDefinitionImpl;
+import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.expressions.ScriptRunnerImpl;
@@ -84,14 +86,19 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   /** Starts the to (destination) activity in the current (parent) scope.
    * This methods will also end the current activity instance.
    * This method can be called multiple times in one start() */
-  public void takeTransition(TransitionDefinitionImpl transitionDefinition) {
-    ActivityDefinitionImpl to = transitionDefinition.getTo();
+  public void takeTransition(TransitionDefinition transitionDefinition) {
+    ActivityDefinitionImpl to = (ActivityDefinitionImpl) transitionDefinition.getTo();
     end(to!=null);
     if (to!=null) {
       log.debug("Taking transition to "+to);
-      ActivityInstanceImpl activityInstance = getParent().createActivityInstance(to);
-      processInstance.startActivityInstance(activityInstance);
+      ActivityInstanceImpl activityInstance = parent.createActivityInstance(to);
+      processInstance.addOperation(new ActivityInstanceStartOperation(activityInstance));
     }
+  }
+  
+  @Override
+  public void ended(ActivityInstanceImpl nestedEndedActivityInstance) {
+    activityDefinition.activityType.ended(this, nestedEndedActivityInstance);
   }
   
   @Override
@@ -119,7 +126,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
   
   public String toString() {
-    String activityDefinitionType = activityDefinition.getClass().getSimpleName();
+    String activityDefinitionType = activityDefinition.activityType.getClass().getSimpleName();
     return "ai("+activityDefinition.name+"|"+activityDefinitionType+"|"+id+")";
   }
   
@@ -131,11 +138,6 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
   }
 
-  @Override
-  public String getActivityDefinitionName() {
-    return activityDefinitionName;
-  }
-
   public void visit(ProcessInstanceVisitor visitor, int index) {
     visitor.startActivityInstance(this, index);
     visitCompositeInstance(visitor);
@@ -145,5 +147,25 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   @Override
   public ScriptRunnerImpl getScriptRunner() {
     return processEngine.scriptRunner;
+  }
+  
+  public void setActivityDefinitionName(String activityDefinitionName) {
+    this.activityDefinitionName = activityDefinitionName;
+  }
+
+  @Override
+  public String getActivityDefinitionName() {
+    return activityDefinitionName;
+  }
+  
+  @Override
+  public ActivityInstanceImpl findActivityInstanceByName(String activityDefinitionName) {
+    if (activityDefinitionName==null) {
+      return null;
+    }
+    if (activityDefinitionName.equals(activityDefinitionName)) {
+      return this;
+    }
+    return super.findActivityInstanceByName(activityDefinitionName);
   }
 }

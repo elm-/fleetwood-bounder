@@ -25,11 +25,15 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.id.ActivityInstanceId;
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.definition.ScopeDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionImpl;
+import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
@@ -40,7 +44,7 @@ import com.heisenberg.spi.DataType;
 /**
  * @author Walter White
  */
-public abstract class ScopeInstanceImpl {
+public abstract class ScopeInstanceImpl implements ScopeInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -89,14 +93,20 @@ public abstract class ScopeInstanceImpl {
       }
     }
   }
+  
+  public void start(ActivityDefinition activityDefinition) {
+    ActivityInstanceImpl activityInstance = createActivityInstance((ActivityDefinitionImpl) activityDefinition);
+    processInstance.addOperation(new ActivityInstanceStartOperation(activityInstance));
+  }
 
   public ActivityInstanceImpl createActivityInstance(ActivityDefinitionImpl activityDefinition) {
     ActivityInstanceImpl activityInstance = processEngine.createActivityInstance(activityDefinition);
-    activityInstance.setProcessEngine(processEngine);
-    activityInstance.setScopeDefinition(activityDefinition);
-    activityInstance.setProcessInstance(processInstance);
-    activityInstance.setParent(this);
-    activityInstance.setActivityDefinition(activityDefinition);
+    activityInstance.processEngine = processEngine;
+    activityInstance.scopeDefinition = activityDefinition;
+    activityInstance.processInstance = processInstance;
+    activityInstance.parent = this;
+    activityInstance.activityDefinition = activityDefinition;
+    activityInstance.activityDefinitionName = activityDefinition.name;
     activityInstance.setStart(Time.now());
     if (activityInstances==null) {
       activityInstances = new ArrayList<>();
@@ -205,6 +215,23 @@ public abstract class ScopeInstanceImpl {
     }
     return null;
   }
+  
+  @Override
+  public ActivityInstanceImpl findActivityInstanceByName(String activityDefinitionName) {
+    if (activityDefinitionName==null) {
+      return null;
+    }
+    if (activityInstances!=null) {
+      for (ActivityInstanceImpl activityInstance: activityInstances) {
+        ActivityInstanceImpl theOne = activityInstance.findActivityInstanceByName(activityDefinitionName);
+        if (theOne!=null) {
+          return theOne;
+        }
+      }
+    }
+    return null;
+  }
+
 
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
@@ -250,7 +277,7 @@ public abstract class ScopeInstanceImpl {
     return activityInstances!=null && !activityInstances.isEmpty();
   }
   
-  public ScopeInstanceImpl getParent() {
+  public ScopeInstance getParent() {
     return parent;
   }
   
@@ -292,4 +319,6 @@ public abstract class ScopeInstanceImpl {
   public void setVariableInstances(List<VariableInstanceImpl> variableInstances) {
     this.variableInstances = variableInstances;
   }
+
+  public abstract void ended(ActivityInstanceImpl activityInstance);
 }

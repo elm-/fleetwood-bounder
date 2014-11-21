@@ -22,13 +22,12 @@ import java.util.Map;
 import org.joda.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.api.id.OrganizationId;
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessId;
 import com.heisenberg.api.id.UserId;
-import com.heisenberg.impl.Time;
 import com.heisenberg.spi.DataType;
 
 
@@ -42,7 +41,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   
   /** the types defined on the process definition level.
    * This field is the reference for serialization and storage of types.
-   * @link {@link #typesMap} is derived from this field. */
+   * @link {@link #dataTypesMap} is derived from this field. */
   public List<DataType> dataTypes;
 
   /** optional time when the process was deployed.
@@ -67,7 +66,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /** derived from @link {@link #dataTypes} */
   @JsonIgnore
-  public Map<String,DataType> typesMap;
+  public Map<String,DataType> dataTypesMap;
   
   /// Process Definition Builder methods /////////////////////////////////////////////
 
@@ -150,17 +149,6 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   
   // other methods ////////////////////////////////////////////////////////////////////
   
-  public void prepare() {
-    this.processDefinition = this;
-    if (dataTypes!=null) {
-      typesMap = new HashMap<>();
-      for (DataType dataType: dataTypes) {
-        typesMap.put(dataType.getId(), dataType);
-      }
-    }
-    super.prepare();
-  }
-  
   public ProcessDefinitionPath getPath() {
     return new ProcessDefinitionPath();
   }
@@ -177,14 +165,25 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
   }
 
+  protected void initializeDataTypesMap() {
+    if (dataTypes!=null) {
+      dataTypesMap = new HashMap<>();
+      for (DataType dataType: dataTypes) {
+        dataTypesMap.put(dataType.getId(), dataType);
+      }
+    }
+  }
+
   public DataType findDataType(String dataTypeId) {
-    DataType dataType = typesMap!=null ? typesMap.get(dataTypeId) : null;
+    DataType dataType = dataTypesMap!=null ? dataTypesMap.get(dataTypeId) : null;
     if (dataType!=null) {
       return dataType;
     }
     return processEngine.findDataType(dataTypeId);
   }
-
+  
+  // visitor methods ////////////////////////////////////////////////////////////////////
+  
   public void visit(ProcessDefinitionVisitor visitor) {
     if (visitor==null) {
       return;

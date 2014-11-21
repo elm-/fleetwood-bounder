@@ -17,6 +17,8 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.ControllableActivityInstance;
 import com.heisenberg.spi.Validator;
@@ -59,6 +61,10 @@ public class Wait implements ActivityType {
   }
 
   @Override
-  public void validate(Validator validator) {
+  public void validate(ActivityDefinition activity, Validator validator) {
+  }
+
+  @Override
+  public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
   }
 }

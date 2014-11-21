@@ -61,7 +61,7 @@ public class ProcessInstanceQuery {
     this.maxResults = maxResults;
   }
 
-  public boolean satisfiesCriteria(ProcessInstanceImpl processInstance) {
+  public boolean meetsConditions(ProcessInstanceImpl processInstance) {
     if (activityInstanceId!=null && !containsCompositeInstance(processInstance, activityInstanceId)) {
       return false;
     }

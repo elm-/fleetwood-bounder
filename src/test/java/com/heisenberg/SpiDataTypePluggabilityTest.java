@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
-import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
@@ -49,14 +49,18 @@ public class SpiDataTypePluggabilityTest {
     ProcessEngine processEngine = new MemoryProcessEngine()
       .registerJavaBeanType(Money.class);
 
-    ProcessBuilder processBuilder = processEngine.newProcess();
+    ProcessBuilder process = processEngine.newProcess();
     
-    processBuilder.newVariable()
+    process.newVariable()
       .name("m")
       .dataTypeJavaBean(Money.class);
     
+    process.newActivity()
+      .activityType(Wait.INSTANCE)
+      .name("w");
+
     String processDefinitionId = processEngine
-      .deployProcessDefinition(processBuilder)
+      .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
@@ -95,6 +99,10 @@ public class SpiDataTypePluggabilityTest {
     process.newVariable()
       .type("country")
       .name("c");
+
+    process.newActivity()
+      .activityType(Wait.INSTANCE)
+      .name("w");
 
     String processDefinitionId = processEngine
       .deployProcessDefinition(process)

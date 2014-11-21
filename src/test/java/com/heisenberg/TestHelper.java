@@ -14,7 +14,17 @@
  */
 package com.heisenberg;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
+
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.instance.ScopeInstance;
 
 /**
  * @author Walter White
@@ -26,4 +36,32 @@ public class TestHelper {
       Assert.fail("Expected "+expected+" but was "+actual);
     }
   }
+  
+  public static void assertOpenActivityInstances(ProcessInstance processInstance, String... expectedActivityNames) {
+    Map<String,Integer> expectedActivityCounts = new HashMap<String, Integer>();
+    if (expectedActivityNames!=null) {
+      for (String expectedActivityName: expectedActivityNames) {
+        Integer count = expectedActivityCounts.get(expectedActivityName);
+        expectedActivityCounts.put(expectedActivityName, count!=null ? count+1 : 1);
+      }
+    }
+    Map<String,Integer> activityCounts = new HashMap<String, Integer>();
+    scanActivityCounts(processInstance, activityCounts);
+    assertEquals(expectedActivityCounts, activityCounts);
+  }
+  
+  static void scanActivityCounts(ScopeInstance scopeInstance, Map<String, Integer> activityCounts) {
+    List< ? extends ActivityInstance> activityInstances = scopeInstance.getActivityInstances();
+    if (activityInstances!=null) {
+      for (ActivityInstance activityInstance : activityInstances) {
+        if (!activityInstance.isEnded()) {
+          String activityName = activityInstance.getActivityDefinitionName();
+          Integer count = activityCounts.get(activityName);
+          activityCounts.put(activityName, count != null ? count + 1 : 1);
+          scanActivityCounts(activityInstance, activityCounts);
+        }
+      }
+    }
+  }
+
 }

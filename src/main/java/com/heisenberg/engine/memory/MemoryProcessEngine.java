@@ -22,17 +22,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.heisenberg.api.Page;
 import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessInstanceId;
+import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.updates.Update;
+import com.heisenberg.impl.ActivityInstanceQueryImpl;
+import com.heisenberg.impl.PageImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.impl.Time;
+import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceImpl;
+import com.heisenberg.instance.ScopeInstanceImpl;
 
 
 /** In memory (synchronized map based) process engine.
@@ -55,7 +61,6 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
 
   @Override
   protected void storeProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    processDefinition.prepare();
     processDefinitions.put(processDefinition.id, processDefinition);
   }
 
@@ -76,6 +81,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     } else {
       log.debug("No updates to flush");
     }
+    processInstance.setUpdates(new ArrayList<Update>());
   }
 
   @Override
@@ -118,11 +124,31 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
       return processInstance;
     }
     for (ProcessInstanceImpl processInstance: processInstances.values()) {
-      if (processInstanceQuery.satisfiesCriteria(processInstance)) {
+      if (processInstanceQuery.meetsConditions(processInstance)) {
         return processInstance;
       }
     }
     return null;
+  }
+
+  @Override
+  public Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQuery) {
+    PageImpl<ActivityInstance> page = new PageImpl<>(activityInstanceQuery);
+    for (ProcessInstanceImpl processInstance: processInstances.values()) {
+      scanActivityInstances(processInstance, activityInstanceQuery, page);
+    }
+    return page;
+  }
+
+  void scanActivityInstances(ScopeInstanceImpl scopeInstance, ActivityInstanceQueryImpl activityInstanceQuery, PageImpl<ActivityInstance> page) {
+    if (scopeInstance.hasActivityInstances()) {
+      for (ActivityInstanceImpl activityInstance: scopeInstance.activityInstances) {
+        if (activityInstanceQuery.meetsConditions(activityInstance)) {
+          page.add(activityInstance);
+        }
+        scanActivityInstances(activityInstance, activityInstanceQuery, page);
+      }
+    }
   }
 
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
@@ -145,4 +171,5 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     log.debug("Locked process instance: "+json.objectToJsonStringPretty(processInstance));
     return processInstance;
   }
+
 }

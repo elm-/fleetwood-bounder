@@ -14,22 +14,37 @@
  */
 package com.heisenberg.bpmn.activities;
 
+import java.util.List;
+
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.ControllableActivityInstance;
+import com.heisenberg.spi.Validator;
 
 
 /**
  * @author Walter White
  */
-public abstract class ServiceTask extends AbstractActivityType {
+public class EmbeddedSubprocess extends AbstractActivityType {
 
-  public static final String ID = "serviceTask";
+  public static final EmbeddedSubprocess INSTANCE = new EmbeddedSubprocess();
+  
+  List<ActivityDefinition> startActivityDefinitions = null;
+  
+  @Override
+  public void validate(ActivityDefinition activityDefinition, Validator validator) {
+    activityDefinition.initializeStartActivities(validator);
+  }
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    invokeService(activityInstance);
-    activityInstance.onwards();
+    List<ActivityDefinition> startActivities = activityInstance.getActivityDefinition().getStartActivities();
+    if (startActivities!=null && !startActivities.isEmpty()) {
+      for (ActivityDefinition startActivity: startActivities) {
+        activityInstance.start(startActivity);
+      }
+    } else {
+      activityInstance.onwards();
+    }
   }
-  
-  public abstract void invokeService(ControllableActivityInstance activityInstance);
 }

@@ -16,7 +16,6 @@ package com.heisenberg.spi;
 
 import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
-import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 /**

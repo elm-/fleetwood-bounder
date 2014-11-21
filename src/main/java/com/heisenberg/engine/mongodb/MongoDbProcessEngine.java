@@ -16,9 +16,12 @@ package com.heisenberg.engine.mongodb;
 
 import java.util.List;
 
+import com.heisenberg.api.Page;
 import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
@@ -64,6 +67,11 @@ public class MongoDbProcessEngine extends ProcessEngineImpl {
 
   @Override
   public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+    return null;
+  }
+
+  @Override
+  public Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl) {
     return null;
   }
 }

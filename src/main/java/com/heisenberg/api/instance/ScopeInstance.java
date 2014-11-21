@@ -28,9 +28,18 @@ public interface ScopeInstance {
   
   LocalDateTime getEnd();
   
+  boolean isEnded();
+  
   Long getDuration();
   
   List<? extends ActivityInstance> getActivityInstances();
   
   List<? extends VariableInstance> getVariableInstances();
+
+  boolean hasUnfinishedActivityInstances();
+
+  void end();
+
+  /** recurses downward over the nested activities (not over the parent) */
+  ActivityInstance findActivityInstanceByName(String activityDefinitionName);
 }

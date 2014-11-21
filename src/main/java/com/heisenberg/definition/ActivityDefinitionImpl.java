@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.definition.ActivityBuilder;
+import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
@@ -132,5 +132,4 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   public String toString() {
     return name!=null ? "["+name.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
-
 }

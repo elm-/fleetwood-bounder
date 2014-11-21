@@ -14,6 +14,7 @@
  */
 package com.heisenberg.spi;
 
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.expressions.ScriptRunner;
 import com.heisenberg.impl.TypedValue;
@@ -29,5 +30,8 @@ public interface ControllableActivityInstance extends ActivityInstance {
   TypedValue getVariableValueRecursive(String variableName);
 
   ScriptRunner getScriptRunner();
+
+  /** starts a nested activity instance for the given activity definition */
+  void start(ActivityDefinition activityDefinition);
 
 }

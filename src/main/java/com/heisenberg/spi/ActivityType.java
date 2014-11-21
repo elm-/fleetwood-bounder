@@ -17,6 +17,8 @@ package com.heisenberg.spi;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.instance.ActivityInstance;
 
 
 
@@ -26,9 +28,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 @JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="type")
 public interface ActivityType extends Spi {
 
+  /** called when the process is being deployed. 
+   * @param activity */
+  void validate(ActivityDefinition activity, Validator validator);
+
+  /** called when the activity instance is started */
   void start(ControllableActivityInstance activityInstance);
 
+  /** called when an external signal is invoked on this activity instance through the process engine api */
   void signal(ControllableActivityInstance activityInstance);
 
-  void validate(Validator validator);
+  /** called when a nested activity instance is ended */
+  void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance);
 }

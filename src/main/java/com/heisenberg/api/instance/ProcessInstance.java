@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.instance;
 
-import java.util.List;
-
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessInstanceId;
 
@@ -30,5 +28,5 @@ public interface ProcessInstance extends ScopeInstance {
   ProcessInstanceId getId();
 
   ProcessDefinitionId getProcessDefinitionId();
-  
+
 }

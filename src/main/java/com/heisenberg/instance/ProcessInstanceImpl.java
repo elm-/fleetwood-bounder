@@ -75,12 +75,6 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     log.debug("Created "+processInstance);
   }
   
-  // Adds the activity instances to the list of activity instances to start.
-  // This method assumes that executeOperations was already called or will be called. 
-  public void startActivityInstance(ActivityInstanceImpl activityInstance) {
-    addOperation(new ActivityInstanceStartOperation(activityInstance));
-  }
-  
   void addOperation(Operation operation) {
     if (Boolean.TRUE.equals(isAsync) || !operation.isAsync()) {
       if (operations==null) {
@@ -96,6 +90,8 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       addUpdate(new AsyncOperationAddUpdate(operation));
     }
   }
+  
+  
   
   Operation removeOperation() {
     Operation operation = operations!=null ? operations.poll() : null;
@@ -115,7 +111,6 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
 
   // to be called from the process engine
   public void executeOperations() {
-    updates = new ArrayList<Update>();
     while (hasOperations()) {
       // in the first iteration, the updates will be empty and hence no updates will be flushed
       flushUpdates(); // first time round, the 
@@ -145,12 +140,16 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   }
 
   void flushUpdates() {
-    if (!updates.isEmpty()) {
-      processEngine.flush(this);
-      updates = new ArrayList<>();
-    }
+    processEngine.flush(this);
   }
   
+  @Override
+  public void ended(ActivityInstanceImpl activityInstance) {
+    if (!hasUnfinishedActivityInstances()) {
+      end();
+    }
+  }
+
   public void end() {
     if (this.end==null) {
       if (hasUnfinishedActivityInstances()) {
@@ -159,12 +158,11 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       setEnd(Time.now());
       
       // Each operation is an extra flush.  So this if limits the number of flushes
-      // if (thereProcessInstanceCouldTriggerNotifications) {
+      // if (thisProcessInstanceCouldTriggerNotifications) {
       //   processInstance.addOperation(new NotifyProcessInstanceEnded(this));
       // }
     }
   }
-
 
   public ProcessInstanceId getId() {
     return id;

@@ -14,13 +14,18 @@
  */
 package com.heisenberg;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.id.OrganizationId;
+import com.heisenberg.api.id.ProcessId;
+import com.heisenberg.api.id.UserId;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
@@ -29,10 +34,6 @@ import com.heisenberg.impl.Time;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.DataType;
 import com.heisenberg.type.ChoiceType;
-import com.heisenberg.api.definition.ProcessBuilder;
-import com.heisenberg.api.id.OrganizationId;
-import com.heisenberg.api.id.ProcessId;
-import com.heisenberg.api.id.UserId;
 
 /**
  * @author Walter White
@@ -97,7 +98,7 @@ public class JsonProcessDefinitionTest {
     ProcessDefinitionImpl processDefinition = json.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
     assertNotNull(processDefinition);
     assertEquals("myorg", processDefinition.organizationId.getInternal());
-    ChoiceType choiceType = (ChoiceType) processDefinition.typesMap.get("country");
+    ChoiceType choiceType = (ChoiceType) processDefinition.dataTypesMap.get("country");
     assertEquals("Belgium", choiceType.getOptions().get("be"));
     ActivityDefinitionImpl one = processDefinition.getActivityDefinition("one");
     assertEquals("one", one.name);
