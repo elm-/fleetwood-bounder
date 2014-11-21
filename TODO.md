@@ -1,10 +1,8 @@
 # Tasks
 
-- [ ] Figure out how to secure java script for our own servers 
-- [ ] Configuration of pluggable types, activities 
+- [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
 - [ ] Change Long to our own Date type.  This way, date serialization can be customized.
 - [ ] Consider separate methods in the api for setting java values and setting rest json values
-- [ ] Turn ProcessDefintionImpl.parse into a visitor  
 
 # In progress
 
@@ -16,12 +14,22 @@
   - [x] location support (java & file) 
   - [x] prepared to add i18n on top
 - [x] easy plugin architecture
-  - [x] activity types 
-  - [x] data types
-  - [x] services
-  - [ ] script functions
-  - [x] service loading of pluggable types
   - [x] programmable registration of pluggable types
+  - [x] service loading of pluggable types
+  - [x] activity types
+     - [x] user defined activity types
+     - [x] engine level user defined activity types
+     - [x] inline defined and configured activity types
+  - [x] data types
+     - [x] user defined data types
+     - [x] process level configured data types
+     - [x] engine level configured data types
+     - [x] inline defined and configured data types
+     - [ ] default types like text, ... 
+     - [ ] user defined object types (without beans) 
+     - [ ] reference type
+  - [ ] data sources
+  - [ ] script functions
 - [x] activity in / output parameters
   - [x] static value 
   - [x] variable binding 
@@ -30,16 +38,6 @@
   - [x] easy to understand activity instance model
   - [x] support for BPMN default semantics
   - [x] synchonous and asynchronoux execution of activities
-- [x] delegate validation of parameters to pluggable activities
-- [ ] process engine java interface
-  - [x] jackson (de)serializable to json
-  - [x] must be possible to build rest interface on top 1-1
-  - [x] enable support for multiple process languages
-- [ ] pluggable types
-  - [ ] atomic types like text, long, date, etc
-  - [ ] object types like ... 
-  - [ ] list type
-  - [ ] reference type
 - [x] pluggable persistence architecture 
 
 # Roadmap

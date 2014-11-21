@@ -30,7 +30,7 @@ public class Binding<T> {
   public Script expressionScript;
 
   @SuppressWarnings("unchecked")
-  public T getValue(ActivityInstanceImpl activityInstance) {
+  public T getValue(ControllableActivityInstance activityInstance) {
     if (value!=null) {
       return (T) value;
     }
@@ -38,7 +38,7 @@ public class Binding<T> {
       return (T) activityInstance.getVariableValueRecursive(variableName).getValue();
     }
     if (expressionScript!=null) {
-      ScriptResult result = activityInstance.processEngine.scripts.evaluateScript(activityInstance, expressionScript);
+      ScriptResult result = activityInstance.getScriptRunner().evaluateScript(activityInstance, expressionScript);
       return (T) result.getResult();
     }
     return null;

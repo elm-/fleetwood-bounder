@@ -14,8 +14,8 @@
  */
 package com.heisenberg.api.type;
 
+import com.heisenberg.spi.AbstractDataType;
 import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.spi.Type;
 
 
 
@@ -23,7 +23,7 @@ import com.heisenberg.spi.Type;
 /**
  * @author Walter White
  */
-public class TextType extends Type {
+public class TextType extends AbstractDataType {
 
   public static final TextType INSTANCE = new TextType();
 

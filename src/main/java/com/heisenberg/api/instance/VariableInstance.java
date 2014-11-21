@@ -24,7 +24,7 @@ public interface VariableInstance {
 
   String getVariableDefinitionName();
   
-  String getTypeId();
+  String getDataTypeId();
   
   Object getValue();
 }

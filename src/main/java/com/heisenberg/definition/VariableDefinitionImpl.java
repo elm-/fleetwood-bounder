@@ -14,20 +14,25 @@
  */
 package com.heisenberg.definition;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.VariableBuilder;
+import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.VariableInstanceImpl;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 
 /**
  * @author Walter White
  */
-public class VariableDefinitionImpl implements VariableBuilder {
+public class VariableDefinitionImpl implements VariableBuilder, VariableDefinition {
 
   public String name;
-  public Type type;
+  public String dataTypeId;
+  public Map<String,Object> dataTypeJsonMap;
+  public DataType dataType;
   public Object initialValue;
 
   @JsonIgnore
@@ -39,7 +44,6 @@ public class VariableDefinitionImpl implements VariableBuilder {
 
   public Long line;
   public Long column;
-  public String typeId;
 
   public VariableDefinitionImpl name(String name) {
     this.name = name;
@@ -57,17 +61,28 @@ public class VariableDefinitionImpl implements VariableBuilder {
   }
 
   public VariableDefinitionImpl type(String typeId) {
-    this.typeId = typeId;
+    this.dataTypeId = typeId;
     return this;
   }
 
-  public VariableDefinitionImpl type(Class<?> javaClass) {
-    this.typeId = javaClass.getName();
+  public VariableDefinitionImpl dataTypeId(String dataTypeId) {
+    this.dataTypeId = dataTypeId;
     return this;
   }
 
-  public VariableDefinitionImpl type(Type type) {
-    this.type = type;
+  /** this class has to be registered with @link {@link ProcessEngineImpl#registerJavaBeanType(Class)} */
+  public VariableDefinitionImpl dataTypeJavaBean(Class<?> userDefinedJavaBeanClass) {
+    this.dataTypeId = userDefinedJavaBeanClass.getName();
+    return this;
+  }
+
+  public VariableDefinitionImpl dataType(DataType dataType) {
+    this.dataType = dataType;
+    return this;
+  }
+
+  public VariableDefinitionImpl dataTypeJsonMap(Map<String,Object> dataTypeJsonMap) {
+    this.dataTypeJsonMap = dataTypeJsonMap;
     return this;
   }
 
@@ -112,17 +127,17 @@ public class VariableDefinitionImpl implements VariableBuilder {
     this.processEngine = processEngine;
   }
   
-  public Type getType() {
-    return type;
+  public DataType getType() {
+    return dataType;
   }
   
-  public void setType(Type type) {
-    this.type = type;
+  public void setType(DataType dataType) {
+    this.dataType = dataType;
   }
 
   public VariableInstanceImpl createVariableInstance() {
     VariableInstanceImpl variableInstance = new VariableInstanceImpl();
-    variableInstance.setType(type);
+    variableInstance.setType(dataType);
     variableInstance.setVariableDefinition(this);
     variableInstance.setValue(initialValue);
     return variableInstance;

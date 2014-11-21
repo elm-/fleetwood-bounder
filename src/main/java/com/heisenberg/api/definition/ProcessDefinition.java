@@ -12,25 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
-
-import java.util.List;
-
-import org.joda.time.LocalDateTime;
+package com.heisenberg.api.definition;
 
 
 /**
  * @author Walter White
  */
-public interface ScopeInstance {
+public interface ProcessDefinition {
 
-  LocalDateTime getStart();
-  
-  LocalDateTime getEnd();
-  
-  Long getDuration();
-  
-  List<? extends ActivityInstance> getActivityInstances();
-  
-  List<? extends VariableInstance> getVariableInstances();
 }

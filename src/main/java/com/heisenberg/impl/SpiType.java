@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.definition.json;
+package com.heisenberg.impl;
 
 
 /**
  * @author Walter White
  */
-public class JsonScopeDefinition {
+public enum SpiType {
 
-  
+  activity,
+  type
 }

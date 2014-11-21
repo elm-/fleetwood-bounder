@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 
+import org.joda.time.Duration;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +40,7 @@ import com.heisenberg.engine.updates.OperationAddUpdate;
 import com.heisenberg.engine.updates.OperationRemoveUpdate;
 import com.heisenberg.engine.updates.Update;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.util.Time;
+import com.heisenberg.impl.Time;
 
 
 
@@ -226,10 +228,10 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     this.asyncOperations = asyncOperations;
   }
   
-  public void setEnd(Long end) {
+  public void setEnd(LocalDateTime end) {
     this.end = end;
     if (start!=null && end!=null) {
-      this.duration = end-start;
+      this.duration = new Duration(start.toDateTime(), end.toDateTime()).getMillis();
     }
     // when we add call activity we will need:
     // addUpdate(new ProcessInstanceEndUpdate(this));

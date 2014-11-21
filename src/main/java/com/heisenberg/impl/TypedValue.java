@@ -14,7 +14,7 @@
  */
 package com.heisenberg.impl;
 
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 
 /**
@@ -22,20 +22,20 @@ import com.heisenberg.spi.Type;
  */
 public class TypedValue {
 
-  Type type;
+  DataType dataType;
   Object value;
 
-  public TypedValue(Type type, Object value) {
-    this.type = type;
+  public TypedValue(DataType dataType, Object value) {
+    this.dataType = dataType;
     this.value = value;
   }
 
-  public Type getType() {
-    return type;
+  public DataType getType() {
+    return dataType;
   }
   
-  public void setType(Type type) {
-    this.type = type;
+  public void setType(DataType dataType) {
+    this.dataType = dataType;
   }
   
   public Object getValue() {

@@ -14,7 +14,6 @@
  */
 package com.heisenberg.spi;
 
-import com.heisenberg.instance.ActivityInstanceImpl;
 
 
 
@@ -23,9 +22,13 @@ import com.heisenberg.instance.ActivityInstanceImpl;
  */
 public abstract class AbstractActivityType implements ActivityType {
   
-  public abstract void start(ActivityInstanceImpl activityInstance);
+  public abstract void start(ControllableActivityInstance activityInstance);
 
-  public void signal(ActivityInstanceImpl activityInstance) {
+  public void signal(ControllableActivityInstance activityInstance) {
+  }
+  
+  @Override
+  public void validate(Validator validator) {
   }
 
   @Override

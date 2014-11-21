@@ -12,15 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.engine.file;
-
+package com.heisenberg.api.definition;
 
 
 /**
  * @author Walter White
  */
-public class FileProcessEngine /* extends ProcessEngineImpl */ {
-
-  // TODO
+public interface TransitionDefinition {
 
 }

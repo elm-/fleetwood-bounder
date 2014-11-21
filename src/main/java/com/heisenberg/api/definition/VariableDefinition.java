@@ -12,14 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.api.definition;
 
 
 /**
  * @author Walter White
  */
-public enum SpiType {
+public interface VariableDefinition {
 
-  activity,
-  type
 }

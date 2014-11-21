@@ -14,6 +14,9 @@
  */
 package com.heisenberg.api.instance;
 
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.id.ActivityInstanceId;
+
 
 
 
@@ -21,7 +24,11 @@ package com.heisenberg.api.instance;
 /**
  * @author Walter White
  */
-public interface ActivityInstance {
+public interface ActivityInstance extends ScopeInstance {
+  
+  ActivityInstanceId getId();
+
+  ActivityDefinition getActivityDefinition();
 
   String getActivityDefinitionName();
 }

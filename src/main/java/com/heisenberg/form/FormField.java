@@ -15,7 +15,7 @@
 package com.heisenberg.form;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 
 /**
@@ -34,7 +34,7 @@ public class FormField {
 
   /** A configured type defined inline.
    * This type could have been copied from the process definition variable declaration. */
-  public Type type; 
+  public DataType dataType; 
   
   @JsonIgnore
   public Object value;

@@ -30,9 +30,9 @@ import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
-import com.heisenberg.expressions.Scripts;
-import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.expressions.ScriptRunner;
 import com.heisenberg.spi.AbstractActivityType;
+import com.heisenberg.spi.ControllableActivityInstance;
 
 
 /**
@@ -55,7 +55,7 @@ public class ScriptTest {
     
     processBuilder.newVariable()
       .name("m")
-      .type(Money.class);
+      .dataTypeJavaBean(Money.class);
     
     processBuilder.newActivity()
       .activityType(new ScriptActivity())
@@ -86,9 +86,9 @@ public class ScriptTest {
       return "Script";
     }
     @Override
-    public void start(ActivityInstanceImpl activityInstance) {
-      Scripts scripts = activityInstance.processEngine.scripts;
-      Script script = scripts.compile(
+    public void start(ControllableActivityInstance activityInstance) {
+      ScriptRunner scriptRunner = activityInstance.getScriptRunner();
+      Script script = scriptRunner.compile(
              // Each variable is automatically available with it's variableDefinitionName
              // Individual fields (and on Rhino also properties) can be dereferenced
              "'It costs '+m.amount+', which is in '+m.currency+'\\n"
@@ -96,7 +96,7 @@ public class ScriptTest {
              // The toString of the money java object will be used 
              +"And mmmoney is '+mmmoney")
         .scriptToProcessMapping("mmmoney", "m");
-      ScriptResult scriptResult = scripts.evaluateScript(activityInstance, script);
+      ScriptResult scriptResult = scriptRunner.evaluateScript(activityInstance, script);
       scriptResultMessage = (String) scriptResult.getResult();
       activityInstance.onwards();
     }

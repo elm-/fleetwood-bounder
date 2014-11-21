@@ -21,11 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,23 +45,21 @@ import com.heisenberg.api.type.TextType;
 import com.heisenberg.bpmn.activities.StartEvent;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
+import com.heisenberg.definition.ProcessValidator;
 import com.heisenberg.definition.VariableDefinitionImpl;
-import com.heisenberg.expressions.Scripts;
+import com.heisenberg.expressions.ScriptRunnerImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceImpl;
+import com.heisenberg.json.LocalDateTimeSerializer;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Spi;
-import com.heisenberg.spi.SpiDescriptor;
-import com.heisenberg.spi.SpiType;
-import com.heisenberg.spi.Type;
 import com.heisenberg.type.JavaBeanType;
 import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Reflection;
-import com.heisenberg.util.Time;
 
 /**
  * @author Walter White
@@ -69,14 +69,35 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
+  
+  /** defaultActivityTypes are the configured default activity types.
+   * Will not be synchronized with the process builder. */
+  public Map<String,ActivityType> defaultActivityTypes;
+
+  /** activityTypes are the configured user defined activity types.
+   * Will be synchronized with the process builder. */
   public Map<String,ActivityType> activityTypes;
+  
+  /** activityDescriptors describe configuration fields for user defined activity types.
+   * These will be sent to the process builder where users will be able to configure the activities. */
   public Map<String,SpiDescriptor> activityDescriptors;
-  public Map<String,Type> types;
+
+  /** defaultTypes are the configured default data types.
+   * Will not be sent to the process builder. */
+  public Map<String,DataType> defaultTypes;
+
+  /** types are the configured user defined data types.
+   * Will be sent to the process builder. */
+  public Map<String,DataType> dataTypes;
+  
+  /** types describe the configuration fields for user defined data types.
+   * Will be sent to the process builder where users will be able to configure the concrete types. */
   public Map<String,SpiDescriptor> typeDescriptors;
+  
   public Executor executor;
   public Json json;
   public ProcessDefinitionCache processDefinitionCache;
-  public Scripts scripts;
+  public ScriptRunnerImpl scriptRunner;
   
   protected ProcessEngineImpl() {
     initialize();
@@ -86,7 +107,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     initializeId();
     initializeExecutor();
     initializeJson();
-    initializeScripts();
+    initializeScriptRunner();
     initializePluggableImplementations();
     initializeDefaultSpis();
   }
@@ -102,7 +123,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   protected void initializePluggableImplementations() {
     activityDescriptors = new HashMap<>();
     typeDescriptors = new HashMap<>();
-    types = new HashMap<>();
+    dataTypes = new HashMap<>();
     activityTypes = new HashMap<>();
     Iterator<Spi> spis = ServiceLoader.load(Spi.class).iterator();
     while (spis.hasNext()) {
@@ -121,13 +142,13 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return this;
   }
 
-  public ProcessEngineImpl registerType(Class<? extends Type> typeClass) {
+  public ProcessEngineImpl registerType(Class<? extends DataType> typeClass) {
     registerSpi(Reflection.newInstance(typeClass));
     return this;
   }
 
-  public ProcessEngineImpl registerType(Type type) {
-    registerSpi(type);
+  public ProcessEngineImpl registerType(DataType dataType) {
+    registerSpi(dataType);
     return this;
   }
 
@@ -146,8 +167,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
       return;
     }
     if (spiObject.getId()!=null) {
-      if (spiObject instanceof Type) {
-        types.put(spiObject.getId(), (Type)spiObject);
+      if (spiObject instanceof DataType) {
+        dataTypes.put(spiObject.getId(), (DataType)spiObject);
       } else if (spiObject instanceof ActivityType) {
         activityTypes.put(spiObject.getId(), (ActivityType)spiObject);
       } else {
@@ -172,8 +193,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     this.json = new Json(this);
   }
   
-  protected void initializeScripts() {
-    this.scripts = new Scripts();
+  protected void initializeScriptRunner() {
+    this.scriptRunner = new ScriptRunnerImpl();
   }
 
   /// Process Definition Builder 
@@ -193,7 +214,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
 
     ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) processBuilder;
-    ValidateProcessDefinitionAfterDeserialization validate = new ValidateProcessDefinitionAfterDeserialization(this);
+    ProcessValidator validate = new ProcessValidator(this);
     processDefinition.visit(validate);
     ParseIssues issues = validate.getIssues();
     
@@ -229,13 +250,13 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
         VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
         Object internalValue;
         try {
-          internalValue = variableDefinition.type.convertJsonToInternalValue(apiValue);
+          internalValue = variableDefinition.dataType.convertJsonToInternalValue(apiValue);
           internalValues.put(variableDefinitionName, internalValue);
         } catch (InvalidApiValueException e) {
           throw new RuntimeException("TODO: change return value that sends the variable validation errors back", e);
         }
       }
-      processInstance.setVariableValuesRecursive(internalValues);
+      processInstance.setVariableValuesRecursive(apiValues);
     }
       
     log.debug("Starting "+processInstance);
@@ -332,8 +353,50 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public void setJson(Json json) {
     this.json = json;
   }
+  
+  public ScriptRunnerImpl getScriptRunner() {
+    return scriptRunner;
+  }
+  
+  public void setScriptRunner(ScriptRunnerImpl scriptRunner) {
+    this.scriptRunner = scriptRunner;
+  }
 
   public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
 
   public abstract List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
+
+  public ActivityType findActivityType(String activityTypeId) {
+    if (activityTypeId==null) {
+      return null;
+    }
+    // first search the user defined activity types
+    ActivityType activityType = activityTypes.get(activityTypeId);
+    if (activityType!=null) {
+      return activityType;
+    }
+    // then search the default activity types
+    activityType = defaultActivityTypes.get(activityTypeId);
+    if (activityType!=null) {
+      return activityType;
+    }
+    return null;
+  }
+  
+  public DataType findDataType(String dataTypeId) {
+    if (dataTypeId==null) {
+      return null;
+    }
+    // first search the user defined activity types
+    DataType dataType = dataTypes.get(dataTypeId);
+    if (dataType!=null) {
+      return dataType;
+    }
+    // then search the default activity types
+    dataType = defaultTypes.get(dataTypeId);
+    if (dataType!=null) {
+      return dataType;
+    }
+    return null;
+  }
 }

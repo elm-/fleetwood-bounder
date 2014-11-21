@@ -12,16 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.util;
+package com.heisenberg.spi;
+
 
 
 /**
  * @author Walter White
  */
-public class Time {
+public interface Validator {
 
-  public static Long now() {
-    return System.currentTimeMillis();
-  }
+  void addError(String message, Object... messageArgs);
 
+  void addWarning(String message, Object... messageArgs);
 }

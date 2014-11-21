@@ -14,10 +14,12 @@
  */
 package com.heisenberg.api.definition;
 
+import org.joda.time.LocalDateTime;
+
 import com.heisenberg.api.id.OrganizationId;
 import com.heisenberg.api.id.ProcessId;
 import com.heisenberg.api.id.UserId;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 
 /**
@@ -25,7 +27,7 @@ import com.heisenberg.spi.Type;
  */
 public interface ProcessBuilder {
 
-  ProcessBuilder deployedTime(Long deployedTime);
+  ProcessBuilder deployedTime(LocalDateTime deployedTime);
   
   ProcessBuilder deployedUserId(UserId deployedUserId);
 
@@ -35,7 +37,7 @@ public interface ProcessBuilder {
   
   ProcessBuilder organizationId(OrganizationId organizationId);
   
-  ProcessBuilder type(Type type);
+  ProcessBuilder dataType(DataType dataType);
 
   ProcessBuilder name(String processDefinitionName);
 

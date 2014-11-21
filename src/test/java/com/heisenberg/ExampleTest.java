@@ -23,9 +23,10 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.spi.Binding;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 /**
  * @author Walter White
@@ -42,7 +43,7 @@ public class ExampleTest {
 
     processBuilder.newVariable()
       .name("t")
-      .type(Type.TEXT);
+      .dataType(DataType.TEXT);
 
     processBuilder.newActivity()
       .activityType(new Go().placeBinding(new Binding<String>().value("Antwerp")))
@@ -74,7 +75,8 @@ public class ExampleTest {
 
     assertEquals(1, Go.executions.size());
     Go.Execution goExecution = Go.executions.get(0);
-    assertEquals(Go.class, goExecution.activityInstance.activityDefinition.activityType.getClass());
+    ActivityDefinitionImpl activityDefinition = (ActivityDefinitionImpl) goExecution.activityInstance.getActivityDefinition();
+    assertEquals(Go.class, activityDefinition.activityType.getClass());
     assertEquals("Antwerp", goExecution.place);
     
 //    ActivityInstance goInstance = processInstance.activityInstances.get(0);

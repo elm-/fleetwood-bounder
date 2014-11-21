@@ -15,32 +15,41 @@
 package com.heisenberg.definition;
 
 import com.heisenberg.spi.ActivityType;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 
 
-/** 
+/** Prepares the process for json serialization by jackson.
+ * 
+ * This removes activityType's and dataType's and replaces them with id references where applicable.
+ * This means that the process object has to be validated again if you want to use it for execution afterwards. 
+ * 
  * @author Walter White
  */
-public class PrepareProcessDefinitionForSerialization implements ProcessDefinitionVisitor {
+public class ProcessSerializer implements ProcessDefinitionVisitor {
 
   @Override
   public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
   }
 
   @Override
-  public void startActivityDefinition(ActivityDefinitionImpl activityDefinition, int index) {
-//    ActivityType activityType = activityDefinition.activityType;
-//    if (activityType!=null && activityType.getId()!=null) {
-//      activityDefinition.activityTypeId = activityType.getId();
-//      activityDefinition.activityType = null;
-//    }
+  public void startActivityDefinition(ActivityDefinitionImpl activity, int index) {
+    ActivityType activityType = activity.activityType;
+    if (activity.activityTypeId==null
+        && activityType!=null 
+        && activityType.getId()!=null) {
+      activity.activityTypeId = activityType.getId();
+      activity.activityType = null;
+    }
   }
 
   @Override
-  public void variableDefinition(VariableDefinitionImpl variableDefinition, int index) {
-    if (variableDefinition.typeId==null && variableDefinition.type!=null) {
-      variableDefinition.typeId = variableDefinition.type.getId();
+  public void variableDefinition(VariableDefinitionImpl variable, int index) {
+    if ( variable.dataTypeId==null 
+         && variable.dataType!=null
+         && variable.dataType.getId()!=null) {
+      variable.dataTypeId = variable.dataType.getId();
+      variable.dataType = null;
     }
   }
 
@@ -63,6 +72,6 @@ public class PrepareProcessDefinitionForSerialization implements ProcessDefiniti
   }
 
   @Override
-  public void type(Type type, int index) {
+  public void dataType(DataType dataType, int index) {
   }
 }

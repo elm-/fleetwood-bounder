@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.impl.TypedValue;
 import com.heisenberg.instance.ScopeInstanceImpl;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 
 /**
@@ -84,9 +84,9 @@ public class ScriptBindings implements Bindings {
       return console;
     }
     TypedValue typedValue = getTypedValue(scriptVariableName);
-    Type type = typedValue.getType();
+    DataType dataType = typedValue.getType();
     Object value = typedValue.getValue();
-    return type.convertInternalToScriptValue(value, language);
+    return dataType.convertInternalToScriptValue(value, language);
   }
   
   protected String getVariableDefinitionName(String scriptVariableName) {
@@ -106,7 +106,7 @@ public class ScriptBindings implements Bindings {
 
   static final Map<String, List<String>> NAME_TO_IGNORE = new HashMap<>();
   static {
-    NAME_TO_IGNORE.put(Scripts.JAVASCRIPT, Arrays.asList("context", "print", "println"));
+    NAME_TO_IGNORE.put(ScriptRunnerImpl.JAVASCRIPT, Arrays.asList("context", "print", "println"));
   }
   protected boolean isIgnored(String scriptVariableName) {
     List<String> namesToIgnore = NAME_TO_IGNORE.get(language);
@@ -125,8 +125,8 @@ public class ScriptBindings implements Bindings {
     TypedValue typedValue = getTypedValue(scriptVariableName);
     if (typedValue!=null) {
       String variableDefinitionName = getVariableDefinitionName(scriptVariableName);
-      Type type = typedValue.getType();
-      Object value = type.convertScriptValueToInternal(scriptValue, language);
+      DataType dataType = typedValue.getType();
+      Object value = dataType.convertScriptValueToInternal(scriptValue, language);
       scopeInstance.setVariableValueRecursive(variableDefinitionName, value);
     }
     return null;

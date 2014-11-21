@@ -12,17 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.type;
+package com.heisenberg.api.definition;
 
-import com.heisenberg.spi.Type;
+import java.util.List;
 
 
 
 /**
  * @author Walter White
  */
-public class TypeReference {
-
-  Type type;
+public interface ActivityDefinition {
   
+  ActivityDefinition getActivityDefinition(String name);
+
+  List<? extends ActivityDefinition> getActivityDefinitions();
 }

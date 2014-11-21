@@ -14,15 +14,20 @@
  */
 package com.heisenberg.expressions;
 
-import com.heisenberg.instance.ScopeInstanceImpl;
+import com.heisenberg.api.instance.ScopeInstance;
 
 
 
 /**
  * @author Walter White
  */
-public interface ScriptEvaluator {
+public interface ScriptRunner {
   
-  ScriptResult evaluateScript(ScopeInstanceImpl scopeInstance, Script script);
+  /** default language is JavaScript */
+  Script compile(String scriptText);
+  
+  Script compile(String scriptText, String language);
+  
+  ScriptResult evaluateScript(ScopeInstance scopeInstance, Script script);
   
 }

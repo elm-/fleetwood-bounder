@@ -14,8 +14,8 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.AbstractActivityType;
+import com.heisenberg.spi.ControllableActivityInstance;
 import com.heisenberg.spi.Spi;
 
 
@@ -37,7 +37,7 @@ public class StartEvent extends AbstractActivityType {
   }
 
   @Override
-  public void start(ActivityInstanceImpl activityInstance) {
+  public void start(ControllableActivityInstance activityInstance) {
     activityInstance.onwards();
   }
 }

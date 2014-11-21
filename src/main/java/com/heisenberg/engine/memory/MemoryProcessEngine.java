@@ -30,9 +30,9 @@ import com.heisenberg.engine.updates.Update;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
+import com.heisenberg.impl.Time;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceImpl;
-import com.heisenberg.util.Time;
 
 
 /** In memory (synchronized map based) process engine.

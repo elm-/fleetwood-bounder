@@ -17,16 +17,14 @@ package com.heisenberg.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.heisenberg.spi.AbstractDataType;
 import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class ChoiceType extends Type {
-  
-  public static final String ID = "choice";
+public class ChoiceType extends AbstractDataType {
   
   protected String id;
   protected String label;

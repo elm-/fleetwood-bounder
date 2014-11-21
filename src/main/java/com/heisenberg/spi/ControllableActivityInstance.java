@@ -12,25 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.type;
+package com.heisenberg.spi;
 
-import com.heisenberg.spi.Type;
-
-
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.expressions.ScriptRunner;
+import com.heisenberg.impl.TypedValue;
 
 
 /**
  * @author Walter White
  */
-public abstract class ReferenceType<T extends Type> extends Type {
+public interface ControllableActivityInstance extends ActivityInstance {
 
-  T referencedType;
-  
-  public T getReferencedType() {
-    return referencedType;
-  }
+  void onwards();
 
-  public void setReferencedType(T referencedType) {
-    this.referencedType = referencedType;
-  }
+  TypedValue getVariableValueRecursive(String variableName);
+
+  ScriptRunner getScriptRunner();
+
 }

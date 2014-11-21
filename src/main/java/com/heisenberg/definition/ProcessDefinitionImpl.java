@@ -19,19 +19,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ProcessBuilder;
+import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.api.id.OrganizationId;
 import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessId;
 import com.heisenberg.api.id.UserId;
-import com.heisenberg.spi.Type;
+import com.heisenberg.impl.Time;
+import com.heisenberg.spi.DataType;
 
 
 /**
  * @author Walter White
  */
-public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements ProcessBuilder {
+public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements ProcessBuilder, ProcessDefinition {
 
   /** The globally unique identifier for this process definition. */
   public ProcessDefinitionId id;
@@ -39,11 +43,11 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   /** the types defined on the process definition level.
    * This field is the reference for serialization and storage of types.
    * @link {@link #typesMap} is derived from this field. */
-  public List<Type> types;
+  public List<DataType> dataTypes;
 
   /** optional time when the process was deployed.
    * This field just serves as a read/write property and is not used during process execution. */
-  public Long deployedAt;
+  public LocalDateTime deployedTime;
 
   /** optional reference to the user that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
@@ -61,9 +65,9 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
    * This combined with the @link {@link ScopeDefinitionImpl#name} should be unique. */
   public Long version;
 
-  /** derived from @link {@link #types} */
+  /** derived from @link {@link #dataTypes} */
   @JsonIgnore
-  public Map<String,Type> typesMap;
+  public Map<String,DataType> typesMap;
   
   /// Process Definition Builder methods /////////////////////////////////////////////
 
@@ -74,8 +78,8 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
 
   @Override
-  public ProcessDefinitionImpl deployedTime(Long deployedAt) {
-    this.deployedAt = deployedAt;
+  public ProcessDefinitionImpl deployedTime(LocalDateTime deployedAt) {
+    this.deployedTime = deployedAt;
     return this;
   }
 
@@ -136,11 +140,11 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
   
   @Override
-  public ProcessDefinitionImpl type(Type type) {
-    if (types==null) {
-      types = new ArrayList<Type>();
+  public ProcessDefinitionImpl dataType(DataType dataType) {
+    if (dataTypes==null) {
+      dataTypes = new ArrayList<DataType>();
     }
-    types.add(type);
+    dataTypes.add(dataType);
     return this;
   }
   
@@ -148,10 +152,10 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   
   public void prepare() {
     this.processDefinition = this;
-    if (types!=null) {
+    if (dataTypes!=null) {
       typesMap = new HashMap<>();
-      for (Type type: types) {
-        typesMap.put(type.getId(), type);
+      for (DataType dataType: dataTypes) {
+        typesMap.put(dataType.getId(), dataType);
       }
     }
     super.prepare();
@@ -173,12 +177,12 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
   }
 
-  public Type findType(String typeId) {
-    Type type = typesMap!=null ? typesMap.get(typeId) : null;
-    if (type!=null) {
-      return type;
+  public DataType findDataType(String dataTypeId) {
+    DataType dataType = typesMap!=null ? typesMap.get(dataTypeId) : null;
+    if (dataType!=null) {
+      return dataType;
     }
-    return processEngine.types.get(typeId);
+    return processEngine.findDataType(dataTypeId);
   }
 
   public void visit(ProcessDefinitionVisitor visitor) {
@@ -197,10 +201,10 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
 
   public void visitTypes(ProcessDefinitionVisitor visitor) {
-    if (types!=null) {
-      for (int i=0; i<types.size(); i++) {
-        Type type = types.get(i);
-        visitor.type(type, i);
+    if (dataTypes!=null) {
+      for (int i=0; i<dataTypes.size(); i++) {
+        DataType dataType = dataTypes.get(i);
+        visitor.dataType(dataType, i);
       }
     }
   }

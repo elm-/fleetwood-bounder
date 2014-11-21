@@ -27,31 +27,32 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
+import com.heisenberg.definition.ProcessValidator;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.impl.SpiDescriptor;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.Binding;
 import com.heisenberg.spi.ConfigurationField;
-import com.heisenberg.spi.SpiDescriptor;
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.ControllableActivityInstance;
+import com.heisenberg.spi.DataType;
 
 
 /**
  * @author Walter White
  */
-public class SpiActivityPluggabilityTest {
+public class SpiActivityTypePluggabilityTest {
   
-  public static final Logger log = LoggerFactory.getLogger(SpiActivityPluggabilityTest.class);
+  public static final Logger log = LoggerFactory.getLogger(SpiActivityTypePluggabilityTest.class);
 
   @Test
-  public void testOne() throws Exception {
+  public void testSpiActivityPluggability() throws Exception {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
       .registerJavaBeanType(Money.class)
       .registerActivityType(MyCustomType.class);
     
-    Json json = new Json(processEngine);
+    Json json = processEngine.json;
     SpiDescriptor spiDescriptor = processEngine.activityDescriptors.get(MyCustomType.class.getName());
     log.debug("From oss on-premise to SaaS process builder:");
     log.debug(json.objectToJsonStringPretty(spiDescriptor)+"\n");
@@ -67,7 +68,7 @@ public class SpiActivityPluggabilityTest {
       );
     processBuilder.newVariable()
       .name("v")
-      .type(Type.TEXT);
+      .dataType(DataType.TEXT);
 
     log.debug("The process as it is deployed into the engine:");
     String processJson = json.objectToJsonStringPretty(processBuilder);
@@ -87,6 +88,7 @@ public class SpiActivityPluggabilityTest {
       .activityTypeJson(aJsonMap);
     
     processDefinition = (ProcessDefinitionImpl) processBuilder;
+    processDefinition.visit(new ProcessValidator(processEngine));
     
     MyCustomType myCustomActivity = (MyCustomType) processDefinition.activityDefinitions.get(0).activityType;
     assertEquals("functOne", myCustomActivity.functionName);
@@ -105,7 +107,7 @@ public class SpiActivityPluggabilityTest {
     List<Binding<Money>> moneyBindings;
     
     @Override
-    public void start(ActivityInstanceImpl activityInstance) {
+    public void start(ControllableActivityInstance activityInstance) {
       log.debug("Function name: "+functionName);
       log.debug("Parameter one: "+parameterOne.getValue(activityInstance));
     }

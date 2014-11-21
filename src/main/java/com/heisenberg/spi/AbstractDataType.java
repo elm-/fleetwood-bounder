@@ -15,30 +15,17 @@
 package com.heisenberg.spi;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.heisenberg.api.type.TextType;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.type.ProcessDefinitionIdType;
+import com.heisenberg.api.ProcessEngine;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
-public abstract class Type implements Spi {
-  
-  public static final TextType TEXT = new TextType();
-  public static final Type PROCESS_DEFINITION_ID = new ProcessDefinitionIdType();
-  
+public abstract class AbstractDataType implements DataType {
+
   @JsonIgnore
-  protected ProcessEngineImpl processEngine;
+  protected ProcessEngine processEngine;
   
-  public abstract String getId();
-
-  public abstract Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException;
-
   public Object convertInternalToJsonValue(Object internalValue) {
     return internalValue;
   }
@@ -49,5 +36,8 @@ public abstract class Type implements Spi {
 
   public Object convertScriptValueToInternal(Object scriptValue, String language) {
     return scriptValue;
+  }
+
+  public void validate(Validator validator) {
   }
 }

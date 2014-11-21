@@ -21,13 +21,14 @@ import javax.script.CompiledScript;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.instance.ScopeInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public class Scripts implements ScriptEvaluator {
+public class ScriptRunnerImpl implements ScriptRunner {
 
   public static final String JAVASCRIPT = "JavaScript";
 
@@ -57,11 +58,11 @@ public class Scripts implements ScriptEvaluator {
   }
 
   @Override
-  public ScriptResult evaluateScript(ScopeInstanceImpl scopeInstance, Script script) {
+  public ScriptResult evaluateScript(ScopeInstance scopeInstance, Script script) {
     ScriptResult scriptOutput = new ScriptResult();
     try {
       StringWriter logWriter = new StringWriter();
-      ScriptContextImpl scriptContext = new ScriptContextImpl(scopeInstance, script, logWriter);
+      ScriptContextImpl scriptContext = new ScriptContextImpl((ScopeInstanceImpl) scopeInstance, script, logWriter);
       Object result = script.compiledScript.eval(scriptContext);
       scriptOutput.setResult(result);
       scriptOutput.setLogs(logWriter.toString());

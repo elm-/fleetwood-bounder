@@ -16,13 +16,14 @@ package com.heisenberg.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.TransitionBuilder;
+import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
 /**
  * @author Walter White
  */
-public class TransitionDefinitionImpl implements TransitionBuilder {
+public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDefinition {
 
   protected String name;
   @JsonIgnore

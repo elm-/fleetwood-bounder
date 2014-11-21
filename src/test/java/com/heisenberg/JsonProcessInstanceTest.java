@@ -34,13 +34,13 @@ import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.Time;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.VariableInstanceImpl;
 import com.heisenberg.json.Json;
-import com.heisenberg.spi.Type;
-import com.heisenberg.util.Time;
+import com.heisenberg.spi.DataType;
 
 /**
  * @author Walter White
@@ -59,7 +59,7 @@ public class JsonProcessInstanceTest {
     
     VariableDefinitionImpl v = (VariableDefinitionImpl) p.newVariable()
       .name("v")
-      .type(Type.TEXT);
+      .dataType(DataType.TEXT);
     
     ActivityDefinitionImpl a = (ActivityDefinitionImpl) p.newActivity()
       .activityType(new Go())
@@ -74,12 +74,12 @@ public class JsonProcessInstanceTest {
     processInstance.processEngine = processEngine;
     processInstance.processDefinition = p;
     processInstance.id = new ProcessInstanceId("pid");
-    processInstance.start = Time.now()-10;
-    processInstance.end = Time.now()-5;
+    processInstance.start = Time.now().minusMillis(10);
+    processInstance.end = Time.now().minusMillis(5);
     processInstance.duration = 45l;
     processInstance.lock = new LockImpl();
     processInstance.lock.owner = "you";
-    processInstance.lock.time = 928734598475l;
+    processInstance.lock.time = Time.now();
     processInstance.isAsync = true;
 
     ActivityInstanceImpl activityInstance = new ActivityInstanceImpl();
@@ -87,8 +87,8 @@ public class JsonProcessInstanceTest {
     activityInstance.processInstance = processInstance;
     activityInstance.parent = processInstance;
     activityInstance.id = new ActivityInstanceId("aid");
-    activityInstance.start = Time.now()+5;
-    activityInstance.end = Time.now()+10;
+    activityInstance.start = Time.now().plusMillis(5);
+    activityInstance.end = Time.now().plusMillis(10);
     activityInstance.duration = 45l;
     activityInstance.activityDefinition = a;
 

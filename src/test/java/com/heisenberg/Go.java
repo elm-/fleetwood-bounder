@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.Binding;
+import com.heisenberg.spi.ControllableActivityInstance;
 
 
 /**
@@ -39,20 +39,20 @@ public class Go extends AbstractActivityType {
   }
 
   @Override
-  public void start(ActivityInstanceImpl activityInstance) {
+  public void start(ControllableActivityInstance activityInstance) {
     String place = placeBinding.getValue(activityInstance);
     executions.add(new Execution(activityInstance, place));
     activityInstance.onwards();
   }
 
   @Override
-  public void signal(ActivityInstanceImpl activityInstance) {
+  public void signal(ControllableActivityInstance activityInstance) {
   }
 
   public class Execution {
-    public ActivityInstanceImpl activityInstance;
+    public ControllableActivityInstance activityInstance;
     public String place;
-    public Execution(ActivityInstanceImpl activityInstance, String place) {
+    public Execution(ControllableActivityInstance activityInstance, String place) {
       this.activityInstance = activityInstance;
       this.place = place;
     }

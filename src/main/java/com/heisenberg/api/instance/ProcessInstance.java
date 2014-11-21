@@ -25,20 +25,10 @@ import com.heisenberg.api.id.ProcessInstanceId;
 /**
  * @author Walter White
  */
-public interface ProcessInstance {
+public interface ProcessInstance extends ScopeInstance {
+
+  ProcessInstanceId getId();
 
   ProcessDefinitionId getProcessDefinitionId();
   
-  ProcessInstanceId getId();
-  
-  Long getStart();
-  
-  Long getEnd();
-  
-  Long getDuration();
-  
-  List<? extends ActivityInstance> getActivityInstances();
-  
-  List<? extends VariableInstance> getVariableInstances();
-
 }

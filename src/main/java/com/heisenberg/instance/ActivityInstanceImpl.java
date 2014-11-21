@@ -14,6 +14,9 @@
  */
 package com.heisenberg.instance;
 
+import org.joda.time.Duration;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +28,15 @@ import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.TransitionDefinitionImpl;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.util.Time;
+import com.heisenberg.expressions.ScriptRunnerImpl;
+import com.heisenberg.impl.Time;
+import com.heisenberg.spi.ControllableActivityInstance;
 
 
 /**
  * @author Walter White
  */
-public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityInstance {
+public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityInstance, ControllableActivityInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -118,10 +123,10 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return "ai("+activityDefinition.name+"|"+activityDefinitionType+"|"+id+")";
   }
   
-  public void setEnd(Long end) {
+  public void setEnd(LocalDateTime end) {
     this.end = end;
     if (start!=null && end!=null) {
-      this.duration = end-start;
+      this.duration = new Duration(start.toDateTime(), end.toDateTime()).getMillis();
     }
     processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
   }
@@ -135,5 +140,10 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     visitor.startActivityInstance(this, index);
     visitCompositeInstance(visitor);
     visitor.endActivityInstance(this, index);
+  }
+
+  @Override
+  public ScriptRunnerImpl getScriptRunner() {
+    return processEngine.scriptRunner;
   }
 }

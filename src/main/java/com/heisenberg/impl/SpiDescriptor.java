@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.impl;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -22,7 +22,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.form.Form;
 import com.heisenberg.form.FormField;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.ConfigurationField;
+import com.heisenberg.spi.DataType;
+import com.heisenberg.spi.Spi;
 import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Reflection;
 
@@ -56,12 +59,12 @@ public class SpiDescriptor {
   }
 
   protected void initializeSpiType() {
-    if (Type.class.isAssignableFrom(spiClass)) {
+    if (DataType.class.isAssignableFrom(spiClass)) {
       this.spiType = SpiType.type;
     } else if (ActivityType.class.isAssignableFrom(spiClass)) {
       this.spiType = SpiType.activity;
     } else {
-      throw new RuntimeException(spiClass.getName()+" doesn't implement "+Type.class.getName()+" nor "+ActivityType.class.getName());
+      throw new RuntimeException(spiClass.getName()+" doesn't implement "+DataType.class.getName()+" nor "+ActivityType.class.getName());
     }
   }
   

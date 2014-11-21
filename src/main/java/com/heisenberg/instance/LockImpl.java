@@ -14,6 +14,8 @@
  */
 package com.heisenberg.instance;
 
+import org.joda.time.LocalDateTime;
+
 
 
 /**
@@ -21,14 +23,14 @@ package com.heisenberg.instance;
  */
 public class LockImpl {
 
-  public Long time;
+  public LocalDateTime time;
   public String owner;
   
-  public Long getTime() {
+  public LocalDateTime getTime() {
     return time;
   }
   
-  public void setTime(Long time) {
+  public void setTime(LocalDateTime time) {
     this.time = time;
   }
   

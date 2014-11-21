@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
@@ -28,6 +30,9 @@ import com.heisenberg.api.definition.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.json.Json;
+import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.type.ChoiceType;
 
@@ -35,8 +40,10 @@ import com.heisenberg.type.ChoiceType;
 /**
  * @author Walter White
  */
-public class SpiTypePluggabilityTest {
+public class SpiDataTypePluggabilityTest {
 
+  public static final Logger log = LoggerFactory.getLogger(SpiDataTypePluggabilityTest.class);
+  
   @Test
   public void testProcessEngineJavaTypeDeclaration() {
     ProcessEngine processEngine = new MemoryProcessEngine()
@@ -46,7 +53,7 @@ public class SpiTypePluggabilityTest {
     
     processBuilder.newVariable()
       .name("m")
-      .type(Money.class);
+      .dataTypeJavaBean(Money.class);
     
     String processDefinitionId = processEngine
       .deployProcessDefinition(processBuilder)
@@ -62,7 +69,7 @@ public class SpiTypePluggabilityTest {
       .variableValue("m", new Money(5d, "USD")));
     
     VariableInstance mInstance = processInstance.getVariableInstances().get(0);
-    assertEquals(Money.class.getName(), mInstance.getTypeId());
+    assertEquals(Money.class.getName(), mInstance.getDataTypeId());
     Money money = (Money) mInstance.getValue();
     assertEquals(5d, money.amount, 0.000001d);
     assertEquals("USD", money.currency);
@@ -70,13 +77,18 @@ public class SpiTypePluggabilityTest {
   
   @Test
   public void testProcessChoiceDeclaration() {
-    ProcessEngine processEngine = new MemoryProcessEngine()
+    ProcessEngineImpl processEngine = new MemoryProcessEngine()
       .registerType(new ChoiceType()
         .id("country")
         .option("be", "Belgium")
         .option("us", "US")
         .option("de", "Germany")
         .option("fr", "France"));
+
+    Json json = processEngine.json;
+    DataType countryType = processEngine.dataTypes.get("country");
+    log.debug("From oss on-premise to SaaS process builder:");
+    log.debug(json.objectToJsonStringPretty(countryType)+"\n");
 
     ProcessBuilder process = processEngine.newProcess();
     
@@ -94,7 +106,7 @@ public class SpiTypePluggabilityTest {
       .processDefinitionRefId(processDefinitionId)
       .variableValue("c", "be"));
     VariableInstance cInstance = processInstance.getVariableInstances().get(0);
-    assertEquals("country", cInstance.getTypeId());
+    assertEquals("country", cInstance.getDataTypeId());
     assertEquals("be", cInstance.getValue());
 
     // an invalid value

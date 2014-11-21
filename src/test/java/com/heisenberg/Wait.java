@@ -17,8 +17,9 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.ControllableActivityInstance;
+import com.heisenberg.spi.Validator;
 
 
 /**
@@ -41,19 +42,23 @@ public class Wait implements ActivityType {
   public static List<Execution> executions = new ArrayList<>();
 
   @Override
-  public void start(ActivityInstanceImpl activityInstance) {
+  public void start(ControllableActivityInstance activityInstance) {
     executions.add(new Execution(activityInstance));
   }
 
   @Override
-  public void signal(ActivityInstanceImpl activityInstance) {
+  public void signal(ControllableActivityInstance activityInstance) {
     activityInstance.onwards();
   }
 
   public class Execution {
-    public ActivityInstanceImpl activityInstance;
-    public Execution(ActivityInstanceImpl activityInstance) {
+    public ControllableActivityInstance activityInstance;
+    public Execution(ControllableActivityInstance activityInstance) {
       this.activityInstance = activityInstance;
     }
+  }
+
+  @Override
+  public void validate(Validator validator) {
   }
 }

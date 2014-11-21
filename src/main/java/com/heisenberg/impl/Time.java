@@ -12,25 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.impl;
 
-import java.util.List;
-
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 
 
 /**
  * @author Walter White
  */
-public interface ScopeInstance {
-
-  LocalDateTime getStart();
+public class Time {
   
-  LocalDateTime getEnd();
+  // tests can overwrite this to control the time
+  public static LocalDateTime now = null;
   
-  Long getDuration();
-  
-  List<? extends ActivityInstance> getActivityInstances();
-  
-  List<? extends VariableInstance> getVariableInstances();
+  public static LocalDateTime now() {
+    if (now!=null) {
+      return now;
+    }
+    return new LocalDateTime(DateTimeZone.UTC);
+  }
 }

@@ -14,7 +14,7 @@
  */
 package com.heisenberg.bpmn.activities;
 
-import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.spi.ControllableActivityInstance;
 
 
 
@@ -24,7 +24,7 @@ import com.heisenberg.instance.ActivityInstanceImpl;
 public abstract class HttpServiceTask extends ServiceTask {
 
   @Override
-  public void invokeService(ActivityInstanceImpl activityInstance) {
+  public void invokeService(ControllableActivityInstance activityInstance) {
   }
 
 }

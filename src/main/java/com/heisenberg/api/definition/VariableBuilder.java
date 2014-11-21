@@ -14,7 +14,9 @@
  */
 package com.heisenberg.api.definition;
 
-import com.heisenberg.spi.Type;
+import java.util.Map;
+
+import com.heisenberg.spi.DataType;
 
 
 
@@ -29,9 +31,13 @@ public interface VariableBuilder {
   
   VariableBuilder type(String typeRefId);
   
-  VariableBuilder type(Type type);
+  VariableBuilder dataType(DataType dataType);
+  
+  VariableBuilder dataTypeJavaBean(Class<?> userDefinedJavaBeanClass);
 
-  VariableBuilder type(Class<?> javaClass);
+  VariableBuilder dataTypeId(String dataTypeId);
+
+  VariableBuilder dataTypeJsonMap(Map<String,Object> dataTypeJsonMap);
 
   VariableBuilder initialValue(Object initialValue);
   

@@ -12,14 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.spi.Binding;
+import com.heisenberg.spi.ConfigurationField;
+import com.heisenberg.spi.DataType;
 
 
 /**
@@ -44,7 +46,7 @@ public class SpiDescriptorField {
 
   private String getTypeId(java.lang.reflect.Type type) {
     if (String.class == type) {
-      return Type.TEXT.getId();
+      return DataType.TEXT.getId();
     } else if (type instanceof ParameterizedType) {
       ParameterizedType parametrizedType = (ParameterizedType) type;
       java.lang.reflect.Type[] typeArgs = parametrizedType.getActualTypeArguments();
@@ -56,7 +58,7 @@ public class SpiDescriptorField {
       } 
     } else if (type instanceof Class){
       Class<?> clazz = (Class< ? >) type;
-      Type dataType = processEngine.types.get(clazz.getName());
+      DataType dataType = processEngine.dataTypes.get(clazz.getName());
       if (dataType!=null) {
         return dataType.getId();
       }

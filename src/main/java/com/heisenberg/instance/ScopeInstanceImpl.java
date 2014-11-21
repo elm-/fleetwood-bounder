@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +32,9 @@ import com.heisenberg.definition.ScopeDefinitionImpl;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.Time;
 import com.heisenberg.impl.TypedValue;
-import com.heisenberg.spi.Type;
-import com.heisenberg.util.Time;
+import com.heisenberg.spi.DataType;
 
 
 /**
@@ -43,8 +44,8 @@ public abstract class ScopeInstanceImpl {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
-  public Long start;
-  public Long end;
+  public LocalDateTime start;
+  public LocalDateTime end;
   public Long duration;
   public List<ActivityInstanceImpl> activityInstances;
   public List<VariableInstanceImpl> variableInstances;
@@ -148,9 +149,9 @@ public abstract class ScopeInstanceImpl {
     if (variableInstances!=null) {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionName);
       if (variableInstance!=null) {
-        Type type = variableInstance.getVariableDefinition().getType();
+        DataType dataType = variableInstance.getVariableDefinition().getType();
         Object value = variableInstance.getValue();
-        return new TypedValue(type, value);
+        return new TypedValue(dataType, value);
       }
     }
     if (parent!=null) {
@@ -257,19 +258,19 @@ public abstract class ScopeInstanceImpl {
     this.parent = parent;
   }
 
-  public Long getStart() {
+  public LocalDateTime getStart() {
     return start;
   }
   
-  public void setStart(Long start) {
+  public void setStart(LocalDateTime start) {
     this.start = start;
   }
   
-  public Long getEnd() {
+  public LocalDateTime getEnd() {
     return end;
   }
   
-  public abstract void setEnd(Long end); 
+  public abstract void setEnd(LocalDateTime end); 
   
   public boolean isEnded() {
     return end!=null;

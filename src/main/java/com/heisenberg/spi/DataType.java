@@ -17,18 +17,28 @@ package com.heisenberg.spi;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
+import com.heisenberg.api.type.TextType;
+import com.heisenberg.type.ProcessDefinitionIdType;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="type")
-public interface ActivityType extends Spi {
+@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
+public interface DataType extends Spi {
+  
+  TextType TEXT = new TextType();
+  DataType PROCESS_DEFINITION_ID = new ProcessDefinitionIdType();
+  
+  String getId();
 
-  void start(ControllableActivityInstance activityInstance);
+  Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException;
 
-  void signal(ControllableActivityInstance activityInstance);
+  Object convertInternalToJsonValue(Object internalValue);
+
+  Object convertInternalToScriptValue(Object internalValue, String language);
+
+  Object convertScriptValueToInternal(Object scriptValue, String language);
 
   void validate(Validator validator);
 }

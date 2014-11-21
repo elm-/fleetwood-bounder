@@ -16,14 +16,14 @@ package com.heisenberg.type;
 
 import java.util.Map;
 
+import com.heisenberg.spi.AbstractDataType;
 import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class JavaBeanType extends Type {
+public class JavaBeanType extends AbstractDataType {
   
   Class<?> javaClass;
   

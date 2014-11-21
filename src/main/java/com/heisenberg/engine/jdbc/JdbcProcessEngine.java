@@ -12,24 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.type;
+package com.heisenberg.engine.jdbc;
+
 
 
 /**
  * @author Walter White
  */
-public class Reference {
-  
-  public Object reference;
-  
-  public Object cached;
-  
-  public Object load() {
-    return "the-referenced-object";
-  }
-  
-  public Reference reference(Object reference) {
-    this.reference = reference;
-    return this;
-  }
+public class JdbcProcessEngine /* extends ProcessEngineImpl */ {
+
+  // TODO
+
 }

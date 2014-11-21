@@ -69,9 +69,9 @@ public class PrepareProcessInstanceForSerialization implements ProcessInstanceVi
 
   @Override
   public void variableInstance(VariableInstanceImpl variableInstance, int index) {
-    if (variableInstance.typeId==null
-        && variableInstance.type!=null) {
-      variableInstance.typeId = variableInstance.type.getId();
+    if (variableInstance.dataTypeId==null
+        && variableInstance.dataType!=null) {
+      variableInstance.dataTypeId = variableInstance.dataType.getId();
     }
     if (variableInstance.variableDefinitionName==null
         && variableInstance.variableDefinition!=null) {

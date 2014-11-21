@@ -14,7 +14,7 @@
  */
 package com.heisenberg.definition;
 
-import com.heisenberg.spi.Type;
+import com.heisenberg.spi.DataType;
 
 
 /**
@@ -30,7 +30,7 @@ public interface ProcessDefinitionVisitor {
 
   /** invoked for types inside a process definitions.
    * This will be invoked after the startProcessDefinition and before any of the other elements inside the process definition. */
-  void type(Type type, int index);
+  void dataType(DataType dataType, int index);
 
   /** invoked only for process definitions and activity definitions */
   void startActivityDefinition(ActivityDefinitionImpl activityDefinition, int index);

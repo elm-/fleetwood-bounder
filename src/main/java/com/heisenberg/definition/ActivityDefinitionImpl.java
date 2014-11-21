@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityBuilder;
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.ActivityType;
 
@@ -26,8 +28,11 @@ import com.heisenberg.spi.ActivityType;
 /**
  * @author Walter White
  */
-public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder {
+public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder, ActivityDefinition {
 
+  public String activityTypeId;
+  @JsonIgnore
+  public Map<String,Object> activityTypeJsonMap;
   public ActivityType activityType;
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
 
@@ -39,7 +44,12 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   }
   
   public ActivityDefinitionImpl activityTypeJson(Map<String,Object> activityTypeJsonMap) {
-    this.activityType = processEngine.json.jsonMapToObject(activityTypeJsonMap, ActivityType.class);
+    this.activityTypeJsonMap = activityTypeJsonMap;
+    return this;
+  }
+  
+  public ActivityDefinitionImpl activityTypeId(String activityTypeId) {
+    this.activityTypeId = activityTypeId;
     return this;
   }
   

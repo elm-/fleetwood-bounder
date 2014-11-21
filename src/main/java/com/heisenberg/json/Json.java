@@ -20,6 +20,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 
+import org.joda.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -29,19 +31,13 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.id.OrganizationId;
@@ -50,9 +46,9 @@ import com.heisenberg.api.id.ProcessId;
 import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.id.UserId;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.definition.PrepareProcessDefinitionForSerialization;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ValidateProcessDefinitionAfterDeserialization;
+import com.heisenberg.definition.ProcessSerializer;
+import com.heisenberg.definition.ProcessValidator;
 import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
@@ -64,12 +60,10 @@ import com.heisenberg.engine.updates.LockReleaseUpdate;
 import com.heisenberg.engine.updates.OperationAddUpdate;
 import com.heisenberg.engine.updates.OperationRemoveUpdate;
 import com.heisenberg.engine.updates.Update;
-import com.heisenberg.form.FormField;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.PrepareProcessInstanceForSerialization;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.type.ChoiceType;
-import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Id;
 
 
@@ -81,7 +75,7 @@ public class Json {
   public ProcessEngineImpl processEngine;
   public JsonFactory jsonFactory;
   public ObjectMapper objectMapper;
-  private static final String ATTRIBUTE_KEY_PROCESS_ENGINE = "processEngine";
+  // private static final String ATTRIBUTE_KEY_PROCESS_ENGINE = "processEngine";
 
   public Json(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
@@ -112,12 +106,14 @@ public class Json {
     
     SimpleModule module = new SimpleModule("heisenbergModule", new Version(1, 0, 0, null, null, null));
     module.addSerializer(new IdSerializer());
+    module.addSerializer(new LocalDateTimeSerializer());
     module.addDeserializer(ProcessDefinitionId.class, new ProcessDefinitionIdDeserializer());
     module.addDeserializer(ProcessInstanceId.class, new ProcessInstanceIdDeserializer());
     module.addDeserializer(ActivityInstanceId.class, new ActivityInstanceIdDeserializer());
     module.addDeserializer(ProcessId.class, new ProcessIdDeserializer());
     module.addDeserializer(OrganizationId.class, new OrganizationIdDeserializer());
     module.addDeserializer(UserId.class, new UserIdDeserializer());
+    module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
     this.objectMapper.registerModule(module);
   }
   
@@ -141,7 +137,7 @@ public class Json {
     objectToJson(object, writer, objectMapper.writer());
   }
   
-  static final PrepareProcessDefinitionForSerialization PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new PrepareProcessDefinitionForSerialization();
+  static final ProcessSerializer PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new ProcessSerializer();
   static final PrepareProcessInstanceForSerialization PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION = new PrepareProcessInstanceForSerialization();
 
   protected void objectToJson(Object object, Writer writer, ObjectWriter objectWriter) {
@@ -187,7 +183,7 @@ public class Json {
       .withAttribute("processEngine", processEngine)
       .readValue(jsonParser);
     if (type==ProcessDefinitionImpl.class) {
-      ValidateProcessDefinitionAfterDeserialization validate = new ValidateProcessDefinitionAfterDeserialization(processEngine);
+      ProcessValidator validate = new ProcessValidator(processEngine);
       ((ProcessDefinitionImpl)object).visit(validate);
       validate.getIssues().checkNoErrors();
     }

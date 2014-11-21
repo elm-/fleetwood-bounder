@@ -16,6 +16,7 @@ package com.heisenberg.bpmn.activities;
 
 import com.heisenberg.instance.ActivityInstanceImpl;
 import com.heisenberg.spi.AbstractActivityType;
+import com.heisenberg.spi.ControllableActivityInstance;
 
 
 /**
@@ -26,10 +27,10 @@ public abstract class ServiceTask extends AbstractActivityType {
   public static final String ID = "serviceTask";
 
   @Override
-  public void start(ActivityInstanceImpl activityInstance) {
+  public void start(ControllableActivityInstance activityInstance) {
     invokeService(activityInstance);
     activityInstance.onwards();
   }
   
-  public abstract void invokeService(ActivityInstanceImpl activityInstance);
+  public abstract void invokeService(ControllableActivityInstance activityInstance);
 }

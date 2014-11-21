@@ -15,14 +15,14 @@
 package com.heisenberg.type;
 
 import com.heisenberg.api.id.ProcessDefinitionId;
+import com.heisenberg.spi.AbstractDataType;
 import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.spi.Type;
 
 
 /**
  * @author Walter White
  */
-public class ProcessDefinitionIdType extends Type {
+public class ProcessDefinitionIdType extends AbstractDataType {
 
   @Override
   public String getId() {
