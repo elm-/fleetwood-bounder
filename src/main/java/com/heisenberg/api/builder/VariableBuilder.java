@@ -14,9 +14,7 @@
  */
 package com.heisenberg.api.builder;
 
-import java.util.Map;
-
-import com.heisenberg.spi.DataType;
+import com.heisenberg.api.type.DataType;
 
 
 
@@ -37,9 +35,9 @@ public interface VariableBuilder {
 
   VariableBuilder dataTypeId(String dataTypeId);
 
-  VariableBuilder dataTypeJsonMap(Map<String,Object> dataTypeJsonMap);
-
   VariableBuilder initialValue(Object initialValue);
+  
+  VariableBuilder initialValueJson(Object initialValueJson);
   
   VariableBuilder line(Long lineNumber);
   

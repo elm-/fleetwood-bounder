@@ -14,8 +14,8 @@
  */
 package com.heisenberg.api.instance;
 
-import com.heisenberg.api.id.ProcessDefinitionId;
-import com.heisenberg.api.id.ProcessInstanceId;
+import com.heisenberg.api.util.ProcessDefinitionId;
+import com.heisenberg.api.util.ProcessInstanceId;
 
 
 

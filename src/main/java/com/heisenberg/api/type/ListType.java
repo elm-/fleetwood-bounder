@@ -16,10 +16,6 @@ package com.heisenberg.api.type;
 
 import java.util.List;
 
-import com.heisenberg.spi.AbstractDataType;
-import com.heisenberg.spi.DataType;
-import com.heisenberg.spi.InvalidApiValueException;
-
 
 /**
  * @author Walter White
@@ -47,11 +43,29 @@ public class ListType extends AbstractDataType implements DataType {
   public String getId() {
     return id;
   }
+  
+  @Override
+  public void validateInternalValue(Object internalValue) throws InvalidValueException {
+    if (internalValue==null) {
+      return;
+    }
+    if (!(internalValue instanceof List)) {
+      throw new InvalidValueException("Value for "+id+" must be a list, but was "+internalValue+" ("+internalValue.getClass().getName()+")");
+    }
+    @SuppressWarnings("unchecked")
+    List<Object> list = (List<Object>) internalValue;
+    for (Object element: list) {
+      dataType.validateInternalValue(element);
+    }
+  }
 
   @Override
-  public Object convertJsonToInternalValue(Object jsonValue) throws InvalidApiValueException {
+  public Object convertJsonToInternalValue(Object jsonValue) throws InvalidValueException {
     if (jsonValue==null) {
       return null;
+    }
+    if (!(jsonValue instanceof List)) {
+      throw new InvalidValueException("Json value for "+id+" must be a list, but was "+jsonValue+" ("+jsonValue.getClass().getName()+")");
     }
     @SuppressWarnings("unchecked")
     List<Object> list = (List<Object>) jsonValue;

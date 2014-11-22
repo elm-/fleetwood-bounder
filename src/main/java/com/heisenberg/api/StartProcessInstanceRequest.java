@@ -14,6 +14,8 @@
  */
 package com.heisenberg.api;
 
+import com.heisenberg.api.util.ProcessDefinitionId;
+
 
 
 /**
@@ -21,15 +23,21 @@ package com.heisenberg.api;
  */
 public class StartProcessInstanceRequest extends VariableRequest {
 
-  public String processDefinitionRefId;
+  public ProcessDefinitionId processDefinitionId;
 
-  public StartProcessInstanceRequest processDefinitionRefId(String processDefinitionRefId) {
-    this.processDefinitionRefId = processDefinitionRefId;
+  public StartProcessInstanceRequest processDefinitionId(ProcessDefinitionId processDefinitionId) {
+    this.processDefinitionId = processDefinitionId;
     return this;
   }
 
   public StartProcessInstanceRequest variableValue(String variableName, Object value) {
     super.variableValue(variableName, value);
+    return this;
+  }
+
+  @Override
+  public StartProcessInstanceRequest variableValueJson(String variableDefinitionId, Object valueJson) {
+    super.variableValueJson(variableDefinitionId, valueJson);
     return this;
   }
 }

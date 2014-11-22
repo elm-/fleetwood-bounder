@@ -20,10 +20,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.spi.ConfigurationField;
-import com.heisenberg.spi.DataType;
-import com.heisenberg.spi.Spi;
-import com.heisenberg.type.BindingType;
+import com.heisenberg.api.activities.ConfigurationField;
+import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.util.Spi;
 import com.heisenberg.util.Reflection;
 
 
@@ -71,15 +70,14 @@ public class SpiDescriptor {
     if (!fields.isEmpty()) {
       descriptorFields = new ArrayList<SpiDescriptorField>(fields.size());
       for (Field field : fields) {
-        if (field.getAnnotation(ConfigurationField.class)!=null) {
-          SpiDescriptorField descriptorField = new SpiDescriptorField(processEngine, field);
-          descriptorFields.add(descriptorField);
-          if (descriptorField.dataType.getClass()==BindingType.class) {
-            if (bindingDescriptorFields==null) {
-              bindingDescriptorFields = new ArrayList<>();
-            }
-            bindingDescriptorFields.add(descriptorField);
+        ConfigurationField configurationField = field.getAnnotation(ConfigurationField.class);
+        SpiDescriptorField descriptorField = new SpiDescriptorField(processEngine, field, configurationField);
+        descriptorFields.add(descriptorField);
+        if (descriptorField.dataType.getClass()==BindingType.class) {
+          if (bindingDescriptorFields==null) {
+            bindingDescriptorFields = new ArrayList<>();
           }
+          bindingDescriptorFields.add(descriptorField);
         }
       }
     }

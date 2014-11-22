@@ -16,10 +16,10 @@ package com.heisenberg.api.builder;
 
 import org.joda.time.LocalDateTime;
 
-import com.heisenberg.api.id.OrganizationId;
-import com.heisenberg.api.id.ProcessId;
-import com.heisenberg.api.id.UserId;
-import com.heisenberg.spi.DataType;
+import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.util.OrganizationId;
+import com.heisenberg.api.util.ProcessId;
+import com.heisenberg.api.util.UserId;
 
 
 /**

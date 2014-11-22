@@ -14,21 +14,15 @@
  */
 package com.heisenberg.api.activities;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.ScopeDefinitionImpl;
-import com.heisenberg.expressions.Script;
-import com.heisenberg.expressions.ScriptResult;
+import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.type.InvalidValueException;
+import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.SpiDescriptor;
 import com.heisenberg.impl.SpiDescriptorField;
-import com.heisenberg.spi.ControllableActivityInstance;
-import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.spi.Validator;
+import com.heisenberg.impl.definition.ActivityDefinitionImpl;
+import com.heisenberg.impl.script.Script;
+import com.heisenberg.impl.script.ScriptResult;
 
 
 /**
@@ -38,12 +32,16 @@ public class Binding<T> {
   
   @JsonIgnore
   public ProcessEngineImpl processEngine;
+  @JsonIgnore
+  public DataType dataType;
   
   public Object value;
+  public Object valueJson;
   public String variableName;
   public String expression;
+  public String expressionLanguage; // optional. can be null. default is JavaScript
   public Script expressionScript;
-
+  
   @SuppressWarnings("unchecked")
   public T getValue(ControllableActivityInstance activityInstance) {
     if (processEngine==null) {
@@ -56,14 +54,20 @@ public class Binding<T> {
       return (T) activityInstance.getVariableValueRecursive(variableName).getValue();
     }
     if (expressionScript!=null) {
-      ScriptResult result = activityInstance.getScriptRunner().evaluateScript(activityInstance, expressionScript);
-      return (T) result.getResult();
+      ScriptResult scriptResult = activityInstance.getScriptRunner().evaluateScript(activityInstance, expressionScript);
+      Object result = scriptResult.getResult();
+      return (T) dataType.convertScriptValueToInternal(result, expressionScript.language);
     }
     return null;
   }
   
   public Binding<T> value(T value) {
     this.value = value;
+    return this;
+  }
+  
+  public Binding<T> valueJson(Object valueJson) {
+    this.valueJson = valueJson;
     return this;
   }
   
@@ -76,48 +80,31 @@ public class Binding<T> {
     this.expression = expression;
     return this;
   }
-  
-// Old parsing code for binding that might come in handy
-// 
-//  public void parse(ValidateProcessDefinitionAfterDeserialization validateProcessDefinitionAfterDeserialization) {
-//    int valueSpecifications = 0;
-//    ParameterInstanceImpl parameterInstance = validateProcessDefinitionAfterDeserialization.getContextObject(ParameterInstanceImpl.class);
-//    ScopeDefinitionImpl scopeDefinition = validateProcessDefinitionAfterDeserialization.getContextObject(ScopeDefinitionImpl.class);
-//    ActivityParameter activityParameter = parameterInstance.activityParameter;
-//    if (value!=null) {
-//      try {
-//        value = activityParameter.type.convertApiToInternalValue(value);
-//      } catch (InvalidApiValueException e) {
-//        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Couldn't parse parameter %s binding value %s as a %s: %s", parameterInstance.name, value, activityParameter.type, e.getMessage());
-//      }
-//      valueSpecifications++;
-//    }
-//    if (buildVariableDefinitionRefName!=null) {
-//      variableDefinition = scopeDefinition.findVariableDefinitionByName(buildVariableDefinitionRefName);
-//      if (!variableDefinition.type.equals(activityParameter.type)) {
-//        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Variable %s (%s) can't be bound to parameter %s (%s) because the types don't match", 
-//                buildVariableDefinitionRefName, 
-//                variableDefinition.type.getId(), 
-//                parameterInstance.name,
-//                activityParameter.type.getId());
-//      }
-//      valueSpecifications++;
-//    }
-//    if (this.expression!=null) {
-//      String expressionLanguage = buildExpressionLanguage!=null ? buildExpressionLanguage : Scripts.JAVASCRIPT;
-//      try {
-//        expression = processEngine.scripts.compile(buildExpression, expressionLanguage);
-//      } catch (Exception e) {
-//        validateProcessDefinitionAfterDeserialization.addError(buildLine, buildColumn, "Couldn't compile %s expression: %s: %s", expressionLanguage, e.getMessage(), this.expression);
-//      }
-//      valueSpecifications++;
-//    }
-//    if (valueSpecifications==0) {
-//      validateProcessDefinitionAfterDeserialization.addWarning(buildLine, buildColumn, "No value, variableDefinitionName or expression specified");
-//    }
-//    if (valueSpecifications>1) {
-//      validateProcessDefinitionAfterDeserialization.addWarning(buildLine, buildColumn, "More then one value specified");
-//    }
-//  }
 
+  // processEngine and dataType are already initialized when this is called
+  public void validate(ActivityDefinitionImpl activityDefinition, ActivityType activityType, SpiDescriptorField descriptorField, Validator validator) {
+    if (value!=null) {
+      try {
+        dataType.validateInternalValue(value);
+      } catch (InvalidValueException e) {
+        validator.addError("Invalid value '%s' for %s.%s", value, activityType.getClass().getName(), descriptorField.field.getName());
+      }
+    } else if (valueJson!=null) {
+      try {
+        value = dataType.convertJsonToInternalValue(valueJson);
+      } catch (InvalidValueException e) {
+        validator.addError("Invalid json value '%s' for %s.%s", valueJson, activityType.getClass().getName(), descriptorField.field.getName());
+      }
+    } else if (expression!=null) {
+      try {
+        expressionScript = processEngine.getScriptRunner().compile(expression, expressionLanguage);
+      } catch (RuntimeException e) {
+        Throwable cause = e.getCause();
+        if (cause==null) {
+          cause = e;
+        }
+        validator.addError("Invalid expression '%s' for %s.%s: %s", valueJson, activityType.getClass().getName(), descriptorField.field.getName(), e.getMessage());
+      }
+    }
+  }
 }

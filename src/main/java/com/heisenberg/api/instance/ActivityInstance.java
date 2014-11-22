@@ -15,7 +15,7 @@
 package com.heisenberg.api.instance;
 
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.id.ActivityInstanceId;
+import com.heisenberg.api.util.ActivityInstanceId;
 
 
 

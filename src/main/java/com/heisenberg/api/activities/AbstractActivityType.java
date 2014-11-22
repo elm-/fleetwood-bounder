@@ -14,16 +14,10 @@
  */
 package com.heisenberg.api.activities;
 
-import java.lang.reflect.Field;
-
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.impl.SpiDescriptor;
-import com.heisenberg.spi.ControllableActivityInstance;
-import com.heisenberg.spi.Validator;
-import com.heisenberg.util.Reflection;
+import com.heisenberg.api.util.Validator;
 
 
 

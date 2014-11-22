@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.type;
 
-import com.heisenberg.spi.AbstractDataType;
-import com.heisenberg.spi.InvalidApiValueException;
 
 
 
@@ -38,10 +36,10 @@ public class TextType extends AbstractDataType {
   }
 
   @Override
-  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidValueException {
     if (apiValue==null || (apiValue instanceof String)) {
       return apiValue;
     }
-    throw new InvalidApiValueException("Expected string, but was "+apiValue.getClass().getSimpleName());
+    throw new InvalidValueException("Expected string, but was "+apiValue.getClass().getSimpleName());
   }
 }

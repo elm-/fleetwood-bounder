@@ -15,8 +15,7 @@
 package com.heisenberg.api.activities.bpmn;
 
 import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.spi.ControllableActivityInstance;
-import com.heisenberg.spi.Spi;
+import com.heisenberg.api.activities.ControllableActivityInstance;
 
 
 /**
@@ -24,7 +23,7 @@ import com.heisenberg.spi.Spi;
  */
 public class StartEvent extends AbstractActivityType {
 
-  public static final Spi INSTANCE = new StartEvent();
+  public static final StartEvent INSTANCE = new StartEvent();
 
   @Override
   public String getId() {

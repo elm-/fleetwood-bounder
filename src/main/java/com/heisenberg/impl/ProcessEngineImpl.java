@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -36,30 +37,30 @@ import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.VariableRequest;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.id.ActivityInstanceId;
-import com.heisenberg.api.id.ProcessDefinitionId;
-import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.definition.ActivityDefinitionImpl;
-import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ProcessDefinitionValidator;
-import com.heisenberg.definition.VariableDefinitionImpl;
-import com.heisenberg.expressions.ScriptRunnerImpl;
-import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.instance.LockImpl;
-import com.heisenberg.instance.ProcessInstanceImpl;
-import com.heisenberg.instance.ScopeInstanceImpl;
-import com.heisenberg.json.Json;
-import com.heisenberg.spi.DataType;
-import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.spi.Spi;
-import com.heisenberg.type.JavaBeanType;
+import com.heisenberg.api.util.ActivityInstanceId;
+import com.heisenberg.api.util.ProcessDefinitionId;
+import com.heisenberg.api.util.ProcessInstanceId;
+import com.heisenberg.api.util.Spi;
+import com.heisenberg.impl.definition.ActivityDefinitionImpl;
+import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.definition.ProcessDefinitionValidator;
+import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.instance.ActivityInstanceImpl;
+import com.heisenberg.impl.instance.LockImpl;
+import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.ScopeInstanceImpl;
+import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.script.ScriptRunnerImpl;
 import com.heisenberg.util.Exceptions;
 import com.heisenberg.util.Reflection;
 
@@ -140,7 +141,9 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
 
   public ProcessEngineImpl registerJavaBeanType(Class<?> javaBeanClass) {
-    registerSpi(new JavaBeanType(javaBeanClass));
+    JavaBeanType javaBeanType = new JavaBeanType(javaBeanClass);
+    javaBeanType.processEngine = this;
+    registerSpi(javaBeanType);
     return this;
   }
 
@@ -222,9 +225,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ParseIssues issues = validator.getIssues();
     
     if (!issues.hasErrors()) {
-      String generatedId = generateProcessDefinitionId(processDefinition);
-      processDefinition.id = new ProcessDefinitionId(generatedId);
-      response.setProcessDefinitionId(generatedId); 
+      processDefinition.id = new ProcessDefinitionId(generateProcessDefinitionId(processDefinition));
+      response.setProcessDefinitionId(processDefinition.id); 
       storeProcessDefinition(processDefinition);
     } else {
       response.setIssues(issues);
@@ -241,12 +243,14 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
-    ProcessDefinitionId processDefinitionId = new ProcessDefinitionId(startProcessInstanceRequest.processDefinitionRefId);
+    ProcessDefinitionId processDefinitionId = startProcessInstanceRequest.processDefinitionId;
     Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
+    if (processDefinition==null) {
+      throw new RuntimeException("Could not find process definition "+processDefinitionId);
+    }
     ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
-    Map<String, Object> apiValues = startProcessInstanceRequest.variableValues;
-    setVariableApiValues(processInstance, apiValues);
+    setVariableApiValues(processInstance, startProcessInstanceRequest);
       
     log.debug("Starting "+processInstance);
     processInstance.setStart(Time.now());
@@ -265,22 +269,38 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return processInstance;
   }
 
-  private void setVariableApiValues(ScopeInstanceImpl scopeInstance, Map<String, Object> apiValues) {
-    if (apiValues!=null) {
-      ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition; 
-      Map<String, Object> internalValues = new HashMap<>();
-      for (String variableDefinitionName: apiValues.keySet()) {
-        Object apiValue = apiValues.get(variableDefinitionName);
+  private void setVariableApiValues(ScopeInstanceImpl scopeInstance, VariableRequest variableRequest) {
+    ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition;
+    Map<String, Object> variableValuesJson = variableRequest.variableValuesJson;
+    // If there are variables in json format
+    if (variableValuesJson!=null) {
+      Map<String,Object> internalValues = new LinkedHashMap<>();
+      for (String variableDefinitionName: variableValuesJson.keySet()) {
+        Object jsonValue = variableValuesJson.get(variableDefinitionName);
         VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
-        Object internalValue;
         try {
-          internalValue = variableDefinition.dataType.convertJsonToInternalValue(apiValue);
+          Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);
           internalValues.put(variableDefinitionName, internalValue);
-        } catch (InvalidApiValueException e) {
-          throw new RuntimeException("TODO: this error message should somehow end up in the response", e);
+        } catch (InvalidValueException e) {
+          throw new RuntimeException("TODO: collect error messages and somehow get them in the response", e);
         }
       }
-      scopeInstance.setVariableValuesRecursive(apiValues);
+      scopeInstance.setVariableValuesRecursive(internalValues);
+    } 
+    Map<String, Object> variableValues = variableRequest.variableValues;
+    if (variableValues!=null) {
+      for (String variableDefinitionName: variableValues.keySet()) {
+        Object internalValue = variableValues.get(variableDefinitionName);
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
+        try {
+          variableDefinition.dataType.validateInternalValue(internalValue);
+        } catch (InvalidValueException e) {
+          throw new RuntimeException("TODO: collect error messages and somehow get them in the response", e);
+        }
+      }
+    }
+    if (variableValues!=null) {
+      scopeInstance.setVariableValuesRecursive(variableValues);
     }
   }
 

@@ -17,7 +17,7 @@ package com.heisenberg.impl;
 import com.heisenberg.api.ActivityInstanceQuery;
 import com.heisenberg.api.Page;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.instance.ActivityInstanceImpl;
+import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
 /**

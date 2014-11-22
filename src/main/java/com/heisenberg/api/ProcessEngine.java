@@ -21,12 +21,16 @@ import com.heisenberg.api.instance.ProcessInstance;
 /** Start here.
  * 
  * Obtain a process engine by instantiating one of the concrete classes like this:
- *   ProcessEngine processEngine = new MemoryProcessEngine();
+ * 
+ * <pre>{@code
+ * ProcessEngine processEngine = new MemoryProcessEngine();
+ * }</pre>
  * 
  * @author Walter White
  */
 public interface ProcessEngine {
   
+  /** Start building a new process */
   ProcessBuilder newProcess();
   
   /** potentially changes the passed processDefinition (assigning ids) 
@@ -42,4 +46,5 @@ public interface ProcessEngine {
   // TODO change response into SignalResponse
   //      this way we can include the events/logs of all things that happened during execution.
   ProcessInstance signal(SignalRequest signalRequest);
+
 }

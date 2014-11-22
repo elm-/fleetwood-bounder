@@ -14,6 +14,8 @@
  */
 package com.heisenberg.api;
 
+import com.heisenberg.api.util.ProcessDefinitionId;
+
 
 
 /**
@@ -21,13 +23,13 @@ package com.heisenberg.api;
  */
 public class DeployProcessDefinitionResponse extends ParseIssues {
 
-  protected String processDefinitionId;
+  protected ProcessDefinitionId processDefinitionId;
   
-  public String getProcessDefinitionId() {
+  public ProcessDefinitionId getProcessDefinitionId() {
     return processDefinitionId;
   }
   
-  public void setProcessDefinitionId(String processDefinitionId) {
+  public void setProcessDefinitionId(ProcessDefinitionId processDefinitionId) {
     this.processDefinitionId = processDefinitionId;
   }
   

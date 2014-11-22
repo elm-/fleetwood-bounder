@@ -14,7 +14,7 @@
  */
 package com.heisenberg.impl;
 
-import com.heisenberg.spi.DataType;
+import com.heisenberg.api.type.DataType;
 
 
 /**

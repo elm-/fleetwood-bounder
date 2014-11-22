@@ -19,9 +19,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.spi.ControllableActivityInstance;
-import com.heisenberg.spi.Spi;
-import com.heisenberg.spi.Validator;
+import com.heisenberg.api.util.Spi;
+import com.heisenberg.api.util.Validator;
 
 
 

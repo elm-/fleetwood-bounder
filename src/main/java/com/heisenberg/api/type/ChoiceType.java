@@ -17,9 +17,6 @@ package com.heisenberg.api.type;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.heisenberg.spi.AbstractDataType;
-import com.heisenberg.spi.InvalidApiValueException;
-
 
 /**
  * @author Walter White
@@ -59,12 +56,17 @@ public class ChoiceType extends AbstractDataType {
   }
 
   @Override
-  public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
-    if ( apiValue!=null 
-         && !options.containsKey(apiValue) ) {
-      throw new InvalidApiValueException("Invalid value '"+apiValue+"'.  Expected one of "+options.keySet()+" (or null)");
+  public Object convertJsonToInternalValue(Object jsonValue) throws InvalidValueException {
+    validateInternalValue(jsonValue);
+    return jsonValue; 
+  }
+
+  @Override
+  public void validateInternalValue(Object internalValue) throws InvalidValueException {
+    if ( internalValue!=null 
+         && !options.containsKey(internalValue) ) {
+      throw new InvalidValueException("Invalid value '"+internalValue+"'.  Expected one of "+options.keySet()+" (or null)");
     }
-    return apiValue; 
   }
 
   @Override

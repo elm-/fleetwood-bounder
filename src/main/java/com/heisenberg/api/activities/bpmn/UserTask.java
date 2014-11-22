@@ -15,7 +15,7 @@
 package com.heisenberg.api.activities.bpmn;
 
 import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.spi.ControllableActivityInstance;
+import com.heisenberg.api.activities.ControllableActivityInstance;
 
 
 /**

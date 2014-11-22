@@ -19,10 +19,10 @@ import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.activities.ConfigurationField;
+import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.ListType;
-import com.heisenberg.spi.ConfigurationField;
-import com.heisenberg.spi.DataType;
-import com.heisenberg.type.BindingType;
+import com.heisenberg.api.type.TextType;
 
 
 /**
@@ -32,38 +32,51 @@ public class SpiDescriptorField {
 
   public String name;
   public String label;
+  public boolean isRequired;
   public DataType dataType;
+  public Field field;
   
-  public SpiDescriptorField(ProcessEngineImpl processEngine, Field javaField) {
-    this.name = javaField.getName();
-    ConfigurationField configurationField = javaField.getAnnotation(ConfigurationField.class);
-    this.label = configurationField!=null ? configurationField.value() : null;
-    this.dataType = getDataType(javaField, processEngine);
+  public SpiDescriptorField(ProcessEngineImpl processEngine, Field field, ConfigurationField configurationField) {
+    this.name = field.getName();
+    this.field = field;
+    this.field.setAccessible(true);
+    this.dataType = getDataType(field, processEngine);
+    if (configurationField!=null) {
+      this.label = configurationField.value();
+      this.isRequired = configurationField.required();
+    } else {
+      this.label = name;
+    }
   }
 
-  public static DataType getDataType(Field javaField, ProcessEngineImpl processEngine) {
-    return getDataType(javaField.getGenericType(), processEngine);
+  public static DataType getDataType(Field field, ProcessEngineImpl processEngine) {
+    return getDataType(field, field.getGenericType(), processEngine);
   }
 
-  public static DataType getDataType(java.lang.reflect.Type genericType, ProcessEngineImpl processEngine) {
+  public static DataType getDataType(Field field, java.lang.reflect.Type genericType, ProcessEngineImpl processEngine) {
     if (String.class == genericType) {
-      return DataType.TEXT;
+      return TextType.INSTANCE;
     } else if (genericType instanceof ParameterizedType) {
       ParameterizedType parametrizedType = (ParameterizedType) genericType;
       java.lang.reflect.Type[] typeArgs = parametrizedType.getActualTypeArguments();
       java.lang.reflect.Type rawType = parametrizedType.getRawType();
       if (Binding.class==rawType) {
-        return new BindingType(getDataType(typeArgs[0], processEngine));
+        return new BindingType(getDataType(field, typeArgs[0], processEngine));
       } else if (List.class==rawType) {
-        return new ListType(getDataType(typeArgs[0], processEngine));
+        return new ListType(getDataType(field, typeArgs[0], processEngine));
       } 
     } else if (genericType instanceof Class){
       Class<?> clazz = (Class< ? >) genericType;
       DataType dataType = processEngine.dataTypes.get(clazz.getName());
+      if (dataType==null) {
+        // auto register java bean types that are used as configurations inside activity types.
+        processEngine.registerJavaBeanType(clazz);
+        dataType = processEngine.dataTypes.get(clazz.getName());
+      }
       if (dataType!=null) {
         return dataType;
       }
     }
-    return null;
+    throw new RuntimeException("Don't know how to handle "+genericType+"'s.  It's used in configuration field: "+field);
   }
 }

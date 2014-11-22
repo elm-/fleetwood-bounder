@@ -17,9 +17,9 @@ package com.heisenberg.api.activities.bpmn;
 import java.util.List;
 
 import com.heisenberg.api.activities.AbstractActivityType;
+import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.spi.ControllableActivityInstance;
-import com.heisenberg.spi.Validator;
+import com.heisenberg.api.util.Validator;
 
 
 /**
