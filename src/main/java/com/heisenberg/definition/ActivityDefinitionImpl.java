@@ -19,10 +19,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.impl.SpiDescriptor;
+import com.heisenberg.impl.SpiDescriptorField;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
+import com.heisenberg.spi.Validator;
 
 
 /**
@@ -131,5 +134,23 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 
   public String toString() {
     return name!=null ? "["+name.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
+  }
+
+  @Override
+  public void initializeBindings(Validator validator) {
+    SpiDescriptor activityDescriptor = processEngine.findActivityDescriptor(activityType);
+    for (SpiDescriptorField descriptorField: activityDescriptor.getBindingDescriptorFields()) {
+      TODO
+//        if (Binding.class==field.getType()) {
+//          try {
+//            Binding<?> b = (Binding<?>) field.get(this);
+//            if (b!=null) {
+//              b.validate(activityDefinition, this, field, validator);
+//            }
+//          } catch (Exception e) {
+//            throw new RuntimeException(e);
+//          }
+//        }
+    }
   }
 }

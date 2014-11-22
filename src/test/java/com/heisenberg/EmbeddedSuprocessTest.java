@@ -14,7 +14,7 @@
  */
 package com.heisenberg;
 
-import static com.heisenberg.TestHelper.assertOpenActivityInstances;
+import static com.heisenberg.TestHelper.assertActivityInstancesOpen;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
@@ -22,11 +22,11 @@ import org.junit.Test;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.id.ActivityInstanceId;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.bpmn.activities.EmbeddedSubprocess;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 
 
@@ -35,8 +35,14 @@ import com.heisenberg.engine.memory.MemoryProcessEngine;
  */
 public class EmbeddedSuprocessTest {
   
-  @Test 
-  public void testOne() {
+  /**          +-------------+
+   *           | sub         |
+   * +-----+   | +--+   +--+ |   +---+
+   * |start|-->| |w1|-->|w2| |-->|end|
+   * +-----+   | +--+   +--+ |   +---+
+   *           +-------------+
+   */ 
+  @Test public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
       .registerActivityType(Go.class)
       .registerActivityType(Wait.class);
@@ -45,11 +51,11 @@ public class EmbeddedSuprocessTest {
   
     process.newActivity()
       .activityType(new Go())
-      .name("before");
+      .name("start");
     
     ActivityBuilder subprocess = process.newActivity()
       .activityType(EmbeddedSubprocess.INSTANCE)
-      .name("subprocess");
+      .name("sub");
     
     subprocess.newActivity()
       .activityType(Wait.INSTANCE)
@@ -61,7 +67,7 @@ public class EmbeddedSuprocessTest {
   
     process.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("after");
+      .name("end");
   
     process.newTransition()
       .from("before")
@@ -79,12 +85,14 @@ public class EmbeddedSuprocessTest {
     ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
       .processDefinitionRefId(processDefinitionId));
 
-    assertOpenActivityInstances(processInstance, "subprocess", "w1", "w2");
+    assertActivityInstancesOpen(processInstance, "subprocess", "w1", "w2");
     
     ActivityInstanceId w1Id = processInstance.findActivityInstanceByName("w1").getId();
     assertNotNull(w1Id);
     
     processEngine.signal(new SignalRequest()
       .activityInstanceId(w1Id));
+    
+
   }
 }

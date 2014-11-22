@@ -14,7 +14,7 @@
  */
 package com.heisenberg.definition;
 
-import com.heisenberg.spi.ActivityType;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.spi.DataType;
 
 
@@ -26,7 +26,7 @@ import com.heisenberg.spi.DataType;
  * 
  * @author Walter White
  */
-public class ProcessSerializer implements ProcessDefinitionVisitor {
+public class ProcessDefinitionSerializer implements ProcessDefinitionVisitor {
 
   @Override
   public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {

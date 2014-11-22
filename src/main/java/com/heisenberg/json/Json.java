@@ -45,10 +45,11 @@ import com.heisenberg.api.id.ProcessDefinitionId;
 import com.heisenberg.api.id.ProcessId;
 import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.id.UserId;
+import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ProcessSerializer;
-import com.heisenberg.definition.ProcessValidator;
+import com.heisenberg.definition.ProcessDefinitionSerializer;
+import com.heisenberg.definition.ProcessDefinitionValidator;
 import com.heisenberg.engine.operation.ActivityInstanceStartOperation;
 import com.heisenberg.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.engine.updates.ActivityInstanceCreateUpdate;
@@ -63,7 +64,6 @@ import com.heisenberg.engine.updates.Update;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.instance.PrepareProcessInstanceForSerialization;
 import com.heisenberg.instance.ProcessInstanceImpl;
-import com.heisenberg.type.ChoiceType;
 import com.heisenberg.util.Id;
 
 
@@ -137,7 +137,7 @@ public class Json {
     objectToJson(object, writer, objectMapper.writer());
   }
   
-  static final ProcessSerializer PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new ProcessSerializer();
+  static final ProcessDefinitionSerializer PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new ProcessDefinitionSerializer();
   static final PrepareProcessInstanceForSerialization PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION = new PrepareProcessInstanceForSerialization();
 
   protected void objectToJson(Object object, Writer writer, ObjectWriter objectWriter) {
@@ -183,7 +183,7 @@ public class Json {
       .withAttribute("processEngine", processEngine)
       .readValue(jsonParser);
     if (type==ProcessDefinitionImpl.class) {
-      ProcessValidator validate = new ProcessValidator(processEngine);
+      ProcessDefinitionValidator validate = new ProcessDefinitionValidator(processEngine);
       ((ProcessDefinitionImpl)object).visit(validate);
       validate.getIssues().checkNoErrors();
     }

@@ -36,6 +36,8 @@ import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.id.ActivityInstanceId;
@@ -44,10 +46,9 @@ import com.heisenberg.api.id.ProcessInstanceId;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.bpmn.activities.StartEvent;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ProcessValidator;
+import com.heisenberg.definition.ProcessDefinitionValidator;
 import com.heisenberg.definition.VariableDefinitionImpl;
 import com.heisenberg.expressions.ScriptRunnerImpl;
 import com.heisenberg.instance.ActivityInstanceImpl;
@@ -55,7 +56,6 @@ import com.heisenberg.instance.LockImpl;
 import com.heisenberg.instance.ProcessInstanceImpl;
 import com.heisenberg.instance.ScopeInstanceImpl;
 import com.heisenberg.json.Json;
-import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Spi;
@@ -188,6 +188,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
 
   protected void initializeExecutor() {
+    // TODO apply these tips: http://java.dzone.com/articles/executorservice-10-tips-and
     this.executor = new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
@@ -216,9 +217,9 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
 
     ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) processBuilder;
-    ProcessValidator validate = new ProcessValidator(this);
-    processDefinition.visit(validate);
-    ParseIssues issues = validate.getIssues();
+    ProcessDefinitionValidator validator = new ProcessDefinitionValidator(this);
+    processDefinition.visit(validator);
+    ParseIssues issues = validator.getIssues();
     
     if (!issues.hasErrors()) {
       String generatedId = generateProcessDefinitionId(processDefinition);
@@ -414,4 +415,10 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return null;
   }
 
+  public SpiDescriptor findActivityDescriptor(ActivityType activityType) {
+    if (activityType.getId()!=null) {
+      return activityDescriptors.get(activityType.getId());
+    }
+    return activityDescriptors.get(activityType.getClass().getName());
+  }
 }

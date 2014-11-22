@@ -12,19 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.bpmn.activities;
+package com.heisenberg.api.activities.bpmn;
 
+import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.spi.ControllableActivityInstance;
-
+import com.heisenberg.spi.Spi;
 
 
 /**
  * @author Walter White
  */
-public abstract class HttpServiceTask extends ServiceTask {
+public class StartEvent extends AbstractActivityType {
+
+  public static final Spi INSTANCE = new StartEvent();
 
   @Override
-  public void invokeService(ControllableActivityInstance activityInstance) {
+  public String getId() {
+    return "startEvent";
   }
 
+  @Override
+  public String getLabel() {
+    return "Start event";
+  }
+
+  @Override
+  public void start(ControllableActivityInstance activityInstance) {
+    activityInstance.onwards();
+  }
 }

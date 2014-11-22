@@ -18,10 +18,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.spi.Binding;
+import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.type.ListType;
 import com.heisenberg.spi.ConfigurationField;
 import com.heisenberg.spi.DataType;
+import com.heisenberg.type.BindingType;
 
 
 /**
@@ -29,38 +30,38 @@ import com.heisenberg.spi.DataType;
  */
 public class SpiDescriptorField {
 
-  @JsonIgnore 
-  ProcessEngineImpl processEngine;
-  
   public String name;
   public String label;
-  public String typeId;
+  public DataType dataType;
   
   public SpiDescriptorField(ProcessEngineImpl processEngine, Field javaField) {
-    this.processEngine = processEngine;
     this.name = javaField.getName();
     ConfigurationField configurationField = javaField.getAnnotation(ConfigurationField.class);
     this.label = configurationField!=null ? configurationField.value() : null;
-    typeId = getTypeId(javaField.getGenericType());
+    this.dataType = getDataType(javaField, processEngine);
   }
 
-  private String getTypeId(java.lang.reflect.Type type) {
-    if (String.class == type) {
-      return DataType.TEXT.getId();
-    } else if (type instanceof ParameterizedType) {
-      ParameterizedType parametrizedType = (ParameterizedType) type;
+  public static DataType getDataType(Field javaField, ProcessEngineImpl processEngine) {
+    return getDataType(javaField.getGenericType(), processEngine);
+  }
+
+  public static DataType getDataType(java.lang.reflect.Type genericType, ProcessEngineImpl processEngine) {
+    if (String.class == genericType) {
+      return DataType.TEXT;
+    } else if (genericType instanceof ParameterizedType) {
+      ParameterizedType parametrizedType = (ParameterizedType) genericType;
       java.lang.reflect.Type[] typeArgs = parametrizedType.getActualTypeArguments();
       java.lang.reflect.Type rawType = parametrizedType.getRawType();
       if (Binding.class==rawType) {
-        return "binding<"+getTypeId(typeArgs[0])+">";
+        return new BindingType(getDataType(typeArgs[0], processEngine));
       } else if (List.class==rawType) {
-        return "list<"+getTypeId(typeArgs[0])+">";
+        return new ListType(getDataType(typeArgs[0], processEngine));
       } 
-    } else if (type instanceof Class){
-      Class<?> clazz = (Class< ? >) type;
+    } else if (genericType instanceof Class){
+      Class<?> clazz = (Class< ? >) genericType;
       DataType dataType = processEngine.dataTypes.get(clazz.getName());
       if (dataType!=null) {
-        return dataType.getId();
+        return dataType;
       }
     }
     return null;

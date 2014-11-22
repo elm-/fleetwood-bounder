@@ -24,12 +24,12 @@ import org.junit.Test;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
-import com.heisenberg.spi.Binding;
 import com.heisenberg.spi.DataType;
 
 /**
@@ -49,7 +49,8 @@ public class ExampleTest {
       .name("t")
       .dataType(DataType.TEXT);
 
-    Go go = new Go().placeBinding(new Binding<String>().value("Antwerp"));
+    Go go = new Go()
+      .placeBinding(new Binding<String>().expression("t.toLowerCase()"));
     
     processBuilder.newActivity()
       .activityType(go)

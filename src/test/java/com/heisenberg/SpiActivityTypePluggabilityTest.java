@@ -23,16 +23,16 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.activities.AbstractActivityType;
+import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
-import com.heisenberg.definition.ProcessValidator;
+import com.heisenberg.definition.ProcessDefinitionValidator;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.SpiDescriptor;
 import com.heisenberg.json.Json;
-import com.heisenberg.spi.AbstractActivityType;
-import com.heisenberg.spi.Binding;
 import com.heisenberg.spi.ConfigurationField;
 import com.heisenberg.spi.ControllableActivityInstance;
 import com.heisenberg.spi.DataType;
@@ -87,7 +87,7 @@ public class SpiActivityTypePluggabilityTest {
       .activityTypeJson(aJsonMap);
     
     processDefinition = (ProcessDefinitionImpl) processBuilder;
-    processDefinition.visit(new ProcessValidator(processEngine));
+    processDefinition.visit(new ProcessDefinitionValidator(processEngine));
     
     MyCustomType myCustomActivity = (MyCustomType) processDefinition.activityDefinitions.get(0).activityType;
     assertEquals("functOne", myCustomActivity.functionName);

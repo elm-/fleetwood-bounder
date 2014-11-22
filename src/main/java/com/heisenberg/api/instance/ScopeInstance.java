@@ -36,7 +36,7 @@ public interface ScopeInstance {
   
   List<? extends VariableInstance> getVariableInstances();
 
-  boolean hasUnfinishedActivityInstances();
+  boolean hasOpenActivityInstances();
 
   void end();
 

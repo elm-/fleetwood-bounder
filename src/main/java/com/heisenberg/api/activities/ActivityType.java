@@ -12,13 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.api.activities;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.spi.ControllableActivityInstance;
+import com.heisenberg.spi.Spi;
+import com.heisenberg.spi.Validator;
 
 
 
@@ -27,6 +30,8 @@ import com.heisenberg.api.instance.ActivityInstance;
  */
 @JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="type")
 public interface ActivityType extends Spi {
+  
+  
 
   /** called when the process is being deployed. 
    * @param activity */

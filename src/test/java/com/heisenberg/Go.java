@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.spi.AbstractActivityType;
-import com.heisenberg.spi.Binding;
+import com.heisenberg.api.activities.AbstractActivityType;
+import com.heisenberg.api.activities.Binding;
 import com.heisenberg.spi.ControllableActivityInstance;
 
 
@@ -57,4 +57,6 @@ public class Go extends AbstractActivityType {
       this.place = place;
     }
   }
+  
+  
 }

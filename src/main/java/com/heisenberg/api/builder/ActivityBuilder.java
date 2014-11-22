@@ -16,7 +16,7 @@ package com.heisenberg.api.builder;
 
 import java.util.Map;
 
-import com.heisenberg.spi.ActivityType;
+import com.heisenberg.api.activities.ActivityType;
 
 
 

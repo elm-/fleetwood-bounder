@@ -17,9 +17,9 @@ package com.heisenberg;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.ControllableActivityInstance;
 import com.heisenberg.spi.Validator;
 

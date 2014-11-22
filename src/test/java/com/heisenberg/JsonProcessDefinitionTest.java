@@ -26,6 +26,7 @@ import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.id.OrganizationId;
 import com.heisenberg.api.id.ProcessId;
 import com.heisenberg.api.id.UserId;
+import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.definition.ActivityDefinitionImpl;
 import com.heisenberg.definition.ProcessDefinitionImpl;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
@@ -33,7 +34,6 @@ import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.DataType;
-import com.heisenberg.type.ChoiceType;
 
 /**
  * @author Walter White

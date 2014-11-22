@@ -145,15 +145,15 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   
   @Override
   public void ended(ActivityInstanceImpl activityInstance) {
-    if (!hasUnfinishedActivityInstances()) {
+    if (!hasOpenActivityInstances()) {
       end();
     }
   }
 
   public void end() {
     if (this.end==null) {
-      if (hasUnfinishedActivityInstances()) {
-        throw new RuntimeException("Can't end this process instance. There are unfinished activity instances: "+this);
+      if (hasOpenActivityInstances()) {
+        throw new RuntimeException("Can't end this process instance. There are open activity instances: "+this);
       }
       setEnd(Time.now());
       

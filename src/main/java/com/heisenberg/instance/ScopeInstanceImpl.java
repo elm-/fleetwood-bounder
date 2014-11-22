@@ -186,7 +186,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   
   public abstract void end();
 
-  public boolean hasUnfinishedActivityInstances() {
+  public boolean hasOpenActivityInstances() {
     if (activityInstances==null) {
       return false;
     }

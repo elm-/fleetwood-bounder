@@ -26,12 +26,12 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
 import com.heisenberg.expressions.ScriptRunner;
-import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.ControllableActivityInstance;
 
 

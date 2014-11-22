@@ -29,12 +29,12 @@ import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.json.Json;
 import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.InvalidApiValueException;
-import com.heisenberg.type.ChoiceType;
 
 
 /**

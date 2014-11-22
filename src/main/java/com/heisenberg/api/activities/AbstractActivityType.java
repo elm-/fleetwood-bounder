@@ -12,11 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.api.activities;
+
+import java.lang.reflect.Field;
 
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ScopeInstance;
+import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.impl.SpiDescriptor;
+import com.heisenberg.spi.ControllableActivityInstance;
+import com.heisenberg.spi.Validator;
+import com.heisenberg.util.Reflection;
 
 
 
@@ -34,13 +41,14 @@ public abstract class AbstractActivityType implements ActivityType {
   
   public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
     ScopeInstance parentScopeInstance = activityInstance.getParent();
-    if (!parentScopeInstance.hasUnfinishedActivityInstances()) {
+    if (!parentScopeInstance.hasOpenActivityInstances()) {
       parentScopeInstance.end();
     }
   }
 
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
+    // activityDefinition.initializeBindings(validator);
   }
 
   @Override

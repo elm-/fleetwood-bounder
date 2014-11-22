@@ -19,10 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.spi.ActivityType;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.spi.ConfigurationField;
 import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.Spi;
+import com.heisenberg.type.BindingType;
 import com.heisenberg.util.Reflection;
 
 
@@ -44,7 +45,8 @@ public class SpiDescriptor {
 
   @JsonIgnore
   public Class<?> spiClass;
-  public List<SpiDescriptorField> configurationFields;
+  public List<SpiDescriptorField> descriptorFields;
+  public List<SpiDescriptorField> bindingDescriptorFields;
 
   public SpiDescriptor(ProcessEngineImpl processEngine, Spi spiObject) {
     this.processEngine = processEngine;
@@ -67,13 +69,24 @@ public class SpiDescriptor {
   protected void initializeConfigurationFields() {
     List<Field> fields =  Reflection.getFieldsRecursive(spiClass);
     if (!fields.isEmpty()) {
-      configurationFields = new ArrayList<SpiDescriptorField>(fields.size());
+      descriptorFields = new ArrayList<SpiDescriptorField>(fields.size());
       for (Field field : fields) {
         if (field.getAnnotation(ConfigurationField.class)!=null) {
-          configurationFields.add(new SpiDescriptorField(processEngine, field));
+          SpiDescriptorField descriptorField = new SpiDescriptorField(processEngine, field);
+          descriptorFields.add(descriptorField);
+          if (descriptorField.dataType.getClass()==BindingType.class) {
+            if (bindingDescriptorFields==null) {
+              bindingDescriptorFields = new ArrayList<>();
+            }
+            bindingDescriptorFields.add(descriptorField);
+          }
         }
       }
     }
+  }
+  
+  public List<SpiDescriptorField> getBindingDescriptorFields() {
+    return bindingDescriptorFields;
   }
   
   protected void initializeTypeName() {
@@ -84,8 +97,8 @@ public class SpiDescriptor {
     return spiClass;
   }
 
-  public List<SpiDescriptorField> getConfigurationFields() {
-    return configurationFields;
+  public List<SpiDescriptorField> getDescriptorFields() {
+    return descriptorFields;
   }
 
   public SpiType getSpiType() {

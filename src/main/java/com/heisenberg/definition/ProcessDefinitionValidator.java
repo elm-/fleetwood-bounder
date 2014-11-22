@@ -23,10 +23,11 @@ import java.util.Stack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ParseIssue.IssueType;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.ParseIssues;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.SpiDescriptor;
 import com.heisenberg.instance.ActivityInstanceImpl;
-import com.heisenberg.spi.ActivityType;
 import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.InvalidApiValueException;
 import com.heisenberg.spi.Validator;
@@ -36,7 +37,7 @@ import com.heisenberg.spi.Validator;
  * 
  * @author Walter White
  */
-public class ProcessValidator implements ProcessDefinitionVisitor, Validator {
+public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Validator {
   
   static final Map<Class<?>, String> typeNames = new HashMap<>();
   static {
@@ -72,7 +73,7 @@ public class ProcessValidator implements ProcessDefinitionVisitor, Validator {
     Long column;
   }
 
-  public ProcessValidator(ProcessEngineImpl processEngine) {
+  public ProcessDefinitionValidator(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
   

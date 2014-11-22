@@ -12,16 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.spi;
+package com.heisenberg.api.activities;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.definition.ActivityDefinitionImpl;
+import com.heisenberg.definition.ScopeDefinitionImpl;
 import com.heisenberg.expressions.Script;
 import com.heisenberg.expressions.ScriptResult;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.SpiDescriptor;
+import com.heisenberg.impl.SpiDescriptorField;
+import com.heisenberg.spi.ControllableActivityInstance;
+import com.heisenberg.spi.InvalidApiValueException;
+import com.heisenberg.spi.Validator;
 
 
 /**
  * @author Walter White
  */
 public class Binding<T> {
+  
+  @JsonIgnore
+  public ProcessEngineImpl processEngine;
   
   public Object value;
   public String variableName;
@@ -30,6 +46,9 @@ public class Binding<T> {
 
   @SuppressWarnings("unchecked")
   public T getValue(ControllableActivityInstance activityInstance) {
+    if (processEngine==null) {
+      throw new RuntimeException("Please ensure that in the ActivityType.validate, you call activityDefinition.initializeBindings(Validator)");
+    }
     if (value!=null) {
       return (T) value;
     }

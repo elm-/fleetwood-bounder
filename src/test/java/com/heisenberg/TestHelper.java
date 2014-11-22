@@ -37,7 +37,7 @@ public class TestHelper {
     }
   }
   
-  public static void assertOpenActivityInstances(ProcessInstance processInstance, String... expectedActivityNames) {
+  public static void assertActivityInstancesOpen(ProcessInstance processInstance, String... expectedActivityNames) {
     Map<String,Integer> expectedActivityCounts = new HashMap<String, Integer>();
     if (expectedActivityNames!=null) {
       for (String expectedActivityName: expectedActivityNames) {

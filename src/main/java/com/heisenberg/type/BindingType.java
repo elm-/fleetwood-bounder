@@ -14,61 +14,42 @@
  */
 package com.heisenberg.type;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.heisenberg.spi.AbstractDataType;
+import com.heisenberg.spi.DataType;
 import com.heisenberg.spi.InvalidApiValueException;
 
 
 /**
  * @author Walter White
  */
-public class ChoiceType extends AbstractDataType {
+public class BindingType extends AbstractDataType {
   
-  protected String id;
-  protected String label;
-  /** maps option ids to option labels */
-  protected Map<String, String> options;
-  
-  public ChoiceType option(String id, String label) {
-    if (options==null) {
-      options = new HashMap<>();
-    }
-    options.put(id, label);
-    return this;
-  }
-  
-  public ChoiceType id(String id) {
-    this.id = id;
-    return this;
-  }
+  String id;
+  DataType dataType;
 
-  public ChoiceType label(String label) {
-    this.label = label;
-    return this;
+  public BindingType(DataType dataType) {
+    this.id = "binding<"+dataType.getId()+">";
+    this.dataType = dataType;
   }
 
   @Override
   public String getId() {
     return id;
   }
-  
-  public Map<String,String> getOptions() {
-    return options;
+
+  @Override
+  public String getLabel() {
+    return dataType.getLabel()+" binding";
   }
 
   @Override
   public Object convertJsonToInternalValue(Object apiValue) throws InvalidApiValueException {
-    if ( apiValue!=null 
-         && !options.containsKey(apiValue) ) {
-      throw new InvalidApiValueException("Invalid value '"+apiValue+"'.  Expected one of "+options.keySet()+" (or null)");
-    }
-    return apiValue; 
+    throw new UnsupportedOperationException("TODO");
   }
 
   @Override
-  public String getLabel() {
-    return label;
+  public Object convertInternalToJsonValue(Object internalValue) {
+    throw new UnsupportedOperationException("TODO");
   }
+ 
 }

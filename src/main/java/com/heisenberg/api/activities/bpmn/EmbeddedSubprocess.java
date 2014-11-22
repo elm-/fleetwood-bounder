@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.bpmn.activities;
+package com.heisenberg.api.activities.bpmn;
 
 import java.util.List;
 
+import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.spi.AbstractActivityType;
 import com.heisenberg.spi.ControllableActivityInstance;
 import com.heisenberg.spi.Validator;
 
