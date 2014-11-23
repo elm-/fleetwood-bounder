@@ -39,9 +39,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.api.util.ActivityInstanceId;
+import com.heisenberg.api.util.Id;
 import com.heisenberg.api.util.OrganizationId;
 import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.api.util.ProcessId;
@@ -64,7 +66,6 @@ import com.heisenberg.impl.engine.updates.OperationRemoveUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.PrepareProcessInstanceForSerialization;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.heisenberg.util.Id;
 
 
 /**
@@ -135,6 +136,11 @@ public class Json {
 
   public void objectToJson(Object object, Writer writer) {
     objectToJson(object, writer, objectMapper.writer());
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> objectToJsonMap(Object object) {
+    return objectMapper.convertValue(object, Map.class);
   }
   
   static final ProcessDefinitionSerializer PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new ProcessDefinitionSerializer();

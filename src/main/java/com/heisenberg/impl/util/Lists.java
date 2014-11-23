@@ -12,30 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.util;
+package com.heisenberg.impl.util;
 
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
  * @author Walter White
  */
-public class Exceptions {
+public class Lists {
 
-  public static void checkNotNull(Object object) {
-    checkNotNull(object, "expected a non-null value");
+  @SafeVarargs
+  public static <T> List<T> of(T... elements) {
+    return Arrays.asList(elements);
   }
 
-  public static void checkNotNullParameter(Object object, String argumentName) {
-    checkNotNull(object, argumentName+" is null");
-  }
-
-  public static void checkNotNull(Object object, String description) {
-    checkTrue(object!=null, description);
-  }
-
-  public static void checkTrue(boolean condition, String description) {
-    if (!condition) {
-      throw new RuntimeException(description);
-    }
-  }
 }

@@ -78,7 +78,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
     this.processDefinition = processDefinition;
     this.processDefinition.processEngine = processEngine;
     pushContext(processDefinition, null, 0, processDefinition.line, processDefinition.column);
-    processDefinition.initializeDataTypesMap();
+    this.processDefinition.initializeDataTypesMap();
   }
 
   @Override
@@ -90,10 +90,10 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
 
   @Override
   public void dataType(DataType dataType, int index) {
-    if (processDefinition.dataTypesMap==null) {
-      processDefinition.dataTypesMap = new HashMap<>();
-    }
-    processDefinition.dataTypesMap.put(dataType.getId(), dataType);
+//    if (processDefinition.dataTypesMap==null) {
+//      processDefinition.dataTypesMap = new HashMap<>();
+//    }
+//    processDefinition.dataTypesMap.put(dataType.getId(), dataType);
   }
   
   @Override
@@ -113,11 +113,11 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
     if (activity.activityType==null) {
       if (activity.activityTypeId!=null) {
         activity.activityType = processEngine.findActivityType(activity.activityTypeId);
-      } else if (activity.activityTypeJsonMap!=null) {
+      } else if (activity.activityTypeJson!=null) {
         try {
-          activity.activityType = processEngine.json.jsonMapToObject(activity.activityTypeJsonMap, ActivityType.class);
+          activity.activityType = processEngine.json.jsonMapToObject(activity.activityTypeJson, ActivityType.class);
         } catch (Exception e) {
-          addError("Activity '%s' has invalid value: %s", activity.name, activity.activityTypeJsonMap);
+          addError("Activity '%s' has invalid value: %s", activity.name, activity.activityTypeJson);
         }
       }
     }

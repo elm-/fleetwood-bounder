@@ -23,7 +23,7 @@ import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.Spi;
-import com.heisenberg.util.Reflection;
+import com.heisenberg.impl.util.Reflection;
 
 
 

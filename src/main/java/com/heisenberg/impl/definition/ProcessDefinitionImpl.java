@@ -39,11 +39,6 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   /** The globally unique identifier for this process definition. */
   public ProcessDefinitionId id;
   
-  /** the types defined on the process definition level.
-   * This field is the reference for serialization and storage of types.
-   * @link {@link #dataTypesMap} is derived from this field. */
-  public List<DataType> dataTypes;
-
   /** optional time when the process was deployed.
    * This field just serves as a read/write property and is not used during process execution. */
   public LocalDateTime deployedTime;
@@ -63,7 +58,12 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   /** optional version number of this process definition, related to @link {@link #processId}.
    * This combined with the @link {@link ScopeDefinitionImpl#name} should be unique. */
   public Long version;
-
+  
+  /** the types defined on the process definition level.
+   * This field is the reference for serialization and storage of types.
+   * @link {@link #dataTypesMap} is derived from this field. */
+  public List<DataType> dataTypes;
+  
   /** derived from @link {@link #dataTypes} */
   @JsonIgnore
   public Map<String,DataType> dataTypesMap;
@@ -164,23 +164,6 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   public String toString() {
     return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
   }
-
-  protected void initializeDataTypesMap() {
-    if (dataTypes!=null) {
-      dataTypesMap = new HashMap<>();
-      for (DataType dataType: dataTypes) {
-        dataTypesMap.put(dataType.getId(), dataType);
-      }
-    }
-  }
-
-  public DataType findDataType(String dataTypeId) {
-    DataType dataType = dataTypesMap!=null ? dataTypesMap.get(dataTypeId) : null;
-    if (dataType!=null) {
-      return dataType;
-    }
-    return processEngine.findDataType(dataTypeId);
-  }
   
   // visitor methods ////////////////////////////////////////////////////////////////////
   
@@ -198,7 +181,26 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     super.visit(visitor);
     visitor.endProcessDefinition(this);
   }
-
+  
+  // data type methods ////////////////////////////////////////////////////////////////////
+  
+  protected void initializeDataTypesMap() {
+    if (dataTypes!=null) {
+      dataTypesMap = new HashMap<>();
+      for (DataType dataType: dataTypes) {
+        dataTypesMap.put(dataType.getId(), dataType);
+      }
+    }
+  }
+  
+  public DataType findDataType(String dataTypeId) {
+    DataType dataType = dataTypesMap!=null ? dataTypesMap.get(dataTypeId) : null;
+    if (dataType!=null) {
+      return dataType;
+    }
+    return processEngine.findDataType(dataTypeId);
+  }
+  
   public void visitTypes(ProcessDefinitionVisitor visitor) {
     if (dataTypes!=null) {
       for (int i=0; i<dataTypes.size(); i++) {
@@ -207,4 +209,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
       }
     }
   }
+
+
+
 }

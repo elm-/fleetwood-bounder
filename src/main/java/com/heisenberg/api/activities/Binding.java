@@ -40,6 +40,7 @@ public class Binding<T> {
   public String variableName;
   public String expression;
   public String expressionLanguage; // optional. can be null. default is JavaScript
+  @JsonIgnore
   public Script expressionScript;
   
   @SuppressWarnings("unchecked")

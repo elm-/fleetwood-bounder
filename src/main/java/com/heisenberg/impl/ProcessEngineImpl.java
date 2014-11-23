@@ -61,8 +61,8 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.json.Json;
 import com.heisenberg.impl.script.ScriptRunnerImpl;
-import com.heisenberg.util.Exceptions;
-import com.heisenberg.util.Reflection;
+import com.heisenberg.impl.util.Exceptions;
+import com.heisenberg.impl.util.Reflection;
 
 /**
  * @author Walter White
@@ -225,7 +225,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ParseIssues issues = validator.getIssues();
     
     if (!issues.hasErrors()) {
-      processDefinition.id = new ProcessDefinitionId(generateProcessDefinitionId(processDefinition));
+      processDefinition.id = generateProcessDefinitionId(processDefinition);
       response.setProcessDefinitionId(processDefinition.id); 
       storeProcessDefinition(processDefinition);
     } else {
@@ -236,8 +236,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
   
   /** ensures that every element in this process definition has an id */
-  protected String generateProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
-    return UUID.randomUUID().toString();
+  protected ProcessDefinitionId generateProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+    return new ProcessDefinitionId(UUID.randomUUID().toString());
   }
   
   protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);

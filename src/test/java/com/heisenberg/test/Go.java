@@ -17,6 +17,7 @@ package com.heisenberg.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
@@ -32,6 +33,7 @@ import com.heisenberg.api.util.Validator;
 @JsonTypeName("go")
 public class Go extends AbstractActivityType {
   
+  @JsonIgnore
   public List<Execution> executions = new ArrayList<>();
   
   @ConfigurationField("Place")

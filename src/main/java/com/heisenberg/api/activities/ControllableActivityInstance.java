@@ -16,7 +16,7 @@ package com.heisenberg.api.activities;
 
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.impl.TypedValue;
+import com.heisenberg.api.util.TypedValue;
 import com.heisenberg.impl.script.ScriptRunner;
 
 

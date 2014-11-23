@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.util.Exceptions;
+import com.heisenberg.impl.util.Exceptions;
 
 
 /**

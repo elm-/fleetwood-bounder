@@ -14,6 +14,8 @@
  */
 package com.heisenberg.impl.definition;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.builder.VariableBuilder;
@@ -31,6 +33,8 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
   public String name;
   public String dataTypeId;
   public DataType dataType;
+  public Map<String,Object> dataTypeJson;
+  
   @JsonIgnore
   public Object initialValue;
   @JsonProperty("initialValue")
@@ -79,6 +83,11 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
 
   public VariableDefinitionImpl dataType(DataType dataType) {
     this.dataType = dataType;
+    return this;
+  }
+
+  public VariableDefinitionImpl dataTypeJson(Map<String,Object> dataTypeJson) {
+    this.dataTypeJson = dataTypeJson;
     return this;
   }
 

@@ -37,7 +37,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 
   public String activityTypeId;
   @JsonIgnore
-  public Map<String,Object> activityTypeJsonMap;
+  public Map<String,Object> activityTypeJson;
   public ActivityType activityType;
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
 
@@ -49,7 +49,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   }
   
   public ActivityDefinitionImpl activityTypeJson(Map<String,Object> activityTypeJsonMap) {
-    this.activityTypeJsonMap = activityTypeJsonMap;
+    this.activityTypeJson = activityTypeJsonMap;
     return this;
   }
   

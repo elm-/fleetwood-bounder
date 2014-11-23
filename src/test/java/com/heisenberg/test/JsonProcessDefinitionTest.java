@@ -64,8 +64,7 @@ public class JsonProcessDefinitionTest {
       .option("de", "Germany")
       .option("fr", "France")
       .option("uk", "UK")
-      .option("us", "US")
-    );
+      .option("us", "US"));
     
     process.newVariable()
       .name("t")

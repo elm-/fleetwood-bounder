@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.heisenberg.util;
+package com.heisenberg.impl.util;
 
 public class IllegalArgument {
   

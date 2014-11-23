@@ -25,23 +25,23 @@ import com.heisenberg.impl.ProcessEngineImpl;
  */
 public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDefinition {
 
-  protected String name;
+  public String name;
   @JsonIgnore
-  protected ActivityDefinitionImpl from;
+  public ActivityDefinitionImpl from;
   @JsonIgnore
-  protected ActivityDefinitionImpl to;
+  public ActivityDefinitionImpl to;
 
   @JsonIgnore
-  protected ProcessEngineImpl processEngine;
+  public ProcessEngineImpl processEngine;
   @JsonIgnore
-  protected ProcessDefinitionImpl processDefinition;
+  public ProcessDefinitionImpl processDefinition;
   @JsonIgnore
-  protected ScopeDefinitionImpl parent;
+  public ScopeDefinitionImpl parent;
   
-  protected String fromName;
-  protected String toName;
-  protected Long line;
-  protected Long column;
+  public String fromName;
+  public String toName;
+  public Long line;
+  public Long column;
 
   public TransitionDefinitionImpl name(String name) {
     this.name = name;
