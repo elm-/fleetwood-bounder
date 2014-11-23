@@ -167,4 +167,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     }
     return super.findActivityInstanceByName(activityDefinitionName);
   }
+  
+  public Object getTransientContextObject(String key) {
+    return processInstance.getTransientContextObject(key);
+  }
 }

@@ -14,7 +14,9 @@
  */
 package com.heisenberg.api;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,9 +37,9 @@ public class VariableRequest {
 //  @JsonIgnore
 //  public Map<String,Object> persistentContext;
 //  
-//  /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
-//  @JsonIgnore
-//  public Map<String,Object> transientContext;
+  /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
+  @JsonIgnore
+  public Map<String,Object> transientContext;
 
   public VariableRequest variableValue(String variableDefinitionId, Object value) {
     if (variableValues==null) {
@@ -54,6 +56,15 @@ public class VariableRequest {
     variableValuesJson.put(variableDefinitionId, valueJson);
     return this;
   }
+  
+  public VariableRequest transientContext(String key, Object value) {
+    if (transientContext==null) {
+      transientContext = new HashMap<>();
+    }
+    transientContext.put(key, value);
+    return this;
+  }
+
 
 //  public VariableRequest persistentContext(String key, Object value) {
 //    if (persistentContext==null) {

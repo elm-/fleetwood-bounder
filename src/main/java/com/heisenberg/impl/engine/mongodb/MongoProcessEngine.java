@@ -33,6 +33,7 @@ import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessDefinitionFieldNames;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
@@ -54,6 +55,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   
   protected ProcessDefinitionFieldNames processDefinitionFieldNames;
   protected WriteConcern writeConcernStoreProcessDefinition;
+  protected MongoProcessDefinitionDeserializer deserializer;
   
   public MongoProcessEngine(MongoConfiguration mongoDbConfiguration) {
     MongoClient mongoClient = new MongoClient(
@@ -65,6 +67,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     this.processInstances = db.getCollection("processInstances");
     this.processDefinitionFieldNames = mongoDbConfiguration.processDefinitionFieldNames;
     this.writeConcernStoreProcessDefinition = getWriteConcern(mongoDbConfiguration.writeConcernStoreProcessDefinition, processDefinitions);
+    this.deserializer = new MongoProcessDefinitionDeserializer(this, processDefinitionFieldNames);
   }
 
   @Override
@@ -83,7 +86,10 @@ public class MongoProcessEngine extends ProcessEngineImpl {
 
   @Override
   protected ProcessDefinitionImpl loadProcessDefinitionById(ProcessDefinitionId processDefinitionId) {
-    return null;
+    log.debug("--processDefinitions-> find "+processDefinitionId);
+    BasicDBObject dbProcess = (BasicDBObject) this.processDefinitions.findOne(new BasicDBObject(processDefinitionFieldNames._id, processDefinitionId.getInternal()));
+    log.debug("<-processDefinitions-- "+PrettyPrinter.toJsonPrettyPrint(dbProcess));
+    return deserializer.readProcessDefinition(dbProcess);
   }
 
   @Override

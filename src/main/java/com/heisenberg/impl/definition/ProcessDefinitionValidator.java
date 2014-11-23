@@ -76,6 +76,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   @Override
   public void startProcessDefinition(ProcessDefinitionImpl processDefinition) {
     this.processDefinition = processDefinition;
+    this.processDefinition.processDefinition = processDefinition;
     this.processDefinition.processEngine = processEngine;
     pushContext(processDefinition, null, 0, processDefinition.line, processDefinition.column);
     this.processDefinition.initializeDataTypesMap();
@@ -123,6 +124,8 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
     }
     if (activity.activityType==null) {
       addError("Activity '%s' has no activityType configured", activity.name);
+    } else if (activity.activityTypeId==null) {
+      activity.activityTypeId = activity.activityType.getId();
     }
   }
 
@@ -147,6 +150,8 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         if (variable.dataType==null) {
           addError("Variable '%s' has unknown type '%s'", variable.name, variable.dataTypeId);
         }
+      } else if (variable.dataTypeJson!=null) {
+        variable.dataType = processEngine.json.jsonMapToObject(variable.dataTypeJson, DataType.class);
       } else {
         addError("Variable '%s' does not have a type", variable.name);
       }

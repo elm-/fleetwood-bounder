@@ -68,6 +68,4 @@ public class Go extends AbstractActivityType {
       this.place = place;
     }
   }
-  
-  
 }

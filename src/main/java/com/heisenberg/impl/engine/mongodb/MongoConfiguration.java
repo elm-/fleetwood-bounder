@@ -73,7 +73,7 @@ public class MongoConfiguration {
     protected String deployedBy = "db";
     protected String organizationId = "o";
     protected String processId = "p";
-    protected String version = "v";
+    protected String version = "vn";
     protected String activityTypeId = "ati";
     protected String activityType = "at";
     protected String activityDefinitions = "a";

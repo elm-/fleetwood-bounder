@@ -40,4 +40,10 @@ public class StartProcessInstanceRequest extends VariableRequest {
     super.variableValueJson(variableDefinitionId, valueJson);
     return this;
   }
+
+  @Override
+  public StartProcessInstanceRequest transientContext(String key, Object value) {
+    super.transientContext(key, value);
+    return this;
+  }
 }

@@ -34,4 +34,6 @@ public interface ControllableActivityInstance extends ActivityInstance {
   /** starts a nested activity instance for the given activity definition */
   void start(ActivityDefinition activityDefinition);
 
+  Object getTransientContextObject(String key);
+
 }

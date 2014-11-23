@@ -35,4 +35,22 @@ public class SignalRequest extends VariableRequest {
   public void setActivityInstanceId(ActivityInstanceId activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
   }
+  
+  @Override
+  public SignalRequest variableValue(String variableDefinitionId, Object value) {
+    super.variableValue(variableDefinitionId, value);
+    return this;
+  }
+
+  @Override
+  public SignalRequest variableValueJson(String variableDefinitionId, Object valueJson) {
+    super.variableValueJson(variableDefinitionId, valueJson);
+    return this;
+  }
+
+  @Override
+  public SignalRequest transientContext(String key, Object value) {
+    super.transientContext(key, value);
+    return this;
+  }
 }

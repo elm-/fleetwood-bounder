@@ -250,6 +250,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
       throw new RuntimeException("Could not find process definition "+processDefinitionId);
     }
     ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
+    processInstance.transientContext = startProcessInstanceRequest.transientContext;
     setVariableApiValues(processInstance, startProcessInstanceRequest);
       
     log.debug("Starting "+processInstance);

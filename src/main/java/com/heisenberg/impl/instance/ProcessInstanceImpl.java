@@ -17,6 +17,7 @@ package com.heisenberg.impl.instance;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 
@@ -25,6 +26,7 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.util.ProcessDefinitionId;
@@ -58,6 +60,9 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   public Boolean isAsync;
   
   public ProcessDefinitionId processDefinitionId;
+
+  @JsonIgnore
+  public Map<String, Object> transientContext;
   
   public ProcessInstanceImpl() {
   }
@@ -88,8 +93,6 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       addUpdate(new AsyncOperationAddUpdate(operation));
     }
   }
-  
-  
   
   Operation removeOperation() {
     Operation operation = operations!=null ? operations.poll() : null;
@@ -231,6 +234,10 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     }
     // when we add call activity we will need:
     // addUpdate(new ProcessInstanceEndUpdate(this));
+  }
+  
+  public Object getTransientContextObject(String key) {
+    return transientContext!=null ? transientContext.get(key) : null;
   }
   
   public void visit(ProcessInstanceVisitor visitor) {
