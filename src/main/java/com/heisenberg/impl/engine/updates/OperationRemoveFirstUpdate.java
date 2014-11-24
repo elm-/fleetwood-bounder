@@ -15,7 +15,6 @@
 package com.heisenberg.impl.engine.updates;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.impl.engine.operation.Operation;
 
 
 
@@ -23,13 +22,7 @@ import com.heisenberg.impl.engine.operation.Operation;
  * 
  * @author Walter White
  */
-@JsonTypeName("operationRemove")
-public class OperationRemoveUpdate extends OperationUpdate {
+@JsonTypeName("operationRemoveFirst")
+public class OperationRemoveFirstUpdate implements Update {
 
-  public OperationRemoveUpdate() {
-  }
-
-  public OperationRemoveUpdate(Operation operation) {
-    super(operation);
-  }
 }

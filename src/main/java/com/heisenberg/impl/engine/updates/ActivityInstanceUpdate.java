@@ -14,7 +14,7 @@
  */
 package com.heisenberg.impl.engine.updates;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
@@ -23,21 +23,12 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 public abstract class ActivityInstanceUpdate implements Update {
 
-  @JsonIgnore
-  protected ActivityInstanceImpl activityInstance;
+  protected ActivityInstanceId activityInstanceId;
   
   public ActivityInstanceUpdate() {
   }
 
   public ActivityInstanceUpdate(ActivityInstanceImpl activityInstance) {
-    this.activityInstance = activityInstance;
-  }
-  
-  public ActivityInstanceImpl getActivityInstance() {
-    return activityInstance;
-  }
-
-  public void setActivityInstance(ActivityInstanceImpl activityInstance) {
-    this.activityInstance = activityInstance;
+    this.activityInstanceId = activityInstance.id;
   }
 }

@@ -14,23 +14,23 @@
  */
 package com.heisenberg.impl.engine.updates;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.impl.engine.operation.Operation;
+import com.heisenberg.api.util.ActivityInstanceId;
+import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
-/** The operation is always added at the end of the queue. 
- * 
+/**
  * @author Walter White
  */
-@JsonTypeName("operationAdd")
-public class OperationAddUpdate extends OperationUpdate {
+public abstract class OperationAddUpdate implements Update {
 
-  public OperationAddUpdate() {
-    super();
-  }
-
-  public OperationAddUpdate(Operation operation) {
-    super(operation);
-  }
+  public Boolean isAsync;
+  public ActivityInstanceId activityInstanceId;
   
+  public OperationAddUpdate() {
+  }
+
+  public OperationAddUpdate(ActivityInstanceImpl activityInstance) {
+    this.activityInstanceId = activityInstance.id;
+  }
+
 }

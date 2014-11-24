@@ -15,9 +15,11 @@
 package com.heisenberg.impl.definition;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import com.heisenberg.api.ParseIssue.IssueType;
@@ -49,6 +51,8 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   public LinkedList<String> path = new LinkedList<>();
   public Stack<Object> contextObjectStack = new Stack<>();
   public ParseIssues parseIssues = new ParseIssues();
+  public Set<String> activityNames = new HashSet<>();
+  public Set<String> variableNames = new HashSet<>();
 
   public Stack<ValidationContext> contextStack = new Stack<>();
   private class ValidationContext {
@@ -109,7 +113,12 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       if (activity.parent.activityDefinitionsMap==null) {
         activity.parent.activityDefinitionsMap = new LinkedHashMap<>();
       }
-      activity.parent.activityDefinitionsMap.put(activity.name, activity);
+      if (!activityNames.contains(activity.name)) {
+        activity.parent.activityDefinitionsMap.put(activity.name, activity);
+        activityNames.add(activity.name);
+      } else {
+        addError("Duplicate activity name '%s'. Activity names have to be unique in the process.", activity.name);
+      }
     }
     if (activity.activityType==null) {
       if (activity.activityTypeId!=null) {
@@ -168,10 +177,11 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       if (scopeDefinition.variableDefinitionsMap==null) {
         scopeDefinition.variableDefinitionsMap = new HashMap<>();
       }
-      if (!scopeDefinition.variableDefinitionsMap.containsKey(variable.name)) {
+      if (!variableNames.contains(variable.name)) {
         scopeDefinition.variableDefinitionsMap.put(variable.name, variable);
+        variableNames.add(variable.name);
       } else {
-        addError("Duplicate variable definition %s", variable.name);
+        addError("Duplicate variable name %s. Variables have to be unique in the process.", variable.name);
       }
     }
     popContext();

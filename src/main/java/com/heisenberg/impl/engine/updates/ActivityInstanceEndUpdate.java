@@ -14,6 +14,8 @@
  */
 package com.heisenberg.impl.engine.updates;
 
+import org.joda.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
@@ -23,11 +25,14 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 @JsonTypeName("activityInstanceEnd")
 public class ActivityInstanceEndUpdate extends ActivityInstanceUpdate {
+  
+  LocalDateTime end;
 
   public ActivityInstanceEndUpdate() {
   }
 
   public ActivityInstanceEndUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
+    this.end = activityInstance.end;
   }
 }

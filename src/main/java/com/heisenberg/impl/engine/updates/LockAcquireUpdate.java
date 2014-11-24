@@ -32,12 +32,4 @@ public class LockAcquireUpdate implements Update {
   public LockAcquireUpdate(LockImpl lock) {
     this.lock = lock;
   }
-
-  public LockImpl getLock() {
-    return lock;
-  }
-  
-  public void setLock(LockImpl lock) {
-    this.lock = lock;
-  }
 }

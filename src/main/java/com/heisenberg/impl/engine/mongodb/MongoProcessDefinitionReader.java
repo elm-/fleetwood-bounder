@@ -15,11 +15,7 @@
 package com.heisenberg.impl.engine.mongodb;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
-import org.joda.time.LocalDateTime;
 
 import com.heisenberg.api.util.OrganizationId;
 import com.heisenberg.api.util.ProcessDefinitionId;
@@ -39,13 +35,12 @@ import com.mongodb.BasicDBObject;
 /**
  * @author Walter White
  */
-public class MongoProcessDefinitionDeserializer implements Validator {
+public class MongoProcessDefinitionReader extends MongoReaderHelper implements Validator {
 
   MongoProcessEngine processEngine;
   ProcessDefinitionFieldNames fieldNames;
-  
 
-  public MongoProcessDefinitionDeserializer(MongoProcessEngine processEngine, ProcessDefinitionFieldNames fieldNames) {
+  public MongoProcessDefinitionReader(MongoProcessEngine processEngine, ProcessDefinitionFieldNames fieldNames) {
     this.processEngine = processEngine;
     this.fieldNames = fieldNames;
   }
@@ -123,26 +118,7 @@ public class MongoProcessDefinitionDeserializer implements Validator {
     return transition;
   }
 
-  @SuppressWarnings("unchecked")
-  protected List<BasicDBObject> getList(BasicDBObject dbScope, String fieldName) {
-    return (List<BasicDBObject>) dbScope.get(fieldName);
-  }
-
-  @SuppressWarnings("unchecked")
-  protected Map<String, Object> getMap(BasicDBObject dbObject, String fieldName) {
-    return (Map<String,Object>)dbObject.get(fieldName);
-  }
-
-  protected String getString(BasicDBObject dbObject, String fieldName) {
-    return (String) dbObject.get(fieldName);
-  }
-
-  protected LocalDateTime getTime(BasicDBObject dbObject, String fieldName) {
-    Date date = (Date)dbObject.get(fieldName);
-    return (date!=null ? new LocalDateTime(date) : null);
-  }
-
-  protected Long getLong(BasicDBObject dbObject, String fieldName) {
+  protected static Long getLong(BasicDBObject dbObject, String fieldName) {
     Number number = (Number) dbObject.get(fieldName);
     return (number!=null ? number.longValue() : null);
   }

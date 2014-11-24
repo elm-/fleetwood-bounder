@@ -23,7 +23,6 @@ import com.heisenberg.api.activities.bpmn.EndEvent;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.test.Go;
 import com.heisenberg.test.TestHelper;
 
 
@@ -36,8 +35,7 @@ public class ProcessDefinitionValidationExample {
 
   @Test
   public void testActivityDefinitionWithoutName() {
-    ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(Go.class);
+    ProcessEngine processEngine = new MemoryProcessEngine();
     
     // cook the process
     ProcessBuilder processBuilder = processEngine.newProcess();
@@ -64,5 +62,4 @@ public class ProcessDefinitionValidationExample {
     
     TestHelper.assertTextPresent("Activity has no name", issueReport);
   }
-
 }

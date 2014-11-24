@@ -3,6 +3,7 @@
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
 - [ ] Change Long to our own Date type.  This way, date serialization can be customized.
 - [ ] Consider separate methods in the api for setting java values and setting rest json values
+- [ ] http://blog.denevell.org/java-jersey-jetty-rest-gradle-tutorial-setup-quick.html
 
 # In progress
 
@@ -39,6 +40,7 @@
   - [x] support for BPMN default semantics
   - [x] synchonous and asynchronoux execution of activities
 - [x] pluggable persistence architecture 
+- [x] transient execution context variables
 
 # Roadmap
 
@@ -67,7 +69,7 @@
 - [ ] data flow (only start an activity when the input data becomes available)
 - [ ] derived variables
 - [ ] static persistable process variables
-- [ ] transient execution context variables
+- [ ] allow for easy collection of process instance logs to track what has happened
 - [ ] process debugger service (separate top level interface required)
   - [ ] based on the in memory process engine
   - [ ] add breakpoints

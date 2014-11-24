@@ -14,24 +14,26 @@
  */
 package com.heisenberg.impl.engine.mongodb;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.Page;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.api.util.ProcessDefinitionId;
+import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessDefinitionFieldNames;
+import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessInstanceFieldNames;
+import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -53,9 +55,16 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   protected DBCollection processDefinitions;
   protected DBCollection processInstances;
   
-  protected ProcessDefinitionFieldNames processDefinitionFieldNames;
   protected WriteConcern writeConcernStoreProcessDefinition;
-  protected MongoProcessDefinitionDeserializer deserializer;
+  protected WriteConcern writeConcernStoreProcessInstance;
+
+  protected MongoProcessDefinitionWriter processDefinitionWriter;
+  protected MongoProcessDefinitionReader processDefinitionReader;
+  protected ProcessDefinitionFieldNames processDefinitionFieldNames;
+
+  protected MongoProcessInstanceWriter processInstanceWriter;
+  protected MongoProcessInstanceReader processInstanceReader;
+  protected ProcessInstanceFieldNames processInstanceFieldNames;
   
   public MongoProcessEngine(MongoConfiguration mongoDbConfiguration) {
     MongoClient mongoClient = new MongoClient(
@@ -65,22 +74,36 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     this.db = mongoClient.getDB(mongoDbConfiguration.databaseName);
     this.processDefinitions = db.getCollection("processDefinitions");
     this.processInstances = db.getCollection("processInstances");
-    this.processDefinitionFieldNames = mongoDbConfiguration.processDefinitionFieldNames;
     this.writeConcernStoreProcessDefinition = getWriteConcern(mongoDbConfiguration.writeConcernStoreProcessDefinition, processDefinitions);
-    this.deserializer = new MongoProcessDefinitionDeserializer(this, processDefinitionFieldNames);
+    this.writeConcernStoreProcessInstance = getWriteConcern(mongoDbConfiguration.writeConcernStoreProcessInstance, processInstances);
+    this.processDefinitionWriter = new MongoProcessDefinitionWriter(this, mongoDbConfiguration.processDefinitionFieldNames);
+    this.processDefinitionReader = new MongoProcessDefinitionReader(this, mongoDbConfiguration.processDefinitionFieldNames);
+    this.processInstanceReader = new MongoProcessInstanceReader(this, mongoDbConfiguration.processInstanceFieldNames);
+    this.processInstanceWriter = new MongoProcessInstanceWriter(this, mongoDbConfiguration.processInstanceFieldNames);
+    this.processDefinitionFieldNames = mongoDbConfiguration.processDefinitionFieldNames;
+    this.processInstanceFieldNames = mongoDbConfiguration.processInstanceFieldNames;
   }
 
   @Override
   protected ProcessDefinitionId generateProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
     return new ProcessDefinitionId(new ObjectId());
   }
+  
+  @Override
+  protected ProcessInstanceId createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
+    return new ProcessInstanceId(new ObjectId());
+  }
+
+  @Override
+  protected ActivityInstanceId createActivityInstanceId() {
+    return new ActivityInstanceId(new ObjectId());
+  }
 
   @Override
   protected void storeProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    MongoProcessDefinitionSerializer serializer = new MongoProcessDefinitionSerializer(this,processDefinitionFieldNames);
-    processDefinition.visit(serializer);
-    log.debug("--processDefinitions-> insert "+PrettyPrinter.toJsonPrettyPrint(serializer.dbProcess));
-    WriteResult writeResult = this.processDefinitions.insert(serializer.dbProcess, writeConcernStoreProcessDefinition);
+    BasicDBObject dbProcessDefinition = processDefinitionWriter.writeProcessDefinition(processDefinition);
+    log.debug("--processDefinitions-> insert "+PrettyPrinter.toJsonPrettyPrint(dbProcessDefinition));
+    WriteResult writeResult = this.processDefinitions.insert(dbProcessDefinition, writeConcernStoreProcessDefinition);
     log.debug("<-processDefinitions-- "+writeResult);
   }
 
@@ -89,24 +112,48 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     log.debug("--processDefinitions-> find "+processDefinitionId);
     BasicDBObject dbProcess = (BasicDBObject) this.processDefinitions.findOne(new BasicDBObject(processDefinitionFieldNames._id, processDefinitionId.getInternal()));
     log.debug("<-processDefinitions-- "+PrettyPrinter.toJsonPrettyPrint(dbProcess));
-    return deserializer.readProcessDefinition(dbProcess);
+    return processDefinitionReader.readProcessDefinition(dbProcess);
+  }
+
+  @Override
+  public void saveProcessInstance(ProcessInstanceImpl processInstance) {
+    BasicDBObject dbProcessInstance = processInstanceWriter.writeProcessInstance(processInstance);
+    log.debug("--processInstances-> insert "+PrettyPrinter.toJsonPrettyPrint(dbProcessInstance));
+    WriteResult writeResult = this.processInstances.insert(dbProcessInstance, writeConcernStoreProcessInstance);
+    log.debug("<-processInstances-- "+writeResult);
+  }
+
+  @Override
+  public void flush(ProcessInstanceImpl processInstance) {
+    List<Update> updates = processInstance.getUpdates();
+    if (updates!=null) {
+      log.debug("Flushing updates: ");
+      for (Update update : updates) {
+        log.debug("  " + json.objectToJsonString(update));
+      }
+    } else {
+      log.debug("No updates to flush");
+    }
+    processInstance.setUpdates(new ArrayList<Update>());
+  }
+
+  @Override
+  public void flushAndUnlock(ProcessInstanceImpl processInstance) {
+    List<Update> updates = processInstance.getUpdates();
+    if (updates!=null) {
+      log.debug("Flushing updates: ");
+      for (Update update : updates) {
+        log.debug("  " + json.objectToJsonString(update));
+      }
+    } else {
+      log.debug("No updates to flush");
+    }
+    processInstance.setUpdates(new ArrayList<Update>());
   }
 
   @Override
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
     return null;
-  }
-
-  @Override
-  public void saveProcessInstance(ProcessInstanceImpl processInstance) {
-  }
-
-  @Override
-  public void flush(ProcessInstanceImpl processInstance) {
-  }
-
-  @Override
-  public void flushAndUnlock(ProcessInstanceImpl processInstance) {
   }
 
   @Override

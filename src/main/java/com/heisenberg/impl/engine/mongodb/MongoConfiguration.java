@@ -34,7 +34,9 @@ public class MongoConfiguration {
   protected List<MongoCredential> credentials;
   protected MongoClientOptions.Builder optionBuilder = new MongoClientOptions.Builder();
   protected ProcessDefinitionFieldNames processDefinitionFieldNames = new ProcessDefinitionFieldNames();
+  protected ProcessInstanceFieldNames processInstanceFieldNames = new ProcessInstanceFieldNames();
   protected WriteConcern writeConcernStoreProcessDefinition;
+  protected WriteConcern writeConcernStoreProcessInstance;
 
   public MongoConfiguration server(String host, int port) {
     try {
@@ -61,97 +63,58 @@ public class MongoConfiguration {
     return processDefinitionFieldNames;
   }
   
+  public ProcessInstanceFieldNames getProcessInstanceFieldNames() {
+    return processInstanceFieldNames;
+  }
+  
   public MongoProcessEngine buildProcessEngine() {
     return new MongoProcessEngine(this);
+  }
+  
+  public MongoConfiguration writeConcernStoreProcessDefinition(WriteConcern writeConcernStoreProcessDefinition) {
+    this.writeConcernStoreProcessDefinition = writeConcernStoreProcessDefinition;
+    return this;
+  }
+
+  public MongoConfiguration writeConcernStoreProcessInstance(WriteConcern writeConcernStoreProcessInstance) {
+    this.writeConcernStoreProcessInstance = writeConcernStoreProcessInstance;
+    return this;
   }
 
   /** setting these fields to null will ensure those properties are not saved */
   public static class ProcessDefinitionFieldNames {
-    protected String _id = "_id";
-    protected String name = "n";
-    protected String deployedTime = "dt";
-    protected String deployedBy = "db";
-    protected String organizationId = "o";
-    protected String processId = "p";
-    protected String version = "vn";
-    protected String activityTypeId = "ati";
-    protected String activityType = "at";
-    protected String activityDefinitions = "a";
-    protected String dataTypeId = "yi";
-    protected String dataType = "y";
-    protected String variableDefinitions = "v";
-    protected String initialValue = "i";
-    protected String from = "fr";
-    protected String to = "to";
-    protected String transitionDefinitions = "t";
+    public String _id = "_id";
+    public String name = "n";
+    public String deployedTime = "dt";
+    public String deployedBy = "db";
+    public String organizationId = "o";
+    public String processId = "p";
+    public String version = "vn";
+    public String activityDefinitions = "a";
+    public String variableDefinitions = "v";
+    public String transitionDefinitions = "t";
+    public String activityTypeId = "ati";
+    public String activityType = "at";
+    public String dataTypeId = "yi";
+    public String dataType = "y";
+    public String initialValue = "i";
+    public String from = "fr";
+    public String to = "to";
+  }
 
-    public MongoConfiguration.ProcessDefinitionFieldNames transitionDefinitions(String transitionDefinitions) {
-      this.transitionDefinitions = transitionDefinitions;
-      return this;
-    }
-
-    public MongoConfiguration.ProcessDefinitionFieldNames from(String from) {
-      this.from = from;
-      return this;
-    }
-
-    public MongoConfiguration.ProcessDefinitionFieldNames initialValue(String initialValue) {
-      this.initialValue = initialValue;
-      return this;
-    }
-
-    public MongoConfiguration.ProcessDefinitionFieldNames variableDefinitions(String variableDefinitions) {
-      this.variableDefinitions = variableDefinitions;
-      return this;
-    }
-
-    public ProcessDefinitionFieldNames _id(String _id) {
-      this._id = _id;
-      return this;
-    }
-    public ProcessDefinitionFieldNames name(String name) {
-      this.name = name;
-      return this;
-    }
-    public ProcessDefinitionFieldNames deployedTime(String deployedTime) {
-      this.deployedTime = deployedTime;
-      return this;
-    }
-    public ProcessDefinitionFieldNames deployedBy(String deployedBy) {
-      this.deployedBy = deployedBy;
-      return this;
-    }
-    public ProcessDefinitionFieldNames organizationId(String organizationId) {
-      this.organizationId = organizationId;
-      return this;
-    }
-    public ProcessDefinitionFieldNames processId(String processId) {
-      this.processId = processId;
-      return this;
-    }
-    public ProcessDefinitionFieldNames version(String version) {
-      this.version = version;
-      return this;
-    }
-    public ProcessDefinitionFieldNames activityTypeId(String activityTypeId) {
-      this.activityTypeId = activityTypeId;
-      return this;
-    }
-    public ProcessDefinitionFieldNames activityType(String activityType) {
-      this.activityType = activityType;
-      return this;
-    }
-    public ProcessDefinitionFieldNames activityDefinitions(String activityDefinitions) {
-      this.activityDefinitions = activityDefinitions;
-      return this;
-    }
-    public MongoConfiguration.ProcessDefinitionFieldNames dataType(String dataType) {
-      this.dataType = dataType;
-      return this;
-    }
-    public ProcessDefinitionFieldNames dataTypeId(String dataTypeId) {
-      this.dataTypeId = dataTypeId;
-      return this;
-    }
+  public static class ProcessInstanceFieldNames {
+    public String _id = "_id";
+    public String start = "s";
+    public String end = "e";
+    public String duration = "d";
+    public String activityInstances = "a";
+    public String variableInstances = "v";
+    public String parent = "p";
+    public String variableDefinitionName = "vn";
+    public String value = "vl";
+    public String activityDefinitionName = "an";
+    public String lock = "l";
+    public String time = "t";
+    public String owner= "o";
   }
 }

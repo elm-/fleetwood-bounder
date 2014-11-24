@@ -14,13 +14,18 @@
  */
 package com.heisenberg.impl.engine.mongodb;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SimpleTimeZone;
 import java.util.TreeSet;
 
 import org.bson.types.ObjectId;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 
@@ -80,6 +85,14 @@ public class PrettyPrinter {
     jsonText.append(spaces.substring(0,indent));
   }
 
+  
+  static SimpleDateFormat dateFormat = initializeDateFormat();
+  static SimpleDateFormat initializeDateFormat() {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    dateFormat.setCalendar(new GregorianCalendar(new SimpleTimeZone(0, "GMT")));
+    return dateFormat;
+  }
+
   @SuppressWarnings({ "unchecked" })
   public static void jsonObjectToTextFormatted(Object jsonObject, int indent, StringBuffer jsonText) {
     if (jsonObject instanceof Map) {
@@ -92,8 +105,11 @@ public class PrettyPrinter {
       jsonText.append("\"");
     } else if (jsonObject instanceof ObjectId) {
       jsonText.append("{ \"$oid\" : \""+jsonObject.toString()+"\" }");
+    } else if (jsonObject instanceof Date) {
+      jsonText.append("{ \"$date\" : \""+dateFormat.format(jsonObject)+"\" }");
     } else {
       throw new RuntimeException("couldn't pretty print "+jsonObject.getClass().getName());
     }
   }
+
 }

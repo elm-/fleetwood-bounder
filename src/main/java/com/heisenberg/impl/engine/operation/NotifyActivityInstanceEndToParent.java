@@ -15,6 +15,8 @@
 package com.heisenberg.impl.engine.operation;
 
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.engine.updates.OperationAddNotifyParentEndUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
@@ -38,5 +40,10 @@ public class NotifyActivityInstanceEndToParent extends Operation {
   @Override
   public boolean isAsync() {
     return false;
+  }
+
+  @Override
+  public OperationAddUpdate getUpdate() {
+    return new OperationAddNotifyParentEndUpdate(activityInstance);
   }
 }

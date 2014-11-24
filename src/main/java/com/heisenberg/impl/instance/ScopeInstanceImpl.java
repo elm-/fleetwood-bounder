@@ -29,6 +29,7 @@ import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.ActivityInstanceId;
+import com.heisenberg.api.util.Id;
 import com.heisenberg.api.util.TypedValue;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
@@ -67,6 +68,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   @JsonIgnore
   public ScopeInstanceImpl parent;
   
+  public abstract Id getId();
   
   protected void visitCompositeInstance(ProcessInstanceVisitor visitor) {
     visitActivityInstances(visitor);
@@ -83,7 +85,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
       }
     }
   }
-
+  
   protected void visitVariableInstances(ProcessInstanceVisitor visitor) {
     if (variableInstances!=null) {
       for (int i=0; i<variableInstances.size(); i++) {
@@ -122,9 +124,11 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     if (variableDefinitions!=null) {
       for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
         VariableInstanceImpl variableInstance = variableDefinition.createVariableInstance();
-        variableInstance.setProcessEngine(processEngine);
-        variableInstance.setParent(this);
-        variableInstance.setProcessInstance(processInstance);
+        variableInstance.processEngine = processEngine;
+        variableInstance.parent = this;
+        variableInstance.processInstance = processInstance;
+        variableInstance.variableDefinition = variableDefinition;
+        variableInstance.variableDefinitionName = variableDefinition.name;
         if (variableInstances==null) {
           variableInstances = new ArrayList<>();
         }
@@ -276,7 +280,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     return activityInstances!=null && !activityInstances.isEmpty();
   }
   
-  public ScopeInstance getParent() {
+  public ScopeInstanceImpl getParent() {
     return parent;
   }
   

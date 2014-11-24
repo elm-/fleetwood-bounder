@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
@@ -44,6 +45,8 @@ public abstract class Operation {
   public abstract boolean isAsync();
 
   public abstract void execute(ProcessEngineImpl processEngine);
+  
+  public abstract OperationAddUpdate getUpdate();
 
   public ActivityInstanceImpl getActivityInstance() {
     return activityInstance;

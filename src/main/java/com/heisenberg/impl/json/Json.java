@@ -39,7 +39,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.api.util.ActivityInstanceId;
@@ -58,11 +57,11 @@ import com.heisenberg.impl.engine.operation.NotifyActivityInstanceEndToParent;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.engine.updates.ActivityInstanceStartUpdate;
-import com.heisenberg.impl.engine.updates.AsyncOperationAddUpdate;
 import com.heisenberg.impl.engine.updates.LockAcquireUpdate;
 import com.heisenberg.impl.engine.updates.LockReleaseUpdate;
-import com.heisenberg.impl.engine.updates.OperationAddUpdate;
-import com.heisenberg.impl.engine.updates.OperationRemoveUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddNotifyParentEndUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddActivityInstanceStartUpdate;
+import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.PrepareProcessInstanceForSerialization;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
@@ -98,11 +97,11 @@ public class Json {
        ActivityInstanceCreateUpdate.class,
        ActivityInstanceEndUpdate.class,
        ActivityInstanceStartUpdate.class,
-       AsyncOperationAddUpdate.class,
        LockAcquireUpdate.class,
        LockReleaseUpdate.class,
-       OperationAddUpdate.class,
-       OperationRemoveUpdate.class
+       OperationAddActivityInstanceStartUpdate.class,
+       OperationAddNotifyParentEndUpdate.class,
+       OperationRemoveFirstUpdate.class
        );
     
     SimpleModule module = new SimpleModule("heisenbergModule", new Version(1, 0, 0, null, null, null));

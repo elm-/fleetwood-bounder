@@ -35,11 +35,10 @@ import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.operation.Operation;
-import com.heisenberg.impl.engine.updates.AsyncOperationAddUpdate;
 import com.heisenberg.impl.engine.updates.LockAcquireUpdate;
 import com.heisenberg.impl.engine.updates.LockReleaseUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
-import com.heisenberg.impl.engine.updates.OperationRemoveUpdate;
+import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 
 
@@ -79,25 +78,27 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   }
   
   void addOperation(Operation operation) {
+    OperationAddUpdate update = operation.getUpdate();
     if (Boolean.TRUE.equals(isAsync) || !operation.isAsync()) {
       if (operations==null) {
         operations = new LinkedList<>();
       }
       operations.add(operation);
-      addUpdate(new OperationAddUpdate(operation));
+      addUpdate(update);
     } else {
       if (asyncOperations==null) {
         asyncOperations = new LinkedList<>();
       }
       asyncOperations.add(operation);
-      addUpdate(new AsyncOperationAddUpdate(operation));
+      update.isAsync = true;
+      addUpdate(update);
     }
   }
   
   Operation removeOperation() {
     Operation operation = operations!=null ? operations.poll() : null;
     if (operation!=null) {
-      addUpdate(new OperationRemoveUpdate(operation));
+      addUpdate(new OperationRemoveFirstUpdate());
     }
     return operation; 
   }

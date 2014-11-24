@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
+import com.heisenberg.impl.engine.updates.OperationAddActivityInstanceStartUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
@@ -46,5 +48,10 @@ public class ActivityInstanceStartOperation extends Operation {
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
     log.debug("Starting "+activityInstance);
     activityDefinition.activityType.start(activityInstance);
+  }
+
+  @Override
+  public OperationAddUpdate getUpdate() {
+    return new OperationAddActivityInstanceStartUpdate(activityInstance);
   }
 }

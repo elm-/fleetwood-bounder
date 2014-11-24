@@ -14,6 +14,8 @@
  */
 package com.heisenberg.impl;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -115,9 +117,17 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     initializeDefaultSpis();
   }
 
+  /** The globally unique id for this process engine used for locking 
+   * process instances and jobs.  
+   * This default implementation initializes the id of this process engine to "ipaddress:pid" */
   protected void initializeId() {
     try {
       id = InetAddress.getLocalHost().getHostAddress();
+      String processName = ManagementFactory.getRuntimeMXBean().getName();
+      int atIndex = processName.indexOf('@');
+      if (atIndex>0) {
+        id+=":"+processName.substring(0,atIndex);
+      }
     } catch (UnknownHostException e) {
       id = "amnesia";
     }
