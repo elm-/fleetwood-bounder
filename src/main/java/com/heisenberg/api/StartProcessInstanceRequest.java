@@ -30,14 +30,15 @@ public class StartProcessInstanceRequest extends VariableRequest {
     return this;
   }
 
-  public StartProcessInstanceRequest variableValue(String variableName, Object value) {
-    super.variableValue(variableName, value);
+  @Override
+  public StartProcessInstanceRequest variableValue(Object variableDefinitionIdInternal, Object value) {
+    super.variableValue(variableDefinitionIdInternal, value);
     return this;
   }
 
   @Override
-  public StartProcessInstanceRequest variableValueJson(String variableDefinitionId, Object valueJson) {
-    super.variableValueJson(variableDefinitionId, valueJson);
+  public StartProcessInstanceRequest variableValueJson(Object variableDefinitionIdInternal, Object valueJson) {
+    super.variableValueJson(variableDefinitionIdInternal, valueJson);
     return this;
   }
 

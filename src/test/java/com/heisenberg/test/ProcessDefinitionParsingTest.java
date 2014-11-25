@@ -50,7 +50,7 @@ public class ProcessDefinitionParsingTest {
     ProcessBuilder processBuilder = processEngine.newProcess();
     
     processBuilder.newActivity()
-      .name("a");
+      .id("a");
 
     TestHelper.assertTextPresent("Activity 'a' has no activityType configured", processEngine
         .deployProcessDefinition(processBuilder)

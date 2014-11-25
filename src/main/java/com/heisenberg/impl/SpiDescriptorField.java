@@ -17,7 +17,10 @@ package com.heisenberg.impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.type.DataType;
@@ -33,7 +36,14 @@ public class SpiDescriptorField {
   public String name;
   public String label;
   public boolean isRequired;
+  
+  @JsonIgnore
   public DataType dataType;
+  public String dataTypeId;
+  @JsonProperty("dataType")
+  public Map<String,Object> dataTypeJson;
+  
+  @JsonIgnore
   public Field field;
   
   public SpiDescriptorField(ProcessEngineImpl processEngine, Field field, ConfigurationField configurationField) {
@@ -41,6 +51,11 @@ public class SpiDescriptorField {
     this.field = field;
     this.field.setAccessible(true);
     this.dataType = getDataType(field, processEngine);
+    if (this.dataType.getId()!=null) {
+      dataTypeId = this.dataType.getId(); 
+    } else {
+      dataTypeJson = processEngine.json.objectToJsonMap(dataType);
+    }
     if (configurationField!=null) {
       this.label = configurationField.value();
       this.isRequired = configurationField.required();

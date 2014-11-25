@@ -67,7 +67,7 @@ public class JsonProcessDefinitionTest {
       .option("us", "US"));
     
     process.newVariable()
-      .name("t")
+      .id("t")
       .initialValueJson("iv")
       .dataType(TextType.INSTANCE)
       .line(3l)
@@ -78,11 +78,11 @@ public class JsonProcessDefinitionTest {
       .activityType(new Go())
       .line(20l)
       .column(30l)
-      .name("one");
+      .id("one");
 
     process.newActivity()
       .activityType(new Go())
-      .name("two");
+      .id("two");
 
     process.newTransition()
       .from("one")
@@ -102,7 +102,7 @@ public class JsonProcessDefinitionTest {
     ChoiceType choiceType = (ChoiceType) processDefinition.dataTypesMap.get("country");
     assertEquals("Belgium", choiceType.getOptions().get("be"));
     ActivityDefinitionImpl one = processDefinition.getActivityDefinition("one");
-    assertEquals("one", one.name);
+    assertEquals("one", one.id.getInternal());
     assertEquals(Go.class, one.activityType.getClass());
   }
 }

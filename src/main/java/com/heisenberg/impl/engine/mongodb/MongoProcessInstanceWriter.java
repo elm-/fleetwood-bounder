@@ -83,7 +83,7 @@ public class MongoProcessInstanceWriter extends MongoWriterHelper {
       Id parentId = (parent!=null ? parent.getId() : null);
       for (ActivityInstanceImpl activity: scopeInstance.activityInstances) {
         BasicDBObject dbActivity = new BasicDBObject();
-        putOpt(dbActivity, fieldNames.activityDefinitionName, activity.activityDefinitionName);
+        putOptId(dbActivity, fieldNames.activityDefinitionId, activity.activityDefinitionId);
         putOptId(dbActivity, fieldNames.parent, parentId);
         putOptTime(dbActivity, fieldNames.start, activity.start);
         putOptTime(dbActivity, fieldNames.end, activity.end);
@@ -100,7 +100,7 @@ public class MongoProcessInstanceWriter extends MongoWriterHelper {
       Id parentId = (parent!=null ? parent.getId() : null);
       for (VariableInstanceImpl variable: scopeInstance.variableInstances) {
         BasicDBObject dbVariable = new BasicDBObject();
-        putOpt(dbVariable, fieldNames.variableDefinitionName, variable.variableDefinitionName);
+        putOptId(dbVariable, fieldNames.variableDefinitionId, variable.variableDefinitionId);
         putOptId(dbVariable, fieldNames.parent, parentId);
         Object jsonValue = variable.dataType.convertInternalToJsonValue(variable.value);
         putOpt(dbVariable, fieldNames.value, jsonValue);

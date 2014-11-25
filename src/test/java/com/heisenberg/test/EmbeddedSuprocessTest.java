@@ -52,23 +52,23 @@ public class EmbeddedSuprocessTest {
   
     process.newActivity()
       .activityType(new Go())
-      .name("start");
+      .id("start");
     
     ActivityBuilder subprocess = process.newActivity()
       .activityType(EmbeddedSubprocess.INSTANCE)
-      .name("sub");
+      .id("sub");
     
     subprocess.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("w1");
+      .id("w1");
   
     subprocess.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("w2");
+      .id("w2");
   
     process.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("end");
+      .id("end");
   
     process.newTransition()
       .from("start")

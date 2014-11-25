@@ -62,11 +62,11 @@ public class RegisterDataTypeConfigurationInProcessEngineExample {
     
     process.newVariable()
       .type("country")
-      .name("c");
+      .id("c");
 
     process.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("w");
+      .id("w");
 
     ProcessDefinitionId pdid = processEngine
       .deployProcessDefinition(process)

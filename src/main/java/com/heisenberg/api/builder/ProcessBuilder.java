@@ -39,8 +39,6 @@ public interface ProcessBuilder {
   
   ProcessBuilder dataType(DataType dataType);
 
-  ProcessBuilder name(String processDefinitionName);
-
   ProcessBuilder line(Long lineNumber);
 
   ProcessBuilder column(Long columnNumber);

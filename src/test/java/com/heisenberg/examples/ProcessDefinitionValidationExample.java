@@ -44,10 +44,10 @@ public class ProcessDefinitionValidationExample {
       .activityType(StartEvent.INSTANCE);
 
     processBuilder.newActivity()
-      .name("a");
+      .id("a");
   
     processBuilder.newActivity()
-      .name("b")
+      .id("b")
       .activityType(EndEvent.INSTANCE);
     
     processBuilder.newTransition()

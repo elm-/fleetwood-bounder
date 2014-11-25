@@ -12,27 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
-
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.util.ActivityDefinitionId;
-import com.heisenberg.api.util.ActivityInstanceId;
-
-
+package com.heisenberg.api.util;
 
 
 
 /**
  * @author Walter White
  */
-public interface ActivityInstance extends ScopeInstance {
-  
-  ActivityInstanceId getId();
+public class ActivityDefinitionId extends Id {
 
-  ActivityDefinition getActivityDefinition();
-
-  ActivityDefinitionId getActivityDefinitionId();
-
-  ScopeInstance getParent();
-
+  public ActivityDefinitionId(Object id) {
+    super(id);
+  }
 }

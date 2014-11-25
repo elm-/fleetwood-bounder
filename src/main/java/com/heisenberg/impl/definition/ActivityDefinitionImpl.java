@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.SpiDescriptor;
 import com.heisenberg.impl.SpiDescriptorField;
@@ -35,10 +37,36 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder, ActivityDefinition {
 
+  public ActivityDefinitionId id;
+
+  /** References a type declared in the process engine by id.
+   * 
+   * With the {@link ActivityBuilder#activityTypeId() builder}, the activityTypeId can be specified.
+   * The value can be specified directly or indirectly by specifying an activityType object.
+   * When an activityType object is specified, then the {@link ProcessDefinitionValidator validator} and 
+   * {@link ProcessDefinitionSerializer serializer} will initialize the activityTypeId.
+   * 
+   * This value is jsonned and persisted.
+   * This field is mutually exclusive with activityTypeJson. */
   public String activityTypeId;
-  @JsonIgnore
+  
+  /** An inline, jsonnable and persistable declaration of an activityType. 
+   * This means that it contains the type and configuration of the activityType.
+   * With the {@link ActivityBuilder#activityTypeJson(Map) builder}, an activityType object can be specified.
+   * The validator and the serializer. */
+  @JsonProperty("activityType") 
   public Map<String,Object> activityTypeJson;
+  
+  /** The object implementing the activity execution behavior.
+   * This object is not persisted nor serialized. 
+   * If the process is persisted or serialized, the activityType must be found
+   * in the process engine via {@link #activityTypeId} or constructed from {@link #activityTypeJson} */
+  @JsonIgnore
   public ActivityType activityType;
+
+  /** the list of transitions leaving this activity.
+   * This field is not persisted nor jsonned. It is derived from {@link ScopeDefinitionImpl#transitionDefinitions} */
+  @JsonIgnore
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
 
   /// Activity Definition Builder methods ////////////////////////////////////////////////
@@ -58,8 +86,8 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return this;
   }
   
-  public ActivityDefinitionImpl name(String name) {
-    super.name(name);
+  public ActivityDefinitionImpl id(Object idInternal) {
+    this.id = new ActivityDefinitionId(idInternal);
     return this;
   }
 
@@ -96,7 +124,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   /// other methods ////////////////////////////
 
   public ProcessDefinitionPath getPath() {
-    return parent.getPath().addActivityDefinitionName(name);
+    return parent.getPath().addActivityDefinitionId(id);
   }
 
   public boolean isAsync(ActivityInstanceImpl activityInstance) {
@@ -135,7 +163,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   }
 
   public String toString() {
-    return name!=null ? "["+name.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
+    return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
 
   @Override
@@ -155,4 +183,14 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
       }
     }
   }
+  
+  public ActivityDefinitionId getId() {
+    return id;
+  }
+
+  
+  public void setId(ActivityDefinitionId id) {
+    this.id = id;
+  }
+
 }

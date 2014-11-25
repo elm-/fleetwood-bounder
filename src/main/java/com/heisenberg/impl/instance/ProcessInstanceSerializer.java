@@ -21,7 +21,7 @@ import com.heisenberg.impl.engine.updates.Update;
 /**
  * @author Walter White
  */
-public class PrepareProcessInstanceForSerialization implements ProcessInstanceVisitor {
+public class ProcessInstanceSerializer implements ProcessInstanceVisitor {
 
   @Override
   public void startProcessInstance(ProcessInstanceImpl processInstance) {
@@ -57,9 +57,9 @@ public class PrepareProcessInstanceForSerialization implements ProcessInstanceVi
 
   @Override
   public void startActivityInstance(ActivityInstanceImpl activityInstance, int index) {
-    if (activityInstance.activityDefinitionName==null
+    if (activityInstance.activityDefinitionId==null
         && activityInstance.activityDefinition!=null) {
-      activityInstance.activityDefinitionName = activityInstance.activityDefinition.name;
+      activityInstance.activityDefinitionId = activityInstance.activityDefinition.id;
     }
   }
 
@@ -73,9 +73,9 @@ public class PrepareProcessInstanceForSerialization implements ProcessInstanceVi
         && variableInstance.dataType!=null) {
       variableInstance.dataTypeId = variableInstance.dataType.getId();
     }
-    if (variableInstance.variableDefinitionName==null
+    if (variableInstance.variableDefinitionId==null
         && variableInstance.variableDefinition!=null) {
-      variableInstance.variableDefinitionName = variableInstance.variableDefinition.name;
+      variableInstance.variableDefinitionId = variableInstance.variableDefinition.id;
     }
   }
 }

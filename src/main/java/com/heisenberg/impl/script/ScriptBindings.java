@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.TypedValue;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 
 
@@ -39,7 +40,7 @@ public class ScriptBindings implements Bindings {
   
   public static final Logger log = LoggerFactory.getLogger(ScriptBindings.class);
   
-  protected Map<String,String> scriptToProcessMappings;
+  protected Map<String,VariableDefinitionId> scriptToProcessMappings;
   protected String language;
   protected ScopeInstanceImpl scopeInstance;
   protected Console console;
@@ -53,7 +54,7 @@ public class ScriptBindings implements Bindings {
   
   @Override
   public boolean containsKey(Object key) {
-    log.debug("ScriptBindings.containsKey("+key+")");
+    // log.debug("ScriptBindings.containsKey("+key+")");
     if (!(key instanceof String)) {
       return false;
     }
@@ -68,14 +69,14 @@ public class ScriptBindings implements Bindings {
       return true;
     }
     if (name.length()>0) {
-      return scopeInstance.getScopeDefinition().containsVariable(name);
+      return scopeInstance.getScopeDefinition().containsVariable(new VariableDefinitionId(name));
     }
     return false;
   }
 
   @Override
   public Object get(Object key) {
-    log.debug("ScriptBindings.get("+key+")");
+    // log.debug("ScriptBindings.get("+key+")");
     if (!(key instanceof String)) {
       return null;
     }
@@ -89,19 +90,19 @@ public class ScriptBindings implements Bindings {
     return dataType.convertInternalToScriptValue(value, language);
   }
   
-  protected String getVariableDefinitionName(String scriptVariableName) {
+  protected VariableDefinitionId getVariableDefinitionId(String scriptVariableName) {
     if (scriptToProcessMappings!=null) {
-      String variableDefinitionName = scriptToProcessMappings.get(scriptVariableName);
-      if (variableDefinitionName!=null) {
-        return variableDefinitionName;
+      VariableDefinitionId variableDefinitionId = scriptToProcessMappings.get(scriptVariableName);
+      if (variableDefinitionId!=null) {
+        return variableDefinitionId;
       }
     }
-    return scriptVariableName;
+    return new VariableDefinitionId(scriptVariableName);
   }
 
   public TypedValue getTypedValue(String scriptVariableName) {
-    String variableDefinitionName = getVariableDefinitionName(scriptVariableName);
-    return scopeInstance.getVariableValueRecursive(variableDefinitionName);
+    VariableDefinitionId variableDefinitionId = getVariableDefinitionId(scriptVariableName);
+    return scopeInstance.getVariableValueRecursive(variableDefinitionId);
   }
 
   static final Map<String, List<String>> NAME_TO_IGNORE = new HashMap<>();
@@ -118,16 +119,16 @@ public class ScriptBindings implements Bindings {
   
   @Override
   public Object put(String scriptVariableName, Object scriptValue) {
-    log.debug("ScriptBindings.put("+scriptVariableName+","+scriptValue+")");
+    // log.debug("ScriptBindings.put("+scriptVariableName+","+scriptValue+")");
     if (isIgnored(scriptVariableName)){
       return null;
     }
     TypedValue typedValue = getTypedValue(scriptVariableName);
     if (typedValue!=null) {
-      String variableDefinitionName = getVariableDefinitionName(scriptVariableName);
+      VariableDefinitionId variableDefinitionId = getVariableDefinitionId(scriptVariableName);
       DataType dataType = typedValue.getType();
       Object value = dataType.convertScriptValueToInternal(scriptValue, language);
-      scopeInstance.setVariableValueRecursive(variableDefinitionName, value);
+      scopeInstance.setVariableValueRecursive(variableDefinitionId, value);
     }
     return null;
   }

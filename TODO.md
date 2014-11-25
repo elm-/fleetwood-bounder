@@ -1,8 +1,6 @@
 # Tasks
 
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
-- [ ] Change Long to our own Date type.  This way, date serialization can be customized.
-- [ ] Consider separate methods in the api for setting java values and setting rest json values
 - [ ] http://blog.denevell.org/java-jersey-jetty-rest-gradle-tutorial-setup-quick.html
 
 # In progress
@@ -78,12 +76,6 @@
 # Design principles
 
 * Minimal library dependencies
-
-# Conventions
-
-* properties called 'name' refers to a user defined identifier. Names are typically unique within a certain scope like eg the process definition.
-* properties called 'id' refers to a process engine generated identifier.  Ids are globally unique and refer to database identifiers.
-* properties ending in RefId or RefName means this property is a reference to another object
 
 # Design topics
 

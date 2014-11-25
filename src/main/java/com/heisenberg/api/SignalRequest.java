@@ -37,14 +37,14 @@ public class SignalRequest extends VariableRequest {
   }
   
   @Override
-  public SignalRequest variableValue(String variableDefinitionId, Object value) {
-    super.variableValue(variableDefinitionId, value);
+  public SignalRequest variableValue(Object variableDefinitionIdInternal, Object value) {
+    super.variableValue(variableDefinitionIdInternal, value);
     return this;
   }
 
   @Override
-  public SignalRequest variableValueJson(String variableDefinitionId, Object valueJson) {
-    super.variableValueJson(variableDefinitionId, valueJson);
+  public SignalRequest variableValueJson(Object variableDefinitionIdInternal, Object valueJson) {
+    super.variableValueJson(variableDefinitionIdInternal, valueJson);
     return this;
   }
 

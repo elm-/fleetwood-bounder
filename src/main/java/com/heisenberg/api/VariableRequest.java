@@ -16,10 +16,10 @@ package com.heisenberg.api;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.util.VariableDefinitionId;
 
 
 /**
@@ -28,32 +28,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class VariableRequest {
 
   @JsonIgnore
-  public Map<String,Object> variableValues;
+  public Map<VariableDefinitionId,Object> variableValues;
 
-  public Map<String,Object> variableValuesJson;
+  public Map<VariableDefinitionId,Object> variableValuesJson;
 
-// TODO add persistent and transient context
-//  /** extra user defined information to be stored with the process instance. */
-//  @JsonIgnore
-//  public Map<String,Object> persistentContext;
-//  
   /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
   @JsonIgnore
   public Map<String,Object> transientContext;
 
-  public VariableRequest variableValue(String variableDefinitionId, Object value) {
+  public VariableRequest variableValue(Object variableDefinitionIdInternal, Object value) {
     if (variableValues==null) {
       variableValues = new LinkedHashMap<>();
     }
-    variableValues.put(variableDefinitionId, value);
+    variableValues.put(new VariableDefinitionId(variableDefinitionIdInternal), value);
     return this;
   }
 
-  public VariableRequest variableValueJson(String variableDefinitionId, Object valueJson) {
+  public VariableRequest variableValueJson(Object variableDefinitionIdInternal, Object valueJson) {
     if (variableValuesJson==null) {
       variableValuesJson = new LinkedHashMap<>();
     }
-    variableValuesJson.put(variableDefinitionId, valueJson);
+    variableValuesJson.put(new VariableDefinitionId(variableDefinitionIdInternal), valueJson);
     return this;
   }
   
@@ -64,21 +59,4 @@ public class VariableRequest {
     transientContext.put(key, value);
     return this;
   }
-
-
-//  public VariableRequest persistentContext(String key, Object value) {
-//    if (persistentContext==null) {
-//      persistentContext = new HashMap<>();
-//    }
-//    persistentContext.put(key, value);
-//    return this;
-//  }
-//
-//  public VariableRequest transientContext(String key, Object value) {
-//    if (transientContext==null) {
-//      transientContext = new HashMap<>();
-//    }
-//    transientContext.put(key, value);
-//    return this;
-//  }
 }

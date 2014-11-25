@@ -33,10 +33,6 @@ public class Id {
     return internal;
   }
   
-  public void setState(Object internal) {
-    this.internal = internal;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;

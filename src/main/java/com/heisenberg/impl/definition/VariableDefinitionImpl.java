@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 
@@ -30,9 +31,12 @@ import com.heisenberg.impl.instance.VariableInstanceImpl;
  */
 public class VariableDefinitionImpl implements VariableBuilder, VariableDefinition {
 
-  public String name;
+  public VariableDefinitionId id;
+  
   public String dataTypeId;
+  @JsonIgnore
   public DataType dataType;
+  @JsonProperty("dataType")
   public Map<String,Object> dataTypeJson;
   
   @JsonIgnore
@@ -50,8 +54,8 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
   public Long line;
   public Long column;
 
-  public VariableDefinitionImpl name(String name) {
-    this.name = name;
+  public VariableDefinitionImpl id(Object idInternal) {
+    this.id = new VariableDefinitionId(idInternal);
     return this;
   }
 
@@ -112,12 +116,12 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     this.parent = parent;
   }
 
-  public String getName() {
-    return name;
+  public VariableDefinitionId getId() {
+    return id;
   }
   
-  public VariableDefinitionImpl setName(String name) {
-    this.name = name;
+  public VariableDefinitionImpl setId(VariableDefinitionId id) {
+    this.id = id;
     return this;
   }
   

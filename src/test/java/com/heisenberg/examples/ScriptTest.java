@@ -55,12 +55,12 @@ public class ScriptTest {
     ProcessBuilder processBuilder = processEngine.newProcess();
     
     processBuilder.newVariable()
-      .name("m")
+      .id("m")
       .dataTypeJavaBean(Money.class);
     
     processBuilder.newActivity()
       .activityType(new ScriptActivity())
-      .name("a");
+      .id("a");
 
     ProcessDefinitionId processDefinitionId = processEngine
       .deployProcessDefinition(processBuilder)

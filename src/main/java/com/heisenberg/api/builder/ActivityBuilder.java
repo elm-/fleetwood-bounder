@@ -26,9 +26,10 @@ import com.heisenberg.api.activities.ActivityType;
 public interface ActivityBuilder {
 
   ActivityBuilder activityType(ActivityType activityType);
+  ActivityBuilder activityTypeId(String activityTypeId);
   ActivityBuilder activityTypeJson(Map<String,Object> activityTypeJson);
 
-  ActivityBuilder name(String activityDefinitionName);
+  ActivityBuilder id(Object activityDefinitionId);
 
   ActivityBuilder newActivity();
 

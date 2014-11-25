@@ -15,7 +15,6 @@
 package com.heisenberg.impl.engine.mongodb;
 
 import static com.heisenberg.impl.engine.mongodb.MongoReaderHelper.getBoolean;
-import static com.heisenberg.impl.engine.mongodb.MongoReaderHelper.getString;
 import static com.heisenberg.impl.engine.mongodb.MongoReaderHelper.getTime;
 import static com.heisenberg.impl.engine.mongodb.MongoWriterHelper.putOpt;
 import static com.heisenberg.impl.engine.mongodb.MongoWriterHelper.putOptId;
@@ -24,6 +23,7 @@ import static com.heisenberg.impl.engine.mongodb.MongoWriterHelper.putOptTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
@@ -48,7 +48,7 @@ public class MongoUpdateConverters {
   
   public static final String FIELDNAME_TYPE = "t";
   public static final String FIELDNAME_ACTIVITY_INSTANCE_ID = "id";
-  public static final String FIELDNAME_ACTIVITY_INSTANCE_NAME = "n";
+  public static final String FIELDNAME_ACTIVITY_DEFINITION_ID = "f";
   public static final String FIELDNAME_ACTIVITY_INSTANCE_START = "s";
   public static final String FIELDNAME_ACTIVITY_INSTANCE_END = "e";
   public static final String FIELDNAME_ACTIVITY_INSTANCE_DURATION = "d";
@@ -101,14 +101,14 @@ public class MongoUpdateConverters {
       putOpt(dbUpdate, FIELDNAME_TYPE, TYPE_ACTIVITY_INSTANCE_CREATE);
       putOptId(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
       putOptTime(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_START, update.start);
-      putOpt(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_NAME, update.activityDefinitionName);
+      putOpt(dbUpdate, FIELDNAME_ACTIVITY_DEFINITION_ID, update.activityDefinitionId);
       return dbUpdate;
     }
     public ActivityInstanceCreateUpdate toUpdate(BasicDBObject dbUpdate) {
       ActivityInstanceCreateUpdate update = new ActivityInstanceCreateUpdate();
       update.activityInstanceId = new ActivityInstanceId(dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID));
       update.start = getTime(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_START);
-      update.activityDefinitionName = getString(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_NAME);
+      update.activityDefinitionId = new ActivityDefinitionId(dbUpdate.get(FIELDNAME_ACTIVITY_DEFINITION_ID));
       return update;
     }
   }

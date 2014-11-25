@@ -17,11 +17,13 @@ package com.heisenberg.impl.engine.mongodb;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.OrganizationId;
 import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.api.util.ProcessId;
 import com.heisenberg.api.util.UserId;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -48,7 +50,6 @@ public class MongoProcessDefinitionReader extends MongoReaderHelper implements V
   public ProcessDefinitionImpl readProcessDefinition(BasicDBObject dbProcess) {
     ProcessDefinitionImpl process = new ProcessDefinitionImpl();
     process.id = new ProcessDefinitionId(dbProcess.get(fieldNames._id));
-    process.name = getString(dbProcess, fieldNames.name);
     process.deployedTime = getTime(dbProcess, fieldNames.deployedTime);
     Object deployedByInternal = dbProcess.get(fieldNames.deployedBy);
     process.deployedBy = (deployedByInternal!=null ? new UserId(deployedByInternal) : null);
@@ -96,7 +97,7 @@ public class MongoProcessDefinitionReader extends MongoReaderHelper implements V
 
   protected ActivityDefinitionImpl readActivityDefinition(ScopeDefinitionImpl parent, BasicDBObject dbActivity) {
     ActivityDefinitionImpl activity = new ActivityDefinitionImpl();
-    activity.name = getString(dbActivity, fieldNames.name);
+    activity.id = new ActivityDefinitionId(dbActivity.get(fieldNames._id));
     activity.activityTypeId = getString(dbActivity, fieldNames.activityTypeId);
     activity.activityTypeJson = getMap(dbActivity, fieldNames.activityType);
     return activity;
@@ -104,7 +105,7 @@ public class MongoProcessDefinitionReader extends MongoReaderHelper implements V
 
   protected VariableDefinitionImpl readVariableDefinition(ScopeDefinitionImpl parent, BasicDBObject dbVariable) {
     VariableDefinitionImpl variable = new VariableDefinitionImpl();
-    variable.name = getString(dbVariable, fieldNames.name);
+    variable.id = new VariableDefinitionId(dbVariable.get(fieldNames._id));
     variable.dataTypeId = getString(dbVariable, fieldNames.dataTypeId);
     variable.dataTypeJson = getMap(dbVariable, fieldNames.dataType);
     variable.initialValueJson = getMap(dbVariable, fieldNames.initialValue);
@@ -113,8 +114,8 @@ public class MongoProcessDefinitionReader extends MongoReaderHelper implements V
 
   protected TransitionDefinitionImpl readTransitionDefinition(ScopeDefinitionImpl parent, BasicDBObject dbTransition) {
     TransitionDefinitionImpl transition = new TransitionDefinitionImpl();
-    transition.fromName = getString(dbTransition, fieldNames.from);
-    transition.toName = getString(dbTransition, fieldNames.to);
+    transition.fromId = new ActivityDefinitionId(dbTransition.get(fieldNames.from));
+    transition.toId = new ActivityDefinitionId(dbTransition.get(fieldNames.to));
     return transition;
   }
 

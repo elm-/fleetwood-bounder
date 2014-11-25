@@ -58,16 +58,16 @@ public class JsonProcessInstanceTest {
     p.id = new ProcessDefinitionId("pdid");
     
     VariableDefinitionImpl v = (VariableDefinitionImpl) p.newVariable()
-      .name("v")
+      .id("v")
       .dataType(TextType.INSTANCE);
     
     ActivityDefinitionImpl a = (ActivityDefinitionImpl) p.newActivity()
       .activityType(new Go())
-      .name("one");
+      .id("one");
   
     p.newActivity()
       .activityType(new Go())
-      .name("two");
+      .id("two");
     
     ProcessInstanceImpl processInstance = new ProcessInstanceImpl();
     processInstance.processInstance = processInstance;

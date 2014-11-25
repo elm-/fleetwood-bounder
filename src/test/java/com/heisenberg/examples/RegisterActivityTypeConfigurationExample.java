@@ -59,13 +59,13 @@ public class RegisterActivityTypeConfigurationExample {
 
     ProcessBuilder processBuilder = processEngine.newProcess();
     ActivityDefinitionImpl a = (ActivityDefinitionImpl) processBuilder.newActivity()
-      .name("a")
+      .id("a")
       .activityType(new MyCustomType()
         .functionName("functOne")
         .parameterOne(new Binding<String>().variableName("v"))
       );
     processBuilder.newVariable()
-      .name("v")
+      .id("v")
       .dataType(TextType.INSTANCE);
 
     log.debug("The process as it is deployed into the engine:");
@@ -90,7 +90,7 @@ public class RegisterActivityTypeConfigurationExample {
     
     MyCustomType myCustomActivity = (MyCustomType) processDefinition.activityDefinitions.get(0).activityType;
     assertEquals("functOne", myCustomActivity.functionName);
-    assertEquals("v", myCustomActivity.parameterOne.variableName);
+    assertEquals("v", myCustomActivity.parameterOne.variableDefinitionId.getInternal());
   }
 
   public static class MyCustomType extends AbstractActivityType {

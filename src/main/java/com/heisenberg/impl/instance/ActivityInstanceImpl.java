@@ -24,12 +24,13 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
-import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.script.ScriptRunnerImpl;
 
@@ -46,7 +47,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   @JsonIgnore
   public ActivityDefinitionImpl activityDefinition;
   
-  public String activityDefinitionName;
+  public ActivityDefinitionId activityDefinitionId;
 
   public void onwards() {
     log.debug("Onwards "+this);
@@ -126,7 +127,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   
   public String toString() {
     String activityDefinitionType = activityDefinition.activityType.getClass().getSimpleName();
-    return "ai("+activityDefinition.name+"|"+activityDefinitionType+"|"+id+")";
+    return "ai("+activityDefinition.id+"|"+activityDefinitionType+"|"+id+")";
   }
   
   public void setEnd(LocalDateTime end) {
@@ -148,13 +149,13 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return processEngine.scriptRunner;
   }
   
-  public void setActivityDefinitionName(String activityDefinitionName) {
-    this.activityDefinitionName = activityDefinitionName;
+  public void setActivityDefinitionId(ActivityDefinitionId activityDefinitionId) {
+    this.activityDefinitionId = activityDefinitionId;
   }
 
   @Override
-  public String getActivityDefinitionName() {
-    return activityDefinitionName;
+  public ActivityDefinitionId getActivityDefinitionId() {
+    return activityDefinitionId;
   }
   
   @Override

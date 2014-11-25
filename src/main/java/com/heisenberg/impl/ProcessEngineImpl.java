@@ -15,7 +15,6 @@
 package com.heisenberg.impl;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -53,6 +52,7 @@ import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.api.util.Spi;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -250,6 +250,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return new ProcessDefinitionId(UUID.randomUUID().toString());
   }
   
+  /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
   protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
@@ -282,27 +283,27 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   private void setVariableApiValues(ScopeInstanceImpl scopeInstance, VariableRequest variableRequest) {
     ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition;
-    Map<String, Object> variableValuesJson = variableRequest.variableValuesJson;
+    Map<VariableDefinitionId, Object> variableValuesJson = variableRequest.variableValuesJson;
     // If there are variables in json format
     if (variableValuesJson!=null) {
-      Map<String,Object> internalValues = new LinkedHashMap<>();
-      for (String variableDefinitionName: variableValuesJson.keySet()) {
-        Object jsonValue = variableValuesJson.get(variableDefinitionName);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
+      Map<VariableDefinitionId,Object> internalValues = new LinkedHashMap<>();
+      for (VariableDefinitionId variableDefinitionId: variableValuesJson.keySet()) {
+        Object jsonValue = variableValuesJson.get(variableDefinitionId);
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionById(variableDefinitionId);
         try {
           Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);
-          internalValues.put(variableDefinitionName, internalValue);
+          internalValues.put(variableDefinitionId, internalValue);
         } catch (InvalidValueException e) {
           throw new RuntimeException("TODO: collect error messages and somehow get them in the response", e);
         }
       }
       scopeInstance.setVariableValuesRecursive(internalValues);
     } 
-    Map<String, Object> variableValues = variableRequest.variableValues;
+    Map<VariableDefinitionId, Object> variableValues = variableRequest.variableValues;
     if (variableValues!=null) {
-      for (String variableDefinitionName: variableValues.keySet()) {
-        Object internalValue = variableValues.get(variableDefinitionName);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionByName(variableDefinitionName);
+      for (VariableDefinitionId variableDefinitionId: variableValues.keySet()) {
+        Object internalValue = variableValues.get(variableDefinitionId);
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionById(variableDefinitionId);
         try {
           variableDefinition.dataType.validateInternalValue(internalValue);
         } catch (InvalidValueException e) {

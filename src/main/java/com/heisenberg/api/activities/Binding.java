@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.SpiDescriptorField;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -37,7 +38,7 @@ public class Binding<T> {
   
   public Object value;
   public Object valueJson;
-  public String variableName;
+  public VariableDefinitionId variableDefinitionId;
   public String expression;
   public String expressionLanguage; // optional. can be null. default is JavaScript
   @JsonIgnore
@@ -51,8 +52,8 @@ public class Binding<T> {
     if (value!=null) {
       return (T) value;
     }
-    if (variableName!=null) {
-      return (T) activityInstance.getVariableValueRecursive(variableName).getValue();
+    if (variableDefinitionId!=null) {
+      return (T) activityInstance.getVariableValueRecursive(variableDefinitionId).getValue();
     }
     if (expressionScript!=null) {
       ScriptResult scriptResult = activityInstance.getScriptRunner().evaluateScript(activityInstance, expressionScript);
@@ -72,8 +73,8 @@ public class Binding<T> {
     return this;
   }
   
-  public Binding<T> variableName(String variableName) {
-    this.variableName = variableName;
+  public Binding<T> variableName(Object variableDefinitionIdInternal) {
+    this.variableDefinitionId = new VariableDefinitionId(variableDefinitionIdInternal);
     return this;
   }
   

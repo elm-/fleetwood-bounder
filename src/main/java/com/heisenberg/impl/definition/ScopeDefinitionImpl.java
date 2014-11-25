@@ -21,7 +21,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.util.ActivityDefinitionId;
+import com.heisenberg.api.util.Id;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.util.Exceptions;
 
@@ -33,7 +36,6 @@ public abstract class ScopeDefinitionImpl {
 
   // parsed and stored member fields
 
-  public String name;
   public List<ActivityDefinitionImpl> activityDefinitions;
   public List<VariableDefinitionImpl> variableDefinitions;
   public List<TransitionDefinitionImpl> transitionDefinitions;
@@ -48,9 +50,9 @@ public abstract class ScopeDefinitionImpl {
   @JsonIgnore
   public ScopeDefinitionImpl parent;
   @JsonIgnore
-  public Map<String, ActivityDefinitionImpl> activityDefinitionsMap;
+  public Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap;
   @JsonIgnore
-  public Map<String, VariableDefinitionImpl> variableDefinitionsMap;
+  public Map<VariableDefinitionId, VariableDefinitionImpl> variableDefinitionsMap;
   @JsonIgnore
   public List<ActivityDefinitionImpl> startActivities;
 
@@ -107,11 +109,6 @@ public abstract class ScopeDefinitionImpl {
     return timerDefinition;
   }
 
-  public ScopeDefinitionImpl name(String name) {
-    this.name = name;
-    return this;
-  }
-
   public ScopeDefinitionImpl line(Long line) {
     this.line = line;
     return this;
@@ -143,8 +140,8 @@ public abstract class ScopeDefinitionImpl {
     this.processDefinition = processDefinition;
   }
   
-  public ActivityDefinitionImpl getActivityDefinition(String name) {
-    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(name) : null;
+  public ActivityDefinitionImpl getActivityDefinition(Object idInternal) {
+    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(new ActivityDefinitionId(idInternal)) : null;
   }
   
   public ProcessEngineImpl getProcessEngine() {
@@ -254,33 +251,33 @@ public abstract class ScopeDefinitionImpl {
     }
   }
 
-  public boolean containsVariable(String variableDefinitionName) {
-    if (variableDefinitionName==null) {
+  public boolean containsVariable(VariableDefinitionId variableDefinitionId) {
+    if (variableDefinitionId==null) {
       return false;
     }
     if (variableDefinitions!=null) {
       for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
-        if (variableDefinitionName.equals(variableDefinition.name)) {
+        if (variableDefinitionId.equals(variableDefinition.id)) {
           return true;
         }
       }
     }
     ScopeDefinitionImpl parent = getParent();
     if (parent!=null) {
-      return parent.containsVariable(variableDefinitionName);
+      return parent.containsVariable(variableDefinitionId);
     }
     return false;
   }
 
-  public VariableDefinitionImpl findVariableDefinitionByName(String variableDefinitionName) {
-    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionName) : null;
+  public VariableDefinitionImpl findVariableDefinitionById(VariableDefinitionId variableDefinitionId) {
+    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionId) : null;
   }
 
   public void initializeActivityDefinitionsMap() {
     if (activityDefinitionsMap==null && activityDefinitions!=null) {
       activityDefinitionsMap = new HashMap<>();
       for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
-        activityDefinitionsMap.put(activityDefinition.name, activityDefinition);
+        activityDefinitionsMap.put(activityDefinition.id, activityDefinition);
       }
     }
   }
@@ -295,9 +292,11 @@ public abstract class ScopeDefinitionImpl {
       }
     }
     if (startActivities==null) {
-      validator.addError("No start activities in %s", name);
+      validator.addError("No start activities in %s", getId());
     }
   }
+  
+  public abstract Id getId();
 
   // getters and setters ////////////////////////////////////////////////////////////
   
@@ -315,12 +314,12 @@ public abstract class ScopeDefinitionImpl {
   }
 
   
-  public Map<String, ActivityDefinitionImpl> getActivityDefinitionsMap() {
+  public Map<ActivityDefinitionId, ActivityDefinitionImpl> getActivityDefinitionsMap() {
     return activityDefinitionsMap;
   }
 
   
-  public void setActivityDefinitionsMap(Map<String, ActivityDefinitionImpl> activityDefinitionsMap) {
+  public void setActivityDefinitionsMap(Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap) {
     this.activityDefinitionsMap = activityDefinitionsMap;
   }
 
@@ -335,12 +334,12 @@ public abstract class ScopeDefinitionImpl {
   }
 
   
-  public Map<String, VariableDefinitionImpl> getVariableDefinitionsMap() {
+  public Map<VariableDefinitionId, VariableDefinitionImpl> getVariableDefinitionsMap() {
     return variableDefinitionsMap;
   }
 
   
-  public void setVariableDefinitionsMap(Map<String, VariableDefinitionImpl> variableDefinitionsMap) {
+  public void setVariableDefinitionsMap(Map<VariableDefinitionId, VariableDefinitionImpl> variableDefinitionsMap) {
     this.variableDefinitionsMap = variableDefinitionsMap;
   }
 
@@ -354,16 +353,6 @@ public abstract class ScopeDefinitionImpl {
     this.transitionDefinitions = transitionDefinitions;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  
   public List<TimerDefinitionImpl> getTimerDefinitions() {
     return timerDefinitions;
   }

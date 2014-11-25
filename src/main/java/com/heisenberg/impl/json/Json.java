@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.TextType;
+import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.api.util.Id;
 import com.heisenberg.api.util.OrganizationId;
@@ -48,12 +49,13 @@ import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.api.util.ProcessId;
 import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.api.util.UserId;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
-import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.engine.updates.LockAcquireUpdate;
@@ -61,8 +63,8 @@ import com.heisenberg.impl.engine.updates.LockReleaseUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 import com.heisenberg.impl.engine.updates.Update;
-import com.heisenberg.impl.instance.PrepareProcessInstanceForSerialization;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.ProcessInstanceSerializer;
 
 
 /**
@@ -102,6 +104,8 @@ public class Json {
     module.addSerializer(new IdSerializer());
     module.addSerializer(new LocalDateTimeSerializer());
     module.addDeserializer(ProcessDefinitionId.class, new ProcessDefinitionIdDeserializer());
+    module.addDeserializer(ActivityDefinitionId.class, new ActivityDefinitionIdDeserializer());
+    module.addDeserializer(VariableDefinitionId.class, new VariableDefinitionIdDeserializer());
     module.addDeserializer(ProcessInstanceId.class, new ProcessInstanceIdDeserializer());
     module.addDeserializer(ActivityInstanceId.class, new ActivityInstanceIdDeserializer());
     module.addDeserializer(ProcessId.class, new ProcessIdDeserializer());
@@ -136,17 +140,17 @@ public class Json {
     return objectMapper.convertValue(object, Map.class);
   }
   
-  static final ProcessDefinitionSerializer PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION = new ProcessDefinitionSerializer();
-  static final PrepareProcessInstanceForSerialization PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION = new PrepareProcessInstanceForSerialization();
+  static final ProcessDefinitionSerializer PROCESS_DEFINITION_SERIALIZER = new ProcessDefinitionSerializer();
+  static final ProcessInstanceSerializer PROCESS_INSTANCE_SERIALIZER = new ProcessInstanceSerializer();
 
   protected void objectToJson(Object object, Writer writer, ObjectWriter objectWriter) {
     try {
       if (object instanceof ProcessDefinitionImpl) {
-        ((ProcessDefinitionImpl)object).visit(PREPARE_PROCESS_DEFINITION_FOR_SERIALIZATION);
+        ((ProcessDefinitionImpl)object).visit(PROCESS_DEFINITION_SERIALIZER);
       } else if (object instanceof ProcessInstanceImpl) {
-        ((ProcessInstanceImpl)object).visit(PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION);
+        ((ProcessInstanceImpl)object).visit(PROCESS_INSTANCE_SERIALIZER);
       } else if (object instanceof Update) {
-        PREPARE_PROCESS_INSTANCE_FOR_SERIALIZATION.update((Update)object, -1);
+        PROCESS_INSTANCE_SERIALIZER.update((Update)object, -1);
       }
       objectWriter
         .withAttribute("processEngine", processEngine)
@@ -272,6 +276,30 @@ public class Json {
     public ActivityInstanceId deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
       String idText = jp.getText();
       return idText!=null ? new ActivityInstanceId(idText) : null;
+    }
+  }
+
+  private static class ActivityDefinitionIdDeserializer extends StdDeserializer<ActivityDefinitionId> {
+    private static final long serialVersionUID = 1L;
+    protected ActivityDefinitionIdDeserializer() {
+      super(ActivityDefinitionId.class);
+    }
+    @Override
+    public ActivityDefinitionId deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+      String idText = jp.getText();
+      return idText!=null ? new ActivityDefinitionId(idText) : null;
+    }
+  }
+
+  private static class VariableDefinitionIdDeserializer extends StdDeserializer<VariableDefinitionId> {
+    private static final long serialVersionUID = 1L;
+    protected VariableDefinitionIdDeserializer() {
+      super(VariableDefinitionId.class);
+    }
+    @Override
+    public VariableDefinitionId deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+      String idText = jp.getText();
+      return idText!=null ? new VariableDefinitionId(idText) : null;
     }
   }
 }

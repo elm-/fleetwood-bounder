@@ -27,7 +27,9 @@ import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
+import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
@@ -51,12 +53,12 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   public LinkedList<String> path = new LinkedList<>();
   public Stack<Object> contextObjectStack = new Stack<>();
   public ParseIssues parseIssues = new ParseIssues();
-  public Set<String> activityNames = new HashSet<>();
-  public Set<String> variableNames = new HashSet<>();
+  public Set<ActivityDefinitionId> activityIds = new HashSet<>();
+  public Set<VariableDefinitionId> variableIds = new HashSet<>();
 
   public Stack<ValidationContext> contextStack = new Stack<>();
   private class ValidationContext {
-    public ValidationContext(Object element, String name, int index, Long line, Long column) {
+    public ValidationContext(Object element, Object name, int index, Long line, Long column) {
       if (element instanceof ProcessDefinitionImpl) {
         this.pathElement = "processDefinition";
       } else {
@@ -106,33 +108,46 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
     activity.processEngine = processEngine;
     activity.processDefinition = processDefinition;
     activity.parent = getContextObject(ScopeDefinitionImpl.class);
-    pushContext(activity, activity.name, index, activity.line, activity.column);
-    if (activity.name==null || "".equals(activity.name)) {
+    pushContext(activity, activity.id, index, activity.line, activity.column);
+    if (activity.id==null || "".equals(activity.id)) {
       addError("Activity has no name");
     } else {
       if (activity.parent.activityDefinitionsMap==null) {
         activity.parent.activityDefinitionsMap = new LinkedHashMap<>();
       }
-      if (!activityNames.contains(activity.name)) {
-        activity.parent.activityDefinitionsMap.put(activity.name, activity);
-        activityNames.add(activity.name);
+      if (!activityIds.contains(activity.id)) {
+        activity.parent.activityDefinitionsMap.put(activity.id, activity);
+        activityIds.add(activity.id);
       } else {
-        addError("Duplicate activity name '%s'. Activity names have to be unique in the process.", activity.name);
+        addError("Duplicate activity name '%s'. Activity names have to be unique in the process.", activity.id);
       }
     }
     if (activity.activityType==null) {
       if (activity.activityTypeId!=null) {
         activity.activityType = processEngine.findActivityType(activity.activityTypeId);
+        if (activity.activityType==null) {
+          addError("Activity '%s' has non-existing activity type id '%s'", activity.id);
+        }
       } else if (activity.activityTypeJson!=null) {
         try {
           activity.activityType = processEngine.json.jsonMapToObject(activity.activityTypeJson, ActivityType.class);
         } catch (Exception e) {
-          addError("Activity '%s' has invalid value: %s", activity.name, activity.activityTypeJson);
+          addError("Activity '%s' has invalid json value: %s", activity.id, activity.activityTypeJson);
+        }
+      }
+    } else {
+      if (activity.activityType.getId()!=null) {
+        activity.activityTypeId = activity.activityType.getId();
+      } else {
+        try {
+          activity.activityTypeJson = processEngine.json.objectToJsonMap(activity.activityType);
+        } catch (Exception e) {
+          addWarning("Activity '%s' couldn't be serialized to json");
         }
       }
     }
     if (activity.activityType==null) {
-      addError("Activity '%s' has no activityType configured", activity.name);
+      addError("Activity '%s' has no activityType configured", activity.id);
     } else if (activity.activityTypeId==null) {
       activity.activityTypeId = activity.activityType.getId();
     }
@@ -149,20 +164,30 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   @Override
   public void variableDefinition(VariableDefinitionImpl variable, int index) {
     ScopeDefinitionImpl scopeDefinition = getContextObject(ScopeDefinitionImpl.class);
-    pushContext(variable, variable.name, index, variable.line, variable.column);
-    if (variable.name==null) {
+    pushContext(variable, variable.id, index, variable.line, variable.column);
+    if (variable.id==null) {
       addError("Variable does not have a name");
     }
     if (variable.dataType==null) {
       if (variable.dataTypeId!=null) {
         variable.dataType = processDefinition.findDataType(variable.dataTypeId);
         if (variable.dataType==null) {
-          addError("Variable '%s' has unknown type '%s'", variable.name, variable.dataTypeId);
+          addError("Variable '%s' has unknown type '%s'", variable.id, variable.dataTypeId);
         }
       } else if (variable.dataTypeJson!=null) {
         variable.dataType = processEngine.json.jsonMapToObject(variable.dataTypeJson, DataType.class);
       } else {
-        addError("Variable '%s' does not have a type", variable.name);
+        addError("Variable '%s' does not have a type", variable.id);
+      }
+    } else {
+      if (variable.dataType.getId()!=null) {
+        variable.dataTypeId = variable.dataType.getId();
+      } else {
+        try {
+          variable.dataTypeJson = processEngine.json.objectToJsonMap(variable.dataType);
+        } catch (Exception e) {
+          addWarning("Data type '%s' couldn't be serialized to json");
+        }
       }
     }
     if (variable.dataType!=null) {
@@ -171,17 +196,17 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         try {
           variable.initialValueJson = variable.dataType.convertJsonToInternalValue(variable.initialValueJson);
         } catch (InvalidValueException e) {
-          addError("Invalid initial value %s for variable %s (%s)", variable.initialValueJson, variable.name, variable.dataTypeId);
+          addError("Invalid initial value %s for variable %s (%s)", variable.initialValueJson, variable.id, variable.dataTypeId);
         }
       }
       if (scopeDefinition.variableDefinitionsMap==null) {
         scopeDefinition.variableDefinitionsMap = new HashMap<>();
       }
-      if (!variableNames.contains(variable.name)) {
-        scopeDefinition.variableDefinitionsMap.put(variable.name, variable);
-        variableNames.add(variable.name);
+      if (!variableIds.contains(variable.id)) {
+        scopeDefinition.variableDefinitionsMap.put(variable.id, variable);
+        variableIds.add(variable.id);
       } else {
-        addError("Duplicate variable name %s. Variables have to be unique in the process.", variable.name);
+        addError("Duplicate variable name %s. Variables have to be unique in the process.", variable.id);
       }
     }
     popContext();
@@ -189,31 +214,31 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
 
   @Override
   public void transitionDefinition(TransitionDefinitionImpl transition, int index) {
-    pushContext(transition, transition.name, index, transition.line, transition.column);
+    pushContext(transition, transition.id, index, transition.line, transition.column);
     ScopeDefinitionImpl scopeDefinitionmpl = getContextObject(ScopeDefinitionImpl.class);
-    Map<String, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionmpl.activityDefinitionsMap;
-    if (transition.fromName==null) {
+    Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionmpl.activityDefinitionsMap;
+    if (transition.fromId==null) {
       addWarning("Transition does not have from (source) specified");
     } else {
-      transition.from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transition.fromName) : null);
+      transition.from = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transition.fromId) : null);
       if (transition.from!=null) {
         transition.from.addOutgoingTransition(transition);
       } else {
-        addError("Transition has an invalid from (source) '%s' : %s", transition.fromName, getExistingActivityNamesText(activityDefinitionsMap));
+        addError("Transition has an invalid from (source) '%s' : %s", transition.fromId, getExistingActivityNamesText(activityDefinitionsMap));
       }
     }
-    if (transition.toName==null) {
+    if (transition.toId==null) {
       addWarning("Transition does not have to (destination) specified");
     } else {
-      transition.to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transition.toName) : null);
+      transition.to = (activityDefinitionsMap!=null ? activityDefinitionsMap.get(transition.toId) : null);
       if (transition.to==null) {
-        addError("Transition has an invalid to (destination) '%s' : %s", transition.toName, getExistingActivityNamesText(activityDefinitionsMap));
+        addError("Transition has an invalid to (destination) '%s' : %s", transition.toId, getExistingActivityNamesText(activityDefinitionsMap));
       }
     }
     popContext();
   }
 
-  public void pushContext(Object element, String name, int index, Long line, Long column) {
+  public void pushContext(Object element, Object name, int index, Long line, Long column) {
     this.contextStack.push(new ValidationContext(element, name, index, line, column));
   }
   
@@ -240,7 +265,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
     return pathText.toString();
   }
 
-  String getExistingActivityNamesText(Map<String, ActivityDefinitionImpl> activityDefinitionsMap) {
+  String getExistingActivityNamesText(Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap) {
     return (activityDefinitionsMap!=null ? "Should be one of "+activityDefinitionsMap.keySet() : "No activities defined in this scope");
   }
 

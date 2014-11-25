@@ -17,29 +17,31 @@ package com.heisenberg.impl.definition;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.heisenberg.api.util.ActivityDefinitionId;
+
 
 /**
  * @author Walter White
  */
 public class ProcessDefinitionPath {
   
-  public List<String> activityDefinitionNames;
+  public List<String> activityDefinitionIds;
 
-  public ProcessDefinitionPath addActivityDefinitionName(String activiyDefinitionName) {
-    if (activityDefinitionNames==null) {
-      activityDefinitionNames = new ArrayList<>();
+  public ProcessDefinitionPath addActivityDefinitionId(ActivityDefinitionId activiyDefinitionId) {
+    if (activityDefinitionIds==null) {
+      activityDefinitionIds = new ArrayList<>();
     }
-    activityDefinitionNames.add(activiyDefinitionName);
+    activityDefinitionIds.add(activiyDefinitionId.toString());
     return this;
   }
 
   /** slash separated path */
   public String toString() {
-    if (activityDefinitionNames!=null) {
+    if (activityDefinitionIds!=null) {
       StringBuilder path = new StringBuilder();
-      for (String activityDefinitionName: activityDefinitionNames) {
+      for (String activityDefinitionId: activityDefinitionIds) {
         path.append("/");
-        path.append(activityDefinitionName);
+        path.append(activityDefinitionId);
       }
       return path.toString();
     }

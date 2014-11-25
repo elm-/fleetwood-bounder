@@ -48,12 +48,12 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
     ProcessBuilder process = processEngine.newProcess();
     
     process.newVariable()
-      .name("m")
+      .id("m")
       .dataTypeJavaBean(CustomMoney.class);
     
     process.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("w");
+      .id("w");
 
     ProcessDefinitionId pdid = processEngine
       .deployProcessDefinition(process)
@@ -79,12 +79,12 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
     ProcessBuilder process = processEngine.newProcess();
     
     process.newVariable()
-      .name("m")
+      .id("m")
       .dataTypeJavaBean(CustomMoney.class);
     
     process.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("w");
+      .id("w");
 
     ProcessDefinitionId pdid = processEngine
       .deployProcessDefinition(process)

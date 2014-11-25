@@ -14,7 +14,6 @@
  */
 package com.heisenberg.impl.definition;
 
-import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.type.DataType;
 
 
@@ -34,32 +33,33 @@ public class ProcessDefinitionSerializer implements ProcessDefinitionVisitor {
 
   @Override
   public void startActivityDefinition(ActivityDefinitionImpl activity, int index) {
-    ActivityType activityType = activity.activityType;
-    if (activity.activityTypeId==null
-        && activityType!=null 
-        && activityType.getId()!=null) {
-      activity.activityTypeId = activityType.getId();
-      activity.activityType = null;
+    if (activity.activityType!=null) {
+      if (activity.activityTypeId==null && activity.activityType.getId()!=null) {
+        activity.activityTypeId = activity.activityType.getId();
+      } else if (activity.activityTypeJson==null) {
+        activity.activityTypeJson = activity.processEngine.json.objectToJsonMap(activity.activityType);
+      }
     }
   }
 
   @Override
   public void variableDefinition(VariableDefinitionImpl variable, int index) {
-    if ( variable.dataTypeId==null 
-         && variable.dataType!=null
-         && variable.dataType.getId()!=null) {
-      variable.dataTypeId = variable.dataType.getId();
-      variable.dataType = null;
+    if (variable.dataType!=null) {
+      if (variable.dataTypeId==null && variable.dataType.getId()!=null) {
+        variable.dataTypeId = variable.dataType.getId();
+      } else if (variable.dataTypeJson==null) {
+        variable.dataTypeJson = variable.processEngine.json.objectToJsonMap(variable.dataType);
+      }
     }
   }
 
   @Override
   public void transitionDefinition(TransitionDefinitionImpl transitionDefinition, int index) {
-    if (transitionDefinition.fromName==null && transitionDefinition.from!=null) {
-      transitionDefinition.fromName = transitionDefinition.from.name;
+    if (transitionDefinition.fromId==null && transitionDefinition.from!=null) {
+      transitionDefinition.fromId = transitionDefinition.from.id;
     }
-    if (transitionDefinition.toName==null && transitionDefinition.to!=null) {
-      transitionDefinition.toName = transitionDefinition.to.name;
+    if (transitionDefinition.toId==null && transitionDefinition.to!=null) {
+      transitionDefinition.toId = transitionDefinition.to.id;
     }
   }
 

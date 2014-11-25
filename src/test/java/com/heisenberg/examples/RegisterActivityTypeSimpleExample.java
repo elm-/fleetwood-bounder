@@ -44,7 +44,7 @@ public class RegisterActivityTypeSimpleExample {
     ProcessBuilder process = processEngine.newProcess();
     
     process.newActivity()
-      .name("a")
+      .id("a")
       .activityType(new MyCustomType());
     
     ProcessDefinitionId pdid = processEngine

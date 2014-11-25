@@ -17,6 +17,7 @@ package com.heisenberg.impl.instance;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 
@@ -40,7 +41,7 @@ public class VariableInstanceImpl implements VariableInstance {
   public String dataTypeId;
 
   public Object value;
-  public String variableDefinitionName;
+  public VariableDefinitionId variableDefinitionId;
 
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
@@ -91,8 +92,8 @@ public class VariableInstanceImpl implements VariableInstance {
   }
 
   @Override
-  public String getVariableDefinitionName() {
-    return variableDefinitionName;
+  public VariableDefinitionId getVariableDefinitionId() {
+    return variableDefinitionId;
   }
 
   @Override

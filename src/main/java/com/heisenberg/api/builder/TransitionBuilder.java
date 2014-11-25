@@ -16,14 +16,15 @@ package com.heisenberg.api.builder;
 
 
 
+
 /**
  * @author Walter White
  */
 public interface TransitionBuilder {
 
   /** Fluent builder to set the source of this transition.
-   * @param fromActivityDefinitionName the name of the activity definition. */
-  TransitionBuilder from(String fromActivityDefinitionName);
+   * @param fromId the name of the activity definition. */
+  TransitionBuilder from(Object fromId);
 
-  TransitionBuilder to(String toActivityDefinitionName);
+  TransitionBuilder to(Object toId);
 }

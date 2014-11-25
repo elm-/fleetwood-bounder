@@ -56,7 +56,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   public ProcessId processId;
 
   /** optional version number of this process definition, related to @link {@link #processId}.
-   * This combined with the @link {@link ScopeDefinitionImpl#name} should be unique. */
+   * This combined with the @link {@link ScopeDefinitionImpl#id} should be unique. */
   public Long version;
   
   /** the types defined on the process definition level.
@@ -69,12 +69,6 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   public Map<String,DataType> dataTypesMap;
   
   /// Process Definition Builder methods /////////////////////////////////////////////
-
-  @Override
-  public ProcessDefinitionImpl name(String name) {
-    super.name(name);
-    return this;
-  }
 
   @Override
   public ProcessDefinitionImpl deployedTime(LocalDateTime deployedAt) {
@@ -209,7 +203,4 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
       }
     }
   }
-
-
-
 }

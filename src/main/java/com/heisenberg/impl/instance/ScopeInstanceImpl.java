@@ -31,6 +31,7 @@ import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.api.util.Id;
 import com.heisenberg.api.util.TypedValue;
+import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -55,7 +56,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   public List<VariableInstanceImpl> variableInstances;
 
   @JsonIgnore
-  public Map<String, VariableInstanceImpl> variableInstancesMap;
+  public Map<VariableDefinitionId, VariableInstanceImpl> variableInstancesMap;
 
   @JsonIgnore
   public ProcessEngineImpl processEngine;
@@ -107,7 +108,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     activityInstance.processInstance = processInstance;
     activityInstance.parent = this;
     activityInstance.activityDefinition = activityDefinition;
-    activityInstance.activityDefinitionName = activityDefinition.name;
+    activityInstance.activityDefinitionId = activityDefinition.id;
     activityInstance.setStart(Time.now());
     if (activityInstances==null) {
       activityInstances = new ArrayList<>();
@@ -128,7 +129,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
         variableInstance.parent = this;
         variableInstance.processInstance = processInstance;
         variableInstance.variableDefinition = variableDefinition;
-        variableInstance.variableDefinitionName = variableDefinition.name;
+        variableInstance.variableDefinitionId = variableDefinition.id;
         if (variableInstances==null) {
           variableInstances = new ArrayList<>();
         }
@@ -137,16 +138,16 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
   }
   
-  public void setVariableValuesRecursive(Map<String, Object> variableValues) {
+  public void setVariableValuesRecursive(Map<VariableDefinitionId, Object> variableValues) {
     if (variableValues!=null) {
-      for (String variableDefinitionId: variableValues.keySet()) {
+      for (VariableDefinitionId variableDefinitionId: variableValues.keySet()) {
         Object value = variableValues.get(variableDefinitionId);
         setVariableValueRecursive(variableDefinitionId, value);
       }
     }
   }
 
-  public void setVariableValueRecursive(String variableDefinitionName, Object value) {
+  public void setVariableValueRecursive(VariableDefinitionId variableDefinitionName, Object value) {
     if (variableInstances!=null) {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionName);
       if (variableInstance!=null) {
@@ -158,9 +159,9 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
   }
   
-  public TypedValue getVariableValueRecursive(String variableDefinitionName) {
+  public TypedValue getVariableValueRecursive(VariableDefinitionId variableDefinitionId) {
     if (variableInstances!=null) {
-      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionName);
+      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
         DataType dataType = variableInstance.getVariableDefinition().getType();
         Object value = variableInstance.getValue();
@@ -168,21 +169,21 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
       }
     }
     if (parent!=null) {
-      return parent.getVariableValueRecursive(variableDefinitionName);
+      return parent.getVariableValueRecursive(variableDefinitionId);
     }
-    throw new RuntimeException("Variable "+variableDefinitionName+" is not defined in "+getClass().getSimpleName()+" "+toString());
+    throw new RuntimeException("Variable "+variableDefinitionId+" is not defined in "+getClass().getSimpleName()+" "+toString());
   }
   
-  protected VariableInstanceImpl getVariableInstanceLocal(String variableDefinitionName) {
+  protected VariableInstanceImpl getVariableInstanceLocal(VariableDefinitionId variableDefinitionId) {
     ensureVariableInstancesMapInitialized();
-    return variableInstancesMap.get(variableDefinitionName);
+    return variableInstancesMap.get(variableDefinitionId);
   }
 
   protected void ensureVariableInstancesMapInitialized() {
     if (variableInstancesMap==null && variableInstances!=null) {
       variableInstancesMap = new HashMap<>();
       for (VariableInstanceImpl variableInstance: variableInstances) {
-        variableInstancesMap.put(variableInstance.variableDefinition.name, variableInstance);
+        variableInstancesMap.put(variableInstance.variableDefinition.id, variableInstance);
       }
     }
   }

@@ -17,8 +17,6 @@ package com.heisenberg.test.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +55,7 @@ public class MongoProcessEngineTest {
     ProcessBuilder process = processEngine.newProcess();
   
     process.newVariable()
-      .name("t")
+      .id("t")
       .dataType(TextType.INSTANCE);
   
     Go go = new Go()
@@ -65,15 +63,15 @@ public class MongoProcessEngineTest {
     
     process.newActivity()
       .activityType(go)
-      .name("go");
+      .id("go");
     
     process.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("wait1");
+      .id("wait1");
     
     process.newActivity()
       .activityType(Wait.INSTANCE)
-      .name("wait2");
+      .id("wait2");
     
     process.newTransition()
       .from("wait1")

@@ -90,7 +90,6 @@ public class MongoConfiguration {
   /** setting these fields to null will ensure those properties are not saved */
   public static class ProcessDefinitionFieldNames {
     public String _id = "_id";
-    public String name = "n";
     public String deployedTime = "dt";
     public String deployedBy = "db";
     public String organizationId = "o";
@@ -116,9 +115,9 @@ public class MongoConfiguration {
     public String activityInstances = "a";
     public String variableInstances = "v";
     public String parent = "p";
-    public String variableDefinitionName = "vn";
+    public String variableDefinitionId = "id";
     public String value = "vl";
-    public String activityDefinitionName = "an";
+    public String activityDefinitionId = "id";
     public String lock = "l";
     public String time = "t";
     public String owner= "w";
