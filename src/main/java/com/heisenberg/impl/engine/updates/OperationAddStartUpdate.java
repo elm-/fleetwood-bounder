@@ -14,21 +14,18 @@
  */
 package com.heisenberg.impl.engine.updates;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
-/** The operation is always added at the end of the queue. 
- * 
+/**
  * @author Walter White
  */
-@JsonTypeName("operationAddActivityInstanceStart")
-public class OperationAddActivityInstanceStartUpdate extends OperationAddUpdate {
+public class OperationAddStartUpdate extends OperationAddUpdate {
 
-  public OperationAddActivityInstanceStartUpdate() {
+  public OperationAddStartUpdate() {
   }
 
-  public OperationAddActivityInstanceStartUpdate(ActivityInstanceImpl activityInstance) {
+  public OperationAddStartUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }
 }

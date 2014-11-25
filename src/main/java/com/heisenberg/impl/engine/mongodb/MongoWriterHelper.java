@@ -38,6 +38,7 @@ public class MongoWriterHelper {
       o.put(fieldName, value.toDate());
     }
   }
+
   public static void putOptId(BasicDBObject o, String fieldName, Id value) {
     if (fieldName!=null && value!=null) {
       o.put(fieldName, value.getInternal());

@@ -33,6 +33,11 @@ import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessDefinitionFieldNames;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessInstanceFieldNames;
+import com.heisenberg.impl.engine.operation.NotifyEndOperation;
+import com.heisenberg.impl.engine.operation.Operation;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
+import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.mongodb.BasicDBObject;
@@ -57,6 +62,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   
   protected WriteConcern writeConcernStoreProcessDefinition;
   protected WriteConcern writeConcernStoreProcessInstance;
+  protected WriteConcern writeConcernFlushUpdates;
 
   protected MongoProcessDefinitionWriter processDefinitionWriter;
   protected MongoProcessDefinitionReader processDefinitionReader;
@@ -65,6 +71,8 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   protected MongoProcessInstanceWriter processInstanceWriter;
   protected MongoProcessInstanceReader processInstanceReader;
   protected ProcessInstanceFieldNames processInstanceFieldNames;
+  
+  protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(json);
   
   public MongoProcessEngine(MongoConfiguration mongoDbConfiguration) {
     MongoClient mongoClient = new MongoClient(
@@ -76,12 +84,14 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     this.processInstances = db.getCollection("processInstances");
     this.writeConcernStoreProcessDefinition = getWriteConcern(mongoDbConfiguration.writeConcernStoreProcessDefinition, processDefinitions);
     this.writeConcernStoreProcessInstance = getWriteConcern(mongoDbConfiguration.writeConcernStoreProcessInstance, processInstances);
+    this.writeConcernFlushUpdates = getWriteConcern(mongoDbConfiguration.writeConcernFlushUpdates, processInstances);
     this.processDefinitionWriter = new MongoProcessDefinitionWriter(this, mongoDbConfiguration.processDefinitionFieldNames);
     this.processDefinitionReader = new MongoProcessDefinitionReader(this, mongoDbConfiguration.processDefinitionFieldNames);
     this.processInstanceReader = new MongoProcessInstanceReader(this, mongoDbConfiguration.processInstanceFieldNames);
     this.processInstanceWriter = new MongoProcessInstanceWriter(this, mongoDbConfiguration.processInstanceFieldNames);
     this.processDefinitionFieldNames = mongoDbConfiguration.processDefinitionFieldNames;
     this.processInstanceFieldNames = mongoDbConfiguration.processInstanceFieldNames;
+    this.updateConverters = new MongoUpdateConverters(json);
   }
 
   @Override
@@ -128,26 +138,54 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     List<Update> updates = processInstance.getUpdates();
     if (updates!=null) {
       log.debug("Flushing updates: ");
+      List<BasicDBObject> dbUpdates = new ArrayList<>(); 
       for (Update update : updates) {
-        log.debug("  " + json.objectToJsonString(update));
+        BasicDBObject dbUpdate = updateConverters.toDbUpdate(update);
+        if (dbUpdate!=null) {
+          log.debug("  " + dbUpdate);
+          dbUpdates.add(dbUpdate);
+        }
       }
+      this.processInstances.update(
+        new BasicDBObject(processInstanceFieldNames._id,  processInstance.id.getInternal()),
+        new BasicDBObject("$pushAll", new BasicDBObject(processInstanceFieldNames.updates, dbUpdates)),
+        false, false, writeConcernFlushUpdates);
+      // After the first and all subsequent flushes, we need to capture the updates so we initialize the collection
+      // @see ProcessInstanceImpl.updates
+      processInstance.setUpdates(new ArrayList<Update>());
     } else {
-      log.debug("No updates to flush");
+      // As long as the process instance is not saved, the updates collection is null.
+      // That means it's not yet necessary to collect the updates. 
+      // @see ProcessInstanceImpl.updates
+      log.debug("Just saved, no flush needed");
+      // The operations in the process instance will not be serialized.
+      // When the process instance starts, the first activity instance operations 
+      // will be not added to the updates because updates==null.  Therefore, we 
+      // convert them here to updates.  After this method, all further operations 
+      // will be recorded normally because updates!=null.
+      updates = new ArrayList<Update>();
+      if (processInstance.operations!=null) {
+        for (Operation operation: processInstance.operations) {
+          if (operation instanceof StartActivityInstanceOperation) {
+            updates.add(new OperationAddStartUpdate(operation.activityInstance));
+          } else if (operation instanceof NotifyEndOperation) {
+            updates.add(new OperationAddNotifyEndUpdate(operation.activityInstance));
+          } else {
+            throw new RuntimeException("Unsupported operation type: "+operation.getClass().getName());
+          }
+        }
+      }
+      processInstance.setUpdates(updates);
     }
-    processInstance.setUpdates(new ArrayList<Update>());
   }
 
   @Override
   public void flushAndUnlock(ProcessInstanceImpl processInstance) {
-    List<Update> updates = processInstance.getUpdates();
-    if (updates!=null) {
-      log.debug("Flushing updates: ");
-      for (Update update : updates) {
-        log.debug("  " + json.objectToJsonString(update));
-      }
-    } else {
-      log.debug("No updates to flush");
-    }
+    processInstance.lock = null;
+    BasicDBObject dbProcessInstance = processInstanceWriter.writeProcessInstance(processInstance);
+    log.debug("--processInstances-> save "+PrettyPrinter.toJsonPrettyPrint(dbProcessInstance));
+    WriteResult writeResult = this.processInstances.save(dbProcessInstance, writeConcernStoreProcessInstance);
+    log.debug("<-processInstances-- "+writeResult);
     processInstance.setUpdates(new ArrayList<Update>());
   }
 

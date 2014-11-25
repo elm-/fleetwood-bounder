@@ -42,6 +42,10 @@ public class MongoReaderHelper {
     return (String) dbObject.get(fieldName);
   }
 
+  protected static Boolean getBoolean(BasicDBObject dbObject, String fieldName) {
+    return (Boolean) dbObject.get(fieldName);
+  }
+
   protected static LocalDateTime getTime(BasicDBObject dbObject, String fieldName) {
     Date date = (Date)dbObject.get(fieldName);
     return (date!=null ? new LocalDateTime(date) : null);

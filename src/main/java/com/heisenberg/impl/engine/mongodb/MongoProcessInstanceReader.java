@@ -36,9 +36,6 @@ public class MongoProcessInstanceReader extends MongoReaderHelper {
   public ProcessInstanceImpl readProcessInstance(BasicDBObject dbProcess) {
     ProcessInstanceImpl process = new ProcessInstanceImpl();
     process.id = new ProcessInstanceId(dbProcess.get(fieldNames._id));
-    
     return process;
   }
-
-
 }

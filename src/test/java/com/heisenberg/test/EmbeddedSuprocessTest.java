@@ -93,7 +93,5 @@ public class EmbeddedSuprocessTest {
     
     processEngine.signal(new SignalRequest()
       .activityInstanceId(w1Id));
-    
-
   }
 }

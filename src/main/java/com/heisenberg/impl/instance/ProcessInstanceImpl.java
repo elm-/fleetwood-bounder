@@ -55,7 +55,11 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   public LockImpl lock;
   public Queue<Operation> operations;
   public Queue<Operation> asyncOperations;
+  
+  // As long as the process instance is not saved, the updates collection is null.
+  // That means it's not yet necessary to collect the updates. 
   public List<Update> updates;
+  
   public Boolean isAsync;
   
   public ProcessDefinitionId processDefinitionId;
@@ -78,7 +82,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   }
   
   void addOperation(Operation operation) {
-    OperationAddUpdate update = operation.getUpdate();
+    OperationAddUpdate update = operation.createUpdate();
     if (Boolean.TRUE.equals(isAsync) || !operation.isAsync()) {
       if (operations==null) {
         operations = new LinkedList<>();

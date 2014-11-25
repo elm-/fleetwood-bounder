@@ -14,21 +14,18 @@
  */
 package com.heisenberg.impl.engine.updates;
 
-import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public abstract class ActivityInstanceUpdate implements Update {
+public class OperationAddNotifyEndUpdate extends OperationAddUpdate {
 
-  protected ActivityInstanceId activityInstanceId;
-  
-  public ActivityInstanceUpdate() {
+  public OperationAddNotifyEndUpdate() {
   }
 
-  public ActivityInstanceUpdate(ActivityInstanceImpl activityInstance) {
-    this.activityInstanceId = activityInstance.id;
+  public OperationAddNotifyEndUpdate(ActivityInstanceImpl activityInstance) {
+    super(activityInstance);
   }
 }

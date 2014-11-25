@@ -37,6 +37,7 @@ public class MongoConfiguration {
   protected ProcessInstanceFieldNames processInstanceFieldNames = new ProcessInstanceFieldNames();
   protected WriteConcern writeConcernStoreProcessDefinition;
   protected WriteConcern writeConcernStoreProcessInstance;
+  protected WriteConcern writeConcernFlushUpdates;
 
   public MongoConfiguration server(String host, int port) {
     try {
@@ -81,6 +82,11 @@ public class MongoConfiguration {
     return this;
   }
 
+  public MongoConfiguration writeConcernFlushUpdates(WriteConcern writeConcernFlushUpdates) {
+    this.writeConcernFlushUpdates = writeConcernFlushUpdates;
+    return this;
+  }
+
   /** setting these fields to null will ensure those properties are not saved */
   public static class ProcessDefinitionFieldNames {
     public String _id = "_id";
@@ -115,6 +121,8 @@ public class MongoConfiguration {
     public String activityDefinitionName = "an";
     public String lock = "l";
     public String time = "t";
-    public String owner= "o";
+    public String owner= "w";
+    public String updates = "u";
+    public String operations = "o";
   }
 }

@@ -86,7 +86,7 @@ public class MongoProcessInstanceWriter extends MongoWriterHelper {
         putOpt(dbActivity, fieldNames.activityDefinitionName, activity.activityDefinitionName);
         putOptId(dbActivity, fieldNames.parent, parentId);
         putOptTime(dbActivity, fieldNames.start, activity.start);
-        putOptTime(dbActivity, fieldNames.start, activity.start);
+        putOptTime(dbActivity, fieldNames.end, activity.end);
         putOpt(dbActivity, fieldNames.duration, activity.duration);
         dbActivityInstances.add(dbActivity);
         collectActivities(activity, dbActivityInstances);
@@ -108,5 +108,4 @@ public class MongoProcessInstanceWriter extends MongoWriterHelper {
       }
     }
   }
-
 }

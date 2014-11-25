@@ -28,8 +28,8 @@ import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
-import com.heisenberg.impl.engine.operation.ActivityInstanceStartOperation;
-import com.heisenberg.impl.engine.operation.NotifyActivityInstanceEndToParent;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
+import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.script.ScriptRunnerImpl;
 
@@ -77,7 +77,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
       }
       setEnd(Time.now());
       if (notifyParent) {
-        processInstance.addOperation(new NotifyActivityInstanceEndToParent(this));
+        processInstance.addOperation(new NotifyEndOperation(this));
       }
     }
   }
@@ -91,7 +91,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     if (to!=null) {
       log.debug("Taking transition to "+to);
       ActivityInstanceImpl activityInstance = parent.createActivityInstance(to);
-      processInstance.addOperation(new ActivityInstanceStartOperation(activityInstance));
+      processInstance.addOperation(new StartActivityInstanceOperation(activityInstance));
     }
   }
   

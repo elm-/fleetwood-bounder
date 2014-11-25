@@ -52,15 +52,13 @@ import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
-import com.heisenberg.impl.engine.operation.ActivityInstanceStartOperation;
-import com.heisenberg.impl.engine.operation.NotifyActivityInstanceEndToParent;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
+import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.impl.engine.updates.ActivityInstanceStartUpdate;
 import com.heisenberg.impl.engine.updates.LockAcquireUpdate;
 import com.heisenberg.impl.engine.updates.LockReleaseUpdate;
-import com.heisenberg.impl.engine.updates.OperationAddNotifyParentEndUpdate;
-import com.heisenberg.impl.engine.updates.OperationAddActivityInstanceStartUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.PrepareProcessInstanceForSerialization;
@@ -90,17 +88,13 @@ public class Json {
     this.objectMapper.registerSubtypes(
        TextType.class,
        ChoiceType.class,
-       
-       ActivityInstanceStartOperation.class,
-       NotifyActivityInstanceEndToParent.class,
-       
+       StartActivityInstanceOperation.class,
+       NotifyEndOperation.class,
        ActivityInstanceCreateUpdate.class,
        ActivityInstanceEndUpdate.class,
-       ActivityInstanceStartUpdate.class,
        LockAcquireUpdate.class,
        LockReleaseUpdate.class,
-       OperationAddActivityInstanceStartUpdate.class,
-       OperationAddNotifyParentEndUpdate.class,
+       OperationAddUpdate.class,
        OperationRemoveFirstUpdate.class
        );
     

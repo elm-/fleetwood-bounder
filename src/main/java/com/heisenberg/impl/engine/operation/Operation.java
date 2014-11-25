@@ -45,8 +45,8 @@ public abstract class Operation {
   public abstract boolean isAsync();
 
   public abstract void execute(ProcessEngineImpl processEngine);
-  
-  public abstract OperationAddUpdate getUpdate();
+
+  public abstract OperationAddUpdate createUpdate();
 
   public ActivityInstanceImpl getActivityInstance() {
     return activityInstance;
@@ -55,4 +55,5 @@ public abstract class Operation {
   public void setActivityInstance(ActivityInstanceImpl activityInstance) {
     this.activityInstance = activityInstance;
   }
+
 }

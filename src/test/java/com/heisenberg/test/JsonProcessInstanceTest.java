@@ -33,8 +33,8 @@ import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.engine.operation.ActivityInstanceStartOperation;
-import com.heisenberg.impl.engine.operation.NotifyActivityInstanceEndToParent;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
+import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
@@ -106,10 +106,10 @@ public class JsonProcessInstanceTest {
     processInstance.variableInstances.add(variableInstance);
 
     processInstance.operations = new LinkedList<>();
-    processInstance.operations.add(new ActivityInstanceStartOperation(activityInstance));
+    processInstance.operations.add(new StartActivityInstanceOperation(activityInstance));
     
     processInstance.asyncOperations = new LinkedList<>();
-    processInstance.operations.add(new NotifyActivityInstanceEndToParent(activityInstance));
+    processInstance.operations.add(new NotifyEndOperation(activityInstance));
     
     processInstance.updates = new ArrayList<>();
     processInstance.updates.add(new ActivityInstanceCreateUpdate(activityInstance));

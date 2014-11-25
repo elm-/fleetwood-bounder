@@ -15,7 +15,8 @@
 package com.heisenberg.impl.engine.operation;
 
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.engine.updates.OperationAddNotifyParentEndUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
@@ -23,12 +24,12 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-public class NotifyActivityInstanceEndToParent extends Operation {
+public class NotifyEndOperation extends Operation {
 
-  public NotifyActivityInstanceEndToParent() {
+  public NotifyEndOperation() {
   }
 
-  public NotifyActivityInstanceEndToParent(ActivityInstanceImpl activityInstance) {
+  public NotifyEndOperation(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }
 
@@ -43,7 +44,7 @@ public class NotifyActivityInstanceEndToParent extends Operation {
   }
 
   @Override
-  public OperationAddUpdate getUpdate() {
-    return new OperationAddNotifyParentEndUpdate(activityInstance);
+  public OperationAddUpdate createUpdate() {
+    return new OperationAddNotifyEndUpdate(activityInstance);
   }
 }

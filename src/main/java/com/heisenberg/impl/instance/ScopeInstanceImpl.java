@@ -37,7 +37,7 @@ import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
-import com.heisenberg.impl.engine.operation.ActivityInstanceStartOperation;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 
 
@@ -97,7 +97,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   
   public void start(ActivityDefinition activityDefinition) {
     ActivityInstanceImpl activityInstance = createActivityInstance((ActivityDefinitionImpl) activityDefinition);
-    processInstance.addOperation(new ActivityInstanceStartOperation(activityInstance));
+    processInstance.addOperation(new StartActivityInstanceOperation(activityInstance));
   }
 
   public ActivityInstanceImpl createActivityInstance(ActivityDefinitionImpl activityDefinition) {
@@ -113,9 +113,9 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
       activityInstances = new ArrayList<>();
     }
     activityInstances.add(activityInstance);
+    processInstance.addUpdate(new ActivityInstanceCreateUpdate(activityInstance));
     activityInstance.initializeVariableInstances();
     log.debug("Created "+activityInstance);
-    processInstance.addUpdate(new ActivityInstanceCreateUpdate(activityInstance));
     return activityInstance;
   }
   

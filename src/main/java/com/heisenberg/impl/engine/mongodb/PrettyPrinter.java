@@ -107,6 +107,8 @@ public class PrettyPrinter {
       jsonText.append("{ \"$oid\" : \""+jsonObject.toString()+"\" }");
     } else if (jsonObject instanceof Date) {
       jsonText.append("{ \"$date\" : \""+dateFormat.format(jsonObject)+"\" }");
+    } else if (jsonObject instanceof Number) {
+      jsonText.append(jsonObject.toString());
     } else {
       throw new RuntimeException("couldn't pretty print "+jsonObject.getClass().getName());
     }

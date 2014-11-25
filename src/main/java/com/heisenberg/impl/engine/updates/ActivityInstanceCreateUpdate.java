@@ -14,7 +14,10 @@
  */
 package com.heisenberg.impl.engine.updates;
 
+import org.joda.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
@@ -22,12 +25,18 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  * @author Walter White
  */
 @JsonTypeName("activityInstanceCreate")
-public class ActivityInstanceCreateUpdate extends ActivityInstanceUpdate {
+public class ActivityInstanceCreateUpdate implements Update {
+  
+  public ActivityInstanceId activityInstanceId;
+  public LocalDateTime start;
+  public String activityDefinitionName;
 
   public ActivityInstanceCreateUpdate() {
   }
   
   public ActivityInstanceCreateUpdate(ActivityInstanceImpl activityInstance) {
-    super(activityInstance);
+    this.activityInstanceId = activityInstance.id;
+    this.start = activityInstance.start;
+    this.activityDefinitionName = activityInstance.activityDefinitionName;
   }
 }
