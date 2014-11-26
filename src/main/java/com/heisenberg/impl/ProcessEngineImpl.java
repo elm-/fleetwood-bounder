@@ -361,6 +361,9 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
     // TODO set variables and context
     ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
+    if (activityInstance.isEnded()) {
+      throw new RuntimeException("Activity instance "+activityInstance+" is already ended");
+    }
     log.debug("Signalling "+activityInstance);
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
     activityDefinition.activityType.signal(activityInstance);

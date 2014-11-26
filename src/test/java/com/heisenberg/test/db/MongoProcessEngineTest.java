@@ -31,6 +31,7 @@ import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.api.util.Validator;
@@ -88,20 +89,18 @@ public class MongoProcessEngineTest {
       .processDefinitionId(processDefinitionId)
       .transientContext("places", places)
       .variableValue("t", "San Fransisco"));
-  
+
+    List<String> expectedPlaces = new ArrayList<>();
+    expectedPlaces.add("san fransisco"); // check if the activity is being executed
+    assertEquals(expectedPlaces, places);
+    
     assertNotNull(processInstance.getId());
     assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
   
-    TestHelper.assertActivityInstancesOpen(processInstance, "wait1");
-    
-    Object activityInstanceId = processInstance.getActivityInstances().get(0).getId();
-    
-    List<String> expectedPlaces = new ArrayList<>();
-    expectedPlaces.add("san fransisco");
-    assertEquals(expectedPlaces, places);
+    ActivityInstance wait1Instance = TestHelper.findActivityInstanceOpen(processInstance, "wait1");
     
     processEngine.signal(new SignalRequest()
-      .activityInstanceId(activityInstanceId)
+      .activityInstanceId(wait1Instance.getId())
     );
   }
   

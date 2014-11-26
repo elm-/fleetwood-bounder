@@ -40,8 +40,10 @@ import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
@@ -198,12 +200,8 @@ public class MongoProcessEngine extends ProcessEngineImpl {
 
   @Override
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
-    BasicDBObject query = new BasicDBObject(processInstanceFieldNames.activityInstances+"."+processInstanceFieldNames._id, activityInstanceId)
-      .append(processInstanceFieldNames.lock, new BasicDBObject("$exists", false));
-    BasicDBObject update = new BasicDBObject("$set", 
-            new BasicDBObject(processInstanceFieldNames.lock, 
-                    new BasicDBObject(processInstanceFieldNames.time, Time.now().toDate())
-                              .append(processInstanceFieldNames.owner, id)));
+    DBObject update = processInstanceMapper.updateLock(id);
+    DBObject query = processInstanceMapper.queryUnlockedAndActivityInstanceId(activityInstanceId); 
     log.debug("--processInstances-> findAndModify q="+PrettyPrinter.toJsonPrettyPrint(query)+" u="+PrettyPrinter.toJsonPrettyPrint(update));
     BasicDBObject dbProcessInstance = (BasicDBObject) processInstances.findAndModify(query, update);
     log.debug("<-processInstances-- "+dbProcessInstance);

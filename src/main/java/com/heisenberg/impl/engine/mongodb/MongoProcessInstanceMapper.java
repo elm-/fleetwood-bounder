@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
@@ -26,6 +27,8 @@ import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.heisenberg.impl.json.Json;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBObject;
 
 
 /**
@@ -60,10 +63,29 @@ public class MongoProcessInstanceMapper extends MongoMapper {
     this.processEngine = processEngine;
     this.json = processEngine.json;
   }
+  
+  public DBObject queryUnlockedAndActivityInstanceId(Object activityInstanceId) {
+    return BasicDBObjectBuilder.start()
+      .add(fields.activityInstances+"."+fields._id, activityInstanceId)
+      .push(fields.lock)
+        .add("$exists", false)
+      .pop()
+      .get();
+  }
+  
+  public DBObject updateLock(String processEngineId) {
+    return BasicDBObjectBuilder.start()
+      .push("$set")
+        .push(fields.lock)
+          .add(fields.time, Time.now().toDate())
+          .add(fields.owner, processEngineId)
+        .pop()
+      .pop()
+      .get();
+  }
 
   public BasicDBObject writeProcessInstance(ProcessInstanceImpl process) {
     BasicDBObject dbProcess = new BasicDBObject();
-    
     writeObject(dbProcess, fields._id, process.id);
     writeObject(dbProcess, fields.processDefinitionId, process.processDefinition.id);
     writeTimeOpt(dbProcess, fields.start, process.start);

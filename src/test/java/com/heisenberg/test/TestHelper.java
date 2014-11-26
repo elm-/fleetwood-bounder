@@ -36,7 +36,30 @@ public class TestHelper {
       Assert.fail("Expected "+expected+" but was "+actual);
     }
   }
+
+  public static ActivityInstance findActivityInstanceOpen(ProcessInstance processInstance, Object activityDefinitionId) {
+    return findActivityInstanceOpen(processInstance.getActivityInstances(), activityDefinitionId); 
+  }
+
+  static ActivityInstance findActivityInstanceOpen(List<? extends ActivityInstance> activityInstances, Object activityDefinitionId) {
+    if (activityInstances!=null) {
+      for (ActivityInstance activityInstance: activityInstances) {
+        ActivityInstance theOne = findActivityInstanceOpen(activityInstance, activityDefinitionId);
+        if (theOne!=null) {
+          return theOne;
+        }
+      }
+    }
+    return null;
+  }
   
+  static ActivityInstance findActivityInstanceOpen(ActivityInstance activityInstance, Object activityDefinitionId) {
+    if (activityDefinitionId.equals(activityInstance.getActivityDefinitionId())) {
+      return activityInstance;
+    }
+    return null;
+  }
+
   public static void assertActivityInstancesOpen(ProcessInstance processInstance, String... expectedActivityNames) {
     Map<String,Integer> expectedActivityCounts = new HashMap<String, Integer>();
     if (expectedActivityNames!=null) {
