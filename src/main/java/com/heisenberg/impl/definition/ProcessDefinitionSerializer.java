@@ -70,8 +70,4 @@ public class ProcessDefinitionSerializer implements ProcessDefinitionVisitor {
   @Override
   public void endActivityDefinition(ActivityDefinitionImpl activityDefinition, int index) {
   }
-
-  @Override
-  public void dataType(DataType dataType, int index) {
-  }
 }

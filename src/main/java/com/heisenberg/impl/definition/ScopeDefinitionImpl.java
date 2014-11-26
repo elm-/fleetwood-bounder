@@ -49,10 +49,6 @@ public abstract class ScopeDefinitionImpl {
   @JsonIgnore
   public ScopeDefinitionImpl parent;
   @JsonIgnore
-  public Map<Object, ActivityDefinitionImpl> activityDefinitionsMap;
-  @JsonIgnore
-  public Map<Object, VariableDefinitionImpl> variableDefinitionsMap;
-  @JsonIgnore
   public List<ActivityDefinitionImpl> startActivities;
 
   public Long line;
@@ -126,6 +122,10 @@ public abstract class ScopeDefinitionImpl {
   /// Process Definition Parsing methods //////////////////////////////////////////
 
   public abstract ProcessDefinitionPath getPath();
+  
+  public ActivityDefinitionImpl getActivityDefinition(Object activityDefinitionId) {
+    return processDefinition.findActivityDefinition(activityDefinitionId);
+  }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List<ActivityDefinition> getStartActivities() {
@@ -142,10 +142,6 @@ public abstract class ScopeDefinitionImpl {
 
   public void setProcessDefinition(ProcessDefinitionImpl processDefinition) {
     this.processDefinition = processDefinition;
-  }
-  
-  public ActivityDefinitionImpl getActivityDefinition(Object id) {
-    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(id) : null;
   }
   
   public ProcessEngineImpl getProcessEngine() {
@@ -181,10 +177,6 @@ public abstract class ScopeDefinitionImpl {
     return activityDefinitions!=null && !activityDefinitions.isEmpty();
   }
 
-  public VariableDefinitionImpl getVariableDefinition(String name) {
-    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(name) : null;
-  }
-  
   public  ScopeDefinitionImpl addVariableDefinition(VariableDefinitionImpl variableDefinition) {
     Exceptions.checkNotNull(variableDefinition, "variableDefinition");
     if (variableDefinitions==null)  {
@@ -273,56 +265,6 @@ public abstract class ScopeDefinitionImpl {
     return false;
   }
   
-  /** searches only in this scope to find the activity definition */
-  public ActivityDefinitionImpl findActivityDefinitionLocal(Object activityDefinitionId) {
-    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(activityDefinitionId) : null;
-  }
-
-  /** searches in this scope and recurses over the child activity defintions to find the activity definition */
-  public ActivityDefinitionImpl findActivityDefinition(Object activityDefinitionId) {
-    if (activityDefinitions!=null) {
-      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
-        // ActivityDefinitionImpl overrides findActivityDefinition and does the id check
-        ActivityDefinitionImpl theOne = activityDefinition.findActivityDefinition(activityDefinitionId);
-        if (theOne!=null) {
-          return theOne;
-        }
-      }
-    }
-    return null;
-  }
-
-  /** searches only in this scope to find the variable definition */
-  public VariableDefinitionImpl findVariableDefinitionLocal(Object variableDefinitionId) {
-    return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionId) : null;
-  }
-
-  /** searches in this scope and then recurses over the child activity definitions to find the variable definition */
-  public VariableDefinitionImpl findVariableDefinition(Object variableDefinitionId) {
-    VariableDefinitionImpl theOne = findVariableDefinitionLocal(variableDefinitionId);
-    if (theOne!=null) {
-      return theOne;
-    }
-    if (activityDefinitions!=null) {
-      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
-        theOne = activityDefinition.findVariableDefinitionLocal(variableDefinitionId);
-        if (theOne!=null) {
-          return theOne;
-        }
-      }
-    }
-    return null;
-  }
-
-  public void initializeActivityDefinitionsMap() {
-    if (activityDefinitionsMap==null && activityDefinitions!=null) {
-      activityDefinitionsMap = new HashMap<>();
-      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
-        activityDefinitionsMap.put(activityDefinition.id, activityDefinition);
-      }
-    }
-  }
-  
   public void initializeStartActivities(Validator validator) {
     if (activityDefinitions!=null && !activityDefinitions.isEmpty()) {
       this.startActivities = new ArrayList<>(activityDefinitions);
@@ -352,41 +294,17 @@ public abstract class ScopeDefinitionImpl {
     this.activityDefinitions = activityDefinitions;
   }
 
-  
-  public Map<Object, ActivityDefinitionImpl> getActivityDefinitionsMap() {
-    return activityDefinitionsMap;
-  }
-
-  
-  public void setActivityDefinitionsMap(Map<Object, ActivityDefinitionImpl> activityDefinitionsMap) {
-    this.activityDefinitionsMap = activityDefinitionsMap;
-  }
-
-  
   public List<VariableDefinitionImpl> getVariableDefinitions() {
     return variableDefinitions;
   }
 
-  
   public void setVariableDefinitions(List<VariableDefinitionImpl> variableDefinitions) {
     this.variableDefinitions = variableDefinitions;
   }
 
-  
-  public Map<Object, VariableDefinitionImpl> getVariableDefinitionsMap() {
-    return variableDefinitionsMap;
-  }
-
-  
-  public void setVariableDefinitionsMap(Map<Object, VariableDefinitionImpl> variableDefinitionsMap) {
-    this.variableDefinitionsMap = variableDefinitionsMap;
-  }
-
-  
   public List<TransitionDefinitionImpl> getTransitionDefinitions() {
     return transitionDefinitions;
   }
-
   
   public void setTransitionDefinitions(List<TransitionDefinitionImpl> transitionDefinitions) {
     this.transitionDefinitions = transitionDefinitions;

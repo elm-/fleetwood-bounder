@@ -26,7 +26,7 @@ import com.heisenberg.api.util.Validator;
  */
 public interface ActivityDefinition {
   
-  ActivityDefinition getActivityDefinition(Object idInternal);
+  ActivityDefinition getActivityDefinition(Object activityDefinitionId);
 
   List<ActivityDefinition> getActivityDefinitions();
 

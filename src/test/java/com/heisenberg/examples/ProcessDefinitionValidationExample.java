@@ -60,6 +60,6 @@ public class ProcessDefinitionValidationExample {
     
     log.debug(issueReport);
     
-    TestHelper.assertTextPresent("Activity has no name", issueReport);
+    TestHelper.assertTextPresent("Activity has no id", issueReport);
   }
 }

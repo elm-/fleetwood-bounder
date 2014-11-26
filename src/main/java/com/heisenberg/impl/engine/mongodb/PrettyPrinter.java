@@ -94,7 +94,9 @@ public class PrettyPrinter {
 
   @SuppressWarnings({ "unchecked" })
   public static void jsonObjectToTextFormatted(Object jsonObject, int indent, StringBuffer jsonText) {
-    if (jsonObject instanceof Map) {
+    if (jsonObject==null) {
+      jsonText.append("null");
+    } else if (jsonObject instanceof Map) {
       jsonObjectToTextFormatted((Map<String,Object>) jsonObject, indent, jsonText);
     } else if (jsonObject instanceof List) {
       jsonObjectToTextFormatted((List<Object>) jsonObject, indent, jsonText);
@@ -106,7 +108,7 @@ public class PrettyPrinter {
       jsonText.append("{ \"$oid\" : \""+jsonObject.toString()+"\" }");
     } else if (jsonObject instanceof Date) {
       jsonText.append("{ \"$date\" : \""+dateFormat.format(jsonObject)+"\" }");
-    } else if (jsonObject instanceof Number) {
+    } else if (jsonObject instanceof Number || jsonObject instanceof Boolean) {
       jsonText.append(jsonObject.toString());
     } else {
       throw new RuntimeException("couldn't pretty print "+jsonObject.getClass().getName());

@@ -37,7 +37,7 @@ public class ProcessDefinitionParsingTest {
     processBuilder.newActivity()
       .activityType(new Go());
 
-    TestHelper.assertTextPresent("Activity has no name", processEngine
+    TestHelper.assertTextPresent("Activity has no id", processEngine
         .deployProcessDefinition(processBuilder)
         .getIssueReport());
   }

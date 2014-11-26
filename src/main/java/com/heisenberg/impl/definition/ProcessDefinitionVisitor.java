@@ -14,7 +14,6 @@
  */
 package com.heisenberg.impl.definition;
 
-import com.heisenberg.api.type.DataType;
 
 
 /**
@@ -27,10 +26,6 @@ public interface ProcessDefinitionVisitor {
 
   /** invoked only for process definitions */
   void endProcessDefinition(ProcessDefinitionImpl processDefinition);
-
-  /** invoked for types inside a process definitions.
-   * This will be invoked after the startProcessDefinition and before any of the other elements inside the process definition. */
-  void dataType(DataType dataType, int index);
 
   /** invoked only for process definitions and activity definitions */
   void startActivityDefinition(ActivityDefinitionImpl activityDefinition, int index);

@@ -14,9 +14,7 @@
  */
 package com.heisenberg.impl.definition;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.joda.time.LocalDateTime;
@@ -24,7 +22,6 @@ import org.joda.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ProcessDefinition;
-import com.heisenberg.api.type.DataType;
 
 
 /**
@@ -55,14 +52,12 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
    * This combined with the @link {@link ScopeDefinitionImpl#id} should be unique. */
   public Long version;
   
-  /** the types defined on the process definition level.
-   * This field is the reference for serialization and storage of types.
-   * @link {@link #dataTypesMap} is derived from this field. */
-  public List<DataType> dataTypes;
-  
-  /** derived from @link {@link #dataTypes} */
   @JsonIgnore
-  public Map<String,DataType> dataTypesMap;
+  public Map<Object, ActivityDefinitionImpl> activityDefinitionsMap;
+  
+  @JsonIgnore
+  public Map<Object, VariableDefinitionImpl> variableDefinitionsMap;
+
   
   /// Process Definition Builder methods /////////////////////////////////////////////
 
@@ -128,16 +123,17 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     return super.newTimer();
   }
   
-  @Override
-  public ProcessDefinitionImpl dataType(DataType dataType) {
-    if (dataTypes==null) {
-      dataTypes = new ArrayList<DataType>();
-    }
-    dataTypes.add(dataType);
-    return this;
+  // other methods ////////////////////////////////////////////////////////////////////
+
+  /** searches in this whole process definition.  activity ids must be unique over the whole process. */
+  public ActivityDefinitionImpl findActivityDefinition(Object activityDefinitionId) {
+    return activityDefinitionsMap.get(activityDefinitionId); 
   }
   
-  // other methods ////////////////////////////////////////////////////////////////////
+  /** searches in this whole process definition.  variable ids must be unique over the whole process. */
+  public VariableDefinitionImpl findVariableDefinition(Object variableDefinitionId) {
+    return variableDefinitionsMap.get(variableDefinitionId); 
+  }
   
   public ProcessDefinitionPath getPath() {
     return new ProcessDefinitionPath();
@@ -167,36 +163,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     //     ... also delegate the ordering of this visit to the visitor ... 
     //   } else { ... perform the default as below
     visitor.startProcessDefinition(this);
-    visitTypes(visitor);
     super.visit(visitor);
     visitor.endProcessDefinition(this);
-  }
-  
-  // data type methods ////////////////////////////////////////////////////////////////////
-  
-  protected void initializeDataTypesMap() {
-    if (dataTypes!=null) {
-      dataTypesMap = new HashMap<>();
-      for (DataType dataType: dataTypes) {
-        dataTypesMap.put(dataType.getId(), dataType);
-      }
-    }
-  }
-  
-  public DataType findDataType(String dataTypeId) {
-    DataType dataType = dataTypesMap!=null ? dataTypesMap.get(dataTypeId) : null;
-    if (dataType!=null) {
-      return dataType;
-    }
-    return processEngine.findDataType(dataTypeId);
-  }
-  
-  public void visitTypes(ProcessDefinitionVisitor visitor) {
-    if (dataTypes!=null) {
-      for (int i=0; i<dataTypes.size(); i++) {
-        DataType dataType = dataTypes.get(i);
-        visitor.dataType(dataType, i);
-      }
-    }
   }
 }

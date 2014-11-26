@@ -53,15 +53,7 @@ public class JsonProcessDefinitionTest {
     .processId("myprocess")
     .version(6l)
     .line(1l)
-    .column(2l)
-    .dataType(new ChoiceType()
-      .id("country")
-      .label("Country")
-      .option("be", "Belgium")
-      .option("de", "Germany")
-      .option("fr", "France")
-      .option("uk", "UK")
-      .option("us", "US"));
+    .column(2l);
     
     process.newVariable()
       .id("t")
@@ -70,7 +62,18 @@ public class JsonProcessDefinitionTest {
       .line(3l)
       
       .column(4l);
-    
+
+    process.newVariable()
+      .id("t2")
+      .initialValueJson("be")
+      .dataType(new ChoiceType()
+        .label("Country")
+        .option("be", "Belgium")
+        .option("de", "Germany")
+        .option("fr", "France")
+        .option("uk", "UK")
+        .option("us", "US"));
+
     process.newActivity()
       .activityType(new Go())
       .line(20l)
@@ -96,8 +99,6 @@ public class JsonProcessDefinitionTest {
     ProcessDefinitionImpl processDefinition = json.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
     assertNotNull(processDefinition);
     assertEquals("myorg", processDefinition.organizationId);
-    ChoiceType choiceType = (ChoiceType) processDefinition.dataTypesMap.get("country");
-    assertEquals("Belgium", choiceType.getOptions().get("be"));
     ActivityDefinitionImpl one = processDefinition.getActivityDefinition("one");
     assertEquals("one", one.id);
     assertEquals(Go.class, one.activityType.getClass());

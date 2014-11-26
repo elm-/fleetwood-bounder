@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
@@ -93,9 +94,15 @@ public class MongoProcessEngineTest {
   
     TestHelper.assertActivityInstancesOpen(processInstance, "wait1");
     
+    Object activityInstanceId = processInstance.getActivityInstances().get(0).getId();
+    
     List<String> expectedPlaces = new ArrayList<>();
     expectedPlaces.add("san fransisco");
     assertEquals(expectedPlaces, places);
+    
+    processEngine.signal(new SignalRequest()
+      .activityInstanceId(activityInstanceId)
+    );
   }
   
   public static class Go extends AbstractActivityType {

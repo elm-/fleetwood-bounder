@@ -28,6 +28,7 @@ import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
+import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessDefinitionFieldNames;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessInstanceFieldNames;
@@ -66,8 +67,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   protected MongoProcessDefinitionReader processDefinitionReader;
   protected ProcessDefinitionFieldNames processDefinitionFieldNames;
 
-  protected MongoProcessInstanceWriter processInstanceWriter;
-  protected MongoProcessInstanceReader processInstanceReader;
+  protected MongoProcessInstanceMapper processInstanceMapper;
   protected ProcessInstanceFieldNames processInstanceFieldNames;
   
   protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(json);
@@ -85,8 +85,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     this.writeConcernFlushUpdates = getWriteConcern(mongoDbConfiguration.writeConcernFlushUpdates, processInstances);
     this.processDefinitionWriter = new MongoProcessDefinitionWriter(this, mongoDbConfiguration.processDefinitionFieldNames);
     this.processDefinitionReader = new MongoProcessDefinitionReader(this, mongoDbConfiguration.processDefinitionFieldNames);
-    this.processInstanceReader = new MongoProcessInstanceReader(this, mongoDbConfiguration.processInstanceFieldNames);
-    this.processInstanceWriter = new MongoProcessInstanceWriter(this, mongoDbConfiguration.processInstanceFieldNames);
+    this.processInstanceMapper = new MongoProcessInstanceMapper(this);
     this.processDefinitionFieldNames = mongoDbConfiguration.processDefinitionFieldNames;
     this.processInstanceFieldNames = mongoDbConfiguration.processInstanceFieldNames;
     this.updateConverters = new MongoUpdateConverters(json);
@@ -135,7 +134,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
 
   @Override
   public void saveProcessInstance(ProcessInstanceImpl processInstance) {
-    BasicDBObject dbProcessInstance = processInstanceWriter.writeProcessInstance(processInstance);
+    BasicDBObject dbProcessInstance = processInstanceMapper.writeProcessInstance(processInstance);
     log.debug("--processInstances-> insert "+PrettyPrinter.toJsonPrettyPrint(dbProcessInstance));
     WriteResult writeResult = this.processInstances.insert(dbProcessInstance, writeConcernStoreProcessInstance);
     log.debug("<-processInstances-- "+writeResult);
@@ -190,7 +189,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   @Override
   public void flushAndUnlock(ProcessInstanceImpl processInstance) {
     processInstance.lock = null;
-    BasicDBObject dbProcessInstance = processInstanceWriter.writeProcessInstance(processInstance);
+    BasicDBObject dbProcessInstance = processInstanceMapper.writeProcessInstance(processInstance);
     log.debug("--processInstances-> save "+PrettyPrinter.toJsonPrettyPrint(dbProcessInstance));
     WriteResult writeResult = this.processInstances.save(dbProcessInstance, writeConcernStoreProcessInstance);
     log.debug("<-processInstances-- "+writeResult);
@@ -199,7 +198,16 @@ public class MongoProcessEngine extends ProcessEngineImpl {
 
   @Override
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
-    return null;
+    BasicDBObject query = new BasicDBObject(processInstanceFieldNames.activityInstances+"."+processInstanceFieldNames._id, activityInstanceId)
+      .append(processInstanceFieldNames.lock, new BasicDBObject("$exists", false));
+    BasicDBObject update = new BasicDBObject("$set", 
+            new BasicDBObject(processInstanceFieldNames.lock, 
+                    new BasicDBObject(processInstanceFieldNames.time, Time.now().toDate())
+                              .append(processInstanceFieldNames.owner, id)));
+    log.debug("--processInstances-> findAndModify q="+PrettyPrinter.toJsonPrettyPrint(query)+" u="+PrettyPrinter.toJsonPrettyPrint(update));
+    BasicDBObject dbProcessInstance = (BasicDBObject) processInstances.findAndModify(query, update);
+    log.debug("<-processInstances-- "+dbProcessInstance);
+    return processInstanceMapper.readProcessInstance(dbProcessInstance);
   }
 
   @Override

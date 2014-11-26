@@ -166,14 +166,6 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   }
   
   @Override
-  public ActivityDefinitionImpl getActivityDefinition(Object id) {
-    if (id!=null && id.equals(this.id)) {
-      return this;
-    }
-    return super.getActivityDefinition(id);
-  }
-
-  @Override
   public void initializeBindings(Validator validator) {
     SpiDescriptor activityDescriptor = processEngine.findActivityDescriptor(activityType);
     for (SpiDescriptorField descriptorField: activityDescriptor.getBindingDescriptorFields()) {

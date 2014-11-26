@@ -290,7 +290,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
       Map<Object,Object> internalValues = new LinkedHashMap<>();
       for (Object variableDefinitionId: variableValuesJson.keySet()) {
         Object jsonValue = variableValuesJson.get(variableDefinitionId);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionLocal(variableDefinitionId);
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinition(variableDefinitionId);
         Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);
         internalValues.put(variableDefinitionId, internalValue);
       }
@@ -300,7 +300,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     if (variableValues!=null) {
       for (Object variableDefinitionId: variableValues.keySet()) {
         Object internalValue = variableValues.get(variableDefinitionId);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionLocal(variableDefinitionId);
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinition(variableDefinitionId);
         variableDefinition.dataType.validateInternalValue(internalValue);
       }
     }
@@ -446,9 +446,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
       return dataType;
     }
     // then search the default activity types
-    dataType = defaultTypes.get(dataTypeId);
-    if (dataType!=null) {
-      return dataType;
+    if (defaultTypes!=null) {
+      return defaultTypes.get(dataTypeId);
     }
     return null;
   }

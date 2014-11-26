@@ -34,8 +34,6 @@ public interface ProcessBuilder {
   
   ProcessBuilder organizationId(Object organizationId);
   
-  ProcessBuilder dataType(DataType dataType);
-
   ProcessBuilder line(Long lineNumber);
 
   ProcessBuilder column(Long columnNumber);
