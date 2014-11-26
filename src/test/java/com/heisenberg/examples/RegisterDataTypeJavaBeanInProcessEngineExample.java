@@ -28,7 +28,6 @@ import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.test.Wait;
 
@@ -55,7 +54,7 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
       .activityType(Wait.INSTANCE)
       .id("w");
 
-    ProcessDefinitionId pdid = processEngine
+    Object pdid = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
@@ -86,7 +85,7 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
       .activityType(Wait.INSTANCE)
       .id("w");
 
-    ProcessDefinitionId pdid = processEngine
+    Object pdid = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();

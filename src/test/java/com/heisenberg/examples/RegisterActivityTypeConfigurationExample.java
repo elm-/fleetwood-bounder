@@ -90,7 +90,7 @@ public class RegisterActivityTypeConfigurationExample {
     
     MyCustomType myCustomActivity = (MyCustomType) processDefinition.activityDefinitions.get(0).activityType;
     assertEquals("functOne", myCustomActivity.functionName);
-    assertEquals("v", myCustomActivity.parameterOne.variableDefinitionId.getInternal());
+    assertEquals("v", myCustomActivity.parameterOne.variableDefinitionId);
   }
 
   public static class MyCustomType extends AbstractActivityType {

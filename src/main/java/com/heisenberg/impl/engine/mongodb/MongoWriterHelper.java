@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.joda.time.LocalDateTime;
 
-import com.heisenberg.api.util.Id;
 import com.mongodb.BasicDBObject;
 
 
@@ -39,11 +38,6 @@ public class MongoWriterHelper {
     }
   }
 
-  public static void putOptId(BasicDBObject o, String fieldName, Id value) {
-    if (fieldName!=null && value!=null) {
-      o.put(fieldName, value.getInternal());
-    }
-  }
   @SuppressWarnings("unchecked")
   public void addListElementOpt(BasicDBObject dbParentScope, String fieldName, Object element) {
     if (element!=null) {

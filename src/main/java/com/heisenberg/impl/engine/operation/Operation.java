@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
@@ -33,7 +32,7 @@ public abstract class Operation {
   @JsonIgnore
   public ActivityInstanceImpl activityInstance;
   
-  public ActivityInstanceId activityInstanceId;
+  public Object activityInstanceId;
 
   public Operation() {
   }

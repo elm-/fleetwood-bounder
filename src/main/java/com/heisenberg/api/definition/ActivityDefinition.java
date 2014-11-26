@@ -17,7 +17,6 @@ package com.heisenberg.api.definition;
 import java.util.List;
 
 import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.Validator;
 
 
@@ -31,7 +30,7 @@ public interface ActivityDefinition {
 
   List<ActivityDefinition> getActivityDefinitions();
 
-  ActivityDefinitionId getId();
+  Object getId();
 
   /** If you use this, you must call the @link {@link #initializeStartActivities()} in the @link {@link ActivityType#validate(ActivityDefinition, com.heisenberg.api.util.Validator)} */
   List<ActivityDefinition> getStartActivities();

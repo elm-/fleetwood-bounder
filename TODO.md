@@ -54,6 +54,10 @@
   - [ ] maybe an mvn command (on the parent project?) to bundle them in a single jar
   - [ ] this way we get the minimal classpaths tested
   - [ ] ensure jackson lib is not required if json is not used
+- [ ] extend activity worker patter scalability
+      We start with one scalable job executor.  But that is one scale for all jobs.
+      When we add the ability to dedicate certain job executors to specific activities, then 
+      we are on par with SWF
 - [ ] change ProcessEngine.startProcessInstance return value into StartProcessInstanceResponse
   - [ ] include process instance full state (as is returned now)
   - [ ] add all (or some) process events as a kind of logs
@@ -76,8 +80,3 @@
 # Design principles
 
 * Minimal library dependencies
-
-# Design topics
-
-* Typed id's vs strings
-* multi language support ?

@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.SpiDescriptorField;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -38,7 +37,7 @@ public class Binding<T> {
   
   public Object value;
   public Object valueJson;
-  public VariableDefinitionId variableDefinitionId;
+  public Object variableDefinitionId;
   public String expression;
   public String expressionLanguage; // optional. can be null. default is JavaScript
   @JsonIgnore
@@ -73,8 +72,8 @@ public class Binding<T> {
     return this;
   }
   
-  public Binding<T> variableName(Object variableDefinitionIdInternal) {
-    this.variableDefinitionId = new VariableDefinitionId(variableDefinitionIdInternal);
+  public Binding<T> variableName(Object variableDefinitionId) {
+    this.variableDefinitionId = variableDefinitionId;
     return this;
   }
   

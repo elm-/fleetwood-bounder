@@ -15,8 +15,6 @@
 package com.heisenberg.api.instance;
 
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.util.ActivityDefinitionId;
-import com.heisenberg.api.util.ActivityInstanceId;
 
 
 
@@ -27,11 +25,11 @@ import com.heisenberg.api.util.ActivityInstanceId;
  */
 public interface ActivityInstance extends ScopeInstance {
   
-  ActivityInstanceId getId();
+  Object getId();
 
   ActivityDefinition getActivityDefinition();
 
-  ActivityDefinitionId getActivityDefinitionId();
+  Object getActivityDefinitionId();
 
   ScopeInstance getParent();
 

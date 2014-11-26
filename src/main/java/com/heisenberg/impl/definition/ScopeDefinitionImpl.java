@@ -21,10 +21,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.util.ActivityDefinitionId;
-import com.heisenberg.api.util.Id;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.util.Exceptions;
 
@@ -35,6 +32,8 @@ import com.heisenberg.impl.util.Exceptions;
 public abstract class ScopeDefinitionImpl {
 
   // parsed and stored member fields
+  
+  public Object id;
 
   public List<ActivityDefinitionImpl> activityDefinitions;
   public List<VariableDefinitionImpl> variableDefinitions;
@@ -50,9 +49,9 @@ public abstract class ScopeDefinitionImpl {
   @JsonIgnore
   public ScopeDefinitionImpl parent;
   @JsonIgnore
-  public Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap;
+  public Map<Object, ActivityDefinitionImpl> activityDefinitionsMap;
   @JsonIgnore
-  public Map<VariableDefinitionId, VariableDefinitionImpl> variableDefinitionsMap;
+  public Map<Object, VariableDefinitionImpl> variableDefinitionsMap;
   @JsonIgnore
   public List<ActivityDefinitionImpl> startActivities;
 
@@ -60,6 +59,11 @@ public abstract class ScopeDefinitionImpl {
   public Long column;
   
   /// Process Definition Builder methods //////////////////////////////////////////
+  
+  public ScopeDefinitionImpl id(Object id) {
+    this.id = id;
+    return this;
+  }
   
   public ActivityDefinitionImpl newActivity() {
     ActivityDefinitionImpl activityDefinition = new ActivityDefinitionImpl();
@@ -140,8 +144,8 @@ public abstract class ScopeDefinitionImpl {
     this.processDefinition = processDefinition;
   }
   
-  public ActivityDefinitionImpl getActivityDefinition(Object idInternal) {
-    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(new ActivityDefinitionId(idInternal)) : null;
+  public ActivityDefinitionImpl getActivityDefinition(Object id) {
+    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(id) : null;
   }
   
   public ProcessEngineImpl getProcessEngine() {
@@ -251,7 +255,7 @@ public abstract class ScopeDefinitionImpl {
     }
   }
 
-  public boolean containsVariable(VariableDefinitionId variableDefinitionId) {
+  public boolean containsVariable(Object variableDefinitionId) {
     if (variableDefinitionId==null) {
       return false;
     }
@@ -268,9 +272,46 @@ public abstract class ScopeDefinitionImpl {
     }
     return false;
   }
+  
+  /** searches only in this scope to find the activity definition */
+  public ActivityDefinitionImpl findActivityDefinitionLocal(Object activityDefinitionId) {
+    return activityDefinitionsMap!=null ? activityDefinitionsMap.get(activityDefinitionId) : null;
+  }
 
-  public VariableDefinitionImpl findVariableDefinitionById(VariableDefinitionId variableDefinitionId) {
+  /** searches in this scope and recurses over the child activity defintions to find the activity definition */
+  public ActivityDefinitionImpl findActivityDefinition(Object activityDefinitionId) {
+    if (activityDefinitions!=null) {
+      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
+        // ActivityDefinitionImpl overrides findActivityDefinition and does the id check
+        ActivityDefinitionImpl theOne = activityDefinition.findActivityDefinition(activityDefinitionId);
+        if (theOne!=null) {
+          return theOne;
+        }
+      }
+    }
+    return null;
+  }
+
+  /** searches only in this scope to find the variable definition */
+  public VariableDefinitionImpl findVariableDefinitionLocal(Object variableDefinitionId) {
     return variableDefinitionsMap!=null ? variableDefinitionsMap.get(variableDefinitionId) : null;
+  }
+
+  /** searches in this scope and then recurses over the child activity definitions to find the variable definition */
+  public VariableDefinitionImpl findVariableDefinition(Object variableDefinitionId) {
+    VariableDefinitionImpl theOne = findVariableDefinitionLocal(variableDefinitionId);
+    if (theOne!=null) {
+      return theOne;
+    }
+    if (activityDefinitions!=null) {
+      for (ActivityDefinitionImpl activityDefinition: activityDefinitions) {
+        theOne = activityDefinition.findVariableDefinitionLocal(variableDefinitionId);
+        if (theOne!=null) {
+          return theOne;
+        }
+      }
+    }
+    return null;
   }
 
   public void initializeActivityDefinitionsMap() {
@@ -296,8 +337,6 @@ public abstract class ScopeDefinitionImpl {
     }
   }
   
-  public abstract Id getId();
-
   // getters and setters ////////////////////////////////////////////////////////////
   
   public boolean hasTransitionDefinitions() {
@@ -314,12 +353,12 @@ public abstract class ScopeDefinitionImpl {
   }
 
   
-  public Map<ActivityDefinitionId, ActivityDefinitionImpl> getActivityDefinitionsMap() {
+  public Map<Object, ActivityDefinitionImpl> getActivityDefinitionsMap() {
     return activityDefinitionsMap;
   }
 
   
-  public void setActivityDefinitionsMap(Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap) {
+  public void setActivityDefinitionsMap(Map<Object, ActivityDefinitionImpl> activityDefinitionsMap) {
     this.activityDefinitionsMap = activityDefinitionsMap;
   }
 
@@ -334,12 +373,12 @@ public abstract class ScopeDefinitionImpl {
   }
 
   
-  public Map<VariableDefinitionId, VariableDefinitionImpl> getVariableDefinitionsMap() {
+  public Map<Object, VariableDefinitionImpl> getVariableDefinitionsMap() {
     return variableDefinitionsMap;
   }
 
   
-  public void setVariableDefinitionsMap(Map<VariableDefinitionId, VariableDefinitionImpl> variableDefinitionsMap) {
+  public void setVariableDefinitionsMap(Map<Object, VariableDefinitionImpl> variableDefinitionsMap) {
     this.variableDefinitionsMap = variableDefinitionsMap;
   }
 
@@ -356,29 +395,32 @@ public abstract class ScopeDefinitionImpl {
   public List<TimerDefinitionImpl> getTimerDefinitions() {
     return timerDefinitions;
   }
-
   
   public void setTimerDefinitions(List<TimerDefinitionImpl> timerDefinitions) {
     this.timerDefinitions = timerDefinitions;
   }
-
   
   public Long getLine() {
     return line;
   }
-
   
   public void setLine(Long line) {
     this.line = line;
   }
-
   
   public Long getColumn() {
     return column;
   }
-
   
   public void setColumn(Long column) {
     this.column = column;
+  }
+  
+  public Object getId() {
+    return id;
+  }
+  
+  public void setId(Object id) {
+    this.id = id;
   }
 }

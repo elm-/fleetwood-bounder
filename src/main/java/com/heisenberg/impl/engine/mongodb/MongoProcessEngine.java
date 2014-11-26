@@ -23,13 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.Page;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.ActivityInstanceId;
-import com.heisenberg.api.util.ProcessDefinitionId;
-import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
+import com.heisenberg.impl.SimpleProcessDefinitionCache;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessDefinitionFieldNames;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessInstanceFieldNames;
@@ -93,20 +91,30 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     this.processInstanceFieldNames = mongoDbConfiguration.processInstanceFieldNames;
     this.updateConverters = new MongoUpdateConverters(json);
   }
+  
+  @Override
+  protected void initializeProcessDefinitionCache() {
+    processDefinitionCache = new SimpleProcessDefinitionCache();
+  }
 
   @Override
-  protected ProcessDefinitionId generateProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
-    return new ProcessDefinitionId(new ObjectId());
+  protected Object createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+    return new ObjectId();
   }
   
   @Override
-  protected ProcessInstanceId createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
-    return new ProcessInstanceId(new ObjectId());
+  protected Object createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
+    return new ObjectId();
   }
 
   @Override
-  protected ActivityInstanceId createActivityInstanceId() {
-    return new ActivityInstanceId(new ObjectId());
+  protected Object createActivityInstanceId() {
+    return new ObjectId();
+  }
+
+  @Override
+  protected Object createVariableInstanceId() {
+    return new ObjectId();
   }
 
   @Override
@@ -118,9 +126,9 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected ProcessDefinitionImpl loadProcessDefinitionById(ProcessDefinitionId processDefinitionId) {
+  protected ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId) {
     log.debug("--processDefinitions-> find "+processDefinitionId);
-    BasicDBObject dbProcess = (BasicDBObject) this.processDefinitions.findOne(new BasicDBObject(processDefinitionFieldNames._id, processDefinitionId.getInternal()));
+    BasicDBObject dbProcess = (BasicDBObject) this.processDefinitions.findOne(new BasicDBObject(processDefinitionFieldNames._id, processDefinitionId));
     log.debug("<-processDefinitions-- "+PrettyPrinter.toJsonPrettyPrint(dbProcess));
     return processDefinitionReader.readProcessDefinition(dbProcess);
   }
@@ -147,7 +155,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
         }
       }
       this.processInstances.update(
-        new BasicDBObject(processInstanceFieldNames._id,  processInstance.id.getInternal()),
+        new BasicDBObject(processInstanceFieldNames._id,  processInstance.id),
         new BasicDBObject("$pushAll", new BasicDBObject(processInstanceFieldNames.updates, dbUpdates)),
         false, false, writeConcernFlushUpdates);
       // After the first and all subsequent flushes, we need to capture the updates so we initialize the collection
@@ -190,7 +198,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
+  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
     return null;
   }
 

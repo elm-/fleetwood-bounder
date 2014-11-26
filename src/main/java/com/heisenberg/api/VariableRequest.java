@@ -19,7 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.util.VariableDefinitionId;
 
 
 /**
@@ -28,27 +27,27 @@ import com.heisenberg.api.util.VariableDefinitionId;
 public class VariableRequest {
 
   @JsonIgnore
-  public Map<VariableDefinitionId,Object> variableValues;
+  public Map<Object,Object> variableValues;
 
-  public Map<VariableDefinitionId,Object> variableValuesJson;
+  public Map<Object,Object> variableValuesJson;
 
   /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
   @JsonIgnore
   public Map<String,Object> transientContext;
 
-  public VariableRequest variableValue(Object variableDefinitionIdInternal, Object value) {
+  public VariableRequest variableValue(Object variableDefinitionId, Object value) {
     if (variableValues==null) {
       variableValues = new LinkedHashMap<>();
     }
-    variableValues.put(new VariableDefinitionId(variableDefinitionIdInternal), value);
+    variableValues.put(variableDefinitionId, value);
     return this;
   }
 
-  public VariableRequest variableValueJson(Object variableDefinitionIdInternal, Object valueJson) {
+  public VariableRequest variableValueJson(Object variableDefinitionId, Object valueJson) {
     if (variableValuesJson==null) {
       variableValuesJson = new LinkedHashMap<>();
     }
-    variableValuesJson.put(new VariableDefinitionId(variableDefinitionIdInternal), valueJson);
+    variableValuesJson.put(variableDefinitionId, valueJson);
     return this;
   }
   

@@ -25,9 +25,6 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.util.OrganizationId;
-import com.heisenberg.api.util.ProcessId;
-import com.heisenberg.api.util.UserId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -50,10 +47,10 @@ public class JsonProcessDefinitionTest {
     processEngine.json.objectMapper.registerSubtypes(new NamedType(Go.class, "go"));
 
     ProcessBuilder process = processEngine.newProcess();
-    process.deployedUserId(new UserId("me"))
+    process.deployedUserId("me")
     .deployedTime(Time.now())
-    .organizationId(new OrganizationId("myorg"))
-    .processId(new ProcessId("myprocess"))
+    .organizationId("myorg")
+    .processId("myprocess")
     .version(6l)
     .line(1l)
     .column(2l)
@@ -98,11 +95,11 @@ public class JsonProcessDefinitionTest {
     
     ProcessDefinitionImpl processDefinition = json.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
     assertNotNull(processDefinition);
-    assertEquals("myorg", processDefinition.organizationId.getInternal());
+    assertEquals("myorg", processDefinition.organizationId);
     ChoiceType choiceType = (ChoiceType) processDefinition.dataTypesMap.get("country");
     assertEquals("Belgium", choiceType.getOptions().get("be"));
     ActivityDefinitionImpl one = processDefinition.getActivityDefinition("one");
-    assertEquals("one", one.id.getInternal());
+    assertEquals("one", one.id);
     assertEquals(Go.class, one.activityType.getClass());
   }
 }

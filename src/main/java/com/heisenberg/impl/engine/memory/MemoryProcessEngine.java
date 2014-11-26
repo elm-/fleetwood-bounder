@@ -24,9 +24,6 @@ import java.util.Set;
 
 import com.heisenberg.api.Page;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.ActivityInstanceId;
-import com.heisenberg.api.util.ProcessDefinitionId;
-import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.PageImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
@@ -49,14 +46,14 @@ import com.heisenberg.impl.instance.ScopeInstanceImpl;
  */
 public class MemoryProcessEngine extends ProcessEngineImpl {
   
-  protected Map<ProcessDefinitionId, ProcessDefinitionImpl> processDefinitions;
-  protected Map<ProcessInstanceId, ProcessInstanceImpl> processInstances;
-  protected Set<ProcessInstanceId> lockedProcessInstances;
+  protected Map<Object, ProcessDefinitionImpl> processDefinitions;
+  protected Map<Object, ProcessInstanceImpl> processInstances;
+  protected Set<Object> lockedProcessInstances;
   
   public MemoryProcessEngine() {
-    processDefinitions = Collections.synchronizedMap(new HashMap<ProcessDefinitionId, ProcessDefinitionImpl>());
-    processInstances = Collections.synchronizedMap(new HashMap<ProcessInstanceId, ProcessInstanceImpl>());
-    lockedProcessInstances = Collections.synchronizedSet(new HashSet<ProcessInstanceId>());
+    processDefinitions = Collections.synchronizedMap(new HashMap<Object, ProcessDefinitionImpl>());
+    processInstances = Collections.synchronizedMap(new HashMap<Object, ProcessInstanceImpl>());
+    lockedProcessInstances = Collections.synchronizedSet(new HashSet<Object>());
   }
 
   @Override
@@ -93,7 +90,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected ProcessDefinitionImpl loadProcessDefinitionById(ProcessDefinitionId processDefinitionId) {
+  protected ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId) {
     return processDefinitions.get(processDefinitionId);
   }
 
@@ -151,7 +148,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     }
   }
 
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId) {
+  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
     ProcessInstanceQuery processInstanceQuery = new ProcessInstanceQuery(this)
       .activityInstanceId(activityInstanceId);
     processInstanceQuery.setMaxResults(1);
@@ -159,7 +156,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     if (processInstance==null) { 
       throw new RuntimeException("Process instance "+id+" doesn't exist");
     }
-    ProcessInstanceId id = processInstance.getId();
+    Object id = processInstance.getId();
     if (lockedProcessInstances.contains(id)) {
       throw new RuntimeException("Process instance "+id+" is already locked");
     }

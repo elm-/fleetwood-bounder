@@ -29,7 +29,6 @@ import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
@@ -69,7 +68,7 @@ public class BasicProcessExecutionTest {
       .from("wait1")
       .to("wait2");
     
-    ProcessDefinitionId processDefinitionId = processEngine
+    Object processDefinitionId = processEngine
       .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
@@ -89,11 +88,11 @@ public class BasicProcessExecutionTest {
     
     ActivityInstance goInstance = processInstance.getActivityInstances().get(0);
     assertTrue(goInstance.isEnded());
-    assertEquals("go", goInstance.getActivityDefinitionId().getInternal());
+    assertEquals("go", goInstance.getActivityDefinitionId());
     
     ActivityInstance waitActivityInstance = processInstance.getActivityInstances().get(1);
     assertFalse(waitActivityInstance.isEnded());
-    assertEquals("wait1", waitActivityInstance.getActivityDefinitionId().getInternal());
+    assertEquals("wait1", waitActivityInstance.getActivityDefinitionId());
     
     // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
     processInstance = processEngine.signal(new SignalRequest()
@@ -103,15 +102,15 @@ public class BasicProcessExecutionTest {
 
     goInstance = processInstance.getActivityInstances().get(0);
     assertTrue(goInstance.isEnded());
-    assertEquals("go", goInstance.getActivityDefinitionId().getInternal());
+    assertEquals("go", goInstance.getActivityDefinitionId());
     
     waitActivityInstance = processInstance.getActivityInstances().get(1);
     assertTrue(waitActivityInstance.isEnded());
-    assertEquals("wait1", waitActivityInstance.getActivityDefinitionId().getInternal());
+    assertEquals("wait1", waitActivityInstance.getActivityDefinitionId());
     
     ActivityInstance wait2ActivityInstance = processInstance.getActivityInstances().get(2);
     assertFalse(wait2ActivityInstance.isEnded());
-    assertEquals("wait2", wait2ActivityInstance.getActivityDefinitionId().getInternal());
+    assertEquals("wait2", wait2ActivityInstance.getActivityDefinitionId());
 
     processInstance = processEngine.signal(new SignalRequest()
       .activityInstanceId(wait2ActivityInstance.getId()));

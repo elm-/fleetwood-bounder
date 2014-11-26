@@ -17,9 +17,6 @@ package com.heisenberg.api.builder;
 import org.joda.time.LocalDateTime;
 
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.util.OrganizationId;
-import com.heisenberg.api.util.ProcessId;
-import com.heisenberg.api.util.UserId;
 
 
 /**
@@ -29,13 +26,13 @@ public interface ProcessBuilder {
 
   ProcessBuilder deployedTime(LocalDateTime deployedTime);
   
-  ProcessBuilder deployedUserId(UserId deployedUserId);
+  ProcessBuilder deployedUserId(Object deployedUserId);
 
-  ProcessBuilder processId(ProcessId processId);
+  ProcessBuilder processId(Object processId);
   
   ProcessBuilder version(Long version);
   
-  ProcessBuilder organizationId(OrganizationId organizationId);
+  ProcessBuilder organizationId(Object organizationId);
   
   ProcessBuilder dataType(DataType dataType);
 

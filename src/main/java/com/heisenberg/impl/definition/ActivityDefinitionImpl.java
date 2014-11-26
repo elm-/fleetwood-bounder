@@ -25,7 +25,6 @@ import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.SpiDescriptor;
 import com.heisenberg.impl.SpiDescriptorField;
@@ -37,7 +36,7 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder, ActivityDefinition {
 
-  public ActivityDefinitionId id;
+  public Object id;
 
   /** References a type declared in the process engine by id.
    * 
@@ -86,8 +85,8 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return this;
   }
   
-  public ActivityDefinitionImpl id(Object idInternal) {
-    this.id = new ActivityDefinitionId(idInternal);
+  public ActivityDefinitionImpl id(Object id) {
+    this.id = id;
     return this;
   }
 
@@ -165,6 +164,14 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   public String toString() {
     return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
+  
+  @Override
+  public ActivityDefinitionImpl getActivityDefinition(Object id) {
+    if (id!=null && id.equals(this.id)) {
+      return this;
+    }
+    return super.getActivityDefinition(id);
+  }
 
   @Override
   public void initializeBindings(Validator validator) {
@@ -183,14 +190,4 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
       }
     }
   }
-  
-  public ActivityDefinitionId getId() {
-    return id;
-  }
-
-  
-  public void setId(ActivityDefinitionId id) {
-    this.id = id;
-  }
-
 }

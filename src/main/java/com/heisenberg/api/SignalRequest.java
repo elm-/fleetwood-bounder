@@ -14,7 +14,6 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.api.util.ActivityInstanceId;
 
 
 /**
@@ -22,17 +21,17 @@ import com.heisenberg.api.util.ActivityInstanceId;
  */
 public class SignalRequest extends VariableRequest {
 
-  protected ActivityInstanceId activityInstanceId;
+  protected Object activityInstanceId;
   
-  public SignalRequest activityInstanceId(ActivityInstanceId activityInstanceId) {
+  public SignalRequest activityInstanceId(Object activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
     return this;
   }
   
-  public ActivityInstanceId getActivityInstanceId() {
+  public Object getActivityInstanceId() {
     return activityInstanceId;
   }
-  public void setActivityInstanceId(ActivityInstanceId activityInstanceId) {
+  public void setActivityInstanceId(Object activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
   }
   

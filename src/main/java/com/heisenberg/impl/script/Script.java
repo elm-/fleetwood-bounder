@@ -19,8 +19,6 @@ import java.util.Map;
 
 import javax.script.CompiledScript;
 
-import com.heisenberg.api.util.VariableDefinitionId;
-
 
 /**
  * @author Walter White
@@ -31,7 +29,7 @@ public class Script {
   public CompiledScript compiledScript;
 
   /** maps script variable names to process variable definition names */ 
-  public Map<String, VariableDefinitionId> scriptToProcessMappings;
+  public Map<String, Object> scriptToProcessMappings;
 
   public Script language(String language) {
     this.language = language;
@@ -43,11 +41,11 @@ public class Script {
     return this;
   }
   
-  public Script scriptToProcessMapping(String scriptVariableName, Object variableDefinitionIdInternal) {
+  public Script scriptToProcessMapping(String scriptVariableName, Object variableDefinitionId) {
     if (scriptToProcessMappings==null) {
       scriptToProcessMappings = new HashMap<>();
     }
-    scriptToProcessMappings.put(scriptVariableName, new VariableDefinitionId(variableDefinitionIdInternal));
+    scriptToProcessMappings.put(scriptVariableName, variableDefinitionId);
     return this;
   }
 }

@@ -29,7 +29,6 @@ import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.builder.ProcessBuilder;
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
@@ -62,7 +61,7 @@ public class ScriptTest {
       .activityType(new ScriptActivity())
       .id("a");
 
-    ProcessDefinitionId processDefinitionId = processEngine
+    Object processDefinitionId = processEngine
       .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();

@@ -48,11 +48,7 @@ import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.util.ActivityInstanceId;
-import com.heisenberg.api.util.ProcessDefinitionId;
-import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.api.util.Spi;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -61,6 +57,7 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
+import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.heisenberg.impl.json.Json;
 import com.heisenberg.impl.script.ScriptRunnerImpl;
 import com.heisenberg.impl.util.Exceptions;
@@ -111,10 +108,14 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   protected void initialize() {
     initializeId();
     initializeExecutor();
+    initializeProcessDefinitionCache();
     initializeJson();
     initializeScriptRunner();
     initializePluggableImplementations();
     initializeDefaultSpis();
+  }
+
+  protected void initializeProcessDefinitionCache() {
   }
 
   /** The globally unique id for this process engine used for locking 
@@ -235,7 +236,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ParseIssues issues = validator.getIssues();
     
     if (!issues.hasErrors()) {
-      processDefinition.id = generateProcessDefinitionId(processDefinition);
+      processDefinition.id = createProcessDefinitionId(processDefinition);
       response.setProcessDefinitionId(processDefinition.id); 
       storeProcessDefinition(processDefinition);
     } else {
@@ -246,15 +247,15 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
   
   /** ensures that every element in this process definition has an id */
-  protected ProcessDefinitionId generateProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
-    return new ProcessDefinitionId(UUID.randomUUID().toString());
+  protected Object createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+    return UUID.randomUUID().toString();
   }
   
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
   protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
-    ProcessDefinitionId processDefinitionId = startProcessInstanceRequest.processDefinitionId;
+    Object processDefinitionId = startProcessInstanceRequest.processDefinitionId;
     Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
     if (processDefinition==null) {
@@ -283,32 +284,24 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   private void setVariableApiValues(ScopeInstanceImpl scopeInstance, VariableRequest variableRequest) {
     ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition;
-    Map<VariableDefinitionId, Object> variableValuesJson = variableRequest.variableValuesJson;
+    Map<Object, Object> variableValuesJson = variableRequest.variableValuesJson;
     // If there are variables in json format
     if (variableValuesJson!=null) {
-      Map<VariableDefinitionId,Object> internalValues = new LinkedHashMap<>();
-      for (VariableDefinitionId variableDefinitionId: variableValuesJson.keySet()) {
+      Map<Object,Object> internalValues = new LinkedHashMap<>();
+      for (Object variableDefinitionId: variableValuesJson.keySet()) {
         Object jsonValue = variableValuesJson.get(variableDefinitionId);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionById(variableDefinitionId);
-        try {
-          Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);
-          internalValues.put(variableDefinitionId, internalValue);
-        } catch (InvalidValueException e) {
-          throw new RuntimeException("TODO: collect error messages and somehow get them in the response", e);
-        }
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionLocal(variableDefinitionId);
+        Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);
+        internalValues.put(variableDefinitionId, internalValue);
       }
       scopeInstance.setVariableValuesRecursive(internalValues);
     } 
-    Map<VariableDefinitionId, Object> variableValues = variableRequest.variableValues;
+    Map<Object, Object> variableValues = variableRequest.variableValues;
     if (variableValues!=null) {
-      for (VariableDefinitionId variableDefinitionId: variableValues.keySet()) {
+      for (Object variableDefinitionId: variableValues.keySet()) {
         Object internalValue = variableValues.get(variableDefinitionId);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionById(variableDefinitionId);
-        try {
-          variableDefinition.dataType.validateInternalValue(internalValue);
-        } catch (InvalidValueException e) {
-          throw new RuntimeException("TODO: collect error messages and somehow get them in the response", e);
-        }
+        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinitionLocal(variableDefinitionId);
+        variableDefinition.dataType.validateInternalValue(internalValue);
       }
     }
     if (variableValues!=null) {
@@ -316,7 +309,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     }
   }
 
-  protected ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(ProcessDefinitionId processDefinitionId) {
+  public ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(Object processDefinitionId) {
     ProcessDefinitionImpl processDefinition = processDefinitionCache!=null ? processDefinitionCache.get(processDefinitionId) : null;
     if (processDefinition==null) {
       processDefinition = loadProcessDefinitionById(processDefinitionId);
@@ -324,34 +317,47 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return processDefinition;
   }
   
-  protected abstract ProcessDefinitionImpl loadProcessDefinitionById(ProcessDefinitionId processDefinitionId);
+  protected abstract ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId);
 
   protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition) {
     return new ProcessInstanceImpl(this, processDefinition, createProcessInstanceId(processDefinition));
   }
 
-  protected ProcessInstanceId createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
-    return new ProcessInstanceId(UUID.randomUUID());
+  protected Object createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
+    return UUID.randomUUID();
   }
   
   /** instantiates and assign an id.
-   * activityDefinition is only passed for reference.  
+   * parent and activityDefinition are only passed for reference.  
    * Apart from choosing the activity instance class to instantiate and assigning the id,
-   * this method does not need to link the activity instance to the activityDefinition or parent. */
-  public ActivityInstanceImpl createActivityInstance(ActivityDefinitionImpl activityDefinition) {
+   * this method does not need to link the parent or the activityDefinition. */
+  public ActivityInstanceImpl createActivityInstance(ScopeInstanceImpl parent, ActivityDefinitionImpl activityDefinition) {
     ActivityInstanceImpl activityInstance = new ActivityInstanceImpl();
-    ActivityInstanceId id = createActivityInstanceId();
-    activityInstance.setId(id);
+    activityInstance.id = createActivityInstanceId();
     return activityInstance;
   }
 
-  protected ActivityInstanceId createActivityInstanceId() {
-    return new ActivityInstanceId(UUID.randomUUID());
+  protected Object createActivityInstanceId() {
+    return UUID.randomUUID();
+  }
+
+  /** instantiates and assign an id.
+   * parent and variableDefinition are only passed for reference.  
+   * Apart from choosing the variable instance class to instantiate and assigning the id,
+   * this method does not need to link the parent or variableDefinition. */
+  public VariableInstanceImpl createVariableInstance(ScopeInstanceImpl parent, VariableDefinitionImpl variableDefinition) {
+    VariableInstanceImpl variableInstance = new VariableInstanceImpl();
+    variableInstance.id = createVariableInstanceId();
+    return variableInstance;
+  }
+
+  protected Object createVariableInstanceId() {
+    return UUID.randomUUID();
   }
 
   @Override
   public ProcessInstance signal(SignalRequest signalRequest) {
-    ActivityInstanceId activityInstanceId = signalRequest.getActivityInstanceId();
+    Object activityInstanceId = signalRequest.getActivityInstanceId();
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
     // TODO set variables and context
     ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
@@ -362,7 +368,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return processInstance;
   }
   
-  public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(ActivityInstanceId activityInstanceId);
+  public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId);
 
   public abstract void saveProcessInstance(ProcessInstanceImpl processInstance);
 

@@ -14,9 +14,16 @@
  */
 package com.heisenberg.impl.engine.mongodb;
 
-import com.heisenberg.api.util.ProcessInstanceId;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessInstanceFieldNames;
+import com.heisenberg.impl.instance.ActivityInstanceImpl;
+import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.mongodb.BasicDBObject;
 
 
@@ -25,17 +32,100 @@ import com.mongodb.BasicDBObject;
  */
 public class MongoProcessInstanceReader extends MongoReaderHelper {
 
-  MongoProcessEngine mongoProcessEngine;
+  MongoProcessEngine processEngine;
   ProcessInstanceFieldNames fieldNames;
 
-  public MongoProcessInstanceReader(MongoProcessEngine mongoProcessEngine, ProcessInstanceFieldNames processInstanceFieldNames) {
-    this.mongoProcessEngine = mongoProcessEngine;
+  public MongoProcessInstanceReader(MongoProcessEngine processEngine, ProcessInstanceFieldNames processInstanceFieldNames) {
+    this.processEngine = processEngine;
     this.fieldNames = processInstanceFieldNames;
   }
   
   public ProcessInstanceImpl readProcessInstance(BasicDBObject dbProcess) {
     ProcessInstanceImpl process = new ProcessInstanceImpl();
-    process.id = new ProcessInstanceId(dbProcess.get(fieldNames._id));
+    process.processEngine = processEngine;
+    process.processDefinitionId = dbProcess.get(fieldNames.processDefinitionId);
+    ProcessDefinitionImpl processDefinition = processEngine.findProcessDefinitionByIdUsingCache(process.processDefinitionId);
+    process.processDefinition = processDefinition;
+    process.processInstance = process;
+    process.scopeDefinition = process.processDefinition;
+
+    process.id = dbProcess.get(fieldNames._id);
+    process.start = getTime(dbProcess, fieldNames.start);
+    process.end = getTime(dbProcess, fieldNames.end);
+    process.duration = getLong(dbProcess, fieldNames.duration);
+    process.lock = readLock((BasicDBObject) dbProcess.get(fieldNames.lock));
+    
+    Map<Object, ActivityInstanceImpl> allActivityInstances = new HashMap<>();
+    Map<Object, Object> parentIds = new HashMap<>();
+    List<BasicDBObject> dbActivityInstances = getList(dbProcess, fieldNames.activityInstances);
+    if (dbActivityInstances!=null) {
+      for (BasicDBObject dbActivityInstance: dbActivityInstances) {
+        ActivityInstanceImpl activityInstance = readActivityInstance(process, dbActivityInstance);
+        allActivityInstances.put(activityInstance.id, activityInstance);
+        parentIds.put(activityInstance.id, dbActivityInstance.get(fieldNames.parent));
+      }
+    }
+    
+    for (ActivityInstanceImpl activityInstance: allActivityInstances.values()) {
+      Object parentId = parentIds.get(activityInstance.id);
+      activityInstance.parent = (parentId!=null ? allActivityInstances.get(parentId) : process);
+      activityInstance.parent.addActivityInstance(activityInstance);
+    }
+    
+    parentIds = new HashMap<>();
+    Map<Object, VariableInstanceImpl> allVariableInstances = new HashMap<>();
+    List<BasicDBObject> dbVariableInstances = getList(dbProcess, fieldNames.variableInstances);
+    if (dbVariableInstances!=null) {
+      for (BasicDBObject dbVariableInstance: dbVariableInstances) {
+        VariableInstanceImpl variableInstance = readVariableInstance(process, dbVariableInstance);
+        allVariableInstances.put(variableInstance.id, variableInstance);
+        parentIds.put(variableInstance.id, dbVariableInstance.get(fieldNames.parent));
+      }
+    }
+
+    for (VariableInstanceImpl variableInstance: allVariableInstances.values()) {
+      Object parentId = parentIds.get(variableInstance.id);
+      variableInstance.parent = (parentId!=null ? allActivityInstances.get(parentId) : process);
+      variableInstance.parent.addVariableInstance(variableInstance);
+    }
+
     return process;
+  }
+
+  private VariableInstanceImpl readVariableInstance(ProcessInstanceImpl processInstance, BasicDBObject dbVariableInstance) {
+    VariableInstanceImpl variableInstance = new VariableInstanceImpl();
+    variableInstance.processEngine = processEngine;
+    variableInstance.processInstance = processInstance;
+    variableInstance.variableDefinitionId = dbVariableInstance.get(fieldNames.variableDefinitionId);
+    variableInstance.variableDefinition = processInstance.processDefinition.findVariableDefinition(variableInstance.variableDefinitionId);
+    variableInstance.dataType = variableInstance.variableDefinition.dataType;
+    variableInstance.dataTypeId = variableInstance.dataType.getId();
+    variableInstance.value = variableInstance.dataType.convertJsonToInternalValue(dbVariableInstance.get(fieldNames.value));
+    return variableInstance;
+  }
+
+  protected ActivityInstanceImpl readActivityInstance(ProcessInstanceImpl processInstance, BasicDBObject dbActivityInstance) {
+    ActivityInstanceImpl activityInstance = new ActivityInstanceImpl();
+    activityInstance.processEngine = processEngine;
+    activityInstance.processDefinition = processInstance.processDefinition;
+    activityInstance.id = dbActivityInstance.get(fieldNames._id);
+    activityInstance.activityDefinitionId = dbActivityInstance.get(fieldNames.activityDefinitionId);
+    activityInstance.activityDefinition = processInstance.processDefinition.findActivityDefinition(activityInstance.activityDefinitionId);
+    activityInstance.scopeDefinition = activityInstance.activityDefinition;
+    activityInstance.processInstance = processInstance; 
+    activityInstance.start = getTime(dbActivityInstance, fieldNames.start);
+    activityInstance.end = getTime(dbActivityInstance, fieldNames.end);
+    activityInstance.duration = getLong(dbActivityInstance, fieldNames.duration);
+    return activityInstance;
+  }
+
+  protected LockImpl readLock(BasicDBObject dbLock) {
+    if (dbLock==null) {
+      return null;
+    }
+    LockImpl lock = new LockImpl();
+    lock.owner = getString(dbLock, fieldNames.owner);
+    lock.time = getTime(dbLock, fieldNames.time);
+    return lock;
   }
 }

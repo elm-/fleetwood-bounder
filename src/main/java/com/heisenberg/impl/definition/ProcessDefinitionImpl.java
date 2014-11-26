@@ -25,10 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.util.OrganizationId;
-import com.heisenberg.api.util.ProcessDefinitionId;
-import com.heisenberg.api.util.ProcessId;
-import com.heisenberg.api.util.UserId;
 
 
 /**
@@ -37,7 +33,7 @@ import com.heisenberg.api.util.UserId;
 public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements ProcessBuilder, ProcessDefinition {
 
   /** The globally unique identifier for this process definition. */
-  public ProcessDefinitionId id;
+  public Object id;
   
   /** optional time when the process was deployed.
    * This field just serves as a read/write property and is not used during process execution. */
@@ -45,15 +41,15 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /** optional reference to the user that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
-  public UserId deployedBy;
+  public Object deployedBy;
 
   /** optional reference to the organization (aka tenant or workspace) that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
-  public OrganizationId organizationId;
+  public Object organizationId;
 
   /** optional reference to the the source process for which this process definition is one version.
    * This field just serves as a read/write property and is not used during process execution. */
-  public ProcessId processId;
+  public Object processId;
 
   /** optional version number of this process definition, related to @link {@link #processId}.
    * This combined with the @link {@link ScopeDefinitionImpl#id} should be unique. */
@@ -77,13 +73,13 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
 
   @Override
-  public ProcessDefinitionImpl deployedUserId(UserId deployedBy) {
+  public ProcessDefinitionImpl deployedUserId(Object deployedBy) {
     this.deployedBy = deployedBy;
     return this;
   }
 
   @Override
-  public ProcessDefinitionImpl processId(ProcessId processId) {
+  public ProcessDefinitionImpl processId(Object processId) {
     this.processId = processId;
     return this;
   }
@@ -95,7 +91,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
   
   @Override
-  public ProcessDefinitionImpl organizationId(OrganizationId organizationId) {
+  public ProcessDefinitionImpl organizationId(Object organizationId) {
     this.organizationId = organizationId;
     return this;
   }
@@ -147,11 +143,11 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     return new ProcessDefinitionPath();
   }
 
-  public ProcessDefinitionId getId() {
+  public Object getId() {
     return id;
   }
   
-  public void setId(ProcessDefinitionId id) {
+  public void setId(Object id) {
     this.id = id;
   }
   

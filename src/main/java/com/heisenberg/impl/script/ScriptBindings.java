@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.TypedValue;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 
 
@@ -40,7 +39,7 @@ public class ScriptBindings implements Bindings {
   
   public static final Logger log = LoggerFactory.getLogger(ScriptBindings.class);
   
-  protected Map<String,VariableDefinitionId> scriptToProcessMappings;
+  protected Map<String,Object> scriptToProcessMappings;
   protected String language;
   protected ScopeInstanceImpl scopeInstance;
   protected Console console;
@@ -69,7 +68,7 @@ public class ScriptBindings implements Bindings {
       return true;
     }
     if (name.length()>0) {
-      return scopeInstance.getScopeDefinition().containsVariable(new VariableDefinitionId(name));
+      return scopeInstance.getScopeDefinition().containsVariable(name);
     }
     return false;
   }
@@ -90,18 +89,18 @@ public class ScriptBindings implements Bindings {
     return dataType.convertInternalToScriptValue(value, language);
   }
   
-  protected VariableDefinitionId getVariableDefinitionId(String scriptVariableName) {
+  protected Object getVariableDefinitionId(String scriptVariableName) {
     if (scriptToProcessMappings!=null) {
-      VariableDefinitionId variableDefinitionId = scriptToProcessMappings.get(scriptVariableName);
+      Object variableDefinitionId = scriptToProcessMappings.get(scriptVariableName);
       if (variableDefinitionId!=null) {
         return variableDefinitionId;
       }
     }
-    return new VariableDefinitionId(scriptVariableName);
+    return scriptVariableName;
   }
 
   public TypedValue getTypedValue(String scriptVariableName) {
-    VariableDefinitionId variableDefinitionId = getVariableDefinitionId(scriptVariableName);
+    Object variableDefinitionId = getVariableDefinitionId(scriptVariableName);
     return scopeInstance.getVariableValueRecursive(variableDefinitionId);
   }
 
@@ -125,7 +124,7 @@ public class ScriptBindings implements Bindings {
     }
     TypedValue typedValue = getTypedValue(scriptVariableName);
     if (typedValue!=null) {
-      VariableDefinitionId variableDefinitionId = getVariableDefinitionId(scriptVariableName);
+      Object variableDefinitionId = getVariableDefinitionId(scriptVariableName);
       DataType dataType = typedValue.getType();
       Object value = dataType.convertScriptValueToInternal(scriptValue, language);
       scopeInstance.setVariableValueRecursive(variableDefinitionId, value);

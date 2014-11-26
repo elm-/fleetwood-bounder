@@ -24,7 +24,6 @@ import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.builder.ProcessBuilder;
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
@@ -47,7 +46,7 @@ public class RegisterActivityTypeSimpleExample {
       .id("a")
       .activityType(new MyCustomType());
     
-    ProcessDefinitionId pdid = processEngine
+    Object pdid = processEngine
       .deployProcessDefinition(process)
       .getProcessDefinitionId();
     

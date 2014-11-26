@@ -24,17 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.util.ActivityInstanceId;
-import com.heisenberg.api.util.ProcessDefinitionId;
-import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
@@ -55,7 +52,7 @@ public class JsonProcessInstanceTest {
       .registerActivityType(Go.class);
     
     ProcessDefinitionImpl p = new ProcessDefinitionImpl();
-    p.id = new ProcessDefinitionId("pdid");
+    p.id = "pdid";
     
     VariableDefinitionImpl v = (VariableDefinitionImpl) p.newVariable()
       .id("v")
@@ -73,7 +70,7 @@ public class JsonProcessInstanceTest {
     processInstance.processInstance = processInstance;
     processInstance.processEngine = processEngine;
     processInstance.processDefinition = p;
-    processInstance.id = new ProcessInstanceId("pid");
+    processInstance.id = "pid";
     processInstance.start = Time.now().minusMillis(10);
     processInstance.end = Time.now().minusMillis(5);
     processInstance.duration = 45l;
@@ -86,7 +83,7 @@ public class JsonProcessInstanceTest {
     activityInstance.processEngine = processEngine;
     activityInstance.processInstance = processInstance;
     activityInstance.parent = processInstance;
-    activityInstance.id = new ActivityInstanceId("aid");
+    activityInstance.id = "aid";
     activityInstance.start = Time.now().plusMillis(5);
     activityInstance.end = Time.now().plusMillis(10);
     activityInstance.duration = 45l;

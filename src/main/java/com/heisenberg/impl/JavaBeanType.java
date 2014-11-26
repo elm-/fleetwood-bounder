@@ -43,7 +43,7 @@ public class JavaBeanType extends AbstractDataType {
     if (Map.class.isAssignableFrom(jsonValue.getClass())) {
       return ((ProcessEngineImpl)processEngine).json.jsonMapToObject((Map<String,Object>)jsonValue, javaClass);
     }
-    throw new RuntimeException("Couldn't convert json: "+jsonValue+" ("+jsonValue.getClass().getName()+")");
+    throw new InvalidValueException("Couldn't convert json: "+jsonValue+" ("+jsonValue.getClass().getName()+")");
   }
 
   @Override

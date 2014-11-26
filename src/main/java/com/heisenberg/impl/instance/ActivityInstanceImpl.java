@@ -24,8 +24,6 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.ActivityDefinitionId;
-import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
@@ -42,12 +40,10 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
-  public ActivityInstanceId id;
-  
   @JsonIgnore
   public ActivityDefinitionImpl activityDefinition;
   
-  public ActivityDefinitionId activityDefinitionId;
+  public Object activityDefinitionId;
 
   public void onwards() {
     log.debug("Onwards "+this);
@@ -102,21 +98,13 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
   
   @Override
-  public ActivityInstanceImpl findActivityInstance(ActivityInstanceId activityInstanceId) {
+  public ActivityInstanceImpl findActivityInstance(Object activityInstanceId) {
     if (activityInstanceId.equals(this.id)) {
       return this;
     }
     return super.findActivityInstance(activityInstanceId);
   }
 
-  public ActivityInstanceId getId() {
-    return id;
-  }
-
-  public void setId(ActivityInstanceId id) {
-    this.id = id;
-  }
-  
   public ActivityDefinitionImpl getActivityDefinition() {
     return activityDefinition;
   }
@@ -149,12 +137,12 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return processEngine.scriptRunner;
   }
   
-  public void setActivityDefinitionId(ActivityDefinitionId activityDefinitionId) {
+  public void setActivityDefinitionId(Object activityDefinitionId) {
     this.activityDefinitionId = activityDefinitionId;
   }
 
   @Override
-  public ActivityDefinitionId getActivityDefinitionId() {
+  public Object getActivityDefinitionId() {
     return activityDefinitionId;
   }
   

@@ -27,9 +27,7 @@ import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
-import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
@@ -53,8 +51,8 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   public LinkedList<String> path = new LinkedList<>();
   public Stack<Object> contextObjectStack = new Stack<>();
   public ParseIssues parseIssues = new ParseIssues();
-  public Set<ActivityDefinitionId> activityIds = new HashSet<>();
-  public Set<VariableDefinitionId> variableIds = new HashSet<>();
+  public Set<Object> activityIds = new HashSet<>();
+  public Set<Object> variableIds = new HashSet<>();
 
   public Stack<ValidationContext> contextStack = new Stack<>();
   private class ValidationContext {
@@ -216,7 +214,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   public void transitionDefinition(TransitionDefinitionImpl transition, int index) {
     pushContext(transition, transition.id, index, transition.line, transition.column);
     ScopeDefinitionImpl scopeDefinitionmpl = getContextObject(ScopeDefinitionImpl.class);
-    Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionmpl.activityDefinitionsMap;
+    Map<Object, ActivityDefinitionImpl> activityDefinitionsMap = scopeDefinitionmpl.activityDefinitionsMap;
     if (transition.fromId==null) {
       addWarning("Transition does not have from (source) specified");
     } else {
@@ -265,7 +263,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
     return pathText.toString();
   }
 
-  String getExistingActivityNamesText(Map<ActivityDefinitionId, ActivityDefinitionImpl> activityDefinitionsMap) {
+  String getExistingActivityNamesText(Map<Object, ActivityDefinitionImpl> activityDefinitionsMap) {
     return (activityDefinitionsMap!=null ? "Should be one of "+activityDefinitionsMap.keySet() : "No activities defined in this scope");
   }
 

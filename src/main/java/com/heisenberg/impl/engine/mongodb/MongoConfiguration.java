@@ -109,15 +109,16 @@ public class MongoConfiguration {
 
   public static class ProcessInstanceFieldNames {
     public String _id = "_id";
+    public String processDefinitionId = "pd";
     public String start = "s";
     public String end = "e";
     public String duration = "d";
     public String activityInstances = "a";
     public String variableInstances = "v";
     public String parent = "p";
-    public String variableDefinitionId = "id";
+    public String variableDefinitionId = "vd";
     public String value = "vl";
-    public String activityDefinitionId = "id";
+    public String activityDefinitionId = "ad";
     public String lock = "l";
     public String time = "t";
     public String owner= "w";

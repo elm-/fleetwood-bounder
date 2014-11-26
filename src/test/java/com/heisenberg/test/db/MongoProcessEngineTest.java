@@ -32,7 +32,6 @@ import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
 import com.heisenberg.test.TestHelper;
@@ -77,7 +76,7 @@ public class MongoProcessEngineTest {
       .from("wait1")
       .to("wait2");
     
-    ProcessDefinitionId processDefinitionId = processEngine
+    Object processDefinitionId = processEngine
         .deployProcessDefinition(process)
         .checkNoErrorsAndNoWarnings()
         .getProcessDefinitionId();

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 
@@ -31,7 +30,7 @@ import com.heisenberg.impl.instance.VariableInstanceImpl;
  */
 public class VariableDefinitionImpl implements VariableBuilder, VariableDefinition {
 
-  public VariableDefinitionId id;
+  public Object id;
   
   public String dataTypeId;
   @JsonIgnore
@@ -54,8 +53,8 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
   public Long line;
   public Long column;
 
-  public VariableDefinitionImpl id(Object idInternal) {
-    this.id = new VariableDefinitionId(idInternal);
+  public VariableDefinitionImpl id(Object id) {
+    this.id = id;
     return this;
   }
 
@@ -116,11 +115,11 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     this.parent = parent;
   }
 
-  public VariableDefinitionId getId() {
+  public Object getId() {
     return id;
   }
   
-  public VariableDefinitionImpl setId(VariableDefinitionId id) {
+  public VariableDefinitionImpl setId(Object id) {
     this.id = id;
     return this;
   }
@@ -147,13 +146,5 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
   
   public void setType(DataType dataType) {
     this.dataType = dataType;
-  }
-
-  public VariableInstanceImpl createVariableInstance() {
-    VariableInstanceImpl variableInstance = new VariableInstanceImpl();
-    variableInstance.setType(dataType);
-    variableInstance.setVariableDefinition(this);
-    variableInstance.setValue(initialValueJson);
-    return variableInstance;
   }
 }

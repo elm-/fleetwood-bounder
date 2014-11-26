@@ -16,7 +16,6 @@ package com.heisenberg.impl;
 
 import java.util.List;
 
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 
 
@@ -26,14 +25,14 @@ import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 public class ProcessDefinitionQuery {
 
   protected ProcessEngineImpl processEngine;
-  protected ProcessDefinitionId processDefinitionId;
+  protected Object processDefinitionId;
   protected Integer maxResults;
   
   public ProcessDefinitionQuery(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
-  public ProcessDefinitionQuery processDefinitionId(ProcessDefinitionId id) {
+  public ProcessDefinitionQuery processDefinitionId(Object id) {
     setProcessDefinitionId(id);
     return this;
   }
@@ -51,11 +50,11 @@ public class ProcessDefinitionQuery {
     return processEngine.findProcessDefinitions(this);
   }
 
-  public ProcessDefinitionId getProcessDefinitionId() {
+  public Object getProcessDefinitionId() {
     return processDefinitionId;
   }
   
-  public void setProcessDefinitionId(ProcessDefinitionId processDefinitionId) {
+  public void setProcessDefinitionId(Object processDefinitionId) {
     this.processDefinitionId = processDefinitionId;
   }
 

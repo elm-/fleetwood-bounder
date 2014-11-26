@@ -42,6 +42,14 @@ public class MongoReaderHelper {
     return (String) dbObject.get(fieldName);
   }
 
+  protected static Long getLong(BasicDBObject dbObject, String fieldName) {
+    Object object = dbObject.get(fieldName);
+    if (object instanceof Long) {
+      return (Long) object;
+    }
+    return ((Number) object).longValue();
+  }
+
   protected static Boolean getBoolean(BasicDBObject dbObject, String fieldName) {
     return (Boolean) dbObject.get(fieldName);
   }

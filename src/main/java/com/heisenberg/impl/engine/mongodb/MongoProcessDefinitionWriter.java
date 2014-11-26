@@ -45,11 +45,11 @@ public class MongoProcessDefinitionWriter extends MongoWriterHelper {
     BasicDBObject dbProcess = new BasicDBObject();
     Stack<BasicDBObject> dbObjectStack = new Stack<>();
     dbObjectStack.push(dbProcess);
-    putOptId(dbProcess, fieldNames._id, process.id);
+    putOpt(dbProcess, fieldNames._id, process.id);
     putOptTime(dbProcess, fieldNames.deployedTime, process.deployedTime);
     putOpt(dbProcess, fieldNames.deployedBy, process.deployedBy);
-    putOptId(dbProcess, fieldNames.organizationId, process.organizationId);
-    putOptId(dbProcess, fieldNames.processId, process.processId);
+    putOpt(dbProcess, fieldNames.organizationId, process.organizationId);
+    putOpt(dbProcess, fieldNames.processId, process.processId);
     putOpt(dbProcess, fieldNames.version, process.version);
     writeActivities(process, dbObjectStack);
     writeTransitions(process, dbObjectStack);
@@ -63,7 +63,7 @@ public class MongoProcessDefinitionWriter extends MongoWriterHelper {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbActivity = new BasicDBObject();
         dbObjectStack.push(dbActivity);
-        putOptId(dbActivity, fieldNames._id, activity.id);
+        putOpt(dbActivity, fieldNames._id, activity.id);
         putOpt(dbActivity, fieldNames.activityTypeId, activity.activityTypeId);
         putOpt(dbActivity, fieldNames.activityType, activity.activityTypeJson);
         addListElementOpt(dbParentScope, fieldNames.activityDefinitions, dbActivity);
@@ -80,7 +80,7 @@ public class MongoProcessDefinitionWriter extends MongoWriterHelper {
       for (VariableDefinitionImpl variable: scope.variableDefinitions) {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbVariable = new BasicDBObject();
-        putOptId(dbVariable, fieldNames._id, variable.id);
+        putOpt(dbVariable, fieldNames._id, variable.id);
         if (variable.dataTypeId!=null) {
           putOpt(dbVariable, fieldNames.dataTypeId, variable.dataTypeId);
         } else {
@@ -108,8 +108,8 @@ public class MongoProcessDefinitionWriter extends MongoWriterHelper {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbTransition = new BasicDBObject();
         putOpt(dbTransition, fieldNames._id, transition.id);
-        putOptId(dbTransition, fieldNames.from, transition.fromId!=null ? transition.fromId : (transition.from!=null ? transition.from.id : null));
-        putOptId(dbTransition, fieldNames.to, transition.toId!=null ? transition.toId : (transition.to!=null ? transition.to.id : null));
+        putOpt(dbTransition, fieldNames.from, transition.fromId!=null ? transition.fromId : (transition.from!=null ? transition.from.id : null));
+        putOpt(dbTransition, fieldNames.to, transition.toId!=null ? transition.toId : (transition.to!=null ? transition.to.id : null));
         addListElementOpt(dbParentScope, fieldNames.transitionDefinitions, dbTransition);
       }
     }

@@ -14,14 +14,28 @@
  */
 package com.heisenberg.impl;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessDefinitionCache {
+public class SimpleProcessDefinitionCache implements ProcessDefinitionCache {
+  
+  protected Map<Object, ProcessDefinitionImpl> processDefinitions = Collections.synchronizedMap(new HashMap<Object, ProcessDefinitionImpl>());
 
-  ProcessDefinitionImpl get(Object processDefinitionId);
-  void put(ProcessDefinitionImpl processDefinition);
+  @Override
+  public ProcessDefinitionImpl get(Object processDefinitionId) {
+    return processDefinitions.get(processDefinitionId);
+  }
+
+  @Override
+  public void put(ProcessDefinitionImpl processDefinition) {
+    processDefinitions.put(processDefinition.id, processDefinition);
+  }
+
 }

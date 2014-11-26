@@ -17,7 +17,6 @@ package com.heisenberg.api.activities;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.TypedValue;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.script.ScriptRunner;
 
 
@@ -28,7 +27,7 @@ public interface ControllableActivityInstance extends ActivityInstance {
 
   void onwards();
 
-  TypedValue getVariableValueRecursive(VariableDefinitionId variableId);
+  TypedValue getVariableValueRecursive(Object variableId);
 
   ScriptRunner getScriptRunner();
 

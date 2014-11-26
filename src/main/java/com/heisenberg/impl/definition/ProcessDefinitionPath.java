@@ -17,8 +17,6 @@ package com.heisenberg.impl.definition;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.api.util.ActivityDefinitionId;
-
 
 /**
  * @author Walter White
@@ -27,7 +25,7 @@ public class ProcessDefinitionPath {
   
   public List<String> activityDefinitionIds;
 
-  public ProcessDefinitionPath addActivityDefinitionId(ActivityDefinitionId activiyDefinitionId) {
+  public ProcessDefinitionPath addActivityDefinitionId(Object activiyDefinitionId) {
     if (activityDefinitionIds==null) {
       activityDefinitionIds = new ArrayList<>();
     }

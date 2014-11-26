@@ -26,8 +26,6 @@ import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.util.ActivityInstanceId;
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
 
@@ -78,7 +76,7 @@ public class EmbeddedSuprocessTest {
       .from("sub")
       .to("end");
   
-    ProcessDefinitionId processDefinitionId = processEngine
+    Object processDefinitionId = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
@@ -88,7 +86,7 @@ public class EmbeddedSuprocessTest {
 
     assertActivityInstancesOpen(processInstance, "sub", "w1", "w2");
     
-    ActivityInstanceId w1Id = processInstance.findActivityInstanceByName("w1").getId();
+    Object w1Id = processInstance.findActivityInstanceByName("w1").getId();
     assertNotNull(w1Id);
     
     processEngine.signal(new SignalRequest()

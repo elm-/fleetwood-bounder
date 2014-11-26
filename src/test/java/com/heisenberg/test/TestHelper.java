@@ -25,7 +25,6 @@ import org.junit.Assert;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.api.util.ActivityDefinitionId;
 
 /**
  * @author Walter White
@@ -56,7 +55,7 @@ public class TestHelper {
     if (activityInstances!=null) {
       for (ActivityInstance activityInstance : activityInstances) {
         if (!activityInstance.isEnded()) {
-          ActivityDefinitionId activityId = activityInstance.getActivityDefinitionId();
+          Object activityId = activityInstance.getActivityDefinitionId();
           Integer count = activityCounts.get(activityId);
           activityCounts.put(activityId.toString(), count != null ? count + 1 : 1);
           scanActivityCounts(activityInstance, activityCounts);

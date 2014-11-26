@@ -28,7 +28,6 @@ import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
-import com.heisenberg.api.util.ProcessDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.json.Json;
@@ -68,7 +67,7 @@ public class RegisterDataTypeConfigurationInProcessEngineExample {
       .activityType(Wait.INSTANCE)
       .id("w");
 
-    ProcessDefinitionId pdid = processEngine
+    Object pdid = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
@@ -88,7 +87,7 @@ public class RegisterDataTypeConfigurationInProcessEngineExample {
         .variableValue("c", "xxx"));
       Assert.fail("expected exception");
     } catch (Exception e) {
-      assertEquals(InvalidValueException.class, e.getCause().getClass());
+      assertEquals(InvalidValueException.class, e.getClass());
     }
   }
 }

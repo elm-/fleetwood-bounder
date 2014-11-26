@@ -15,7 +15,6 @@
 package com.heisenberg.impl.engine.updates;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
@@ -26,7 +25,7 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
 public class OperationAddUpdate implements Update {
 
   public Boolean isAsync;
-  public ActivityInstanceId activityInstanceId;
+  public Object activityInstanceId;
   
   public OperationAddUpdate() {
   }

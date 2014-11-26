@@ -17,14 +17,11 @@ package com.heisenberg.impl.engine.mongodb;
 import static com.heisenberg.impl.engine.mongodb.MongoReaderHelper.getBoolean;
 import static com.heisenberg.impl.engine.mongodb.MongoReaderHelper.getTime;
 import static com.heisenberg.impl.engine.mongodb.MongoWriterHelper.putOpt;
-import static com.heisenberg.impl.engine.mongodb.MongoWriterHelper.putOptId;
 import static com.heisenberg.impl.engine.mongodb.MongoWriterHelper.putOptTime;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.heisenberg.api.util.ActivityDefinitionId;
-import com.heisenberg.api.util.ActivityInstanceId;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
@@ -99,16 +96,16 @@ public class MongoUpdateConverters {
     public BasicDBObject toDbUpdate(ActivityInstanceCreateUpdate update) {
       BasicDBObject dbUpdate = new BasicDBObject();
       putOpt(dbUpdate, FIELDNAME_TYPE, TYPE_ACTIVITY_INSTANCE_CREATE);
-      putOptId(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
+      putOpt(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
       putOptTime(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_START, update.start);
       putOpt(dbUpdate, FIELDNAME_ACTIVITY_DEFINITION_ID, update.activityDefinitionId);
       return dbUpdate;
     }
     public ActivityInstanceCreateUpdate toUpdate(BasicDBObject dbUpdate) {
       ActivityInstanceCreateUpdate update = new ActivityInstanceCreateUpdate();
-      update.activityInstanceId = new ActivityInstanceId(dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID));
+      update.activityInstanceId = dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID);
       update.start = getTime(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_START);
-      update.activityDefinitionId = new ActivityDefinitionId(dbUpdate.get(FIELDNAME_ACTIVITY_DEFINITION_ID));
+      update.activityDefinitionId = dbUpdate.get(FIELDNAME_ACTIVITY_DEFINITION_ID);
       return update;
     }
   }
@@ -117,13 +114,13 @@ public class MongoUpdateConverters {
     public BasicDBObject toDbUpdate(ActivityInstanceEndUpdate update) {
       BasicDBObject dbUpdate = new BasicDBObject();
       putOpt(dbUpdate, FIELDNAME_TYPE, TYPE_ACTIVITY_INSTANCE_END);
-      putOptId(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
+      putOpt(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
       putOptTime(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_END, update.end);
       return dbUpdate;
     }
     public ActivityInstanceEndUpdate toUpdate(BasicDBObject dbUpdate) {
       ActivityInstanceEndUpdate update = new ActivityInstanceEndUpdate();
-      update.activityInstanceId = new ActivityInstanceId(dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID));
+      update.activityInstanceId = dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID);
       update.end = getTime(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_END);
       return update;
     }
@@ -133,13 +130,13 @@ public class MongoUpdateConverters {
     public BasicDBObject toDbUpdate(OperationAddStartUpdate update) {
       BasicDBObject dbUpdate = new BasicDBObject();
       putOpt(dbUpdate, FIELDNAME_TYPE, TYPE_OPERATION_ADD_START);
-      putOptId(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
+      putOpt(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
       putOpt(dbUpdate, FIELDNAME_ASYNC, update.isAsync);
       return dbUpdate;
     }
     public OperationAddStartUpdate toUpdate(BasicDBObject dbUpdate) {
       OperationAddStartUpdate update = new OperationAddStartUpdate();
-      update.activityInstanceId = new ActivityInstanceId(dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID));
+      update.activityInstanceId = dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID);
       update.isAsync = getBoolean(dbUpdate, FIELDNAME_ASYNC);
       return update;
     }
@@ -149,13 +146,13 @@ public class MongoUpdateConverters {
     public BasicDBObject toDbUpdate(OperationAddNotifyEndUpdate update) {
       BasicDBObject dbUpdate = new BasicDBObject();
       putOpt(dbUpdate, FIELDNAME_TYPE, TYPE_OPERATION_ADD_NOTIFY);
-      putOptId(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
+      putOpt(dbUpdate, FIELDNAME_ACTIVITY_INSTANCE_ID, update.activityInstanceId);
       putOpt(dbUpdate, FIELDNAME_ASYNC, update.isAsync);
       return dbUpdate;
     }
     public OperationAddNotifyEndUpdate toUpdate(BasicDBObject dbUpdate) {
       OperationAddNotifyEndUpdate update = new OperationAddNotifyEndUpdate();
-      update.activityInstanceId = new ActivityInstanceId(dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID));
+      update.activityInstanceId = dbUpdate.get(FIELDNAME_ACTIVITY_INSTANCE_ID);
       update.isAsync = getBoolean(dbUpdate, FIELDNAME_ASYNC);
       return update;
     }

@@ -16,7 +16,6 @@ package com.heisenberg.impl.engine.operation;
 
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
-import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 

@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.util.ProcessDefinitionId;
-import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -51,7 +49,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
-  public ProcessInstanceId id;
+  public Object id;
   public LockImpl lock;
   public Queue<Operation> operations;
   public Queue<Operation> asyncOperations;
@@ -62,7 +60,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   
   public Boolean isAsync;
   
-  public ProcessDefinitionId processDefinitionId;
+  public Object processDefinitionId;
 
   @JsonIgnore
   public Map<String, Object> transientContext;
@@ -70,7 +68,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   public ProcessInstanceImpl() {
   }
   
-  public ProcessInstanceImpl(ProcessEngineImpl processEngine, ProcessDefinitionImpl processDefinition, ProcessInstanceId processInstanceId) {
+  public ProcessInstanceImpl(ProcessEngineImpl processEngine, ProcessDefinitionImpl processDefinition, Object processInstanceId) {
     setId(processInstanceId);
     setProcessEngine(processEngine);
     setProcessDefinition(processDefinition);
@@ -170,11 +168,11 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     }
   }
 
-  public ProcessInstanceId getId() {
+  public Object getId() {
     return id;
   }
 
-  public void setId(ProcessInstanceId id) {
+  public void setId(Object id) {
     this.id = id;
   }
 
@@ -295,7 +293,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   }
 
   @Override
-  public ProcessDefinitionId getProcessDefinitionId() {
+  public Object getProcessDefinitionId() {
     return processDefinitionId;
   }
 }

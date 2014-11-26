@@ -18,7 +18,7 @@ package com.heisenberg.api.type;
 /**
  * @author Walter White
  */
-public class InvalidValueException extends Exception {
+public class InvalidValueException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 

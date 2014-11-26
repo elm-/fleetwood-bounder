@@ -16,8 +16,6 @@ package com.heisenberg.impl;
 
 import java.util.List;
 
-import com.heisenberg.api.util.ActivityInstanceId;
-import com.heisenberg.api.util.ProcessInstanceId;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
@@ -29,27 +27,27 @@ import com.heisenberg.impl.instance.ScopeInstanceImpl;
 public class ProcessInstanceQuery {
 
   protected ProcessEngineImpl processEngine;
-  protected ProcessInstanceId processInstanceId;
-  protected ActivityInstanceId activityInstanceId;
+  protected Object processInstanceId;
+  protected Object activityInstanceId;
   protected Integer maxResults;
   
   public ProcessInstanceQuery(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
-  public ActivityInstanceId getActivityInstanceId() {
+  public Object getActivityInstanceId() {
     return activityInstanceId;
   }
   
-  public void setActivityInstanceId(ActivityInstanceId activityInstanceId) {
+  public void setActivityInstanceId(Object activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
   }
   
-  public ProcessInstanceId getProcessInstanceId() {
+  public Object getProcessInstanceId() {
     return processInstanceId;
   }
   
-  public void setProcessInstanceId(ProcessInstanceId processInstanceId) {
+  public void setProcessInstanceId(Object processInstanceId) {
     this.processInstanceId = processInstanceId;
   }
   
@@ -68,7 +66,7 @@ public class ProcessInstanceQuery {
     return true;
   }
 
-  boolean containsCompositeInstance(ScopeInstanceImpl scopeInstance, ActivityInstanceId activityInstanceId) {
+  boolean containsCompositeInstance(ScopeInstanceImpl scopeInstance, Object activityInstanceId) {
     if (scopeInstance.hasActivityInstances()) {
       for (ActivityInstanceImpl activityInstance : scopeInstance.getActivityInstances()) {
         if (containsActivityInstance(activityInstance, activityInstanceId)) {
@@ -79,19 +77,19 @@ public class ProcessInstanceQuery {
     return false;
   }
 
-  boolean containsActivityInstance(ActivityInstanceImpl activityInstance, ActivityInstanceId activityInstanceId) {
+  boolean containsActivityInstance(ActivityInstanceImpl activityInstance, Object activityInstanceId) {
     if (activityInstanceId.equals(activityInstance.getId())) {
       return true;
     }
     return containsCompositeInstance(activityInstance, activityInstanceId);
   }
   
-  public ProcessInstanceQuery processInstanceId(ProcessInstanceId id) {
+  public ProcessInstanceQuery processInstanceId(Object id) {
     setProcessInstanceId(id);
     return this;
   }
   
-  public ProcessInstanceQuery activityInstanceId(ActivityInstanceId id) {
+  public ProcessInstanceQuery activityInstanceId(Object id) {
     setActivityInstanceId(id);
     return this;
   }

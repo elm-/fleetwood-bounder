@@ -28,10 +28,7 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.util.ActivityInstanceId;
-import com.heisenberg.api.util.Id;
 import com.heisenberg.api.util.TypedValue;
-import com.heisenberg.api.util.VariableDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -49,6 +46,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
+  public Object id;
   public LocalDateTime start;
   public LocalDateTime end;
   public Long duration;
@@ -56,7 +54,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   public List<VariableInstanceImpl> variableInstances;
 
   @JsonIgnore
-  public Map<VariableDefinitionId, VariableInstanceImpl> variableInstancesMap;
+  public Map<Object, VariableInstanceImpl> variableInstancesMap;
 
   @JsonIgnore
   public ProcessEngineImpl processEngine;
@@ -68,8 +66,6 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   public ProcessInstanceImpl processInstance;
   @JsonIgnore
   public ScopeInstanceImpl parent;
-  
-  public abstract Id getId();
   
   protected void visitCompositeInstance(ProcessInstanceVisitor visitor) {
     visitActivityInstances(visitor);
@@ -102,52 +98,62 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
 
   public ActivityInstanceImpl createActivityInstance(ActivityDefinitionImpl activityDefinition) {
-    ActivityInstanceImpl activityInstance = processEngine.createActivityInstance(activityDefinition);
+    ActivityInstanceImpl activityInstance = processEngine.createActivityInstance(this, activityDefinition);
     activityInstance.processEngine = processEngine;
     activityInstance.scopeDefinition = activityDefinition;
     activityInstance.processInstance = processInstance;
-    activityInstance.parent = this;
     activityInstance.activityDefinition = activityDefinition;
     activityInstance.activityDefinitionId = activityDefinition.id;
     activityInstance.setStart(Time.now());
-    if (activityInstances==null) {
-      activityInstances = new ArrayList<>();
-    }
-    activityInstances.add(activityInstance);
+    addActivityInstance(activityInstance);
     processInstance.addUpdate(new ActivityInstanceCreateUpdate(activityInstance));
     activityInstance.initializeVariableInstances();
     log.debug("Created "+activityInstance);
     return activityInstance;
+  }
+
+  public void addActivityInstance(ActivityInstanceImpl activityInstance) {
+    if (activityInstances==null) {
+      activityInstances = new ArrayList<>();
+    }
+    activityInstance.parent = this;
+    activityInstances.add(activityInstance);
   }
   
   protected void initializeVariableInstances() {
     List<VariableDefinitionImpl> variableDefinitions = scopeDefinition.getVariableDefinitions();
     if (variableDefinitions!=null) {
       for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
-        VariableInstanceImpl variableInstance = variableDefinition.createVariableInstance();
+        VariableInstanceImpl variableInstance = processEngine.createVariableInstance(this, variableDefinition);
         variableInstance.processEngine = processEngine;
-        variableInstance.parent = this;
         variableInstance.processInstance = processInstance;
+        variableInstance.dataType = variableDefinition.dataType;
+        variableInstance.value = variableDefinition.initialValue;
         variableInstance.variableDefinition = variableDefinition;
         variableInstance.variableDefinitionId = variableDefinition.id;
-        if (variableInstances==null) {
-          variableInstances = new ArrayList<>();
-        }
-        variableInstances.add(variableInstance);
+        addVariableInstance(variableInstance);
       }
     }
   }
+
+  public void addVariableInstance(VariableInstanceImpl variableInstance) {
+    variableInstance.parent = this;
+    if (variableInstances==null) {
+      variableInstances = new ArrayList<>();
+    }
+    variableInstances.add(variableInstance);
+  }
   
-  public void setVariableValuesRecursive(Map<VariableDefinitionId, Object> variableValues) {
+  public void setVariableValuesRecursive(Map<Object, Object> variableValues) {
     if (variableValues!=null) {
-      for (VariableDefinitionId variableDefinitionId: variableValues.keySet()) {
+      for (Object variableDefinitionId: variableValues.keySet()) {
         Object value = variableValues.get(variableDefinitionId);
         setVariableValueRecursive(variableDefinitionId, value);
       }
     }
   }
 
-  public void setVariableValueRecursive(VariableDefinitionId variableDefinitionName, Object value) {
+  public void setVariableValueRecursive(Object variableDefinitionName, Object value) {
     if (variableInstances!=null) {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionName);
       if (variableInstance!=null) {
@@ -159,7 +165,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
   }
   
-  public TypedValue getVariableValueRecursive(VariableDefinitionId variableDefinitionId) {
+  public TypedValue getVariableValueRecursive(Object variableDefinitionId) {
     if (variableInstances!=null) {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
@@ -174,7 +180,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     throw new RuntimeException("Variable "+variableDefinitionId+" is not defined in "+getClass().getSimpleName()+" "+toString());
   }
   
-  protected VariableInstanceImpl getVariableInstanceLocal(VariableDefinitionId variableDefinitionId) {
+  protected VariableInstanceImpl getVariableInstanceLocal(Object variableDefinitionId) {
     ensureVariableInstancesMapInitialized();
     return variableInstancesMap.get(variableDefinitionId);
   }
@@ -208,7 +214,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
 
   /** scans this activity and the nested activities */
-  public ActivityInstanceImpl findActivityInstance(ActivityInstanceId activityInstanceId) {
+  public ActivityInstanceImpl findActivityInstance(Object activityInstanceId) {
     if (activityInstances!=null) {
       for (ActivityInstanceImpl activityInstance: activityInstances) {
         ActivityInstanceImpl theOne = activityInstance.findActivityInstance(activityInstanceId);
@@ -322,6 +328,14 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   
   public void setVariableInstances(List<VariableInstanceImpl> variableInstances) {
     this.variableInstances = variableInstances;
+  }
+
+  public Object getId() {
+    return id;
+  }
+
+  public void setId(Object id) {
+    this.id = id;
   }
 
   public abstract void ended(ActivityInstanceImpl activityInstance);

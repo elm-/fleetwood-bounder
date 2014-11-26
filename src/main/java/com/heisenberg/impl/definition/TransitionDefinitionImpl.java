@@ -17,7 +17,6 @@ package com.heisenberg.impl.definition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.TransitionBuilder;
 import com.heisenberg.api.definition.TransitionDefinition;
-import com.heisenberg.api.util.ActivityDefinitionId;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
@@ -39,8 +38,8 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
   @JsonIgnore
   public ScopeDefinitionImpl parent;
   
-  public ActivityDefinitionId fromId;
-  public ActivityDefinitionId toId;
+  public Object fromId;
+  public Object toId;
   public Long line;
   public Long column;
 
@@ -61,13 +60,13 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
   
   /** Fluent builder to set the source of this transition.
    * @param fromActivityDefinitionName the name of the activity definition. */
-  public TransitionDefinitionImpl from(Object fromIdInternal) {
-    this.fromId = new ActivityDefinitionId(fromIdInternal);
+  public TransitionDefinitionImpl from(Object fromId) {
+    this.fromId = fromId;
     return this;
   }
 
-  public TransitionDefinitionImpl to(Object toIdInternal) {
-    this.toId = new ActivityDefinitionId(toIdInternal);
+  public TransitionDefinitionImpl to(Object toId) {
+    this.toId = toId;
     return this;
   }
   
