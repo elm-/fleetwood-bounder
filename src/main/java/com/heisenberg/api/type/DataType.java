@@ -17,17 +17,20 @@ package com.heisenberg.api.type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.heisenberg.api.util.Spi;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
+import com.heisenberg.api.util.Plugin;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.json.DataTypeIdResolver;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
-public interface DataType extends Spi {
+@JsonTypeInfo(use=Id.CUSTOM, include=As.PROPERTY, property="typeId")
+@JsonTypeIdResolver(DataTypeIdResolver.class)
+public interface DataType extends Plugin {
   
-  String getId();
+  String getTypeId();
 
   /** invoked to validate values submitted through the api. */
   void validateInternalValue(Object internalValue) throws InvalidValueException;

@@ -32,7 +32,7 @@ public class Wait implements ActivityType {
   public static final Wait INSTANCE = new Wait();
 
   @Override
-  public String getId() {
+  public String getTypeId() {
     return "wait";
   }
 
@@ -49,7 +49,7 @@ public class Wait implements ActivityType {
   }
 
   @Override
-  public void signal(ControllableActivityInstance activityInstance) {
+  public void notify(ControllableActivityInstance activityInstance) {
     activityInstance.onwards();
   }
 

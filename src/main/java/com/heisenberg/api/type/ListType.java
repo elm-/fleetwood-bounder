@@ -31,7 +31,7 @@ public class ListType extends AbstractDataType implements DataType {
 
   public ListType(DataType dataType) {
     this.dataType = dataType;
-    this.id = "list<"+dataType.getId()+">";
+    this.id = "list<"+dataType.getTypeId()+">";
   }
 
   @Override
@@ -40,7 +40,7 @@ public class ListType extends AbstractDataType implements DataType {
   }
 
   @Override
-  public String getId() {
+  public String getTypeId() {
     return id;
   }
   

@@ -18,6 +18,8 @@ import java.util.Map;
 
 import com.heisenberg.api.type.AbstractDataType;
 import com.heisenberg.api.type.InvalidValueException;
+import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.json.Json;
 
 
 /**
@@ -26,14 +28,20 @@ import com.heisenberg.api.type.InvalidValueException;
 public class JavaBeanType extends AbstractDataType {
   
   Class<?> javaClass;
+  Json json;
   
   public JavaBeanType(Class< ? > javaClass) {
     this.javaClass = javaClass;
   }
 
   @Override
-  public String getId() {
+  public String getTypeId() {
     return javaClass.getName();
+  }
+  
+  @Override
+  public void validate(Validator validator) {
+    json = validator.getJson();
   }
 
   @SuppressWarnings("unchecked")
@@ -41,7 +49,7 @@ public class JavaBeanType extends AbstractDataType {
   public Object convertJsonToInternalValue(Object jsonValue) throws InvalidValueException {
     if (jsonValue==null) return null;
     if (Map.class.isAssignableFrom(jsonValue.getClass())) {
-      return ((ProcessEngineImpl)processEngine).json.jsonMapToObject((Map<String,Object>)jsonValue, javaClass);
+      return json.jsonMapToObject((Map<String,Object>)jsonValue, javaClass);
     }
     throw new InvalidValueException("Couldn't convert json: "+jsonValue+" ("+jsonValue.getClass().getName()+")");
   }

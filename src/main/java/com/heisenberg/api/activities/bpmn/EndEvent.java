@@ -26,13 +26,8 @@ public class EndEvent extends AbstractActivityType {
   public static final EndEvent INSTANCE = new EndEvent();
 
   @Override
-  public String getId() {
+  public String getTypeId() {
     return "endEvent";
-  }
-
-  @Override
-  public String getLabel() {
-    return "End event";
   }
 
   @Override

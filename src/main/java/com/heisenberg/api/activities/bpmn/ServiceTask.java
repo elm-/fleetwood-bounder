@@ -23,8 +23,6 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
  */
 public abstract class ServiceTask extends AbstractActivityType {
 
-  public static final String ID = "serviceTask";
-
   @Override
   public void start(ControllableActivityInstance activityInstance) {
     invokeService(activityInstance);

@@ -12,39 +12,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities;
+package com.heisenberg.api.activities.bpmn;
 
+import com.heisenberg.api.activities.AbstractActivityType;
+import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.Validator;
 
 
-
-
 /**
  * @author Walter White
  */
-public abstract class AbstractActivityType implements ActivityType {
-  
-  public abstract void start(ControllableActivityInstance activityInstance);
-
-  public void notify(ControllableActivityInstance activityInstance) {
-    activityInstance.onwards();
-  }
-  
-  public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
-    if (!activityInstance.hasOpenActivityInstances()) {
-      activityInstance.end();
-    }
-  }
+public class ParallelGateway extends AbstractActivityType {
 
   @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    // activityDefinition.initializeBindings(validator);
+  public String getTypeId() {
+    return "parallelGateway";
   }
 
   @Override
   public String getLabel() {
-    return null;
+    return "Parallel gateway";
   }
+
+  @Override
+  public void validate(ActivityDefinition activity, Validator validator) {
+    // at least one in, at least one out
+  }
+
+  @Override
+  public void start(ControllableActivityInstance activityInstance) {
+  }
+
+  @Override
+  public void notify(ControllableActivityInstance activityInstance) {
+  }
+
+  @Override
+  public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
+  }
+
 }

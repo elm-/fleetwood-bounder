@@ -33,11 +33,14 @@ public class MongoConfiguration {
   protected String databaseName = "heisenberg";
   protected List<MongoCredential> credentials;
   protected MongoClientOptions.Builder optionBuilder = new MongoClientOptions.Builder();
-  protected ProcessDefinitionFieldNames processDefinitionFieldNames = new ProcessDefinitionFieldNames();
-  protected ProcessInstanceFieldNames processInstanceFieldNames = new ProcessInstanceFieldNames();
-  protected WriteConcern writeConcernStoreProcessDefinition;
-  protected WriteConcern writeConcernStoreProcessInstance;
+  protected MongoProcessDefinitions.Fields processDefinitionFields;
+  protected MongoProcessInstances.Fields processInstanceFields;
+  protected WriteConcern writeConcernInsertProcessDefinition;
+  protected WriteConcern writeConcernInsertProcessInstance;
   protected WriteConcern writeConcernFlushUpdates;
+  protected String processInstancesCollectionName = "processInstances";
+  protected String processDefinitionsCollectionName = "processDefinitions";
+  protected boolean isPretty = true;
 
   public MongoConfiguration server(String host, int port) {
     try {
@@ -59,26 +62,28 @@ public class MongoConfiguration {
   public MongoClientOptions.Builder getOptionBuilder() {
     return optionBuilder;
   }
-  
-  public ProcessDefinitionFieldNames getProcessDefinitionFieldNames() {
-    return processDefinitionFieldNames;
+
+  /** optional, if not set, {@ MongoProcessDefinitionMapper.Fields defaults} will be used */
+  public void setProcessDefinitionFields(MongoProcessDefinitions.Fields processDefinitionFields) {
+    this.processDefinitionFields = processDefinitionFields;
   }
   
-  public ProcessInstanceFieldNames getProcessInstanceFieldNames() {
-    return processInstanceFieldNames;
+  /** optional, if not set, {@ MongoProcessInstanceMapper.Fields defaults} will be used */
+  public void setProcessInstanceFields(MongoProcessInstances.Fields processInstanceFields) {
+    this.processInstanceFields = processInstanceFields;
   }
-  
+
   public MongoProcessEngine buildProcessEngine() {
     return new MongoProcessEngine(this);
   }
   
-  public MongoConfiguration writeConcernStoreProcessDefinition(WriteConcern writeConcernStoreProcessDefinition) {
-    this.writeConcernStoreProcessDefinition = writeConcernStoreProcessDefinition;
+  public MongoConfiguration writeConcernInsertProcessDefinition(WriteConcern writeConcernInsertProcessDefinition) {
+    this.writeConcernInsertProcessDefinition = writeConcernInsertProcessDefinition;
     return this;
   }
 
-  public MongoConfiguration writeConcernStoreProcessInstance(WriteConcern writeConcernStoreProcessInstance) {
-    this.writeConcernStoreProcessInstance = writeConcernStoreProcessInstance;
+  public MongoConfiguration writeConcernInsertProcessInstance(WriteConcern writeConcernInsertProcessInstance) {
+    this.writeConcernInsertProcessInstance = writeConcernInsertProcessInstance;
     return this;
   }
 
@@ -86,43 +91,12 @@ public class MongoConfiguration {
     this.writeConcernFlushUpdates = writeConcernFlushUpdates;
     return this;
   }
-
-  /** setting these fields to null will ensure those properties are not saved */
-  public static class ProcessDefinitionFieldNames {
-    public String _id = "_id";
-    public String deployedTime = "dt";
-    public String deployedBy = "db";
-    public String organizationId = "o";
-    public String processId = "p";
-    public String version = "vn";
-    public String activityDefinitions = "a";
-    public String variableDefinitions = "v";
-    public String transitionDefinitions = "t";
-    public String activityTypeId = "ati";
-    public String activityType = "at";
-    public String dataTypeId = "yi";
-    public String dataType = "y";
-    public String initialValue = "i";
-    public String from = "fr";
-    public String to = "to";
+  
+  public void processInstancesCollectionName(String processInstancesCollectionName) {
+    this.processInstancesCollectionName = processInstancesCollectionName;
   }
 
-  public static class ProcessInstanceFieldNames {
-    public String _id = "_id";
-    public String processDefinitionId = "pd";
-    public String start = "s";
-    public String end = "e";
-    public String duration = "d";
-    public String activityInstances = "a";
-    public String variableInstances = "v";
-    public String parent = "p";
-    public String variableDefinitionId = "vd";
-    public String value = "vl";
-    public String activityDefinitionId = "ad";
-    public String lock = "l";
-    public String time = "t";
-    public String owner= "w";
-    public String updates = "u";
-    public String operations = "o";
+  public void processDefinitionsCollectionName(String processDefinitionsCollectionName) {
+    this.processDefinitionsCollectionName = processDefinitionsCollectionName;
   }
 }

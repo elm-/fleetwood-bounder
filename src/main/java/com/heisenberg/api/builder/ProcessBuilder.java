@@ -16,8 +16,6 @@ package com.heisenberg.api.builder;
 
 import org.joda.time.LocalDateTime;
 
-import com.heisenberg.api.type.DataType;
-
 
 /**
  * @author Walter White

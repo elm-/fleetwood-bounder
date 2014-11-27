@@ -26,8 +26,8 @@ import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.SpiDescriptor;
-import com.heisenberg.impl.SpiDescriptorField;
+import com.heisenberg.impl.ActivityTypeDescriptor;
+import com.heisenberg.impl.PluginConfigurationField;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
@@ -38,16 +38,16 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 
   public Object id;
 
-  /** References a type declared in the process engine by id.
-   * 
-   * With the {@link ActivityBuilder#activityTypeId() builder}, the activityTypeId can be specified.
-   * The value can be specified directly or indirectly by specifying an activityType object.
-   * When an activityType object is specified, then the {@link ProcessDefinitionValidator validator} and 
-   * {@link ProcessDefinitionSerializer serializer} will initialize the activityTypeId.
-   * 
-   * This value is jsonned and persisted.
-   * This field is mutually exclusive with activityTypeJson. */
-  public String activityTypeId;
+//  /** References a type declared in the process engine by id.
+//   * 
+//   * With the {@link ActivityBuilder#activityTypeId() builder}, the activityTypeId can be specified.
+//   * The value can be specified directly or indirectly by specifying an activityType object.
+//   * When an activityType object is specified, then the {@link ProcessDefinitionValidator validator} and 
+//   * {@link ProcessDefinitionSerializer serializer} will initialize the activityTypeId.
+//   * 
+//   * This value is jsonned and persisted.
+//   * This field is mutually exclusive with activityTypeJson. */
+//  public String activityTypeId;
   
   /** An inline, jsonnable and persistable declaration of an activityType. 
    * This means that it contains the type and configuration of the activityType.
@@ -80,10 +80,10 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return this;
   }
   
-  public ActivityDefinitionImpl activityTypeId(String activityTypeId) {
-    this.activityTypeId = activityTypeId;
-    return this;
-  }
+//  public ActivityDefinitionImpl activityTypeId(String activityTypeId) {
+//    this.activityTypeId = activityTypeId;
+//    return this;
+//  }
   
   public ActivityDefinitionImpl id(Object id) {
     this.id = id;
@@ -167,8 +167,8 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   
   @Override
   public void initializeBindings(Validator validator) {
-    SpiDescriptor activityDescriptor = processEngine.findActivityDescriptor(activityType);
-    for (SpiDescriptorField descriptorField: activityDescriptor.getBindingDescriptorFields()) {
+    ActivityTypeDescriptor activityDescriptor = processEngine.findActivityDescriptorByClass(activityType.getClass());
+    for (PluginConfigurationField descriptorField: activityDescriptor.getBindingConfigurationFields()) {
       Field field = descriptorField.field;
       try {
         Binding<?> binding = (Binding<?>) field.get(activityType);

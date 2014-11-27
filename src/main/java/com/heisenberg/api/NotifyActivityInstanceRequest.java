@@ -19,11 +19,11 @@ package com.heisenberg.api;
 /**
  * @author Walter White
  */
-public class SignalRequest extends VariableRequest {
+public class NotifyActivityInstanceRequest extends VariableRequest {
 
   protected Object activityInstanceId;
   
-  public SignalRequest activityInstanceId(Object activityInstanceId) {
+  public NotifyActivityInstanceRequest activityInstanceId(Object activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
     return this;
   }
@@ -36,19 +36,19 @@ public class SignalRequest extends VariableRequest {
   }
   
   @Override
-  public SignalRequest variableValue(Object variableDefinitionIdInternal, Object value) {
+  public NotifyActivityInstanceRequest variableValue(Object variableDefinitionIdInternal, Object value) {
     super.variableValue(variableDefinitionIdInternal, value);
     return this;
   }
 
   @Override
-  public SignalRequest variableValueJson(Object variableDefinitionIdInternal, Object valueJson) {
+  public NotifyActivityInstanceRequest variableValueJson(Object variableDefinitionIdInternal, Object valueJson) {
     super.variableValueJson(variableDefinitionIdInternal, valueJson);
     return this;
   }
 
   @Override
-  public SignalRequest transientContext(String key, Object value) {
+  public NotifyActivityInstanceRequest transientContext(String key, Object value) {
     super.transientContext(key, value);
     return this;
   }

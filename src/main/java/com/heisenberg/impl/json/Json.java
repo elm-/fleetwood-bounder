@@ -70,6 +70,9 @@ public class Json {
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
       .setSerializationInclusion(Include.NON_NULL);
     
+    // This is to get the process engine inside of the ActivityTypeIdResolver and DataTypeIdResolver
+    this.objectMapper.setHandlerInstantiator(new CustomFactory(processEngine));
+    
     this.objectMapper.registerSubtypes(
        TextType.class,
        ChoiceType.class,

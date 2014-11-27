@@ -15,8 +15,12 @@
 package com.heisenberg.impl.engine.mongodb;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -25,16 +29,20 @@ import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
-import com.heisenberg.impl.json.Json;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.WriteConcern;
 
 
 /**
  * @author Walter White
  */
-public class MongoProcessInstanceMapper extends MongoMapper {
+public class MongoProcessInstances extends MongoCollection {
+  
+  public static final Logger log = LoggerFactory.getLogger(MongoProcessInstances.class);
   
   public static class Fields {
     public String _id = "_id";
@@ -55,15 +63,58 @@ public class MongoProcessInstanceMapper extends MongoMapper {
     public String operations = "o";
   }
   
-  Fields fields = new Fields();
-  MongoProcessEngine processEngine;
-  Json json;
+  protected MongoProcessEngine processEngine;
+  protected Fields fields;
+  protected DBCollection dbCollection;
   
-  public MongoProcessInstanceMapper(MongoProcessEngine processEngine) {
+  protected WriteConcern writeConcernStoreProcessInstance;
+  protected WriteConcern writeConcernFlushUpdates;
+
+  public MongoProcessInstances(MongoProcessEngine processEngine, DB db, MongoConfiguration mongoConfiguration) {
+    super(db, mongoConfiguration.processInstancesCollectionName);
     this.processEngine = processEngine;
-    this.json = processEngine.json;
+    this.fields = mongoConfiguration.processInstanceFields!=null ? mongoConfiguration.processInstanceFields : new Fields();
+    this.dbCollection = db.getCollection("processInstances");
+    this.writeConcernStoreProcessInstance = getWriteConcern(mongoConfiguration.writeConcernInsertProcessInstance);
+    this.writeConcernFlushUpdates = getWriteConcern(mongoConfiguration.writeConcernFlushUpdates);
+    this.isPretty = mongoConfiguration.isPretty;
   }
   
+  public void insertProcessInstance(ProcessInstanceImpl processInstance) {
+    BasicDBObject dbProcessInstance = writeProcessInstance(processInstance);
+    insert(dbProcessInstance, writeConcernStoreProcessInstance);
+  }
+  
+  public void flushUpdates(Object processInstanceId, List<BasicDBObject> dbUpdates) {
+    this.dbCollection.update(
+        new BasicDBObject(fields._id,  processInstanceId),
+        new BasicDBObject("$pushAll", new BasicDBObject(fields.updates, dbUpdates)),
+        false, false, writeConcernFlushUpdates);
+  }
+
+  public void saveProcessInstance(BasicDBObject dbProcessInstance) {
+    save(dbProcessInstance, writeConcernStoreProcessInstance);
+  }
+
+  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
+    DBObject query = BasicDBObjectBuilder.start()
+            .add(fields.activityInstances+"."+fields._id, activityInstanceId)
+            .push(fields.lock)
+              .add("$exists", false)
+            .pop()
+            .get(); 
+    DBObject update = BasicDBObjectBuilder.start()
+            .push("$set")
+            .push(fields.lock)
+              .add(fields.time, Time.now().toDate())
+              .add(fields.owner, processEngine.id)
+            .pop()
+          .pop()
+          .get();
+    BasicDBObject dbProcessInstance = findAndModify(query, update);
+    return readProcessInstance(dbProcessInstance);
+  }
+
   public DBObject queryUnlockedAndActivityInstanceId(Object activityInstanceId) {
     return BasicDBObjectBuilder.start()
       .add(fields.activityInstances+"."+fields._id, activityInstanceId)
@@ -112,7 +163,7 @@ public class MongoProcessInstanceMapper extends MongoMapper {
     process.duration = readLong(dbProcess, fields.duration);
     process.lock = readLock((BasicDBObject) dbProcess.get(fields.lock));
     
-    Map<Object, ActivityInstanceImpl> allActivityInstances = new HashMap<>();
+    Map<Object, ActivityInstanceImpl> allActivityInstances = new LinkedHashMap<>();
     Map<Object, Object> parentIds = new HashMap<>();
     List<BasicDBObject> dbActivityInstances = readList(dbProcess, fields.activityInstances);
     if (dbActivityInstances!=null) {
@@ -171,8 +222,7 @@ public class MongoProcessInstanceMapper extends MongoMapper {
 
   protected void writeActivities(BasicDBObject dbProcess, ScopeInstanceImpl scopeInstance) {
     if (scopeInstance.activityInstances!=null) {
-      ScopeInstanceImpl parent = scopeInstance.getParent();
-      Object parentId = (parent!=null ? parent.getId() : null);
+      Object parentId = (scopeInstance.isProcessInstance() ? null : scopeInstance.getId());
       for (ActivityInstanceImpl activity: scopeInstance.activityInstances) {
         BasicDBObject dbActivity = new BasicDBObject();
         writeObject(dbActivity, fields._id, activity.id);
@@ -227,10 +277,11 @@ public class MongoProcessInstanceMapper extends MongoMapper {
     VariableInstanceImpl variableInstance = new VariableInstanceImpl();
     variableInstance.processEngine = processEngine;
     variableInstance.processInstance = processInstance;
+    variableInstance.id = dbVariableInstance.get(fields._id);
     variableInstance.variableDefinitionId = dbVariableInstance.get(fields.variableDefinitionId);
     variableInstance.variableDefinition = processInstance.processDefinition.findVariableDefinition(variableInstance.variableDefinitionId);
     variableInstance.dataType = variableInstance.variableDefinition.dataType;
-    variableInstance.dataTypeId = variableInstance.dataType.getId();
+    variableInstance.dataTypeId = variableInstance.dataType.getTypeId();
     variableInstance.value = variableInstance.dataType.convertJsonToInternalValue(dbVariableInstance.get(fields.value));
     return variableInstance;
   }

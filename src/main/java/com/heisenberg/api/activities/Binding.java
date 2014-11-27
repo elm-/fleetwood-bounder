@@ -18,9 +18,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.PluginConfigurationField;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.SpiDescriptorField;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
+import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 
@@ -46,7 +47,8 @@ public class Binding<T> {
   @SuppressWarnings("unchecked")
   public T getValue(ControllableActivityInstance activityInstance) {
     if (processEngine==null) {
-      throw new RuntimeException("Please ensure that in the ActivityType.validate, you call activityDefinition.initializeBindings(Validator)");
+      String typeName = ((ActivityInstanceImpl)activityInstance).activityDefinition.activityType.getClass().getName();
+      throw new RuntimeException("Please ensure that in the "+typeName+".validate, you call activityDefinition.initializeBindings(Validator)");
     }
     if (value!=null) {
       return (T) value;
@@ -83,7 +85,7 @@ public class Binding<T> {
   }
 
   // processEngine and dataType are already initialized when this is called
-  public void validate(ActivityDefinitionImpl activityDefinition, ActivityType activityType, SpiDescriptorField descriptorField, Validator validator) {
+  public void validate(ActivityDefinitionImpl activityDefinition, ActivityType activityType, PluginConfigurationField descriptorField, Validator validator) {
     if (value!=null) {
       try {
         dataType.validateInternalValue(value);

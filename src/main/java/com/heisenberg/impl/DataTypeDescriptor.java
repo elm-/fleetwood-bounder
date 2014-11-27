@@ -12,34 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.type;
+package com.heisenberg.impl;
 
-
-
+import com.heisenberg.api.type.DataType;
 
 
 /**
  * @author Walter White
  */
-public class TextType extends AbstractDataType {
+public class DataTypeDescriptor extends PluginDescriptor {
+  
+  protected DataType dataType = null;
 
-  public static final TextType INSTANCE = new TextType();
-
-  @Override
-  public String getTypeId() {
-    return "text";
-  }
-
-  @Override
-  public String getLabel() {
-    return "Text";
-  }
-
-  @Override
-  public Object convertJsonToInternalValue(Object apiValue) throws InvalidValueException {
-    if (apiValue==null || (apiValue instanceof String)) {
-      return apiValue;
+  public DataTypeDescriptor(ProcessEngineImpl processEngine, DataType dataType) {
+    super(processEngine, dataType);
+    if (configurationFields==null) {
+      this.dataType = dataType;
     }
-    throw new InvalidValueException("Expected string, but was "+apiValue.getClass().getSimpleName());
+  }
+  
+  public DataType getDataType() {
+    return dataType;
   }
 }

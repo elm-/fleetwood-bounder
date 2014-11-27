@@ -18,8 +18,8 @@ package com.heisenberg.impl;
 /**
  * @author Walter White
  */
-public enum SpiType {
+public enum PluginType {
 
   activity,
-  type
+  dataType
 }

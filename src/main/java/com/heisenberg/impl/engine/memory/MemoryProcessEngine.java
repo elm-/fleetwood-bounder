@@ -51,18 +51,19 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   protected Set<Object> lockedProcessInstances;
   
   public MemoryProcessEngine() {
+    initializeDefaults();
     processDefinitions = Collections.synchronizedMap(new HashMap<Object, ProcessDefinitionImpl>());
     processInstances = Collections.synchronizedMap(new HashMap<Object, ProcessInstanceImpl>());
     lockedProcessInstances = Collections.synchronizedSet(new HashSet<Object>());
   }
 
   @Override
-  protected void storeProcessDefinition(ProcessDefinitionImpl processDefinition) {
+  protected void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
     processDefinitions.put(processDefinition.id, processDefinition);
   }
 
   @Override
-  public void saveProcessInstance(ProcessInstanceImpl processInstance) {
+  public void insertProcessInstance(ProcessInstanceImpl processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
     log.debug("Saving: "+json.objectToJsonStringPretty(processInstance));
   }

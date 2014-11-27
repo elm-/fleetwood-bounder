@@ -22,10 +22,14 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
  * 
  * @author Walter White
  */
-public abstract class JavaServiceTask extends ServiceTask {
+public class JavaServiceTask extends ServiceTask {
+
+  @Override
+  public String getTypeId() {
+    return "javaServiceTask";
+  }
 
   @Override
   public void invokeService(ControllableActivityInstance activityInstance) {
   }
-
 }

@@ -30,6 +30,8 @@ import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.script.ScriptRunner;
 
 
 /** Validates and wires process definition after it's been built by either the builder api or json deserialization.
@@ -112,12 +114,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       }
     }
     if (activity.activityType==null) {
-      if (activity.activityTypeId!=null) {
-        activity.activityType = processEngine.findActivityType(activity.activityTypeId);
-        if (activity.activityType==null) {
-          addError("Activity '%s' has non-existing activity type id '%s'", activity.id);
-        }
-      } else if (activity.activityTypeJson!=null) {
+      if (activity.activityTypeJson!=null) {
         try {
           activity.activityType = processEngine.json.jsonMapToObject(activity.activityTypeJson, ActivityType.class);
         } catch (Exception e) {
@@ -125,20 +122,14 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         }
       }
     } else {
-      if (activity.activityType.getId()!=null) {
-        activity.activityTypeId = activity.activityType.getId();
-      } else {
-        try {
-          activity.activityTypeJson = processEngine.json.objectToJsonMap(activity.activityType);
-        } catch (Exception e) {
-          addWarning("Activity '%s' couldn't be serialized to json");
-        }
+      try {
+        activity.activityTypeJson = processEngine.json.objectToJsonMap(activity.activityType);
+      } catch (Exception e) {
+        addWarning("Activity '%s' couldn't be serialized to json", activity.id);
       }
     }
     if (activity.activityType==null) {
       addError("Activity '%s' has no activityType configured", activity.id);
-    } else if (activity.activityTypeId==null) {
-      activity.activityTypeId = activity.activityType.getId();
     }
   }
 
@@ -164,25 +155,16 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       }
     }
     if (variable.dataType==null) {
-      if (variable.dataTypeId!=null) {
-        variable.dataType = processEngine.findDataType(variable.dataTypeId);
-        if (variable.dataType==null) {
-          addError("Variable '%s' has unknown type '%s'", variable.id, variable.dataTypeId);
-        }
-      } else if (variable.dataTypeJson!=null) {
+      if (variable.dataTypeJson!=null) {
         variable.dataType = processEngine.json.jsonMapToObject(variable.dataTypeJson, DataType.class);
       } else {
         addError("Variable '%s' does not have a type", variable.id);
       }
     } else {
-      if (variable.dataType.getId()!=null) {
-        variable.dataTypeId = variable.dataType.getId();
-      } else {
-        try {
-          variable.dataTypeJson = processEngine.json.objectToJsonMap(variable.dataType);
-        } catch (Exception e) {
-          addWarning("Data type '%s' couldn't be serialized to json");
-        }
+      try {
+        variable.dataTypeJson = processEngine.json.objectToJsonMap(variable.dataType);
+      } catch (Exception e) {
+        addWarning("Data type '%s' couldn't be serialized to json");
       }
     }
     if (variable.dataType!=null) {
@@ -191,7 +173,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         try {
           variable.initialValueJson = variable.dataType.convertJsonToInternalValue(variable.initialValueJson);
         } catch (InvalidValueException e) {
-          addError("Invalid initial value %s for variable %s (%s)", variable.initialValueJson, variable.id, variable.dataTypeId);
+          addError("Invalid initial value %s for variable %s (%s)", variable.initialValueJson, variable.id, variable.dataType.getTypeId());
         }
       }
     }
@@ -275,5 +257,15 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   
   public ParseIssues getIssues() {
     return parseIssues;
+  }
+
+  @Override
+  public ScriptRunner getScriptRunner() {
+    return processEngine.scriptRunner;
+  }
+
+  @Override
+  public Json getJson() {
+    return processEngine.json;
   }
 }

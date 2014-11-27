@@ -57,7 +57,7 @@ public class TestHelper {
     if (activityDefinitionId.equals(activityInstance.getActivityDefinitionId())) {
       return activityInstance;
     }
-    return null;
+    return findActivityInstanceOpen(activityInstance.getActivityInstances(), activityDefinitionId);
   }
 
   public static void assertActivityInstancesOpen(ProcessInstance processInstance, String... expectedActivityNames) {

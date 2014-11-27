@@ -24,6 +24,16 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
 public class UserTask extends AbstractActivityType {
 
   @Override
+  public String getTypeId() {
+    return "userTask";
+  }
+
+  @Override
+  public String getLabel() {
+    return "User task";
+  }
+  
+  @Override
   public void start(ControllableActivityInstance activityInstance) {
   }
 }

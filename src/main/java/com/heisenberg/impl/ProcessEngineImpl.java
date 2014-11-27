@@ -33,22 +33,25 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ActivityInstanceQuery;
 import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.NotifyActivityInstanceRequest;
 import com.heisenberg.api.Page;
 import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.VariableRequest;
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
+import com.heisenberg.api.activities.bpmn.EndEvent;
+import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
+import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.util.Spi;
+import com.heisenberg.api.util.Plugin;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -72,29 +75,15 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public String id;
   
-  /** defaultActivityTypes are the configured default activity types.
-   * Will not be synchronized with the process builder. */
-  public Map<String,ActivityType> defaultActivityTypes;
-
-  /** activityTypes are the configured user defined activity types.
-   * Will be synchronized with the process builder. */
-  public Map<String,ActivityType> activityTypes;
-  
   /** activityDescriptors describe configuration fields for user defined activity types.
    * These will be sent to the process builder where users will be able to configure the activities. */
-  public Map<String,SpiDescriptor> activityDescriptors;
+  public Map<String,ActivityTypeDescriptor> activityTypeDescriptorsByTypeId;
+  public Map<Class<?>,ActivityTypeDescriptor> activityTypeDescriptorsByClass;
 
-  /** defaultTypes are the configured default data types.
-   * Will not be sent to the process builder. */
-  public Map<String,DataType> defaultTypes;
-
-  /** types are the configured user defined data types.
-   * Will be sent to the process builder. */
-  public Map<String,DataType> dataTypes;
-  
   /** types describe the configuration fields for user defined data types.
    * Will be sent to the process builder where users will be able to configure the concrete types. */
-  public Map<String,SpiDescriptor> typeDescriptors;
+  public Map<String,DataTypeDescriptor> dataTypeDescriptorsByTypeId;
+  public Map<Class<?>,DataTypeDescriptor> dataTypeDescriptorsByClass;
   
   public Executor executor;
   public Json json;
@@ -102,26 +91,26 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public ScriptRunnerImpl scriptRunner;
   
   protected ProcessEngineImpl() {
-    initialize();
   }
 
-  protected void initialize() {
-    initializeId();
-    initializeExecutor();
-    initializeProcessDefinitionCache();
-    initializeJson();
-    initializeScriptRunner();
-    initializePluggableImplementations();
-    initializeDefaultSpis();
+  protected void initializeDefaults() {
+    initializeDefaultId();
+    initializeDefaultExecutor();
+    initializeDefaultProcessDefinitionCache();
+    initializeDefaultJson();
+    initializeDefaultScriptRunner();
+    initializeDefaultPluggableImplementations();
+    initializeDefaultPlugins();
   }
 
-  protected void initializeProcessDefinitionCache() {
+  protected void initializeDefaultProcessDefinitionCache() {
+    this.processDefinitionCache = new SimpleProcessDefinitionCache();
   }
 
   /** The globally unique id for this process engine used for locking 
    * process instances and jobs.  
    * This default implementation initializes the id of this process engine to "ipaddress:pid" */
-  protected void initializeId() {
+  protected void initializeDefaultId() {
     try {
       id = InetAddress.getLocalHost().getHostAddress();
       String processName = ManagementFactory.getRuntimeMXBean().getName();
@@ -134,83 +123,117 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     }
   }
   
-  protected void initializePluggableImplementations() {
-    activityDescriptors = new HashMap<>();
-    typeDescriptors = new HashMap<>();
-    dataTypes = new HashMap<>();
-    activityTypes = new HashMap<>();
-    Iterator<Spi> spis = ServiceLoader.load(Spi.class).iterator();
+  protected void initializeDefaultPluggableImplementations() {
+    activityTypeDescriptorsByTypeId = new HashMap<>();
+    activityTypeDescriptorsByClass = new HashMap<>();
+    dataTypeDescriptorsByTypeId = new HashMap<>();
+    dataTypeDescriptorsByClass = new HashMap<>();
+    Iterator<Plugin> spis = ServiceLoader.load(Plugin.class).iterator();
     while (spis.hasNext()) {
-      Spi spiObject = spis.next();
-      registerSpi(spiObject);
+      Plugin spiObject = spis.next();
+      registerPlugin(spiObject);
     }
   }
   
-  protected void initializeDefaultSpis() {
-    registerSpi(TextType.INSTANCE);
-    registerSpi(StartEvent.INSTANCE);
+  protected void initializeDefaultPlugins() {
+    registerDataType(TextType.INSTANCE);
+    registerActivityType(StartEvent.INSTANCE);
+    registerActivityType(EndEvent.INSTANCE);
+    registerActivityType(new ScriptTask());
+    registerActivityType(new UserTask());
+    registerActivityType(EmbeddedSubprocess.INSTANCE);
   }
 
   public ProcessEngineImpl registerJavaBeanType(Class<?> javaBeanClass) {
     JavaBeanType javaBeanType = new JavaBeanType(javaBeanClass);
     javaBeanType.processEngine = this;
-    registerSpi(javaBeanType);
+    registerPlugin(javaBeanType);
     return this;
   }
 
   public ProcessEngineImpl registerType(Class<? extends DataType> typeClass) {
-    registerSpi(Reflection.newInstance(typeClass));
+    registerPlugin(Reflection.newInstance(typeClass));
     return this;
   }
 
   public ProcessEngineImpl registerType(DataType dataType) {
-    registerSpi(dataType);
+    registerPlugin(dataType);
     return this;
   }
 
   public ProcessEngineImpl registerActivityType(Class<? extends ActivityType> activityTypeClass) {
-    registerSpi(Reflection.newInstance(activityTypeClass));
+    registerPlugin(Reflection.newInstance(activityTypeClass));
     return this;
   }
 
-  public ProcessEngineImpl registerActivityType(ActivityType activityType) {
-    registerSpi(activityType);
-    return this;
-  }
-
-  void registerSpi(Spi spiObject) {
-    if (spiObject==null) {
-      return;
+  PluginDescriptor registerPlugin(Plugin pluginObject) {
+    if (pluginObject==null) {
+      throw new RuntimeException("Can't register null as a plugin");
     }
-    if (spiObject.getId()!=null) {
-      if (spiObject instanceof DataType) {
-        dataTypes.put(spiObject.getId(), (DataType)spiObject);
-      } else if (spiObject instanceof ActivityType) {
-        activityTypes.put(spiObject.getId(), (ActivityType)spiObject);
-      } else {
-        throw new RuntimeException("Unknown Spi type: "+spiObject.getClass().getName());
-      }
+    String pluginTypeId = pluginObject.getTypeId();
+    if (pluginTypeId==null) {
+      throw new RuntimeException("Invalid registration of pluggable class: "+pluginObject.getClass().getName()+".getTypeId() does not return a value");
+    }
+    Class<?> pluginClass = pluginObject.getClass();
+    if (DataType.class.isAssignableFrom(pluginClass)) {
+      return registerDataType((DataType) pluginObject);
+    } else if (ActivityType.class.isAssignableFrom(pluginClass)) {
+      return registerActivityType((ActivityType) pluginObject);
     } else {
-      SpiDescriptor spiDescriptor = new SpiDescriptor(this, spiObject);
-      if (spiDescriptor.spiType==SpiType.type) {
-        typeDescriptors.put(spiDescriptor.getTypeName(), spiDescriptor);
-      } else if (spiObject instanceof ActivityType) {
-        activityDescriptors.put(spiDescriptor.getTypeName(), spiDescriptor);
-      }
+      throw new RuntimeException("Unknown plugin type: "+pluginClass.getName());
     }
-    json.registerSubtype(spiObject.getClass());
   }
 
-  protected void initializeExecutor() {
+  protected PluginDescriptor registerActivityType(ActivityType pluginObject) {
+    json.registerSubtype(pluginObject.getClass());
+    ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor(this, pluginObject);
+    registerActivityTypeDescriptor(activityTypeDescriptor);
+    return activityTypeDescriptor;
+  }
+
+  protected PluginDescriptor registerDataType(DataType pluginObject) {
+    json.registerSubtype(pluginObject.getClass());
+    DataTypeDescriptor dataTypeDescriptor = new DataTypeDescriptor(this, pluginObject);
+    registerDataTypeDescriptor(dataTypeDescriptor);
+    return dataTypeDescriptor;
+  }
+  
+  public void registerDataTypeDescriptor(DataTypeDescriptor dataTypeDescriptor) {
+    Class<?> dataTypeClass = dataTypeDescriptor.pluginClass;
+    String dataTypeTypeId = dataTypeDescriptor.typeId;
+    if (!dataTypeDescriptorsByClass.containsKey(dataTypeClass)) {
+      PluginDescriptor existingPluginDescriptor = dataTypeDescriptorsByTypeId.get(dataTypeTypeId);
+      if (existingPluginDescriptor!=null) {
+        throw new RuntimeException("Duplicate DataType typeId: "+dataTypeTypeId+": "+dataTypeClass.getName()+" and "+existingPluginDescriptor.pluginClass.getName());
+      }
+      dataTypeDescriptorsByTypeId.put(dataTypeTypeId, dataTypeDescriptor);
+      dataTypeDescriptorsByClass.put(dataTypeClass, dataTypeDescriptor);
+    } 
+  }
+
+  public void registerActivityTypeDescriptor(ActivityTypeDescriptor activityTypeDescriptor) {
+    Class<?> activityTypeClass = activityTypeDescriptor.pluginClass;
+    String activityTypeTypeId = activityTypeDescriptor.typeId;
+    if (!activityTypeDescriptorsByClass.containsKey(activityTypeClass)) {
+      PluginDescriptor existingPluginDescriptor = activityTypeDescriptorsByTypeId.get(activityTypeTypeId);
+      if (existingPluginDescriptor!=null) {
+        throw new RuntimeException("Duplicate ActivityType typeId: "+activityTypeTypeId+": "+activityTypeClass.getName()+" and "+existingPluginDescriptor.pluginClass.getName());
+      }
+      activityTypeDescriptorsByTypeId.put(activityTypeTypeId, activityTypeDescriptor);
+      activityTypeDescriptorsByClass.put(activityTypeClass, activityTypeDescriptor);
+    } 
+  }
+
+  protected void initializeDefaultExecutor() {
     // TODO apply these tips: http://java.dzone.com/articles/executorservice-10-tips-and
     this.executor = new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  protected void initializeJson() {
+  protected void initializeDefaultJson() {
     this.json = new Json(this);
   }
   
-  protected void initializeScriptRunner() {
+  protected void initializeDefaultScriptRunner() {
     this.scriptRunner = new ScriptRunnerImpl();
   }
 
@@ -238,7 +261,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     if (!issues.hasErrors()) {
       processDefinition.id = createProcessDefinitionId(processDefinition);
       response.setProcessDefinitionId(processDefinition.id); 
-      storeProcessDefinition(processDefinition);
+      insertProcessDefinition(processDefinition);
+      processDefinitionCache.put(processDefinition);
     } else {
       response.setIssues(issues);
     }
@@ -252,7 +276,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
   
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
-  protected abstract void storeProcessDefinition(ProcessDefinitionImpl processDefinition);
+  protected abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
     Object processDefinitionId = startProcessInstanceRequest.processDefinitionId;
@@ -277,7 +301,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     lock.setTime(Time.now());
     lock.setOwner(getId());
     processInstance.setLock(lock);
-    saveProcessInstance(processInstance);
+    insertProcessInstance(processInstance);
     processInstance.executeOperations();
     return processInstance;
   }
@@ -310,9 +334,10 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
 
   public ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(Object processDefinitionId) {
-    ProcessDefinitionImpl processDefinition = processDefinitionCache!=null ? processDefinitionCache.get(processDefinitionId) : null;
+    ProcessDefinitionImpl processDefinition = processDefinitionCache.get(processDefinitionId);
     if (processDefinition==null) {
       processDefinition = loadProcessDefinitionById(processDefinitionId);
+      processDefinitionCache.put(processDefinition);
     }
     return processDefinition;
   }
@@ -356,7 +381,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
 
   @Override
-  public ProcessInstance signal(SignalRequest signalRequest) {
+  public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest signalRequest) {
     Object activityInstanceId = signalRequest.getActivityInstanceId();
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
     // TODO set variables and context
@@ -366,14 +391,14 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     }
     log.debug("Signalling "+activityInstance);
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
-    activityDefinition.activityType.signal(activityInstance);
+    activityDefinition.activityType.notify(activityInstance);
     processInstance.executeOperations();
     return processInstance;
   }
   
   public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId);
 
-  public abstract void saveProcessInstance(ProcessInstanceImpl processInstance);
+  public abstract void insertProcessInstance(ProcessInstanceImpl processInstance);
 
   public abstract void flush(ProcessInstanceImpl processInstance);
 
@@ -422,43 +447,19 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public abstract Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl);
 
-  public ActivityType findActivityType(String activityTypeId) {
-    if (activityTypeId==null) {
-      return null;
-    }
-    // first search the user defined activity types
-    ActivityType activityType = activityTypes.get(activityTypeId);
-    if (activityType!=null) {
-      return activityType;
-    }
-    // then search the default activity types
-    activityType = defaultActivityTypes.get(activityTypeId);
-    if (activityType!=null) {
-      return activityType;
-    }
-    return null;
-  }
-  
-  public DataType findDataType(String dataTypeId) {
-    if (dataTypeId==null) {
-      return null;
-    }
-    // first search the user defined activity types
-    DataType dataType = dataTypes.get(dataTypeId);
-    if (dataType!=null) {
-      return dataType;
-    }
-    // then search the default activity types
-    if (defaultTypes!=null) {
-      return defaultTypes.get(dataTypeId);
-    }
-    return null;
+  public ActivityTypeDescriptor findActivityDescriptorByClass(Class<?> activityTypeClass) {
+    return activityTypeDescriptorsByClass.get(activityTypeClass);
   }
 
-  public SpiDescriptor findActivityDescriptor(ActivityType activityType) {
-    if (activityType.getId()!=null) {
-      return activityDescriptors.get(activityType.getId());
-    }
-    return activityDescriptors.get(activityType.getClass().getName());
+  public ActivityTypeDescriptor findActivityDescriptorByTypeId(String activityTypeTypeId) {
+    return activityTypeDescriptorsByTypeId.get(activityTypeTypeId);
+  }
+
+  public DataTypeDescriptor findDataTypeDescriptorByClass(Class<?> activityTypeClass) {
+    return dataTypeDescriptorsByClass.get(activityTypeClass);
+  }
+
+  public DataTypeDescriptor findDataTypeDescriptorByTypeId(String activityTypeTypeId) {
+    return dataTypeDescriptorsByTypeId.get(activityTypeTypeId);
   }
 }

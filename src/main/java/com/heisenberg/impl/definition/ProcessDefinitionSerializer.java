@@ -14,7 +14,6 @@
  */
 package com.heisenberg.impl.definition;
 
-import com.heisenberg.api.type.DataType;
 
 
 
@@ -34,9 +33,7 @@ public class ProcessDefinitionSerializer implements ProcessDefinitionVisitor {
   @Override
   public void startActivityDefinition(ActivityDefinitionImpl activity, int index) {
     if (activity.activityType!=null) {
-      if (activity.activityTypeId==null && activity.activityType.getId()!=null) {
-        activity.activityTypeId = activity.activityType.getId();
-      } else if (activity.activityTypeJson==null) {
+      if (activity.activityTypeJson==null && activity.activityType!=null) {
         activity.activityTypeJson = activity.processEngine.json.objectToJsonMap(activity.activityType);
       }
     }
@@ -45,9 +42,7 @@ public class ProcessDefinitionSerializer implements ProcessDefinitionVisitor {
   @Override
   public void variableDefinition(VariableDefinitionImpl variable, int index) {
     if (variable.dataType!=null) {
-      if (variable.dataTypeId==null && variable.dataType.getId()!=null) {
-        variable.dataTypeId = variable.dataType.getId();
-      } else if (variable.dataTypeJson==null) {
+      if (variable.dataTypeJson==null && variable.dataType!=null) {
         variable.dataTypeJson = variable.processEngine.json.objectToJsonMap(variable.dataType);
       }
     }

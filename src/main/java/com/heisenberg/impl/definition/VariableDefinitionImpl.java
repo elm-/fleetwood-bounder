@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.JavaBeanType;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.instance.VariableInstanceImpl;
 
 
 /**
@@ -32,7 +32,6 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
 
   public Object id;
   
-  public String dataTypeId;
   @JsonIgnore
   public DataType dataType;
   @JsonProperty("dataType")
@@ -68,19 +67,9 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     return this;
   }
 
-  public VariableDefinitionImpl type(String typeId) {
-    this.dataTypeId = typeId;
-    return this;
-  }
-
-  public VariableDefinitionImpl dataTypeId(String dataTypeId) {
-    this.dataTypeId = dataTypeId;
-    return this;
-  }
-
   /** this class has to be registered with @link {@link ProcessEngineImpl#registerJavaBeanType(Class)} */
   public VariableDefinitionImpl dataTypeJavaBean(Class<?> userDefinedJavaBeanClass) {
-    this.dataTypeId = userDefinedJavaBeanClass.getName();
+    this.dataType = new JavaBeanType(userDefinedJavaBeanClass);
     return this;
   }
 

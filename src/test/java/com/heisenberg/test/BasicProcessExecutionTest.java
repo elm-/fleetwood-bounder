@@ -21,8 +21,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.heisenberg.api.NotifyActivityInstanceRequest;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ProcessBuilder;
@@ -95,7 +95,7 @@ public class BasicProcessExecutionTest {
     assertEquals("wait1", waitActivityInstance.getActivityDefinitionId());
     
     // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
-    processInstance = processEngine.signal(new SignalRequest()
+    processInstance = processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
       .activityInstanceId(waitActivityInstance.getId()));
     
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
@@ -112,7 +112,7 @@ public class BasicProcessExecutionTest {
     assertFalse(wait2ActivityInstance.isEnded());
     assertEquals("wait2", wait2ActivityInstance.getActivityDefinitionId());
 
-    processInstance = processEngine.signal(new SignalRequest()
+    processInstance = processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
       .activityInstanceId(wait2ActivityInstance.getId()));
     
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());

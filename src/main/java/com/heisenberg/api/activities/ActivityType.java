@@ -17,20 +17,21 @@ package com.heisenberg.api.activities;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.Spi;
+import com.heisenberg.api.util.Plugin;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.json.ActivityTypeIdResolver;
 
 
 
 /**
  * @author Walter White
  */
-@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="type")
-public interface ActivityType extends Spi {
-  
-  
+@JsonTypeInfo(use=Id.CUSTOM, include=As.PROPERTY, property="typeId")
+@JsonTypeIdResolver(ActivityTypeIdResolver.class)
+public interface ActivityType extends Plugin {
 
   /** called when the process is being deployed. 
    * @param activity */
@@ -40,7 +41,7 @@ public interface ActivityType extends Spi {
   void start(ControllableActivityInstance activityInstance);
 
   /** called when an external signal is invoked on this activity instance through the process engine api */
-  void signal(ControllableActivityInstance activityInstance);
+  void notify(ControllableActivityInstance activityInstance);
 
   /** called when a nested activity instance is ended */
   void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance);

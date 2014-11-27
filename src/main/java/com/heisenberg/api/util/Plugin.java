@@ -21,18 +21,18 @@ import com.heisenberg.impl.ProcessEngineImpl;
  * 
  * By using this marker interface, 
  * we only have to do 1 scan to find all pluggable implementations.
- * @see ProcessEngineImpl#initializePluggableImplementations()  
+ * @see ProcessEngineImpl#initializeDefaultPluggableImplementations()  
  * 
  * @author Walter White
  */
-public interface Spi {
+public interface Plugin {
 
-  /** returns null for abstract configurable types and 
-   * a value for types that are configured. */
-  String getId();
+  /** short, but unique name identifying the concrete java class.
+   * used by json/db (de)serialization. */
+  String getTypeId();
+
   String getLabel();
   // String getDescription();
   // InputStream getIconInputStream();
   // String getIconMimeType();
-
 }

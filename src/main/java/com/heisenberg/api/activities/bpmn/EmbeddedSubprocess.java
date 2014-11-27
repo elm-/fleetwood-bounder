@@ -29,7 +29,10 @@ public class EmbeddedSubprocess extends AbstractActivityType {
 
   public static final EmbeddedSubprocess INSTANCE = new EmbeddedSubprocess();
   
-  List<ActivityDefinition> startActivityDefinitions = null;
+  @Override
+  public String getTypeId() {
+    return "embeddedSubprocess";
+  }
   
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {

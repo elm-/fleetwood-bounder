@@ -19,8 +19,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
+import com.heisenberg.api.NotifyActivityInstanceRequest;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.builder.ActivityBuilder;
@@ -86,10 +86,10 @@ public class EmbeddedSuprocessTest {
 
     assertActivityInstancesOpen(processInstance, "sub", "w1", "w2");
     
-    Object w1Id = processInstance.findActivityInstanceByName("w1").getId();
+    Object w1Id = processInstance.findActivityInstanceByActivityDefinitionId("w1").getId();
     assertNotNull(w1Id);
     
-    processEngine.signal(new SignalRequest()
+    processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
       .activityInstanceId(w1Id));
   }
 }

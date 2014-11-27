@@ -41,5 +41,5 @@ public interface ScopeInstance {
   void end();
 
   /** recurses downward over the nested activities (not over the parent) */
-  ActivityInstance findActivityInstanceByName(String activityDefinitionName);
+  ActivityInstance findActivityInstanceByActivityDefinitionId(String activityDefinitionId);
 }

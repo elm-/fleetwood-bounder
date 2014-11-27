@@ -296,4 +296,9 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   public Object getProcessDefinitionId() {
     return processDefinitionId;
   }
+
+  @Override
+  public boolean isProcessInstance() {
+    return true;
+  }
 }

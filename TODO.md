@@ -2,6 +2,7 @@
 
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
 - [ ] http://blog.denevell.org/java-jersey-jetty-rest-gradle-tutorial-setup-quick.html
+      http://stackoverflow.com/questions/18872931/custom-objectmapper-with-jersey-2-2-and-jackson-2-1
 
 # In progress
 
@@ -62,12 +63,15 @@
   - [ ] include process instance full state (as is returned now)
   - [ ] add all (or some) process events as a kind of logs
 - [ ] load testing
+- [ ] create an archivedActivityInstances collection in ScopeInstanceImpl  This way we can just flush the whole activity instances field if something was changed.  
 - [ ] activity types
   - [ ] HTTP invocation
   - [ ] Send email
   - [ ] Remote implemented activity (http)
   - [ ] Script (through ScriptEngine)
 - [ ] timers
+- [ ] Change response into ProcessEngine.startProcessInstance StartProcessInstanceResponse.  this way we can include the events/logs of all things that happened during execution.
+- [ ] Change response of ProcessEngine.notifyActivityInstance into NotifyActivityInstanceResponse this way we can include the events/logs of all things that happened during execution.
 - [ ] data flow (only start an activity when the input data becomes available)
 - [ ] derived variables
 - [ ] static persistable process variables

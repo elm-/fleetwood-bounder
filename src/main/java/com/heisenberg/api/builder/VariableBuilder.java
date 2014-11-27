@@ -28,13 +28,9 @@ public interface VariableBuilder {
    * The given idInternal will be wrapped in a VariableDefinitionId. */
   VariableBuilder id(Object idInternal);
   
-  VariableBuilder type(String typeRefId);
-  
   VariableBuilder dataType(DataType dataType);
   
   VariableBuilder dataTypeJavaBean(Class<?> userDefinedJavaBeanClass);
-
-  VariableBuilder dataTypeId(String dataTypeId);
 
   VariableBuilder initialValue(Object initialValue);
   

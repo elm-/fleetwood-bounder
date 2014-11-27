@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
@@ -30,7 +29,6 @@ import com.heisenberg.api.util.Validator;
 /**
  * @author Walter White
  */
-@JsonTypeName("go")
 public class Go extends AbstractActivityType {
   
   @JsonIgnore
@@ -57,7 +55,7 @@ public class Go extends AbstractActivityType {
   }
 
   @Override
-  public void signal(ControllableActivityInstance activityInstance) {
+  public void notify(ControllableActivityInstance activityInstance) {
   }
 
   public class Execution {
@@ -67,5 +65,10 @@ public class Go extends AbstractActivityType {
       this.activityInstance = activityInstance;
       this.place = place;
     }
+  }
+
+  @Override
+  public String getTypeId() {
+    return "testGo";
   }
 }

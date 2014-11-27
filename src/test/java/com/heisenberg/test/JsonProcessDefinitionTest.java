@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.TextType;
@@ -42,9 +41,10 @@ public class JsonProcessDefinitionTest {
   @Test
   public void testProcessDefinitionJson() {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
-      .registerActivityType(Go.class);
+      .registerActivityType(Go.class)
+      .registerType(ChoiceType.class);
   
-    processEngine.json.objectMapper.registerSubtypes(new NamedType(Go.class, "go"));
+    // processEngine.json.objectMapper.registerSubtypes(new NamedType(Go.class, "go"));
 
     ProcessBuilder process = processEngine.newProcess();
     process.deployedUserId("me")
@@ -60,7 +60,6 @@ public class JsonProcessDefinitionTest {
       .initialValueJson("iv")
       .dataType(TextType.INSTANCE)
       .line(3l)
-      
       .column(4l);
 
     process.newVariable()

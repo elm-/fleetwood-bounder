@@ -27,11 +27,7 @@ import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
-import com.heisenberg.impl.SimpleProcessDefinitionCache;
-import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessDefinitionFieldNames;
-import com.heisenberg.impl.engine.mongodb.MongoConfiguration.ProcessInstanceFieldNames;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.Operation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
@@ -40,13 +36,8 @@ import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.WriteConcern;
-import com.mongodb.WriteResult;
 
 
 
@@ -58,19 +49,9 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   public static final Logger log = LoggerFactory.getLogger(MongoProcessEngine.class);
   
   protected DB db;
-  protected DBCollection processDefinitions;
-  protected DBCollection processInstances;
-  
-  protected WriteConcern writeConcernStoreProcessDefinition;
-  protected WriteConcern writeConcernStoreProcessInstance;
-  protected WriteConcern writeConcernFlushUpdates;
 
-  protected MongoProcessDefinitionWriter processDefinitionWriter;
-  protected MongoProcessDefinitionReader processDefinitionReader;
-  protected ProcessDefinitionFieldNames processDefinitionFieldNames;
-
-  protected MongoProcessInstanceMapper processInstanceMapper;
-  protected ProcessInstanceFieldNames processInstanceFieldNames;
+  protected MongoProcessDefinitions processDefinitionMapper;
+  protected MongoProcessInstances processInstanceMapper;
   
   protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(json);
   
@@ -79,25 +60,13 @@ public class MongoProcessEngine extends ProcessEngineImpl {
             mongoDbConfiguration.serverAddresses, 
             mongoDbConfiguration.credentials, 
             mongoDbConfiguration.optionBuilder.build());
+    initializeDefaults();
     this.db = mongoClient.getDB(mongoDbConfiguration.databaseName);
-    this.processDefinitions = db.getCollection("processDefinitions");
-    this.processInstances = db.getCollection("processInstances");
-    this.writeConcernStoreProcessDefinition = getWriteConcern(mongoDbConfiguration.writeConcernStoreProcessDefinition, processDefinitions);
-    this.writeConcernStoreProcessInstance = getWriteConcern(mongoDbConfiguration.writeConcernStoreProcessInstance, processInstances);
-    this.writeConcernFlushUpdates = getWriteConcern(mongoDbConfiguration.writeConcernFlushUpdates, processInstances);
-    this.processDefinitionWriter = new MongoProcessDefinitionWriter(this, mongoDbConfiguration.processDefinitionFieldNames);
-    this.processDefinitionReader = new MongoProcessDefinitionReader(this, mongoDbConfiguration.processDefinitionFieldNames);
-    this.processInstanceMapper = new MongoProcessInstanceMapper(this);
-    this.processDefinitionFieldNames = mongoDbConfiguration.processDefinitionFieldNames;
-    this.processInstanceFieldNames = mongoDbConfiguration.processInstanceFieldNames;
+    this.processDefinitionMapper = new MongoProcessDefinitions(this, db, mongoDbConfiguration);
+    this.processInstanceMapper = new MongoProcessInstances(this, db, mongoDbConfiguration);
     this.updateConverters = new MongoUpdateConverters(json);
   }
   
-  @Override
-  protected void initializeProcessDefinitionCache() {
-    processDefinitionCache = new SimpleProcessDefinitionCache();
-  }
-
   @Override
   protected Object createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
     return new ObjectId();
@@ -119,27 +88,18 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected void storeProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    BasicDBObject dbProcessDefinition = processDefinitionWriter.writeProcessDefinition(processDefinition);
-    log.debug("--processDefinitions-> insert "+PrettyPrinter.toJsonPrettyPrint(dbProcessDefinition));
-    WriteResult writeResult = this.processDefinitions.insert(dbProcessDefinition, writeConcernStoreProcessDefinition);
-    log.debug("<-processDefinitions-- "+writeResult);
+  protected void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
+    processDefinitionMapper.insertProcessDefinition(processDefinition);
   }
 
   @Override
   protected ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId) {
-    log.debug("--processDefinitions-> find "+processDefinitionId);
-    BasicDBObject dbProcess = (BasicDBObject) this.processDefinitions.findOne(new BasicDBObject(processDefinitionFieldNames._id, processDefinitionId));
-    log.debug("<-processDefinitions-- "+PrettyPrinter.toJsonPrettyPrint(dbProcess));
-    return processDefinitionReader.readProcessDefinition(dbProcess);
+    return processDefinitionMapper.findProcessDefinitionById(processDefinitionId);
   }
 
   @Override
-  public void saveProcessInstance(ProcessInstanceImpl processInstance) {
-    BasicDBObject dbProcessInstance = processInstanceMapper.writeProcessInstance(processInstance);
-    log.debug("--processInstances-> insert "+PrettyPrinter.toJsonPrettyPrint(dbProcessInstance));
-    WriteResult writeResult = this.processInstances.insert(dbProcessInstance, writeConcernStoreProcessInstance);
-    log.debug("<-processInstances-- "+writeResult);
+  public void insertProcessInstance(ProcessInstanceImpl processInstance) {
+    processInstanceMapper.insertProcessInstance(processInstance);
   }
 
   @Override
@@ -155,10 +115,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
           dbUpdates.add(dbUpdate);
         }
       }
-      this.processInstances.update(
-        new BasicDBObject(processInstanceFieldNames._id,  processInstance.id),
-        new BasicDBObject("$pushAll", new BasicDBObject(processInstanceFieldNames.updates, dbUpdates)),
-        false, false, writeConcernFlushUpdates);
+      processInstanceMapper.flushUpdates(processInstance.id, dbUpdates);
       // After the first and all subsequent flushes, we need to capture the updates so we initialize the collection
       // @see ProcessInstanceImpl.updates
       processInstance.setUpdates(new ArrayList<Update>());
@@ -192,20 +149,13 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   public void flushAndUnlock(ProcessInstanceImpl processInstance) {
     processInstance.lock = null;
     BasicDBObject dbProcessInstance = processInstanceMapper.writeProcessInstance(processInstance);
-    log.debug("--processInstances-> save "+PrettyPrinter.toJsonPrettyPrint(dbProcessInstance));
-    WriteResult writeResult = this.processInstances.save(dbProcessInstance, writeConcernStoreProcessInstance);
-    log.debug("<-processInstances-- "+writeResult);
+    processInstanceMapper.saveProcessInstance(dbProcessInstance);
     processInstance.setUpdates(new ArrayList<Update>());
   }
 
   @Override
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
-    DBObject update = processInstanceMapper.updateLock(id);
-    DBObject query = processInstanceMapper.queryUnlockedAndActivityInstanceId(activityInstanceId); 
-    log.debug("--processInstances-> findAndModify q="+PrettyPrinter.toJsonPrettyPrint(query)+" u="+PrettyPrinter.toJsonPrettyPrint(update));
-    BasicDBObject dbProcessInstance = (BasicDBObject) processInstances.findAndModify(query, update);
-    log.debug("<-processInstances-- "+dbProcessInstance);
-    return processInstanceMapper.readProcessInstance(dbProcessInstance);
+    return processInstanceMapper.lockProcessInstanceByActivityInstanceId(activityInstanceId);
   }
 
   @Override
@@ -221,12 +171,5 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   @Override
   public Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl) {
     return null;
-  }
-
-  protected WriteConcern getWriteConcern(WriteConcern configuredWriteConcern, DBCollection dbCollection) {
-    if (configuredWriteConcern!=null) {
-      return configuredWriteConcern;
-    }
-    return dbCollection.getWriteConcern();
   }
 }

@@ -25,15 +25,13 @@ import java.util.TreeSet;
 
 import org.bson.types.ObjectId;
 
-import com.mongodb.DBObject;
-
 
 /**
  * @author Walter White
  */
 public class PrettyPrinter {
 
-  public static String toJsonPrettyPrint(DBObject jsonObject) {
+  public static String toJsonPrettyPrint(Object jsonObject) {
     StringBuffer jsonText = new StringBuffer();
     jsonObjectToTextFormatted(jsonObject, 0, jsonText);
     return jsonText.toString();

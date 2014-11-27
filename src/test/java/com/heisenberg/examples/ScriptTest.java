@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.AbstractActivityType;
@@ -79,7 +78,6 @@ public class ScriptTest {
   
   String scriptResultMessage = null;
 
-  @JsonTypeName("script")
   public class ScriptActivity extends AbstractActivityType {
     @Override
     public String getLabel() {
@@ -99,6 +97,10 @@ public class ScriptTest {
       ScriptResult scriptResult = scriptRunner.evaluateScript(activityInstance, script);
       scriptResultMessage = (String) scriptResult.getResult();
       activityInstance.onwards();
+    }
+    @Override
+    public String getTypeId() {
+      return "testScript";
     }
   }
 }

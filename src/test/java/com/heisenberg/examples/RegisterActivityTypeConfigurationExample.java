@@ -28,8 +28,8 @@ import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.type.TextType;
+import com.heisenberg.impl.PluginDescriptor;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.SpiDescriptor;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -51,7 +51,7 @@ public class RegisterActivityTypeConfigurationExample {
       .registerActivityType(MyCustomType.class);
     
     Json json = processEngine.json;
-    SpiDescriptor spiDescriptor = processEngine.activityDescriptors.get(MyCustomType.class.getName());
+    PluginDescriptor spiDescriptor = processEngine.activityTypeDescriptorsByTypeId.get("myCustomType");
     log.debug("From oss on-premise to SaaS process builder:");
     log.debug(json.objectToJsonStringPretty(spiDescriptor)+"\n");
     
@@ -120,6 +120,11 @@ public class RegisterActivityTypeConfigurationExample {
     public MyCustomType parameterOne(Binding<String> parameterOne) {
       this.parameterOne = parameterOne;
       return this;
+    }
+
+    @Override
+    public String getTypeId() {
+      return "myCustomType";
     }
     
 //    public MyCustomType moneyBindings(List<Binding<Money>> moneyBindings) {

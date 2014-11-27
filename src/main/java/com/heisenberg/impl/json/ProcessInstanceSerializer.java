@@ -77,7 +77,7 @@ public class ProcessInstanceSerializer implements ProcessInstanceVisitor {
   public void variableInstance(VariableInstanceImpl variableInstance, int index) {
     if (variableInstance.dataTypeId==null
         && variableInstance.dataType!=null) {
-      variableInstance.dataTypeId = variableInstance.dataType.getId();
+      variableInstance.dataTypeId = variableInstance.dataType.getTypeId();
     }
     if (variableInstance.variableDefinitionId==null
         && variableInstance.variableDefinition!=null) {

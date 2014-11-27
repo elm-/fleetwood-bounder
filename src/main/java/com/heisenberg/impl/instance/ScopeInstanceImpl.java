@@ -227,13 +227,13 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
   
   @Override
-  public ActivityInstanceImpl findActivityInstanceByName(String activityDefinitionName) {
-    if (activityDefinitionName==null) {
+  public ActivityInstanceImpl findActivityInstanceByActivityDefinitionId(String activityDefinitionId) {
+    if (activityDefinitionId==null) {
       return null;
     }
     if (activityInstances!=null) {
       for (ActivityInstanceImpl activityInstance: activityInstances) {
-        ActivityInstanceImpl theOne = activityInstance.findActivityInstanceByName(activityDefinitionName);
+        ActivityInstanceImpl theOne = activityInstance.findActivityInstanceByActivityDefinitionId(activityDefinitionId);
         if (theOne!=null) {
           return theOne;
         }
@@ -339,4 +339,6 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
 
   public abstract void ended(ActivityInstanceImpl activityInstance);
+
+  public abstract boolean isProcessInstance();
 }

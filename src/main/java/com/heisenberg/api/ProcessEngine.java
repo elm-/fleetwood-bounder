@@ -37,14 +37,10 @@ public interface ProcessEngine {
    * and returns the same object as a way to indicate it may have changed. */
   DeployProcessDefinitionResponse deployProcessDefinition(ProcessBuilder processDefinition);
   
-  // TODO change response into StartProcessInstanceResponse
-  //      this way we can include the events/logs of all things that happened during execution.
   ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);
   
   ActivityInstanceQuery createActivityInstanceQuery(); 
 
-  // TODO change response into SignalResponse
-  //      this way we can include the events/logs of all things that happened during execution.
-  ProcessInstance signal(SignalRequest signalRequest);
+  ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest);
 
 }

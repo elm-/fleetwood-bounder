@@ -31,7 +31,7 @@ import com.heisenberg.api.type.TextType;
 /**
  * @author Walter White
  */
-public class SpiDescriptorField {
+public class PluginConfigurationField {
 
   public String name;
   public String label;
@@ -46,13 +46,13 @@ public class SpiDescriptorField {
   @JsonIgnore
   public Field field;
   
-  public SpiDescriptorField(ProcessEngineImpl processEngine, Field field, ConfigurationField configurationField) {
+  public PluginConfigurationField(ProcessEngineImpl processEngine, Field field, ConfigurationField configurationField) {
     this.name = field.getName();
     this.field = field;
     this.field.setAccessible(true);
     this.dataType = getDataType(field, processEngine);
-    if (this.dataType.getId()!=null) {
-      dataTypeId = this.dataType.getId(); 
+    if (this.dataType.getTypeId()!=null) {
+      dataTypeId = this.dataType.getTypeId(); 
     } else {
       dataTypeJson = processEngine.json.objectToJsonMap(dataType);
     }
@@ -82,14 +82,12 @@ public class SpiDescriptorField {
       } 
     } else if (genericType instanceof Class){
       Class<?> clazz = (Class< ? >) genericType;
-      DataType dataType = processEngine.dataTypes.get(clazz.getName());
-      if (dataType==null) {
+      PluginDescriptor descriptor = processEngine.findDataTypeDescriptorByClass(clazz);
+      if (descriptor==null) {
         // auto register java bean types that are used as configurations inside activity types.
         processEngine.registerJavaBeanType(clazz);
-        dataType = processEngine.dataTypes.get(clazz.getName());
-      }
-      if (dataType!=null) {
-        return dataType;
+        DataTypeDescriptor dataTypeDescriptor = processEngine.findDataTypeDescriptorByClass(clazz);
+        return dataTypeDescriptor.dataType;
       }
     }
     throw new RuntimeException("Don't know how to handle "+genericType+"'s.  It's used in configuration field: "+field);

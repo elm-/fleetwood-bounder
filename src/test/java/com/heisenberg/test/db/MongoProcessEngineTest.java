@@ -14,30 +14,32 @@
  */
 package com.heisenberg.test.db;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static com.heisenberg.test.TestHelper.assertActivityInstancesOpen;
+import static com.heisenberg.test.TestHelper.findActivityInstanceOpen;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
+import com.heisenberg.api.NotifyActivityInstanceRequest;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.SignalRequest;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
+import com.heisenberg.api.activities.bpmn.EndEvent;
+import com.heisenberg.api.activities.bpmn.ScriptTask;
+import com.heisenberg.api.activities.bpmn.StartEvent;
+import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.type.TextType;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
-import com.heisenberg.test.TestHelper;
-import com.heisenberg.test.Wait;
 
 
 /**
@@ -49,58 +51,81 @@ public class MongoProcessEngineTest {
   public void testMongoProcessEngine() {
     ProcessEngine processEngine = new MongoConfiguration()
       .server("localhost", 27017)
-      .buildProcessEngine()
-      .registerActivityType(Go.class)
-      .registerActivityType(Wait.class);
+      .buildProcessEngine();
     
     ProcessBuilder process = processEngine.newProcess();
   
-    process.newVariable()
-      .id("t")
-      .dataType(TextType.INSTANCE);
-  
-    Go go = new Go()
-      .placeBinding(new Binding<String>().expression("t.toLowerCase()"));
-    
     process.newActivity()
-      .activityType(go)
-      .id("go");
-    
-    process.newActivity()
-      .activityType(Wait.INSTANCE)
-      .id("wait1");
-    
-    process.newActivity()
-      .activityType(Wait.INSTANCE)
-      .id("wait2");
-    
+      .activityType(StartEvent.INSTANCE)
+      .id("start");
+
     process.newTransition()
-      .from("wait1")
-      .to("wait2");
+      .from("start").to("scriptBefore");
     
+    process.newActivity()
+      .activityType(new ScriptTask())
+      .id("scriptBefore");
+
+    process.newTransition()
+      .from("scriptBefore").to("sub");
+
+    ActivityBuilder embeddedSubprocess = process.newActivity()
+      .activityType(EmbeddedSubprocess.INSTANCE)
+      .id("sub");
+
+    embeddedSubprocess.newActivity()
+      .activityType(StartEvent.INSTANCE)
+      .id("subStart");
+
+    embeddedSubprocess.newTransition()
+      .from("subStart").to("subScript");
+
+    embeddedSubprocess.newActivity()
+      .activityType(new ScriptTask())
+      .id("subScript");
+
+    embeddedSubprocess.newTransition()
+      .from("subScript").to("subTask");
+
+    embeddedSubprocess.newActivity()
+      .activityType(new UserTask())
+      .id("subTask");
+
+    embeddedSubprocess.newTransition()
+      .from("subTask").to("subEnd");
+
+    embeddedSubprocess.newActivity()
+      .activityType(EndEvent.INSTANCE)
+      .id("subEnd");
+
+    process.newTransition()
+      .from("sub").to("scriptAfter");
+
+    process.newActivity()
+      .activityType(new ScriptTask())
+      .id("scriptAfter");
+
+    process.newTransition()
+      .from("scriptAfter").to("end");
+
+    process.newActivity()
+      .activityType(EndEvent.INSTANCE)
+      .id("end");
+
     Object processDefinitionId = processEngine
         .deployProcessDefinition(process)
         .checkNoErrorsAndNoWarnings()
         .getProcessDefinitionId();
       
-    List<String> places = new ArrayList<>();
-    
     ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
-      .processDefinitionId(processDefinitionId)
-      .transientContext("places", places)
-      .variableValue("t", "San Fransisco"));
+      .processDefinitionId(processDefinitionId));
+    
+    assertActivityInstancesOpen(processInstance, "sub", "subTask");
 
-    List<String> expectedPlaces = new ArrayList<>();
-    expectedPlaces.add("san fransisco"); // check if the activity is being executed
-    assertEquals(expectedPlaces, places);
+    ActivityInstance subTaskInstance = findActivityInstanceOpen(processInstance, "subTask");
     
-    assertNotNull(processInstance.getId());
-    assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
-  
-    ActivityInstance wait1Instance = TestHelper.findActivityInstanceOpen(processInstance, "wait1");
-    
-    processEngine.signal(new SignalRequest()
-      .activityInstanceId(wait1Instance.getId())
+    processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
+      .activityInstanceId(subTaskInstance.getId())
     );
   }
   
@@ -125,6 +150,11 @@ public class MongoProcessEngineTest {
     @Override
     public void validate(ActivityDefinition activityDefinition, Validator validator) {
       activityDefinition.initializeBindings(validator);
+    }
+
+    @Override
+    public String getTypeId() {
+      return "testGo";
     }
   }
 }

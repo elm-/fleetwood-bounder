@@ -63,5 +63,10 @@ public class RegisterActivityTypeSimpleExample {
     public void start(ControllableActivityInstance activityInstance) {
       message = "Leroy was here";
     }
+
+    @Override
+    public String getTypeId() {
+      return "myCustomType";
+    }
   }
 }

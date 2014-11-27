@@ -14,7 +14,6 @@
  */
 package com.heisenberg.impl.definition;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.joda.time.LocalDateTime;

@@ -14,6 +14,10 @@
  */
 package com.heisenberg.api.util;
 
+import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.script.ScriptRunner;
+
+
 
 
 /**
@@ -24,4 +28,8 @@ public interface Validator {
   void addError(String message, Object... messageArgs);
 
   void addWarning(String message, Object... messageArgs);
+  
+  ScriptRunner getScriptRunner();
+  
+  Json getJson();
 }
