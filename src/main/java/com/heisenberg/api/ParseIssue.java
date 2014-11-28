@@ -29,6 +29,9 @@ public class ParseIssue {
   Long line;
   Long column;
 
+  public ParseIssue() {
+  }
+  
   public ParseIssue(IssueType type, String path, Long line, Long column, String message, Object[] messageArgs) {
     this.type = type;
     this.message = message;

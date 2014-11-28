@@ -3,10 +3,12 @@
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%date{ss.SSS} %-3level | %msg%n</pattern>
+      <pattern>%date{ss.SSS} %-5level %-7logger{0} | %msg%n</pattern>
     </encoder>
     <target>System.err</target>
   </appender>
+  
+  <logger name="org.eclipse.jetty" level="ERROR" />
   
   <root level="DEBUG">
     <appender-ref ref="CONSOLE"/>

@@ -86,7 +86,7 @@ public class Json {
        OperationRemoveFirstUpdate.class
        );
     
-    SimpleModule module = new SimpleModule("heisenbergModule", new Version(1, 0, 0, null, null, null));
+    SimpleModule module = new SimpleModule("dateModule", new Version(1, 0, 0, null, null, null));
     module.addSerializer(new LocalDateTimeSerializer());
     module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
     this.objectMapper.registerModule(module);

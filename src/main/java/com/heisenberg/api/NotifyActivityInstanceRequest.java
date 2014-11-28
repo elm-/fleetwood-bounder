@@ -21,7 +21,7 @@ package com.heisenberg.api;
  */
 public class NotifyActivityInstanceRequest extends VariableRequest {
 
-  protected Object activityInstanceId;
+  public Object activityInstanceId;
   
   public NotifyActivityInstanceRequest activityInstanceId(Object activityInstanceId) {
     this.activityInstanceId = activityInstanceId;

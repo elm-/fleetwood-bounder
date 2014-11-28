@@ -20,6 +20,8 @@ import static com.heisenberg.test.TestHelper.findActivityInstanceOpen;
 import java.util.List;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.NotifyActivityInstanceRequest;
 import com.heisenberg.api.ProcessEngine;
@@ -39,6 +41,7 @@ import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
 
 
@@ -47,12 +50,48 @@ import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
  */
 public class MongoProcessEngineTest {
   
+  public static final Logger log = LoggerFactory.getLogger(MongoProcessEngineTest.class);
+  
   @Test
   public void testMongoProcessEngine() {
     ProcessEngine processEngine = new MongoConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     
+    ProcessBuilder process = createProcess(processEngine);
+
+    Object processDefinitionId = processEngine
+        .deployProcessDefinition(process)
+        .checkNoErrorsAndNoWarnings()
+        .getProcessDefinitionId();
+      
+    ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
+      .processDefinitionId(processDefinitionId));
+    
+    assertActivityInstancesOpen(processInstance, "sub", "subTask");
+
+    ActivityInstance subTaskInstance = findActivityInstanceOpen(processInstance, "subTask");
+    
+    processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
+      .activityInstanceId(subTaskInstance.getId())
+    );
+  }
+
+  @Test
+  public void testPrintProcessDefinitionJson() {
+    ProcessEngine processEngine = new MongoConfiguration()
+      .server("localhost", 27017)
+      .buildProcessEngine();
+    
+    ProcessBuilder process = createProcess(processEngine);
+    
+    String processJsonPretty = ((ProcessEngineImpl)processEngine).json.objectToJsonStringPretty(process);
+
+    log.debug(processJsonPretty);
+  }
+
+
+  public static ProcessBuilder createProcess(ProcessEngine processEngine) {
     ProcessBuilder process = processEngine.newProcess();
   
     process.newActivity()
@@ -111,22 +150,7 @@ public class MongoProcessEngineTest {
     process.newActivity()
       .activityType(EndEvent.INSTANCE)
       .id("end");
-
-    Object processDefinitionId = processEngine
-        .deployProcessDefinition(process)
-        .checkNoErrorsAndNoWarnings()
-        .getProcessDefinitionId();
-      
-    ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
-      .processDefinitionId(processDefinitionId));
-    
-    assertActivityInstancesOpen(processInstance, "sub", "subTask");
-
-    ActivityInstance subTaskInstance = findActivityInstanceOpen(processInstance, "subTask");
-    
-    processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
-      .activityInstanceId(subTaskInstance.getId())
-    );
+    return process;
   }
   
   public static class Go extends AbstractActivityType {

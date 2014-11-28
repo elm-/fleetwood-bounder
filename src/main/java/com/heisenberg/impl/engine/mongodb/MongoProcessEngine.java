@@ -21,8 +21,13 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.heisenberg.api.NotifyActivityInstanceRequest;
 import com.heisenberg.api.Page;
+import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
@@ -50,8 +55,8 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   
   protected DB db;
 
-  protected MongoProcessDefinitions processDefinitionMapper;
-  protected MongoProcessInstances processInstanceMapper;
+  protected MongoProcessDefinitions processDefinitions;
+  protected MongoProcessInstances processInstances;
   
   protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(json);
   
@@ -61,9 +66,15 @@ public class MongoProcessEngine extends ProcessEngineImpl {
             mongoDbConfiguration.credentials, 
             mongoDbConfiguration.optionBuilder.build());
     initializeDefaults();
+    
+    SimpleModule module = new SimpleModule("dateModule", new Version(1, 0, 0, null, null, null));
+    module.addSerializer(new ObjectIdSerializer());
+    module.addDeserializer(ObjectId.class, new ObjectIdDeserializer());
+    json.objectMapper.registerModule(module);
+
     this.db = mongoClient.getDB(mongoDbConfiguration.databaseName);
-    this.processDefinitionMapper = new MongoProcessDefinitions(this, db, mongoDbConfiguration);
-    this.processInstanceMapper = new MongoProcessInstances(this, db, mongoDbConfiguration);
+    this.processDefinitions = new MongoProcessDefinitions(this, db, mongoDbConfiguration);
+    this.processInstances = new MongoProcessInstances(this, db, mongoDbConfiguration);
     this.updateConverters = new MongoUpdateConverters(json);
   }
   
@@ -88,18 +99,34 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
+  public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
+    if (startProcessInstanceRequest.processDefinitionId instanceof String) {
+      startProcessInstanceRequest.processDefinitionId = new ObjectId((String)startProcessInstanceRequest.processDefinitionId);
+    }
+    return super.startProcessInstance(startProcessInstanceRequest);
+  }
+
+  @Override
+  public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
+    if (notifyActivityInstanceRequest.activityInstanceId instanceof String) {
+      notifyActivityInstanceRequest.activityInstanceId = new ObjectId((String)notifyActivityInstanceRequest.activityInstanceId);
+    }
+    return super.notifyActivityInstance(notifyActivityInstanceRequest);
+  }
+
+  @Override
   protected void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    processDefinitionMapper.insertProcessDefinition(processDefinition);
+    processDefinitions.insertProcessDefinition(processDefinition);
   }
 
   @Override
   protected ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId) {
-    return processDefinitionMapper.findProcessDefinitionById(processDefinitionId);
+    return processDefinitions.findProcessDefinitionById(processDefinitionId);
   }
 
   @Override
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
-    processInstanceMapper.insertProcessInstance(processInstance);
+    processInstances.insertProcessInstance(processInstance);
   }
 
   @Override
@@ -115,7 +142,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
           dbUpdates.add(dbUpdate);
         }
       }
-      processInstanceMapper.flushUpdates(processInstance.id, dbUpdates);
+      processInstances.flushUpdates(processInstance.id, dbUpdates);
       // After the first and all subsequent flushes, we need to capture the updates so we initialize the collection
       // @see ProcessInstanceImpl.updates
       processInstance.setUpdates(new ArrayList<Update>());
@@ -148,14 +175,14 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   @Override
   public void flushAndUnlock(ProcessInstanceImpl processInstance) {
     processInstance.lock = null;
-    BasicDBObject dbProcessInstance = processInstanceMapper.writeProcessInstance(processInstance);
-    processInstanceMapper.saveProcessInstance(dbProcessInstance);
+    BasicDBObject dbProcessInstance = processInstances.writeProcessInstance(processInstance);
+    processInstances.saveProcessInstance(dbProcessInstance);
     processInstance.setUpdates(new ArrayList<Update>());
   }
 
   @Override
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
-    return processInstanceMapper.lockProcessInstanceByActivityInstanceId(activityInstanceId);
+    return processInstances.lockProcessInstanceByActivityInstanceId(activityInstanceId);
   }
 
   @Override

@@ -28,9 +28,6 @@ import com.heisenberg.api.definition.ProcessDefinition;
  */
 public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements ProcessBuilder, ProcessDefinition {
 
-  /** The globally unique identifier for this process definition. */
-  public Object id;
-  
   /** optional time when the process was deployed.
    * This field just serves as a read/write property and is not used during process execution. */
   public LocalDateTime deployedTime;
@@ -138,14 +135,6 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
     return new ProcessDefinitionPath();
   }
 
-  public Object getId() {
-    return id;
-  }
-  
-  public void setId(Object id) {
-    this.id = id;
-  }
-  
   public String toString() {
     return id!=null ? id.toString() : Integer.toString(System.identityHashCode(this));
   }

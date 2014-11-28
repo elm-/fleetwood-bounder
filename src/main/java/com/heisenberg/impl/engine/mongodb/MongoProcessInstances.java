@@ -95,7 +95,7 @@ public class MongoProcessInstances extends MongoCollection {
   public void saveProcessInstance(BasicDBObject dbProcessInstance) {
     save(dbProcessInstance, writeConcernStoreProcessInstance);
   }
-
+  
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
     DBObject query = BasicDBObjectBuilder.start()
             .add(fields.activityInstances+"."+fields._id, activityInstanceId)
@@ -112,6 +112,9 @@ public class MongoProcessInstances extends MongoCollection {
           .pop()
           .get();
     BasicDBObject dbProcessInstance = findAndModify(query, update);
+    if (dbProcessInstance==null) {
+      throw new RuntimeException("Couldn't lock process instance with "+query);
+    }
     return readProcessInstance(dbProcessInstance);
   }
 

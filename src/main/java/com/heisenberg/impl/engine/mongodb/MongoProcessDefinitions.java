@@ -155,7 +155,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       for (TransitionDefinitionImpl transition: scope.transitionDefinitions) {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbTransition = new BasicDBObject();
-        writeObject(dbTransition, fields._id, transition.id);
+        writeObjectOpt(dbTransition, fields._id, transition.id);
         writeObjectOpt(dbTransition, fields.from, transition.fromId!=null ? transition.fromId : (transition.from!=null ? transition.from.id : null));
         writeObjectOpt(dbTransition, fields.to, transition.toId!=null ? transition.toId : (transition.to!=null ? transition.to.id : null));
         writeListElementOpt(dbParentScope, fields.transitionDefinitions, dbTransition);

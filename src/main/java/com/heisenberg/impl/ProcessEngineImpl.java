@@ -249,7 +249,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   @Override
   public DeployProcessDefinitionResponse deployProcessDefinition(ProcessBuilder processBuilder) {
-    Exceptions.checkNotNull(processBuilder, "processDefinition");
+    Exceptions.checkNotNull(processBuilder, "processBuilder");
 
     DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
 
@@ -381,8 +381,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   }
 
   @Override
-  public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest signalRequest) {
-    Object activityInstanceId = signalRequest.getActivityInstanceId();
+  public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
+    Object activityInstanceId = notifyActivityInstanceRequest.getActivityInstanceId();
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
     // TODO set variables and context
     ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
