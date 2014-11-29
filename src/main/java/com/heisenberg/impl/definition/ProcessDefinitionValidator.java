@@ -23,15 +23,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.heisenberg.api.ParseIssue.IssueType;
 import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.task.TaskService;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.json.Json;
-import com.heisenberg.impl.script.ScriptRunner;
+import com.heisenberg.impl.script.ScriptService;
 
 
 /** Validates and wires process definition after it's been built by either the builder api or json deserialization.
@@ -39,6 +43,8 @@ import com.heisenberg.impl.script.ScriptRunner;
  * @author Walter White
  */
 public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Validator {
+  
+  public static final Logger log = LoggerFactory.getLogger(ProcessDefinitionValidator.class);
   
   static final Map<Class<?>, String> typeNames = new HashMap<>();
   static {
@@ -118,6 +124,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         try {
           activity.activityType = processEngine.json.jsonMapToObject(activity.activityTypeJson, ActivityType.class);
         } catch (Exception e) {
+          log.debug("Json exception", e);
           addError("Activity '%s' has invalid json value: %s", activity.id, activity.activityTypeJson);
         }
       }
@@ -125,7 +132,8 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       try {
         activity.activityTypeJson = processEngine.json.objectToJsonMap(activity.activityType);
       } catch (Exception e) {
-        addWarning("Activity '%s' couldn't be serialized to json", activity.id);
+        log.debug("Json exception", e);
+        addWarning("Activity '%s' couldn't be serialized to json: "+e.getMessage(), activity.id);
       }
     }
     if (activity.activityType==null) {
@@ -164,7 +172,8 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       try {
         variable.dataTypeJson = processEngine.json.objectToJsonMap(variable.dataType);
       } catch (Exception e) {
-        addWarning("Data type '%s' couldn't be serialized to json");
+        log.debug("Json exception", e);
+        addWarning("Data type '%s' couldn't be serialized to json: "+e.getMessage());
       }
     }
     if (variable.dataType!=null) {
@@ -260,8 +269,13 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   }
 
   @Override
-  public ScriptRunner getScriptRunner() {
-    return processEngine.scriptRunner;
+  public ScriptService getScriptService() {
+    return processEngine.scriptService;
+  }
+
+  @Override
+  public TaskService getTaskService() {
+    return processEngine.taskService;
   }
 
   @Override

@@ -41,7 +41,10 @@ import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.VariableRequest;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
+import com.heisenberg.api.activities.bpmn.EmptyServiceTask;
 import com.heisenberg.api.activities.bpmn.EndEvent;
+import com.heisenberg.api.activities.bpmn.HttpServiceTask;
+import com.heisenberg.api.activities.bpmn.JavaServiceTask;
 import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
@@ -49,27 +52,31 @@ import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.task.TaskService;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.api.util.Plugin;
+import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.engine.memory.MemoryTaskService;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.heisenberg.impl.json.Json;
-import com.heisenberg.impl.script.ScriptRunnerImpl;
+import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.impl.script.ScriptServiceImpl;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Reflection;
 
 /**
  * @author Walter White
  */
-public abstract class ProcessEngineImpl implements ProcessEngine {
+public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator {
 
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -86,31 +93,33 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public Map<Class<?>,DataTypeDescriptor> dataTypeDescriptorsByClass;
   
   public Executor executor;
-  public Json json;
   public ProcessDefinitionCache processDefinitionCache;
-  public ScriptRunnerImpl scriptRunner;
+  public ScriptService scriptService;
+  public Json json;
+  public TaskService taskService;
   
   protected ProcessEngineImpl() {
   }
 
   protected void initializeDefaults() {
-    initializeDefaultId();
-    initializeDefaultExecutor();
-    initializeDefaultProcessDefinitionCache();
-    initializeDefaultJson();
-    initializeDefaultScriptRunner();
+    setIdDefault();
+    setProcessDefinitionCacheDefault();
+    setJsonServiceDefault();
+    setScriptServiceDefault();
+    setExecutorServiceDefault();
+    setTaskServiceDefault();
     initializeDefaultPluggableImplementations();
     initializeDefaultPlugins();
   }
 
-  protected void initializeDefaultProcessDefinitionCache() {
+  protected void setProcessDefinitionCacheDefault() {
     this.processDefinitionCache = new SimpleProcessDefinitionCache();
   }
 
   /** The globally unique id for this process engine used for locking 
    * process instances and jobs.  
    * This default implementation initializes the id of this process engine to "ipaddress:pid" */
-  protected void initializeDefaultId() {
+  protected void setIdDefault() {
     try {
       id = InetAddress.getLocalHost().getHostAddress();
       String processName = ManagementFactory.getRuntimeMXBean().getName();
@@ -139,9 +148,12 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     registerDataType(TextType.INSTANCE);
     registerActivityType(StartEvent.INSTANCE);
     registerActivityType(EndEvent.INSTANCE);
+    registerActivityType(EmptyServiceTask.INSTANCE);
+    registerActivityType(EmbeddedSubprocess.INSTANCE);
     registerActivityType(new ScriptTask());
     registerActivityType(new UserTask());
-    registerActivityType(EmbeddedSubprocess.INSTANCE);
+    registerActivityType(new JavaServiceTask());
+    registerActivityType(new HttpServiceTask());
   }
 
   public ProcessEngineImpl registerJavaBeanType(Class<?> javaBeanClass) {
@@ -166,7 +178,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     return this;
   }
 
-  PluginDescriptor registerPlugin(Plugin pluginObject) {
+  void registerPlugin(Plugin pluginObject) {
     if (pluginObject==null) {
       throw new RuntimeException("Can't register null as a plugin");
     }
@@ -176,29 +188,29 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     }
     Class<?> pluginClass = pluginObject.getClass();
     if (DataType.class.isAssignableFrom(pluginClass)) {
-      return registerDataType((DataType) pluginObject);
+      registerDataType((DataType) pluginObject);
     } else if (ActivityType.class.isAssignableFrom(pluginClass)) {
-      return registerActivityType((ActivityType) pluginObject);
+      registerActivityType((ActivityType) pluginObject);
     } else {
       throw new RuntimeException("Unknown plugin type: "+pluginClass.getName());
     }
   }
 
-  protected PluginDescriptor registerActivityType(ActivityType pluginObject) {
+  public ProcessEngineImpl registerActivityType(ActivityType pluginObject) {
     json.registerSubtype(pluginObject.getClass());
     ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor(this, pluginObject);
     registerActivityTypeDescriptor(activityTypeDescriptor);
-    return activityTypeDescriptor;
+    return this;
   }
 
-  protected PluginDescriptor registerDataType(DataType pluginObject) {
+  public ProcessEngineImpl registerDataType(DataType pluginObject) {
     json.registerSubtype(pluginObject.getClass());
     DataTypeDescriptor dataTypeDescriptor = new DataTypeDescriptor(this, pluginObject);
     registerDataTypeDescriptor(dataTypeDescriptor);
-    return dataTypeDescriptor;
+    return this;
   }
   
-  public void registerDataTypeDescriptor(DataTypeDescriptor dataTypeDescriptor) {
+  public ProcessEngineImpl registerDataTypeDescriptor(DataTypeDescriptor dataTypeDescriptor) {
     Class<?> dataTypeClass = dataTypeDescriptor.pluginClass;
     String dataTypeTypeId = dataTypeDescriptor.typeId;
     if (!dataTypeDescriptorsByClass.containsKey(dataTypeClass)) {
@@ -209,6 +221,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
       dataTypeDescriptorsByTypeId.put(dataTypeTypeId, dataTypeDescriptor);
       dataTypeDescriptorsByClass.put(dataTypeClass, dataTypeDescriptor);
     } 
+    return this;
   }
 
   public void registerActivityTypeDescriptor(ActivityTypeDescriptor activityTypeDescriptor) {
@@ -224,17 +237,21 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     } 
   }
 
-  protected void initializeDefaultExecutor() {
+  protected void setExecutorServiceDefault() {
     // TODO apply these tips: http://java.dzone.com/articles/executorservice-10-tips-and
     this.executor = new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  protected void initializeDefaultJson() {
+  protected void setJsonServiceDefault() {
     this.json = new Json(this);
   }
   
-  protected void initializeDefaultScriptRunner() {
-    this.scriptRunner = new ScriptRunnerImpl();
+  protected void setScriptServiceDefault() {
+    this.scriptService = new ScriptServiceImpl();
+  }
+
+  protected void setTaskServiceDefault() {
+    this.taskService = new MemoryTaskService();
   }
 
   /// Process Definition Builder 
@@ -250,6 +267,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   @Override
   public DeployProcessDefinitionResponse deployProcessDefinition(ProcessBuilder processBuilder) {
     Exceptions.checkNotNull(processBuilder, "processBuilder");
+    log.debug("Deploying process");
 
     DeployProcessDefinitionResponse response = new DeployProcessDefinitionResponse();
 
@@ -257,14 +275,13 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     ProcessDefinitionValidator validator = new ProcessDefinitionValidator(this);
     processDefinition.visit(validator);
     ParseIssues issues = validator.getIssues();
+    response.setIssues(issues);
     
     if (!issues.hasErrors()) {
       processDefinition.id = createProcessDefinitionId(processDefinition);
       response.setProcessDefinitionId(processDefinition.id); 
       insertProcessDefinition(processDefinition);
       processDefinitionCache.put(processDefinition);
-    } else {
-      response.setIssues(issues);
     }
     
     return response;
@@ -280,7 +297,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
     Object processDefinitionId = startProcessInstanceRequest.processDefinitionId;
-    Exceptions.checkNotNull(processDefinitionId, "processDefinitionId");
+    Exceptions.checkNotNullParameter(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
     if (processDefinition==null) {
       throw new RuntimeException("Could not find process definition "+processDefinitionId);
@@ -433,12 +450,20 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
     this.json = json;
   }
   
-  public ScriptRunnerImpl getScriptRunner() {
-    return scriptRunner;
+  public ScriptService getScriptService() {
+    return scriptService;
   }
   
-  public void setScriptRunner(ScriptRunnerImpl scriptRunner) {
-    this.scriptRunner = scriptRunner;
+  public void setScriptService(ScriptServiceImpl scriptRunner) {
+    this.scriptService = scriptRunner;
+  }
+  
+  public TaskService getTaskService() {
+    return taskService;
+  }
+  
+  public void setTaskService(TaskService taskService) {
+    this.taskService = taskService;
   }
 
   public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
@@ -462,4 +487,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine {
   public DataTypeDescriptor findDataTypeDescriptorByTypeId(String activityTypeTypeId) {
     return dataTypeDescriptorsByTypeId.get(activityTypeTypeId);
   }
+  
+  
 }

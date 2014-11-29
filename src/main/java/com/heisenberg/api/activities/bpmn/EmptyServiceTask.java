@@ -12,15 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.engine.jdbc;
+package com.heisenberg.api.activities.bpmn;
+
+import com.heisenberg.api.activities.ControllableActivityInstance;
 
 
 
-/**
+/** Invokes another process.
+ * 
  * @author Walter White
  */
-public class JdbcProcessEngine /* extends ProcessEngineImpl */ {
+public class EmptyServiceTask extends ServiceTask {
+  
+  public static final EmptyServiceTask INSTANCE = new EmptyServiceTask();
 
-  // TODO
+  @Override
+  public String getTypeId() {
+    return "emptyServiceTask";
+  }
 
+  @Override
+  public void invokeService(ControllableActivityInstance activityInstance) {
+  }
 }

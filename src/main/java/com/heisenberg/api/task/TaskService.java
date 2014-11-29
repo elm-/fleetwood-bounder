@@ -12,22 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.script;
-
-import com.heisenberg.api.instance.ScopeInstance;
-
+package com.heisenberg.api.task;
 
 
 /**
  * @author Walter White
  */
-public interface ScriptRunner {
-  
-  /** default language is JavaScript */
-  Script compile(String scriptText);
-  
-  Script compile(String scriptText, String language);
-  
-  ScriptResult evaluateScript(ScopeInstance scopeInstance, Script script);
-  
+public interface TaskService {
+
+  Task newTask();
+
+  void save(Task task);
+
 }

@@ -28,7 +28,7 @@ import com.heisenberg.impl.instance.ScopeInstanceImpl;
 /**
  * @author Walter White
  */
-public class ScriptRunnerImpl implements ScriptRunner {
+public class ScriptServiceImpl implements ScriptService {
 
   public static final String JAVASCRIPT = "JavaScript";
 

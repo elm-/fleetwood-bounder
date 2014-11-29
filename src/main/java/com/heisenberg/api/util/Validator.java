@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.util;
 
-import com.heisenberg.impl.json.Json;
-import com.heisenberg.impl.script.ScriptRunner;
 
 
 
@@ -23,13 +21,10 @@ import com.heisenberg.impl.script.ScriptRunner;
 /**
  * @author Walter White
  */
-public interface Validator {
+public interface Validator extends ServiceLocator {
 
   void addError(String message, Object... messageArgs);
 
   void addWarning(String message, Object... messageArgs);
   
-  ScriptRunner getScriptRunner();
-  
-  Json getJson();
 }

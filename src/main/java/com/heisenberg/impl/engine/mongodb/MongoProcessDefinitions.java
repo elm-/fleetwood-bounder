@@ -21,6 +21,7 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.task.TaskService;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -29,7 +30,7 @@ import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.json.Json;
-import com.heisenberg.impl.script.ScriptRunner;
+import com.heisenberg.impl.script.ScriptService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -201,13 +202,18 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   }
   
   @Override
-  public ScriptRunner getScriptRunner() {
-    return processEngine.getScriptRunner();
+  public ScriptService getScriptService() {
+    return processEngine.getScriptService();
   }
 
   @Override
   public Json getJson() {
     return processEngine.getJson();
+  }
+
+  @Override
+  public TaskService getTaskService() {
+    return processEngine.taskService;
   }
 
   public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {

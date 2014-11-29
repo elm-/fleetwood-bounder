@@ -1,8 +1,7 @@
 # Tasks
 
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
-- [ ] http://blog.denevell.org/java-jersey-jetty-rest-gradle-tutorial-setup-quick.html
-      http://stackoverflow.com/questions/18872931/custom-objectmapper-with-jersey-2-2-and-jackson-2-1
+- [ ] Test if the script engine is thread safe. CompiledScript seems to be tied to a ScriptEngine. It should be investigated if concurrent script execution can overwrite each other's context.
 
 # In progress
 
@@ -46,7 +45,8 @@
 - [ ] bpmn serialization and parsing
 - [ ] bpmn process logic coverage
 - [ ] mongodb persistence
-- [ ] jdbc persistence
+- [ ] cassandra persistence ?
+- [ ] pluggable task service
 - [ ] type declarations in process definition 
 - [ ] split up into multiple modules
   - [ ] one for the api

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.heisenberg.impl.ActivityTypeDescriptor;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 /**
@@ -54,10 +55,13 @@ public class ActivityTypeIdResolver implements TypeIdResolver {
 
   @Override
   public String idFromValueAndType(Object obj, Class< ? > clazz) {
-    return processEngine
+    ActivityTypeDescriptor activityTypeDescriptor = processEngine
       .activityTypeDescriptorsByClass
-      .get(clazz)
-      .getTypeId();
+      .get(clazz);
+    if (activityTypeDescriptor==null) {
+      throw new RuntimeException("No activity type descriptor for "+clazz);
+    }
+    return activityTypeDescriptor.getTypeId();
   }
 
   @Override

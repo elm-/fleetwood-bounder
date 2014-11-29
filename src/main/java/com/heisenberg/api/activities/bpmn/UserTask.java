@@ -14,15 +14,27 @@
  */
 package com.heisenberg.api.activities.bpmn;
 
+import java.util.List;
+
 import com.heisenberg.api.activities.AbstractActivityType;
+import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.task.Task;
+import com.heisenberg.api.task.TaskService;
 
 
 /**
  * @author Walter White
  */
 public class UserTask extends AbstractActivityType {
-
+  
+  @ConfigurationField("Name")
+  Binding<String> name;
+  
+  @ConfigurationField("Candidates")
+  List<Binding<String>> candidates;
+  
   @Override
   public String getTypeId() {
     return "userTask";
@@ -35,5 +47,36 @@ public class UserTask extends AbstractActivityType {
   
   @Override
   public void start(ControllableActivityInstance activityInstance) {
+    TaskService taskService = activityInstance.getTaskService();
+    
+    String taskName = activityInstance.getValue(name);
+    if (taskName==null) {
+      taskName = activityInstance.getActivityDefinition().getId().toString();
+    }
+    List<String> taskCandidateIds = activityInstance.getValueList(candidates);
+    String assigneeId = (taskCandidateIds!=null && taskCandidateIds.size()==1 ? taskCandidateIds.get(0) : null);
+    
+    Task task = taskService.newTask()
+      .name(taskName)
+      .assigneeId(assigneeId)
+      .candidateIds(taskCandidateIds)
+      .activityInstance(activityInstance);
+    
+    taskService.save(task);
+  }
+  
+  public UserTask nameValue(String nameValue) {
+    this.name = new Binding<String>().value(nameValue);
+    return this;
+  }
+
+  public UserTask nameVariableBinding(Object nameVariableDefinitionId) {
+    this.name = new Binding<String>().variableDefinitionId(nameVariableDefinitionId);
+    return this;
+  }
+
+  public UserTask nameExpressionBinding(String nameExpressionText) {
+    this.name = new Binding<String>().expression(nameExpressionText);
+    return this;
   }
 }

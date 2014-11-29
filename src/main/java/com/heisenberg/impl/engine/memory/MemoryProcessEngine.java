@@ -56,6 +56,11 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     processInstances = Collections.synchronizedMap(new HashMap<Object, ProcessInstanceImpl>());
     lockedProcessInstances = Collections.synchronizedSet(new HashSet<Object>());
   }
+  
+  @Override
+  public MemoryTaskService getTaskService() {
+    return (MemoryTaskService) taskService;
+  }
 
   @Override
   protected void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {

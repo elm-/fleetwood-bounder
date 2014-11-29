@@ -46,24 +46,24 @@ public class Binding<T> {
   
   @SuppressWarnings("unchecked")
   public T getValue(ControllableActivityInstance activityInstance) {
-    if (processEngine==null) {
+    if (this.processEngine==null) {
       String typeName = ((ActivityInstanceImpl)activityInstance).activityDefinition.activityType.getClass().getName();
       throw new RuntimeException("Please ensure that in the "+typeName+".validate, you call activityDefinition.initializeBindings(Validator)");
     }
-    if (value!=null) {
-      return (T) value;
+    if (this.value!=null) {
+      return (T) this.value;
     }
-    if (variableDefinitionId!=null) {
-      return (T) activityInstance.getVariableValueRecursive(variableDefinitionId).getValue();
+    if (this.variableDefinitionId!=null) {
+      return (T) activityInstance.getVariableValueRecursive(this.variableDefinitionId).getValue();
     }
-    if (expressionScript!=null) {
-      ScriptResult scriptResult = activityInstance.getScriptRunner().evaluateScript(activityInstance, expressionScript);
+    if (this.expressionScript!=null) {
+      ScriptResult scriptResult = activityInstance.getScriptService().evaluateScript(activityInstance, this.expressionScript);
       Object result = scriptResult.getResult();
-      return (T) dataType.convertScriptValueToInternal(result, expressionScript.language);
+      return (T) this.dataType.convertScriptValueToInternal(result, this.expressionScript.language);
     }
     return null;
   }
-  
+
   public Binding<T> value(T value) {
     this.value = value;
     return this;
@@ -74,7 +74,7 @@ public class Binding<T> {
     return this;
   }
   
-  public Binding<T> variableName(Object variableDefinitionId) {
+  public Binding<T> variableDefinitionId(Object variableDefinitionId) {
     this.variableDefinitionId = variableDefinitionId;
     return this;
   }
@@ -100,7 +100,7 @@ public class Binding<T> {
       }
     } else if (expression!=null) {
       try {
-        expressionScript = processEngine.getScriptRunner().compile(expression, expressionLanguage);
+        expressionScript = processEngine.getScriptService().compile(expression, expressionLanguage);
       } catch (RuntimeException e) {
         Throwable cause = e.getCause();
         if (cause==null) {

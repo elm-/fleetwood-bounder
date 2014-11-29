@@ -87,6 +87,9 @@ public class PluginConfigurationField {
         // auto register java bean types that are used as configurations inside activity types.
         processEngine.registerJavaBeanType(clazz);
         DataTypeDescriptor dataTypeDescriptor = processEngine.findDataTypeDescriptorByClass(clazz);
+        if (dataTypeDescriptor==null) {
+          throw new RuntimeException("Couldn't register data type "+clazz);
+        }
         return dataTypeDescriptor.dataType;
       }
     }

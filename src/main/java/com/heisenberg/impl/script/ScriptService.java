@@ -12,20 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities;
+package com.heisenberg.impl.script;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import com.heisenberg.api.instance.ScopeInstance;
+
 
 
 /**
  * @author Walter White
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigurationField {
-
-  /** the label used in the process builder */
-  String value();
+public interface ScriptService {
   
-  boolean required() default false;
+  /** default language is JavaScript */
+  Script compile(String scriptText);
+  
+  Script compile(String scriptText, String language);
+  
+  ScriptResult evaluateScript(ScopeInstance scopeInstance, Script script);
+  
 }

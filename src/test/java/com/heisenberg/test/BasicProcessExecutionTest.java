@@ -25,6 +25,7 @@ import com.heisenberg.api.NotifyActivityInstanceRequest;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
@@ -57,11 +58,11 @@ public class BasicProcessExecutionTest {
       .id("go");
     
     processBuilder.newActivity()
-      .activityType(Wait.INSTANCE)
+      .activityType(new UserTask())
       .id("wait1");
     
     processBuilder.newActivity()
-      .activityType(Wait.INSTANCE)
+      .activityType(new UserTask())
       .id("wait2");
     
     processBuilder.newTransition()

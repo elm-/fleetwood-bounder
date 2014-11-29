@@ -106,7 +106,7 @@ public class ScriptBindings implements Bindings {
 
   static final Map<String, List<String>> NAME_TO_IGNORE = new HashMap<>();
   static {
-    NAME_TO_IGNORE.put(ScriptRunnerImpl.JAVASCRIPT, Arrays.asList("context", "print", "println"));
+    NAME_TO_IGNORE.put(ScriptServiceImpl.JAVASCRIPT, Arrays.asList("context", "print", "println"));
   }
   protected boolean isIgnored(String scriptVariableName) {
     List<String> namesToIgnore = NAME_TO_IGNORE.get(language);

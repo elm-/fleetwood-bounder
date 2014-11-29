@@ -12,20 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities;
+package com.heisenberg.api.util;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import com.heisenberg.api.task.TaskService;
+import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.script.ScriptService;
 
 
 /**
  * @author Walter White
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigurationField {
+public interface ServiceLocator {
 
-  /** the label used in the process builder */
-  String value();
-  
-  boolean required() default false;
+  Json getJson();
+  ScriptService getScriptService();
+  TaskService getTaskService();
 }

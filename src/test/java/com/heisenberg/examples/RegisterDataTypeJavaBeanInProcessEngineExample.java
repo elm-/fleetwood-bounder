@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
@@ -51,7 +52,7 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
       .dataTypeJavaBean(CustomMoney.class);
     
     process.newActivity()
-      .activityType(Wait.INSTANCE)
+      .activityType(new UserTask())
       .id("w");
 
     Object pdid = processEngine
@@ -82,7 +83,7 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
       .dataTypeJavaBean(CustomMoney.class);
     
     process.newActivity()
-      .activityType(Wait.INSTANCE)
+      .activityType(new UserTask())
       .id("w");
 
     Object pdid = processEngine

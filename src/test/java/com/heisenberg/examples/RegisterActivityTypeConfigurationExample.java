@@ -47,7 +47,6 @@ public class RegisterActivityTypeConfigurationExample {
   @Test
   public void testSpiActivityPluggability() throws Exception {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
-      .registerJavaBeanType(Money.class)
       .registerActivityType(MyCustomType.class);
     
     Json json = processEngine.json;
@@ -62,7 +61,7 @@ public class RegisterActivityTypeConfigurationExample {
       .id("a")
       .activityType(new MyCustomType()
         .functionName("functOne")
-        .parameterOne(new Binding<String>().variableName("v"))
+        .parameterOne(new Binding<String>().variableDefinitionId("v"))
       );
     processBuilder.newVariable()
       .id("v")
@@ -101,15 +100,10 @@ public class RegisterActivityTypeConfigurationExample {
     @ConfigurationField("Parameter one")
     Binding<String> parameterOne;
 
-// TODO turn this into Binding<List<Money>> otherwise moneyBindings.getValue(activityInstance) doesn't work
-//    @ConfigurationField("Billable bills")
-//    List<Binding<Money>> moneyBindings;
-    
     @Override
     public void start(ControllableActivityInstance activityInstance) {
       log.debug("Function name: "+functionName);
       log.debug("Parameter one: "+parameterOne.getValue(activityInstance));
-      // log.debug("Money bindings: "+moneyBindings.getValue(activityInstance));
     }
     
     public MyCustomType functionName(String functionName) {
@@ -126,10 +120,5 @@ public class RegisterActivityTypeConfigurationExample {
     public String getTypeId() {
       return "myCustomType";
     }
-    
-//    public MyCustomType moneyBindings(List<Binding<Money>> moneyBindings) {
-//      this.moneyBindings = moneyBindings;
-//      return this;
-//    }
   }
 }

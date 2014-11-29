@@ -14,6 +14,9 @@
  */
 package com.heisenberg.impl.instance;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -21,16 +24,19 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.impl.script.ScriptRunnerImpl;
+import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.script.ScriptService;
 
 
 /**
@@ -45,6 +51,23 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   
   public Object activityDefinitionId;
 
+  public <T> T getValue(Binding<T> binding) {
+    if (binding==null) {
+      return null;
+    }
+    return binding.getValue(this);
+  }
+
+  public <T> List<T> getValueList(List<Binding<T>> bindings) {
+    List<T> list = new ArrayList<>();
+    if (bindings!=null) {
+      for (Binding<T> binding: bindings) {
+        list.add(binding.getValue(this));
+      }
+    }
+    return list;
+  }
+  
   public void onwards() {
     log.debug("Onwards "+this);
     // Default BPMN logic when an activity ends
@@ -133,8 +156,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
 
   @Override
-  public ScriptRunnerImpl getScriptRunner() {
-    return processEngine.scriptRunner;
+  public ScriptService getScriptService() {
+    return processEngine.scriptService;
   }
   
   public void setActivityDefinitionId(Object activityDefinitionId) {
@@ -164,5 +187,15 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   @Override
   public boolean isProcessInstance() {
     return false;
+  }
+
+  @Override
+  public Json getJson() {
+    return processEngine.json;
+  }
+
+  @Override
+  public TaskService getTaskService() {
+    return processEngine.taskService;
   }
 }

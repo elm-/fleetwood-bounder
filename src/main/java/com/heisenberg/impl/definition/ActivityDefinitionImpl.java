@@ -36,8 +36,6 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder, ActivityDefinition {
 
-  public Object id;
-
 //  /** References a type declared in the process engine by id.
 //   * 
 //   * With the {@link ActivityBuilder#activityTypeId() builder}, the activityTypeId can be specified.

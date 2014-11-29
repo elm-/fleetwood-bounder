@@ -12,20 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities;
+package com.heisenberg.api.task;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.util.List;
+
+import com.heisenberg.api.activities.ControllableActivityInstance;
 
 
 /**
  * @author Walter White
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigurationField {
+public interface Task {
 
-  /** the label used in the process builder */
-  String value();
-  
-  boolean required() default false;
+  Task name(String name);
+  Task assigneeId(String assigneeId);
+  Task candidateIds(List<String> candidateIds);
+  Task activityInstance(ControllableActivityInstance activityInstance);
+
 }

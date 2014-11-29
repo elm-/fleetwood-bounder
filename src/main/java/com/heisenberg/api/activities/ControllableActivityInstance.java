@@ -14,26 +14,30 @@
  */
 package com.heisenberg.api.activities;
 
+import java.util.List;
+
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.api.util.TypedValue;
-import com.heisenberg.impl.script.ScriptRunner;
 
 
 /**
  * @author Walter White
  */
-public interface ControllableActivityInstance extends ActivityInstance {
+public interface ControllableActivityInstance extends ActivityInstance, ServiceLocator {
+
+  TypedValue getVariableValueRecursive(Object variableDefinitionId);
+  <T> T getValue(Binding<T> binding);
+  <T> List<T> getValueList(List<Binding<T>> bindings);
+  
+  Object getTransientContextObject(String key);
 
   void onwards();
-
-  TypedValue getVariableValueRecursive(Object variableId);
-
-  ScriptRunner getScriptRunner();
 
   /** starts a nested activity instance for the given activity definition */
   void start(ActivityDefinition activityDefinition);
 
-  Object getTransientContextObject(String key);
-
+  void takeTransition(TransitionDefinition transitionDefinition);
 }

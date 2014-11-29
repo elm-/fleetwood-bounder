@@ -31,7 +31,7 @@ import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
-import com.heisenberg.impl.script.ScriptRunner;
+import com.heisenberg.impl.script.ScriptService;
 
 
 /**
@@ -41,14 +41,11 @@ public class ScriptTest {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
   
-  // TODO Test if the script engine is thread safe.
-  //      CompiledScript seems to be tied to a ScriptEngine.
-  //      It should be investigated if concurrent script execution can overwrite each other's context.
-
   @Test
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerJavaBeanType(Money.class);
+      .registerJavaBeanType(Money.class)
+      .registerActivityType(new ScriptActivity());
 
     ProcessBuilder processBuilder = processEngine.newProcess();
     
@@ -85,8 +82,8 @@ public class ScriptTest {
     }
     @Override
     public void start(ControllableActivityInstance activityInstance) {
-      ScriptRunner scriptRunner = activityInstance.getScriptRunner();
-      Script script = scriptRunner.compile(
+      ScriptService scriptService = activityInstance.getScriptService();
+      Script script = scriptService.compile(
              // Each variable is automatically available with it's variableDefinitionName
              // Individual fields (and on Rhino also properties) can be dereferenced
              "'It costs '+m.amount+', which is in '+m.currency+'\\n"
@@ -94,7 +91,7 @@ public class ScriptTest {
              // The toString of the money java object will be used 
              +"And mmmoney is '+mmmoney")
         .scriptToProcessMapping("mmmoney", "m");
-      ScriptResult scriptResult = scriptRunner.evaluateScript(activityInstance, script);
+      ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, script);
       scriptResultMessage = (String) scriptResult.getResult();
       activityInstance.onwards();
     }

@@ -23,7 +23,7 @@ import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
-import com.heisenberg.impl.script.ScriptRunner;
+import com.heisenberg.impl.script.ScriptService;
 
 
 /**
@@ -51,8 +51,8 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
     if (script!=null) {
-      ScriptRunner scriptRunner = validator.getScriptRunner();
-      compiledScript = scriptRunner.compile(script);
+      ScriptService scriptService = validator.getScriptService();
+      compiledScript = scriptService.compile(script);
       compiledScript.scriptToProcessMappings = scriptToProcessMappings;
     }
     // TODO if specified, check if the resultVariableDefinitionId exists
@@ -61,8 +61,8 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void start(ControllableActivityInstance activityInstance) {
     if (script!=null) {
-      ScriptRunner scriptRunner = activityInstance.getScriptRunner();
-      ScriptResult scriptResult = scriptRunner.evaluateScript(activityInstance, compiledScript);
+      ScriptService scriptService = activityInstance.getScriptService();
+      ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, compiledScript);
       scriptResult.getResult();
       /* Object result = 
         if (resultVariableDefinitionId!=null) {
