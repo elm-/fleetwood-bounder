@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.test.rest;
+package com.heisenberg.test.load;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -44,11 +44,11 @@ import com.heisenberg.test.db.MongoProcessEngineTest;
 /**
  * @author Walter White
  */
-public class RestTest extends JerseyTest {
+public class LoadTest extends JerseyTest {
   
-  public static final Logger log = LoggerFactory.getLogger(RestTest.class);
+  public static final Logger log = LoggerFactory.getLogger(LoadTest.class);
   
-  static ProcessEngineImpl processEngine = null;
+  static MeasuringMongoProcessEngine processEngine = null;
   
   @Override
   protected Application configure() {
@@ -59,9 +59,8 @@ public class RestTest extends JerseyTest {
     if (processEngine!=null) {
       return processEngine;
     }
-    processEngine = new MongoConfiguration()
-      .server("localhost", 27017)
-      .buildProcessEngine();
+    processEngine = new MeasuringMongoProcessEngine(new MongoConfiguration()
+      .server("localhost", 27017));
     return processEngine;
   }
   
@@ -83,18 +82,22 @@ public class RestTest extends JerseyTest {
     
     Object processDefinitionId = deployResponse.getProcessDefinitionId();
     
-    runProcessInstance(processDefinitionId);
-//    for (int i=0; i<20; i++) {
-//      runProcessInstance(processDefinitionId);
-//    }
-//    long start = System.currentTimeMillis();
-//    for (int i=20; i<1000; i++) {
-//      log.info("starting "+i);
-//      runProcessInstance(processDefinitionId);
-//    }
-//    long end = System.currentTimeMillis();
-//    log.info("1000 process instances in "+((end-start)/1000f)+ " seconds");
-//    log.info("1000 process instances in "+(1000000f/(end-start))+ " per second");
+    int processExecutions = 1000;
+    
+    long testStartMillis = System.currentTimeMillis();
+    
+    for (int i=0; i<20; i++) {
+      runProcessInstance(processDefinitionId);
+    }
+    long start = System.currentTimeMillis();
+    for (int i=20; i<processExecutions; i++) {
+      runProcessInstance(processDefinitionId);
+    }
+    long end = System.currentTimeMillis();
+    log.info(processExecutions+" process executions in "+((end-start)/1000f)+ " seconds");
+    log.info(processExecutions+" process executions at "+(1000000f/(end-start))+ " per second");
+    
+    processEngine.logReport(1000, testStartMillis);
   }
 
   protected void runProcessInstance(Object processDefinitionId) {

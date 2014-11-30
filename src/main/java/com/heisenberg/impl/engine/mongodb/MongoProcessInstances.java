@@ -78,6 +78,7 @@ public class MongoProcessInstances extends MongoCollection {
     this.writeConcernStoreProcessInstance = getWriteConcern(mongoConfiguration.writeConcernInsertProcessInstance);
     this.writeConcernFlushUpdates = getWriteConcern(mongoConfiguration.writeConcernFlushUpdates);
     this.isPretty = mongoConfiguration.isPretty;
+    this.dbCollection.createIndex(new BasicDBObject(fields.activityInstances+"."+fields._id, 1));
   }
   
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
@@ -86,10 +87,9 @@ public class MongoProcessInstances extends MongoCollection {
   }
   
   public void flushUpdates(Object processInstanceId, List<BasicDBObject> dbUpdates) {
-    this.dbCollection.update(
-        new BasicDBObject(fields._id,  processInstanceId),
-        new BasicDBObject("$pushAll", new BasicDBObject(fields.updates, dbUpdates)),
-        false, false, writeConcernFlushUpdates);
+    BasicDBObject query = new BasicDBObject(fields._id,  processInstanceId);
+    BasicDBObject update = new BasicDBObject("$pushAll", new BasicDBObject(fields.updates, dbUpdates));
+    update(query, update, false, false, writeConcernFlushUpdates);
   }
 
   public void saveProcessInstance(BasicDBObject dbProcessInstance) {

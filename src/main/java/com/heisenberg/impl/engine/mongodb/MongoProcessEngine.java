@@ -133,12 +133,10 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   public void flush(ProcessInstanceImpl processInstance) {
     List<Update> updates = processInstance.getUpdates();
     if (updates!=null) {
-      log.debug("Flushing updates: ");
       List<BasicDBObject> dbUpdates = new ArrayList<>(); 
       for (Update update : updates) {
         BasicDBObject dbUpdate = updateConverters.toDbUpdate(update);
         if (dbUpdate!=null) {
-          log.debug("  " + dbUpdate);
           dbUpdates.add(dbUpdate);
         }
       }

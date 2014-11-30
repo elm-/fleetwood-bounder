@@ -130,6 +130,13 @@ public class MongoCollection {
     return writeResult;
   }
   
+  protected WriteResult update(DBObject query, DBObject update, boolean upsert, boolean multi, WriteConcern writeConcern) {
+    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> update q="+toString(query)+" u="+toString(update));
+    WriteResult writeResult = dbCollection.update(query, update, upsert, multi, writeConcern);
+    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
+    return writeResult;
+  }
+
   protected BasicDBObject findAndModify(DBObject query, DBObject update) {
     if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> findAndModify q="+toString(query)+" u="+toString(update));
     BasicDBObject dbObject = (BasicDBObject) dbCollection.findAndModify(query, update);
