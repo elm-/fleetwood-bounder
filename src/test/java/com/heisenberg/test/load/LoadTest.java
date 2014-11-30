@@ -46,6 +46,10 @@ import com.heisenberg.test.db.MongoProcessEngineTest;
  */
 public class LoadTest extends JerseyTest {
   
+  static {
+    System.setProperty("logback.configurationFile", "logback-load.xml");
+  }
+  
   public static final Logger log = LoggerFactory.getLogger(LoadTest.class);
   
   static MeasuringMongoProcessEngine processEngine = null;
