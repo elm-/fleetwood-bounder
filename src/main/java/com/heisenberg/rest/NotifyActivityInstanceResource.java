@@ -43,7 +43,7 @@ public class NotifyActivityInstanceResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public ProcessInstance deploy(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
+  public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
     return processEngine.notifyActivityInstance(notifyActivityInstanceRequest);
   }
 }

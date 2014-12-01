@@ -25,7 +25,7 @@ import com.heisenberg.impl.ProcessEngineImpl;
  */
 public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDefinition {
 
-  public Object id;
+  public String id;
   @JsonIgnore
   public ActivityDefinitionImpl from;
   @JsonIgnore
@@ -38,12 +38,12 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
   @JsonIgnore
   public ScopeDefinitionImpl parent;
   
-  public Object fromId;
-  public Object toId;
+  public String fromId;
+  public String toId;
   public Long line;
   public Long column;
 
-  public TransitionDefinitionImpl id(Object id) {
+  public TransitionDefinitionImpl id(String id) {
     this.id = id;
     return this;
   }
@@ -60,12 +60,12 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
   
   /** Fluent builder to set the source of this transition.
    * @param fromActivityDefinitionName the name of the activity definition. */
-  public TransitionDefinitionImpl from(Object fromId) {
+  public TransitionDefinitionImpl from(String fromId) {
     this.fromId = fromId;
     return this;
   }
 
-  public TransitionDefinitionImpl to(Object toId) {
+  public TransitionDefinitionImpl to(String toId) {
     this.toId = toId;
     return this;
   }

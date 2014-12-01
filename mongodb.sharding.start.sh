@@ -61,3 +61,10 @@ $MONGODB_HOME/bin/mongod --port 29003 --dbpath ${DATABASE_DIR}3 --config ${DATAB
 $MONGODB_HOME/bin/mongo admin --eval "db.runCommand({'addShard':'localhost:29001'})"
 $MONGODB_HOME/bin/mongo admin --eval "db.runCommand({'addShard':'localhost:29002'})"
 $MONGODB_HOME/bin/mongo admin --eval "db.runCommand({'addShard':'localhost:29003'})"
+
+$MONGODB_HOME/bin/mongo admin --eval "db.runCommand( { enableSharding: 'heisenberg' } )"
+
+$MONGODB_HOME/bin/mongo heisenberg --eval "db.createCollection('processInstances')"
+$MONGODB_HOME/bin/mongo heisenberg --eval "db.collection.ensureIndex( { _id: 'hashed' } )"
+
+$MONGODB_HOME/bin/mongo admin --eval "db.runCommand( { shardCollection: 'heisenberg.processInstances', key: { '_id': 'hashed' } } )"

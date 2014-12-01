@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,24 @@ public class MongoCollection {
     dbCollection = db.getCollection(collectionName);
   }
   
+  public void writeId(BasicDBObject o, String fieldName, String value) {
+    o.put(fieldName, new ObjectId(value));
+  }
+
+  public void writeIdOpt(BasicDBObject o, String fieldName, String value) {
+    if (value!=null) {
+      o.put(fieldName, new ObjectId(value));
+    }
+  }
+
+  public void writeString(BasicDBObject o, String fieldName, Object value) {
+    writeObject(o, fieldName, value);
+  }
+
+  public void writeStringOpt(BasicDBObject o, String fieldName, Object value) {
+    writeObjectOpt(o, fieldName, value);
+  }
+
   public void writeObject(BasicDBObject o, String fieldName, Object value) {
     o.put(fieldName, value);
   }
@@ -54,6 +73,7 @@ public class MongoCollection {
       o.put(fieldName, value);
     }
   }
+  
   public void writeLongOpt(BasicDBObject o, String fieldName, Long value) {
     if (value!=null) {
       o.put(fieldName, value);
@@ -85,6 +105,11 @@ public class MongoCollection {
 
   protected Object readObject(BasicDBObject dbObject, String fieldName) {
     return dbObject.get(fieldName);
+  }
+
+  protected String readId(BasicDBObject dbObject, String fieldName) {
+    Object value = dbObject.get(fieldName);
+    return value!=null ? value.toString() : null;
   }
 
   @SuppressWarnings("unchecked")

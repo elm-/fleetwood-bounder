@@ -46,7 +46,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
-  public Object id;
+  public String id;
   public LocalDateTime start;
   public LocalDateTime end;
   public Long duration;
@@ -330,11 +330,11 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     this.variableInstances = variableInstances;
   }
 
-  public Object getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(Object id) {
+  public void setId(String id) {
     this.id = id;
   }
 

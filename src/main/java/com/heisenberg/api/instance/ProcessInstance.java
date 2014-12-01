@@ -23,8 +23,8 @@ package com.heisenberg.api.instance;
  */
 public interface ProcessInstance extends ScopeInstance {
 
-  Object getId();
+  String getId();
 
-  Object getProcessDefinitionId();
+  String getProcessDefinitionId();
 
 }

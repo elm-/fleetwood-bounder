@@ -49,7 +49,8 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
-  public Object id;
+  public String id;
+  public String organizationId;
   public LockImpl lock;
   public Queue<Operation> operations;
   public Queue<Operation> asyncOperations;
@@ -60,7 +61,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   
   public Boolean isAsync;
   
-  public Object processDefinitionId;
+  public String processDefinitionId;
 
   @JsonIgnore
   public Map<String, Object> transientContext;
@@ -68,9 +69,10 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   public ProcessInstanceImpl() {
   }
   
-  public ProcessInstanceImpl(ProcessEngineImpl processEngine, ProcessDefinitionImpl processDefinition, Object processInstanceId) {
+  public ProcessInstanceImpl(ProcessEngineImpl processEngine, ProcessDefinitionImpl processDefinition, String processInstanceId) {
     setId(processInstanceId);
     setProcessEngine(processEngine);
+    setOrganizationId(processDefinition.organizationId);
     setProcessDefinition(processDefinition);
     setScopeDefinition(processDefinition);
     setProcessInstance(this);
@@ -168,11 +170,11 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     }
   }
 
-  public Object getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(Object id) {
+  public void setId(String id) {
     this.id = id;
   }
 
@@ -293,12 +295,20 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   }
 
   @Override
-  public Object getProcessDefinitionId() {
+  public String getProcessDefinitionId() {
     return processDefinitionId;
   }
 
   @Override
   public boolean isProcessInstance() {
     return true;
+  }
+
+  public String getOrganizationId() {
+    return organizationId;
+  }
+  
+  public void setOrganizationId(String organizationId) {
+    this.organizationId = organizationId;
   }
 }

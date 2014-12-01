@@ -26,7 +26,7 @@ public interface VariableBuilder {
   /** The user defined name of the variable that can later be used 
    * for getting and setting variable values. 
    * The given idInternal will be wrapped in a VariableDefinitionId. */
-  VariableBuilder id(Object idInternal);
+  VariableBuilder id(String id);
   
   VariableBuilder dataType(DataType dataType);
   

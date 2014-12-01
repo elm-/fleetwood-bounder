@@ -23,7 +23,7 @@ import java.util.List;
 public class ListType extends AbstractDataType implements DataType {
   
   DataType dataType;
-  String id;
+  String typeId;
   
   /** constructor for json, dataType is a required field. */
   protected ListType() {
@@ -31,7 +31,7 @@ public class ListType extends AbstractDataType implements DataType {
 
   public ListType(DataType dataType) {
     this.dataType = dataType;
-    this.id = "list<"+dataType.getTypeId()+">";
+    this.typeId = "list<"+dataType.getTypeId()+">";
   }
 
   @Override
@@ -41,7 +41,7 @@ public class ListType extends AbstractDataType implements DataType {
 
   @Override
   public String getTypeId() {
-    return id;
+    return typeId;
   }
   
   @Override
@@ -50,7 +50,7 @@ public class ListType extends AbstractDataType implements DataType {
       return;
     }
     if (!(internalValue instanceof List)) {
-      throw new InvalidValueException("Value for "+id+" must be a list, but was "+internalValue+" ("+internalValue.getClass().getName()+")");
+      throw new InvalidValueException("Value for "+typeId+" must be a list, but was "+internalValue+" ("+internalValue.getClass().getName()+")");
     }
     @SuppressWarnings("unchecked")
     List<Object> list = (List<Object>) internalValue;
@@ -65,7 +65,7 @@ public class ListType extends AbstractDataType implements DataType {
       return null;
     }
     if (!(jsonValue instanceof List)) {
-      throw new InvalidValueException("Json value for "+id+" must be a list, but was "+jsonValue+" ("+jsonValue.getClass().getName()+")");
+      throw new InvalidValueException("Json value for "+typeId+" must be a list, but was "+jsonValue+" ("+jsonValue.getClass().getName()+")");
     }
     @SuppressWarnings("unchecked")
     List<Object> list = (List<Object>) jsonValue;

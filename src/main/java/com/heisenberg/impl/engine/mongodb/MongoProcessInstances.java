@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,7 @@ public class MongoProcessInstances extends MongoCollection {
   
   public static class Fields {
     public String _id = "_id";
+    public String organizationId = "oz";
     public String processDefinitionId = "pd";
     public String start = "s";
     public String end = "e";
@@ -78,7 +80,8 @@ public class MongoProcessInstances extends MongoCollection {
     this.writeConcernStoreProcessInstance = getWriteConcern(mongoConfiguration.writeConcernInsertProcessInstance);
     this.writeConcernFlushUpdates = getWriteConcern(mongoConfiguration.writeConcernFlushUpdates);
     this.isPretty = mongoConfiguration.isPretty;
-    this.dbCollection.createIndex(new BasicDBObject(fields.activityInstances+"."+fields._id, 1));
+    // For the load testing, this is counter productive :)
+    // this.dbCollection.createIndex(new BasicDBObject(fields.activityInstances+"."+fields._id, 1));
   }
   
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
@@ -86,8 +89,8 @@ public class MongoProcessInstances extends MongoCollection {
     insert(dbProcessInstance, writeConcernStoreProcessInstance);
   }
   
-  public void flushUpdates(Object processInstanceId, List<BasicDBObject> dbUpdates) {
-    BasicDBObject query = new BasicDBObject(fields._id,  processInstanceId);
+  public void flushUpdates(String processInstanceId, List<BasicDBObject> dbUpdates) {
+    BasicDBObject query = new BasicDBObject(fields._id,  new ObjectId(processInstanceId));
     BasicDBObject update = new BasicDBObject("$pushAll", new BasicDBObject(fields.updates, dbUpdates));
     update(query, update, false, false, writeConcernFlushUpdates);
   }
@@ -96,9 +99,13 @@ public class MongoProcessInstances extends MongoCollection {
     save(dbProcessInstance, writeConcernStoreProcessInstance);
   }
   
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
-    DBObject query = BasicDBObjectBuilder.start()
-            .add(fields.activityInstances+"."+fields._id, activityInstanceId)
+  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId) {
+    BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
+    if (processInstanceId!=null) {
+      builder.add(fields._id, new ObjectId(processInstanceId));
+    }
+    DBObject query = builder 
+            .add(fields.activityInstances+"."+fields._id, new ObjectId(activityInstanceId))
             .push(fields.lock)
               .add("$exists", false)
             .pop()
@@ -118,30 +125,11 @@ public class MongoProcessInstances extends MongoCollection {
     return readProcessInstance(dbProcessInstance);
   }
 
-  public DBObject queryUnlockedAndActivityInstanceId(Object activityInstanceId) {
-    return BasicDBObjectBuilder.start()
-      .add(fields.activityInstances+"."+fields._id, activityInstanceId)
-      .push(fields.lock)
-        .add("$exists", false)
-      .pop()
-      .get();
-  }
-  
-  public DBObject updateLock(String processEngineId) {
-    return BasicDBObjectBuilder.start()
-      .push("$set")
-        .push(fields.lock)
-          .add(fields.time, Time.now().toDate())
-          .add(fields.owner, processEngineId)
-        .pop()
-      .pop()
-      .get();
-  }
-
   public BasicDBObject writeProcessInstance(ProcessInstanceImpl process) {
     BasicDBObject dbProcess = new BasicDBObject();
-    writeObject(dbProcess, fields._id, process.id);
-    writeObject(dbProcess, fields.processDefinitionId, process.processDefinition.id);
+    writeId(dbProcess, fields._id, process.id);
+    writeStringOpt(dbProcess, fields.organizationId, process.organizationId);
+    writeId(dbProcess, fields.processDefinitionId, process.processDefinition.id);
     writeTimeOpt(dbProcess, fields.start, process.start);
     writeTimeOpt(dbProcess, fields.end, process.end);
     writeLongOpt(dbProcess, fields.duration, process.duration);
@@ -155,12 +143,13 @@ public class MongoProcessInstances extends MongoCollection {
   public ProcessInstanceImpl readProcessInstance(BasicDBObject dbProcess) {
     ProcessInstanceImpl process = new ProcessInstanceImpl();
     process.processEngine = processEngine;
-    process.processDefinitionId = dbProcess.get(fields.processDefinitionId);
+    process.organizationId = readString(dbProcess, fields.organizationId);
+    process.processDefinitionId = readId(dbProcess, fields.processDefinitionId);
     ProcessDefinitionImpl processDefinition = processEngine.findProcessDefinitionByIdUsingCache(process.processDefinitionId);
     process.processDefinition = processDefinition;
     process.processInstance = process;
     process.scopeDefinition = process.processDefinition;
-    process.id = dbProcess.get(fields._id);
+    process.id = readId(dbProcess, fields._id);
     process.start = readTime(dbProcess, fields.start);
     process.end = readTime(dbProcess, fields.end);
     process.duration = readLong(dbProcess, fields.duration);
@@ -228,9 +217,9 @@ public class MongoProcessInstances extends MongoCollection {
       Object parentId = (scopeInstance.isProcessInstance() ? null : scopeInstance.getId());
       for (ActivityInstanceImpl activity: scopeInstance.activityInstances) {
         BasicDBObject dbActivity = new BasicDBObject();
-        writeObject(dbActivity, fields._id, activity.id);
-        writeObject(dbActivity, fields.activityDefinitionId, activity.activityDefinitionId);
-        writeObjectOpt(dbActivity, fields.parent, parentId);
+        writeId(dbActivity, fields._id, activity.id);
+        writeStringOpt(dbActivity, fields.activityDefinitionId, activity.activityDefinitionId);
+        writeStringOpt(dbActivity, fields.parent, parentId);
         writeTimeOpt(dbActivity, fields.start, activity.start);
         writeTimeOpt(dbActivity, fields.end, activity.end);
         writeLongOpt(dbActivity, fields.duration, activity.duration);
@@ -242,11 +231,11 @@ public class MongoProcessInstances extends MongoCollection {
   
   protected ActivityInstanceImpl readActivityInstance(ProcessInstanceImpl processInstance, BasicDBObject dbActivityInstance) {
     ActivityInstanceImpl activityInstance = new ActivityInstanceImpl();
-    activityInstance.id = dbActivityInstance.get(fields._id);
+    activityInstance.id = readId(dbActivityInstance, fields._id);
     activityInstance.start = readTime(dbActivityInstance, fields.start);
     activityInstance.end = readTime(dbActivityInstance, fields.end);
     activityInstance.duration = readLong(dbActivityInstance, fields.duration);
-    activityInstance.activityDefinitionId = dbActivityInstance.get(fields.activityDefinitionId);
+    activityInstance.activityDefinitionId = readString(dbActivityInstance, fields.activityDefinitionId);
     activityInstance.processEngine = processEngine;
     activityInstance.processDefinition = processInstance.processDefinition;
     activityInstance.activityDefinition = processInstance.processDefinition.findActivityDefinition(activityInstance.activityDefinitionId);
@@ -258,12 +247,12 @@ public class MongoProcessInstances extends MongoCollection {
   protected void writeVariables(BasicDBObject dbProcess, ScopeInstanceImpl scopeInstance) {
     if (scopeInstance.variableInstances!=null) {
       ScopeInstanceImpl parent = scopeInstance.getParent();
-      Object parentId = (parent!=null ? parent.getId() : null);
+      String parentId = (parent!=null ? parent.getId() : null);
       for (VariableInstanceImpl variable: scopeInstance.variableInstances) {
         BasicDBObject dbVariable = new BasicDBObject();
-        writeObject(dbVariable, fields._id, variable.id);
-        writeObject(dbVariable, fields.variableDefinitionId, variable.variableDefinitionId);
-        writeObjectOpt(dbVariable, fields.parent, parentId);
+        writeId(dbVariable, fields._id, variable.id);
+        writeString(dbVariable, fields.variableDefinitionId, variable.variableDefinitionId);
+        writeIdOpt(dbVariable, fields.parent, parentId);
         Object jsonValue = variable.dataType.convertInternalToJsonValue(variable.value);
         writeObjectOpt(dbVariable, fields.value, jsonValue);
         writeListElementOpt(dbProcess, fields.variableInstances, dbVariable);
@@ -280,8 +269,8 @@ public class MongoProcessInstances extends MongoCollection {
     VariableInstanceImpl variableInstance = new VariableInstanceImpl();
     variableInstance.processEngine = processEngine;
     variableInstance.processInstance = processInstance;
-    variableInstance.id = dbVariableInstance.get(fields._id);
-    variableInstance.variableDefinitionId = dbVariableInstance.get(fields.variableDefinitionId);
+    variableInstance.id = readId(dbVariableInstance, fields._id);
+    variableInstance.variableDefinitionId = readString(dbVariableInstance, fields.variableDefinitionId);
     variableInstance.variableDefinition = processInstance.processDefinition.findVariableDefinition(variableInstance.variableDefinitionId);
     variableInstance.dataType = variableInstance.variableDefinition.dataType;
     variableInstance.dataTypeId = variableInstance.dataType.getTypeId();

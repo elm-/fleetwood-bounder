@@ -57,7 +57,7 @@ public class ScriptTest {
       .activityType(new ScriptActivity())
       .id("a");
 
-    Object processDefinitionId = processEngine
+    String processDefinitionId = processEngine
       .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();

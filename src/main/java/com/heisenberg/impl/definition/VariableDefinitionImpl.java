@@ -30,7 +30,7 @@ import com.heisenberg.impl.ProcessEngineImpl;
  */
 public class VariableDefinitionImpl implements VariableBuilder, VariableDefinition {
 
-  public Object id;
+  public String id;
   
   @JsonIgnore
   public DataType dataType;
@@ -52,7 +52,7 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
   public Long line;
   public Long column;
 
-  public VariableDefinitionImpl id(Object id) {
+  public VariableDefinitionImpl id(String id) {
     this.id = id;
     return this;
   }
@@ -104,11 +104,11 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     this.parent = parent;
   }
 
-  public Object getId() {
+  public String getId() {
     return id;
   }
   
-  public VariableDefinitionImpl setId(Object id) {
+  public VariableDefinitionImpl setId(String id) {
     this.id = id;
     return this;
   }

@@ -29,7 +29,7 @@ public interface ActivityBuilder {
 //  ActivityBuilder activityTypeId(String activityTypeId);
   ActivityBuilder activityTypeJson(Map<String,Object> activityTypeJson);
 
-  ActivityBuilder id(Object activityDefinitionId);
+  ActivityBuilder id(String activityDefinitionId);
 
   ActivityBuilder newActivity();
 

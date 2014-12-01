@@ -26,11 +26,11 @@ import com.heisenberg.api.util.Validator;
  */
 public interface ActivityDefinition {
   
-  ActivityDefinition getActivityDefinition(Object activityDefinitionId);
+  ActivityDefinition getActivityDefinition(String activityDefinitionId);
 
   List<ActivityDefinition> getActivityDefinitions();
 
-  Object getId();
+  String getId();
 
   /** If you use this, you must call the @link {@link #initializeStartActivities()} in the @link {@link ActivityType#validate(ActivityDefinition, com.heisenberg.api.util.Validator)} */
   List<ActivityDefinition> getStartActivities();

@@ -24,13 +24,13 @@ public interface ProcessBuilder {
 
   ProcessBuilder deployedTime(LocalDateTime deployedTime);
   
-  ProcessBuilder deployedUserId(Object deployedUserId);
+  ProcessBuilder deployedUserId(String deployedUserId);
 
-  ProcessBuilder processId(Object processId);
+  ProcessBuilder processId(String processId);
   
   ProcessBuilder version(Long version);
   
-  ProcessBuilder organizationId(Object organizationId);
+  ProcessBuilder organizationId(String organizationId);
   
   ProcessBuilder line(Long lineNumber);
 

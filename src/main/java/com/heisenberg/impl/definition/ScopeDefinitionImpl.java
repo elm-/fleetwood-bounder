@@ -31,7 +31,7 @@ public abstract class ScopeDefinitionImpl {
 
   // parsed and stored member fields
   
-  public Object id;
+  public String id;
 
   public List<ActivityDefinitionImpl> activityDefinitions;
   public List<VariableDefinitionImpl> variableDefinitions;
@@ -54,7 +54,7 @@ public abstract class ScopeDefinitionImpl {
   
   /// Process Definition Builder methods //////////////////////////////////////////
   
-  public ScopeDefinitionImpl id(Object id) {
+  public ScopeDefinitionImpl id(String id) {
     this.id = id;
     return this;
   }
@@ -121,7 +121,7 @@ public abstract class ScopeDefinitionImpl {
 
   public abstract ProcessDefinitionPath getPath();
   
-  public ActivityDefinitionImpl getActivityDefinition(Object activityDefinitionId) {
+  public ActivityDefinitionImpl getActivityDefinition(String activityDefinitionId) {
     return processDefinition.findActivityDefinition(activityDefinitionId);
   }
 
@@ -332,11 +332,11 @@ public abstract class ScopeDefinitionImpl {
     this.column = column;
   }
   
-  public Object getId() {
+  public String getId() {
     return id;
   }
   
-  public void setId(Object id) {
+  public void setId(String id) {
     this.id = id;
   }
 }

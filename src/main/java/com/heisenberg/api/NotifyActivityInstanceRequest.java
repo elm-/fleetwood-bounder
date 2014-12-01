@@ -21,17 +21,23 @@ package com.heisenberg.api;
  */
 public class NotifyActivityInstanceRequest extends VariableRequest {
 
-  public Object activityInstanceId;
+  public String activityInstanceId;
+  public String processInstanceId;
   
-  public NotifyActivityInstanceRequest activityInstanceId(Object activityInstanceId) {
+  public NotifyActivityInstanceRequest activityInstanceId(String activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
+    return this;
+  }
+  
+  public NotifyActivityInstanceRequest processInstanceId(String processInstanceId) {
+    this.processInstanceId = processInstanceId;
     return this;
   }
   
   public Object getActivityInstanceId() {
     return activityInstanceId;
   }
-  public void setActivityInstanceId(Object activityInstanceId) {
+  public void setActivityInstanceId(String activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
   }
   

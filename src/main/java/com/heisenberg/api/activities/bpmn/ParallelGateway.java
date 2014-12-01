@@ -43,6 +43,7 @@ public class ParallelGateway extends AbstractActivityType {
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
+    
   }
 
   @Override

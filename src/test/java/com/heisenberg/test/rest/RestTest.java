@@ -81,7 +81,7 @@ public class RestTest extends JerseyTest {
 
     assertFalse(deployResponse.getIssueReport(), deployResponse.hasIssues());
     
-    Object processDefinitionId = deployResponse.getProcessDefinitionId();
+    String processDefinitionId = deployResponse.getProcessDefinitionId();
     
     runProcessInstance(processDefinitionId);
 //    for (int i=0; i<20; i++) {
@@ -97,7 +97,7 @@ public class RestTest extends JerseyTest {
 //    log.info("1000 process instances in "+(1000000f/(end-start))+ " per second");
   }
 
-  protected void runProcessInstance(Object processDefinitionId) {
+  protected void runProcessInstance(String processDefinitionId) {
     StartProcessInstanceRequest startProcessInstanceRequest = new StartProcessInstanceRequest()
       .processDefinitionId(processDefinitionId);
     

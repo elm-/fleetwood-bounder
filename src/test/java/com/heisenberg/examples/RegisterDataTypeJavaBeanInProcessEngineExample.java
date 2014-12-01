@@ -30,7 +30,6 @@ import com.heisenberg.api.builder.ProcessBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.test.Wait;
 
 
 /**
@@ -55,13 +54,13 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
       .activityType(new UserTask())
       .id("w");
 
-    Object pdid = processEngine
+    String processDefinitionId = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
 
     ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
-      .processDefinitionId(pdid)
+      .processDefinitionId(processDefinitionId)
       .variableValue("m", new CustomMoney(5d, "USD")));
   
     VariableInstance m = processInstance.getVariableInstances().get(0);
@@ -86,7 +85,7 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
       .activityType(new UserTask())
       .id("w");
 
-    Object pdid = processEngine
+    String processDefinitionId = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
@@ -96,7 +95,7 @@ public class RegisterDataTypeJavaBeanInProcessEngineExample {
     fiveDollarsJson.put("currency", "USD");
     
     ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
-      .processDefinitionId(pdid)
+      .processDefinitionId(processDefinitionId)
       // This time the json variant is used to set the variable value
       .variableValueJson("m", fiveDollarsJson));
   

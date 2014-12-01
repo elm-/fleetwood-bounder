@@ -24,7 +24,7 @@ public interface TransitionBuilder {
 
   /** Fluent builder to set the source of this transition.
    * @param fromId the name of the activity definition. */
-  TransitionBuilder from(Object fromId);
+  TransitionBuilder from(String fromId);
 
-  TransitionBuilder to(Object toId);
+  TransitionBuilder to(String toId);
 }

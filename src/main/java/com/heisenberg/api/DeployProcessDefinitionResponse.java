@@ -22,13 +22,13 @@ package com.heisenberg.api;
  */
 public class DeployProcessDefinitionResponse extends ParseIssues {
 
-  protected Object processDefinitionId;
+  protected String processDefinitionId;
   
-  public Object getProcessDefinitionId() {
+  public String getProcessDefinitionId() {
     return processDefinitionId;
   }
   
-  public void setProcessDefinitionId(Object processDefinitionId) {
+  public void setProcessDefinitionId(String processDefinitionId) {
     this.processDefinitionId = processDefinitionId;
   }
   

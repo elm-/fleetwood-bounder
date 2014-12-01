@@ -76,7 +76,7 @@ public class EmbeddedSuprocessTest {
       .from("sub")
       .to("end");
   
-    Object processDefinitionId = processEngine
+    String processDefinitionId = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
@@ -86,7 +86,7 @@ public class EmbeddedSuprocessTest {
 
     assertActivityInstancesOpen(processInstance, "sub", "w1", "w2");
     
-    Object w1Id = processInstance.findActivityInstanceByActivityDefinitionId("w1").getId();
+    String w1Id = processInstance.findActivityInstanceByActivityDefinitionId("w1").getId();
     assertNotNull(w1Id);
     
     processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()

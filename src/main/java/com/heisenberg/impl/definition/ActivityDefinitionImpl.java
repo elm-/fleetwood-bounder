@@ -83,7 +83,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 //    return this;
 //  }
   
-  public ActivityDefinitionImpl id(Object id) {
+  public ActivityDefinitionImpl id(String id) {
     this.id = id;
     return this;
   }

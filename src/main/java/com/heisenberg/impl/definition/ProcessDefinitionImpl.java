@@ -38,7 +38,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /** optional reference to the organization (aka tenant or workspace) that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
-  public Object organizationId;
+  public String organizationId;
 
   /** optional reference to the the source process for which this process definition is one version.
    * This field just serves as a read/write property and is not used during process execution. */
@@ -64,13 +64,13 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
 
   @Override
-  public ProcessDefinitionImpl deployedUserId(Object deployedBy) {
+  public ProcessDefinitionImpl deployedUserId(String deployedBy) {
     this.deployedBy = deployedBy;
     return this;
   }
 
   @Override
-  public ProcessDefinitionImpl processId(Object processId) {
+  public ProcessDefinitionImpl processId(String processId) {
     this.processId = processId;
     return this;
   }
@@ -82,7 +82,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
   
   @Override
-  public ProcessDefinitionImpl organizationId(Object organizationId) {
+  public ProcessDefinitionImpl organizationId(String organizationId) {
     this.organizationId = organizationId;
     return this;
   }

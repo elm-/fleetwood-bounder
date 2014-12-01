@@ -23,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,7 @@ import com.heisenberg.test.db.MongoProcessEngineTest;
 /**
  * @author Walter White
  */
+@Ignore
 public class LoadTest extends JerseyTest {
   
   static {
@@ -75,53 +77,92 @@ public class LoadTest extends JerseyTest {
 
   @Test
   public void test() {
-    ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) MongoProcessEngineTest.createProcess(processEngine);
-    processDefinition.visit(new ProcessDefinitionSerializer());
+    String processDefinitionId = deployProcessDefinition();
     
-    DeployProcessDefinitionResponse deployResponse = target("deploy").request()
-            .post(Entity.entity(processDefinition, MediaType.APPLICATION_JSON))
-            .readEntity(DeployProcessDefinitionResponse.class);
-
-    assertFalse(deployResponse.getIssueReport(), deployResponse.hasIssues());
-    
-    Object processDefinitionId = deployResponse.getProcessDefinitionId();
-    
-    int processExecutions = 1000;
-    
-    long testStartMillis = System.currentTimeMillis();
+    long processExecutionsPerThread = 2000;
+    long processExecutions = 4*processExecutionsPerThread;
     
     for (int i=0; i<20; i++) {
       runProcessInstance(processDefinitionId);
     }
+
+    long testStartMillis = System.currentTimeMillis();
     long start = System.currentTimeMillis();
-    for (int i=20; i<processExecutions; i++) {
-      runProcessInstance(processDefinitionId);
+    
+    Thread t1 = new ProcessInstanceRunner(processDefinitionId, processExecutionsPerThread);
+    Thread t2 = new ProcessInstanceRunner(processDefinitionId, processExecutionsPerThread);
+    Thread t3 = new ProcessInstanceRunner(processDefinitionId, processExecutionsPerThread);
+    Thread t4 = new ProcessInstanceRunner(processDefinitionId, processExecutionsPerThread);
+
+    t1.start();
+    t2.start();
+    t3.start();
+    t4.start();
+    
+    try {
+      t1.join();
+      t2.join();
+      t3.join();
+      t4.join();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
+    
     long end = System.currentTimeMillis();
     log.info(processExecutions+" process executions in "+((end-start)/1000f)+ " seconds");
-    log.info(processExecutions+" process executions at "+(1000000f/(end-start))+ " per second");
+    log.info(processExecutions+" process executions at "+((processExecutions*1000f)/(float)(end-start))+ " per second");
     
     processEngine.logReport(1000, testStartMillis);
   }
 
-  protected void runProcessInstance(Object processDefinitionId) {
-    StartProcessInstanceRequest startProcessInstanceRequest = new StartProcessInstanceRequest()
-      .processDefinitionId(processDefinitionId);
-    
-    ProcessInstanceImpl processInstance = target("start").request()
-            .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
-            .readEntity(ProcessInstanceImpl.class);
+  class ProcessInstanceRunner extends Thread {
+    String processDefinitionId;
+    long processExecutions;
+    public ProcessInstanceRunner(String processDefinitionId, long processExecutions) {
+      this.processDefinitionId = processDefinitionId;
+      this.processExecutions = processExecutions;
+    }
 
-    ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
+    @Override
+    public void run() {
+      for (int i=0; i<processExecutions; i++) {
+        runProcessInstance(processDefinitionId);
+      }
+    }
+  }
 
-    NotifyActivityInstanceRequest notifyActivityInstanceRequest = new NotifyActivityInstanceRequest()
-      .activityInstanceId(subTaskInstance.getId());
-    
-    processInstance = target("notify").request()
-            .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))
-            .readEntity(ProcessInstanceImpl.class);
+  protected String deployProcessDefinition() {
+    ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) MongoProcessEngineTest.createProcess(processEngine);
+    processDefinition.visit(new ProcessDefinitionSerializer());
+    DeployProcessDefinitionResponse deployResponse = target("deploy").request()
+            .post(Entity.entity(processDefinition, MediaType.APPLICATION_JSON))
+            .readEntity(DeployProcessDefinitionResponse.class);
+    assertFalse(deployResponse.getIssueReport(), deployResponse.hasIssues());
+    return deployResponse.getProcessDefinitionId();
+  }
 
-    log.debug("response: " + processEngine.json.objectToJsonStringPretty(processInstance));
-    assertTrue(processInstance.isEnded());
+  void runProcessInstance(String... processDefinitionIds) {
+    for (String processDefinitionId: processDefinitionIds) {
+      StartProcessInstanceRequest startProcessInstanceRequest = new StartProcessInstanceRequest()
+        .processDefinitionId(processDefinitionId);
+      
+      
+      ProcessInstanceImpl processInstance = target("start").request()
+              .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
+              .readEntity(ProcessInstanceImpl.class);
+  
+      ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
+  
+      NotifyActivityInstanceRequest notifyActivityInstanceRequest = new NotifyActivityInstanceRequest()
+        .processInstanceId(processInstance.id)
+        .activityInstanceId(subTaskInstance.getId());
+      
+      processInstance = target("notify").request()
+              .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))
+              .readEntity(ProcessInstanceImpl.class);
+  
+      log.debug("response: " + processEngine.json.objectToJsonStringPretty(processInstance));
+      assertTrue(processInstance.isEnded());
+    }
   }
 }

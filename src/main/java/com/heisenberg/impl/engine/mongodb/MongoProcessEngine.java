@@ -79,38 +79,32 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
   
   @Override
-  protected Object createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
-    return new ObjectId();
+  protected String createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+    return new ObjectId().toString();
   }
   
   @Override
-  protected Object createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
-    return new ObjectId();
+  protected String createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
+    return new ObjectId().toString();
   }
 
   @Override
-  protected Object createActivityInstanceId() {
-    return new ObjectId();
+  protected String createActivityInstanceId() {
+    return new ObjectId().toString();
   }
 
   @Override
-  protected Object createVariableInstanceId() {
-    return new ObjectId();
+  protected String createVariableInstanceId() {
+    return new ObjectId().toString();
   }
 
   @Override
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
-    if (startProcessInstanceRequest.processDefinitionId instanceof String) {
-      startProcessInstanceRequest.processDefinitionId = new ObjectId((String)startProcessInstanceRequest.processDefinitionId);
-    }
     return super.startProcessInstance(startProcessInstanceRequest);
   }
 
   @Override
   public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
-    if (notifyActivityInstanceRequest.activityInstanceId instanceof String) {
-      notifyActivityInstanceRequest.activityInstanceId = new ObjectId((String)notifyActivityInstanceRequest.activityInstanceId);
-    }
     return super.notifyActivityInstance(notifyActivityInstanceRequest);
   }
 
@@ -120,7 +114,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId) {
+  protected ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
     return processDefinitions.findProcessDefinitionById(processDefinitionId);
   }
 
@@ -179,8 +173,8 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
-    return processInstances.lockProcessInstanceByActivityInstanceId(activityInstanceId);
+  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId) {
+    return processInstances.lockProcessInstanceByActivityInstanceId(processInstanceId, activityInstanceId);
   }
 
   @Override

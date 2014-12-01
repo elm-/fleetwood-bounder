@@ -69,7 +69,7 @@ public class BasicProcessExecutionTest {
       .from("wait1")
       .to("wait2");
     
-    Object processDefinitionId = processEngine
+    String processDefinitionId = processEngine
       .deployProcessDefinition(processBuilder)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();

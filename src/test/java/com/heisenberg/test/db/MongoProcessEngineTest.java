@@ -60,7 +60,7 @@ public class MongoProcessEngineTest {
     
     ProcessBuilder process = createProcess(processEngine);
 
-    Object processDefinitionId = processEngine
+    String processDefinitionId = processEngine
         .deployProcessDefinition(process)
         .checkNoErrorsAndNoWarnings()
         .getProcessDefinitionId();

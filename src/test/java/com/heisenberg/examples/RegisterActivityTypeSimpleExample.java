@@ -46,12 +46,12 @@ public class RegisterActivityTypeSimpleExample {
       .id("a")
       .activityType(new MyCustomType());
     
-    Object pdid = processEngine
+    String processDefinitionId = processEngine
       .deployProcessDefinition(process)
       .getProcessDefinitionId();
     
     processEngine.startProcessInstance(new StartProcessInstanceRequest()
-      .processDefinitionId(pdid));
+      .processDefinitionId(processDefinitionId));
     
     assertEquals("Leroy was here", message);
   }

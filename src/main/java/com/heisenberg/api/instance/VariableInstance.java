@@ -23,9 +23,9 @@ package com.heisenberg.api.instance;
  */
 public interface VariableInstance {
 
-  Object getId();
+  String getId();
   
-  Object getVariableDefinitionId();
+  String getVariableDefinitionId();
   
   String getDataTypeId();
   

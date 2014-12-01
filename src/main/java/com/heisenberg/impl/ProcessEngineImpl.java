@@ -288,7 +288,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
   }
   
   /** ensures that every element in this process definition has an id */
-  protected Object createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+  protected String createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
     return UUID.randomUUID().toString();
   }
   
@@ -296,7 +296,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
   protected abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 
   public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
-    Object processDefinitionId = startProcessInstanceRequest.processDefinitionId;
+    String processDefinitionId = startProcessInstanceRequest.processDefinitionId;
     Exceptions.checkNotNullParameter(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
     if (processDefinition==null) {
@@ -350,7 +350,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
     }
   }
 
-  public ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(Object processDefinitionId) {
+  public ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(String processDefinitionId) {
     ProcessDefinitionImpl processDefinition = processDefinitionCache.get(processDefinitionId);
     if (processDefinition==null) {
       processDefinition = loadProcessDefinitionById(processDefinitionId);
@@ -359,14 +359,14 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
     return processDefinition;
   }
   
-  protected abstract ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId);
+  protected abstract ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId);
 
   protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition) {
     return new ProcessInstanceImpl(this, processDefinition, createProcessInstanceId(processDefinition));
   }
 
-  protected Object createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
-    return UUID.randomUUID();
+  protected String createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
+    return UUID.randomUUID().toString();
   }
   
   /** instantiates and assign an id.
@@ -379,8 +379,8 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
     return activityInstance;
   }
 
-  protected Object createActivityInstanceId() {
-    return UUID.randomUUID();
+  protected String createActivityInstanceId() {
+    return UUID.randomUUID().toString();
   }
 
   /** instantiates and assign an id.
@@ -393,14 +393,15 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
     return variableInstance;
   }
 
-  protected Object createVariableInstanceId() {
-    return UUID.randomUUID();
+  protected String createVariableInstanceId() {
+    return UUID.randomUUID().toString();
   }
 
   @Override
   public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
-    Object activityInstanceId = notifyActivityInstanceRequest.getActivityInstanceId();
-    ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(activityInstanceId);
+    String activityInstanceId = notifyActivityInstanceRequest.activityInstanceId;
+    String processInstanceId = notifyActivityInstanceRequest.processInstanceId;
+    ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(processInstanceId, activityInstanceId);
     // TODO set variables and context
     ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
     if (activityInstance.isEnded()) {
@@ -413,7 +414,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
     return processInstance;
   }
   
-  public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId);
+  public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId);
 
   public abstract void insertProcessInstance(ProcessInstanceImpl processInstance);
 

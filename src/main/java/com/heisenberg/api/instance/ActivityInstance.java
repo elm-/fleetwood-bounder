@@ -25,7 +25,7 @@ import com.heisenberg.api.definition.ActivityDefinition;
  */
 public interface ActivityInstance extends ScopeInstance {
   
-  Object getId();
+  String getId();
 
   ActivityDefinition getActivityDefinition();
 

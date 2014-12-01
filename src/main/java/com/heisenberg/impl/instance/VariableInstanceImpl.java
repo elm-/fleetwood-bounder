@@ -26,7 +26,7 @@ import com.heisenberg.impl.definition.VariableDefinitionImpl;
  */
 public class VariableInstanceImpl implements VariableInstance {
 
-  public Object id;
+  public String id;
   @JsonIgnore
   public ProcessEngineImpl processEngine;
   @JsonIgnore
@@ -41,7 +41,7 @@ public class VariableInstanceImpl implements VariableInstance {
   public String dataTypeId;
 
   public Object value;
-  public Object variableDefinitionId;
+  public String variableDefinitionId;
 
   public ProcessEngineImpl getProcessEngine() {
     return processEngine;
@@ -92,7 +92,7 @@ public class VariableInstanceImpl implements VariableInstance {
   }
 
   @Override
-  public Object getVariableDefinitionId() {
+  public String getVariableDefinitionId() {
     return variableDefinitionId;
   }
 
@@ -101,11 +101,11 @@ public class VariableInstanceImpl implements VariableInstance {
     return dataTypeId;
   }
   
-  public Object getId() {
+  public String getId() {
     return id;
   }
   
-  public void setId(Object id) {
+  public void setId(String id) {
     this.id = id;
   }
 }

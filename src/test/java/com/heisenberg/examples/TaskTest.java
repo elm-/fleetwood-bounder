@@ -31,7 +31,7 @@ import com.heisenberg.impl.engine.memory.MemoryTaskService;
 public class TaskTest {
 
   @Test
-  public void testSpiActivityPluggability() throws Exception {
+  public void testTask() throws Exception {
     MemoryProcessEngine processEngine = new MemoryProcessEngine();
     
     ProcessBuilder process = processEngine.newProcess();
@@ -40,7 +40,7 @@ public class TaskTest {
       .id("Task one")
       .activityType(new UserTask());
     
-    Object processDefinitionId = processEngine
+    String processDefinitionId = processEngine
       .deployProcessDefinition(process)
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();

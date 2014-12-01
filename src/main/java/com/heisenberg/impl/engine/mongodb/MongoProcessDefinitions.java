@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,10 +77,10 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   
   public ProcessDefinitionImpl readProcessDefinition(BasicDBObject dbProcess) {
     ProcessDefinitionImpl process = new ProcessDefinitionImpl();
-    process.id = readObject(dbProcess, fields._id);
+    process.id = readId(dbProcess, fields._id);
     process.deployedTime = readTime(dbProcess, fields.deployedTime);
     process.deployedBy = readObject(dbProcess, fields.deployedBy);
-    process.organizationId = readObject(dbProcess, fields.organizationId);
+    process.organizationId = readString(dbProcess, fields.organizationId);
     process.processId = readObject(dbProcess, fields.processId);
     process.version = readLong(dbProcess, fields.version);
     readActivities(process, dbProcess);
@@ -93,7 +94,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     BasicDBObject dbProcess = new BasicDBObject();
     Stack<BasicDBObject> dbObjectStack = new Stack<>();
     dbObjectStack.push(dbProcess);
-    writeObjectOpt(dbProcess, fields._id, process.id);
+    writeId(dbProcess, fields._id, process.id);
     writeTimeOpt(dbProcess, fields.deployedTime, process.deployedTime);
     writeObjectOpt(dbProcess, fields.deployedBy, process.deployedBy);
     writeObjectOpt(dbProcess, fields.organizationId, process.organizationId);
@@ -111,7 +112,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       scope.activityDefinitions = new ArrayList<>();
       for (BasicDBObject dbActivity: dbActivities) {
         ActivityDefinitionImpl activity = new ActivityDefinitionImpl();
-        activity.id = dbActivity.get(fields._id);
+        activity.id = readString(dbActivity, fields._id);
         activity.activityTypeJson = readObjectMap(dbActivity, fields.activityType);
         readActivities(activity, dbActivity);
         readVariables(activity, dbActivity);
@@ -127,7 +128,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbActivity = new BasicDBObject();
         dbObjectStack.push(dbActivity);
-        writeObject(dbActivity, fields._id, activity.id);
+        writeString(dbActivity, fields._id, activity.id);
         writeObjectOpt(dbActivity, fields.activityType, activity.activityTypeJson);
         writeListElementOpt(dbParentScope, fields.activityDefinitions, dbActivity);
         writeActivities(activity, dbObjectStack);
@@ -144,8 +145,8 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       scope.transitionDefinitions = new ArrayList<>();
       for (BasicDBObject dbTransition: dbTransitions) {
         TransitionDefinitionImpl transition = new TransitionDefinitionImpl();
-        transition.fromId = dbTransition.get(fields.from);
-        transition.toId = dbTransition.get(fields.to);
+        transition.fromId = readString(dbTransition, fields.from);
+        transition.toId = readString(dbTransition, fields.to);
         scope.transitionDefinitions.add(transition);
       }
     }
@@ -156,7 +157,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       for (TransitionDefinitionImpl transition: scope.transitionDefinitions) {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbTransition = new BasicDBObject();
-        writeObjectOpt(dbTransition, fields._id, transition.id);
+        writeIdOpt(dbTransition, fields._id, transition.id);
         writeObjectOpt(dbTransition, fields.from, transition.fromId!=null ? transition.fromId : (transition.from!=null ? transition.from.id : null));
         writeObjectOpt(dbTransition, fields.to, transition.toId!=null ? transition.toId : (transition.to!=null ? transition.to.id : null));
         writeListElementOpt(dbParentScope, fields.transitionDefinitions, dbTransition);
@@ -170,7 +171,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       scope.variableDefinitions = new ArrayList<>();
       for (BasicDBObject dbVariable: dbVariables) {
         VariableDefinitionImpl variable = new VariableDefinitionImpl();
-        variable.id = dbVariable.get(fields._id);
+        variable.id = readId(dbVariable, fields._id);
         variable.dataTypeJson = readObjectMap(dbVariable, fields.dataType);
         variable.initialValueJson = readObjectMap(dbVariable, fields.initialValue);
         scope.variableDefinitions.add(variable);
@@ -183,7 +184,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       for (VariableDefinitionImpl variable: scope.variableDefinitions) {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbVariable = new BasicDBObject();
-        writeObjectOpt(dbVariable, fields._id, variable.id);
+        writeIdOpt(dbVariable, fields._id, variable.id);
         writeObjectOpt(dbVariable, fields.dataType, variable.dataTypeJson);
         writeObjectOpt(dbVariable, fields.initialValue, variable.initialValueJson);
         writeListElementOpt(dbParentScope, fields.variableDefinitions, dbVariable);
@@ -221,9 +222,9 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     insert(dbProcessDefinition, writeConcernInsertProcessDefinition);
   }
 
-  public ProcessDefinitionImpl findProcessDefinitionById(Object processDefinitionId) {
+  public ProcessDefinitionImpl findProcessDefinitionById(String processDefinitionId) {
     DBObject query = BasicDBObjectBuilder.start()
-            .add(fields._id, processDefinitionId)
+            .add(fields._id, new ObjectId(processDefinitionId))
             .get();
     BasicDBObject dbProcess = findOne(query);
     return readProcessDefinition(dbProcess);

@@ -96,7 +96,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected ProcessDefinitionImpl loadProcessDefinitionById(Object processDefinitionId) {
+  protected ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
     return processDefinitions.get(processDefinitionId);
   }
 
@@ -154,7 +154,8 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     }
   }
 
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(Object activityInstanceId) {
+  @Override
+  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId) {
     ProcessInstanceQuery processInstanceQuery = new ProcessInstanceQuery(this)
       .activityInstanceId(activityInstanceId);
     processInstanceQuery.setMaxResults(1);
