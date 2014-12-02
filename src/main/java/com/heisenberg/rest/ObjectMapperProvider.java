@@ -35,4 +35,6 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
   public ObjectMapper getContext(Class< ? > type) {
     return processEngine.json.objectMapper;
   }
+  
+  
 }

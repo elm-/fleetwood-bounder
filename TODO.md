@@ -25,9 +25,9 @@
      - [x] engine level configured data types
      - [x] inline defined and configured data types
      - [ ] default types like text, ... 
-     - [ ] user defined object types (without beans) 
      - [ ] reference type
   - [ ] data sources
+     - [ ] user defined object types (without beans) 
   - [ ] script functions
 - [x] activity in / output parameters
   - [x] static value 
@@ -39,15 +39,32 @@
   - [x] synchonous and asynchronoux execution of activities
 - [x] pluggable persistence architecture 
 - [x] transient execution context variables
+- [x] mongodb persistence
+  - [x] mongodb mapping
+  - [x] mongodb clustering
 
 # Roadmap
 
-- [ ] bpmn serialization and parsing
-- [ ] bpmn process logic coverage
-- [ ] mongodb persistence
-- [ ] cassandra persistence ?
-- [ ] pluggable task service
-- [ ] type declarations in process definition 
+- [ ] Load testing
+- [ ] Pluggable task service
+- [ ] Create an archivedActivityInstances collection in ScopeInstanceImpl  This way we can just flush the whole activity instances field if something was changed.
+- [ ] Extend activity worker patter scalability
+      We start with one scalable job executor.  But that is one scale for all jobs.
+      When we add the ability to dedicate certain job executors to specific activities, then 
+      we are on par with SWF
+- [ ] BPMN serialization and parsing
+  - [ ] BPMN process logic coverage
+- [ ] Timers
+- [ ] change ProcessEngine.startProcessInstance return value into StartProcessInstanceResponse
+  - [ ] include process instance full state (as is returned now)
+  - [ ] add all (or some) process events as a kind of logs
+- [ ] Change response into ProcessEngine.startProcessInstance StartProcessInstanceResponse.  this way we can include the events/logs of all things that happened during execution.
+- [ ] Change response of ProcessEngine.notifyActivityInstance into NotifyActivityInstanceResponse this way we can include the events/logs of all things that happened during execution.
+- [ ] Activity types
+  - [ ] HTTP invocation
+  - [ ] Send email
+  - [ ] Remote implemented activity (http)
+  - [ ] Script (through ScriptEngine)
 - [ ] split up into multiple modules
   - [ ] one for the api
   - [ ] one for impl + spi
@@ -55,31 +72,15 @@
   - [ ] maybe an mvn command (on the parent project?) to bundle them in a single jar
   - [ ] this way we get the minimal classpaths tested
   - [ ] ensure jackson lib is not required if json is not used
-- [ ] extend activity worker patter scalability
-      We start with one scalable job executor.  But that is one scale for all jobs.
-      When we add the ability to dedicate certain job executors to specific activities, then 
-      we are on par with SWF
-- [ ] change ProcessEngine.startProcessInstance return value into StartProcessInstanceResponse
-  - [ ] include process instance full state (as is returned now)
-  - [ ] add all (or some) process events as a kind of logs
-- [ ] load testing
-- [ ] create an archivedActivityInstances collection in ScopeInstanceImpl  This way we can just flush the whole activity instances field if something was changed.  
-- [ ] activity types
-  - [ ] HTTP invocation
-  - [ ] Send email
-  - [ ] Remote implemented activity (http)
-  - [ ] Script (through ScriptEngine)
-- [ ] timers
-- [ ] Change response into ProcessEngine.startProcessInstance StartProcessInstanceResponse.  this way we can include the events/logs of all things that happened during execution.
-- [ ] Change response of ProcessEngine.notifyActivityInstance into NotifyActivityInstanceResponse this way we can include the events/logs of all things that happened during execution.
-- [ ] data flow (only start an activity when the input data becomes available)
-- [ ] derived variables
-- [ ] static persistable process variables
-- [ ] allow for easy collection of process instance logs to track what has happened
-- [ ] process debugger service (separate top level interface required)
+- [ ] Data flow (only start an activity when the input data becomes available)
+- [ ] Derived variables
+- [ ] Static persistable process variables
+- [ ] Allow for easy collection of process instance logs to track what has happened
+- [ ] Process debugger service (separate top level interface required)
   - [ ] based on the in memory process engine
   - [ ] add breakpoints
   - [ ] ensure all async work is executed synchronous 
+- [ ] Cassandra persistence ?
 
 # Design principles
 

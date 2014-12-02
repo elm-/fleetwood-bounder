@@ -43,7 +43,6 @@ public class ParallelGateway extends AbstractActivityType {
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    
   }
 
   @Override
@@ -53,5 +52,4 @@ public class ParallelGateway extends AbstractActivityType {
   @Override
   public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
   }
-
 }

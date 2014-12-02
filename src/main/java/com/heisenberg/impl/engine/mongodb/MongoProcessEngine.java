@@ -51,6 +51,7 @@ import com.mongodb.MongoClient;
  */
 public class MongoProcessEngine extends ProcessEngineImpl {
   
+  public static final Logger dbLog = LoggerFactory.getLogger(MongoProcessEngine.class+".DB");
   public static final Logger log = LoggerFactory.getLogger(MongoProcessEngine.class);
   
   protected DB db;
@@ -67,11 +68,6 @@ public class MongoProcessEngine extends ProcessEngineImpl {
             mongoDbConfiguration.optionBuilder.build());
     initializeDefaults();
     
-    SimpleModule module = new SimpleModule("dateModule", new Version(1, 0, 0, null, null, null));
-    module.addSerializer(new ObjectIdSerializer());
-    module.addDeserializer(ObjectId.class, new ObjectIdDeserializer());
-    json.objectMapper.registerModule(module);
-
     this.db = mongoClient.getDB(mongoDbConfiguration.databaseName);
     this.processDefinitions = new MongoProcessDefinitions(this, db, mongoDbConfiguration);
     this.processInstances = new MongoProcessInstances(this, db, mongoDbConfiguration);

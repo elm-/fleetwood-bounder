@@ -73,11 +73,12 @@ public class HeisenbergServer {
   public static ResourceConfig buildRestApplication(ProcessEngineImpl processEngine) {
     ResourceConfig config = new ResourceConfig();
     config.registerInstances(
+            new JacksonFeature(),
             new DeployResource(processEngine),
             new StartProcessInstanceResource(processEngine),
             new NotifyActivityInstanceResource(processEngine),
-            new JacksonFeature(),
-            new ObjectMapperProvider(processEngine)
+            new ObjectMapperProvider(processEngine),
+            new RequestLogger()
             );
     return config;
   }

@@ -47,22 +47,22 @@ public class MongoProcessInstances extends MongoCollection {
   
   public static class Fields {
     public String _id = "_id";
-    public String organizationId = "oz";
-    public String processDefinitionId = "pd";
-    public String start = "s";
-    public String end = "e";
-    public String duration = "d";
-    public String activityInstances = "a";
-    public String variableInstances = "v";
-    public String parent = "p";
-    public String variableDefinitionId = "vd";
-    public String value = "vl";
-    public String activityDefinitionId = "ad";
-    public String lock = "l";
-    public String time = "t";
-    public String owner= "w";
-    public String updates = "u";
-    public String operations = "o";
+    public String organizationId = "organizationId";
+    public String processDefinitionId = "processDefinitionId";
+    public String start = "start";
+    public String end = "end";
+    public String duration = "duration";
+    public String activityInstances = "activities";
+    public String variableInstances = "variables";
+    public String parent = "parent";
+    public String variableDefinitionId = "variableDefinitionId";
+    public String value = "value";
+    public String activityDefinitionId = "activityDefinitionId";
+    public String lock = "lock";
+    public String time = "time";
+    public String owner= "owner";
+    public String updates = "updates";
+    public String operations = "operations";
   }
   
   protected MongoProcessEngine processEngine;

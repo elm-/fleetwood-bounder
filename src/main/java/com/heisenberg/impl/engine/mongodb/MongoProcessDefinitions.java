@@ -48,18 +48,18 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   
   public static class Fields {
     public String _id = "_id";
-    public String deployedTime = "dt";
-    public String deployedBy = "db";
-    public String organizationId = "o";
-    public String processId = "p";
-    public String version = "vn";
-    public String activityDefinitions = "a";
-    public String variableDefinitions = "v";
-    public String transitionDefinitions = "t";
-    public String activityType = "at";
-    public String dataType = "y";
-    public String initialValue = "i";
-    public String from = "fr";
+    public String deployedTime = "deployedTime";
+    public String deployedBy = "deployedBy";
+    public String organizationId = "oorganizationId";
+    public String processId = "processId";
+    public String version = "version";
+    public String activityDefinitions = "activities";
+    public String variableDefinitions = "variables";
+    public String transitionDefinitions = "transitions";
+    public String activityType = "activityType";
+    public String dataType = "dataType";
+    public String initialValue = "initialValue";
+    public String from = "from";
     public String to = "to";
   }
 

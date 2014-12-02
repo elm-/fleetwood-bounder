@@ -37,7 +37,7 @@ import com.mongodb.WriteResult;
  */
 public class MongoCollection {
   
-  public static final Logger log = LoggerFactory.getLogger(MongoProcessEngine.class);
+  public static final Logger log = MongoProcessEngine.dbLog;
   
   protected DBCollection dbCollection;
   protected boolean isPretty; 
