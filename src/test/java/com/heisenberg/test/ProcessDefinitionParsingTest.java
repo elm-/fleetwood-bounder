@@ -17,7 +17,7 @@ package com.heisenberg.test;
 import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
 
@@ -32,7 +32,7 @@ public class ProcessDefinitionParsingTest {
       .registerActivityType(Go.class);
     
     // cook the process
-    ProcessBuilder processBuilder = processEngine.newProcess();
+    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
     
     processBuilder.newActivity()
       .activityType(new Go());
@@ -47,7 +47,7 @@ public class ProcessDefinitionParsingTest {
     ProcessEngine processEngine = new MemoryProcessEngine()
       .registerActivityType(Go.class);
     
-    ProcessBuilder processBuilder = processEngine.newProcess();
+    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
     
     processBuilder.newActivity()
       .id("a");

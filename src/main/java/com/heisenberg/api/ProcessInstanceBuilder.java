@@ -12,14 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl;
+package com.heisenberg.api;
 
+import com.heisenberg.api.instance.ProcessInstance;
 
 /**
  * @author Walter White
  */
-public enum PluginType {
+public interface ProcessInstanceBuilder {
 
-  activity,
-  dataType
+  ProcessInstanceBuilder processDefinitionId(String processDefinitionId);
+
+  ProcessInstanceBuilder variableValue(String variableDefinitionIdInternal, Object value);
+
+  ProcessInstanceBuilder variableValueJson(String variableDefinitionIdInternal, Object valueJson);
+
+  ProcessInstanceBuilder transientContext(String key, Object value);
+
+  ProcessInstance start();
+
 }

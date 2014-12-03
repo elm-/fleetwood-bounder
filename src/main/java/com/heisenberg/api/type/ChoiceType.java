@@ -23,7 +23,8 @@ import java.util.Map;
  */
 public class ChoiceType extends AbstractDataType {
   
-  protected String label;
+  public String label;
+
   /** maps option ids to option labels */
   protected Map<String, String> options;
   
@@ -39,14 +40,22 @@ public class ChoiceType extends AbstractDataType {
     this.label = label;
     return this;
   }
-
+  
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "choice";
   }
   
   public Map<String,String> getOptions() {
     return options;
+  }
+  
+  public String getLabel() {
+    return label;
+  }
+  
+  public void setLabel(String label) {
+    this.label = label;
   }
 
   @Override
@@ -61,10 +70,5 @@ public class ChoiceType extends AbstractDataType {
          && !options.containsKey(internalValue) ) {
       throw new InvalidValueException("Invalid value '"+internalValue+"'.  Expected one of "+options.keySet()+" (or null)");
     }
-  }
-
-  @Override
-  public String getLabel() {
-    return label;
   }
 }

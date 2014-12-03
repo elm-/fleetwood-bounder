@@ -19,11 +19,11 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
-import com.heisenberg.impl.script.ScriptService;
 
 
 /**
@@ -32,7 +32,7 @@ import com.heisenberg.impl.script.ScriptService;
 public class ScriptTask extends AbstractActivityType {
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "serviceTask";
   }
 
@@ -42,7 +42,7 @@ public class ScriptTask extends AbstractActivityType {
   }
   
   public String script;
-  public Map<String, Object> scriptToProcessMappings;
+  public Map<String, String> scriptToProcessMappings;
   public Object resultVariableDefinitionId;
   
   @JsonIgnore

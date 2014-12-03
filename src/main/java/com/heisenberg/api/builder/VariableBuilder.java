@@ -30,11 +30,13 @@ public interface VariableBuilder {
   
   VariableBuilder dataType(DataType dataType);
   
+//  VariableBuilder dataTypeId(String dataTypeId);
+  
   VariableBuilder dataTypeJavaBean(Class<?> userDefinedJavaBeanClass);
 
   VariableBuilder initialValue(Object initialValue);
   
-  VariableBuilder initialValueJson(Object initialValueJson);
+//  VariableBuilder initialValueJson(Object initialValueJson);
   
   VariableBuilder line(Long lineNumber);
   

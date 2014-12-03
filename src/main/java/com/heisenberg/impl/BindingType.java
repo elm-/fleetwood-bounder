@@ -28,12 +28,12 @@ public class BindingType extends AbstractDataType {
   DataType dataType;
 
   public BindingType(DataType dataType) {
-    this.id = "binding<"+dataType.getTypeId()+">";
+    this.id = "binding<"+dataType.getType()+">";
     this.dataType = dataType;
   }
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return id;
   }
 

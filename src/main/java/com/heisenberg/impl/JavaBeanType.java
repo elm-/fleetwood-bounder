@@ -16,10 +16,10 @@ package com.heisenberg.impl;
 
 import java.util.Map;
 
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.type.AbstractDataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.json.Json;
 
 
 /**
@@ -27,21 +27,24 @@ import com.heisenberg.impl.json.Json;
  */
 public class JavaBeanType extends AbstractDataType {
   
-  Class<?> javaClass;
-  Json json;
-  
+  public Class<?> javaClass;
+  public JsonService jsonService;
+
+  public JavaBeanType() {
+  }
+
   public JavaBeanType(Class< ? > javaClass) {
     this.javaClass = javaClass;
   }
-
+  
   @Override
-  public String getTypeId() {
-    return javaClass.getName();
+  public String getType() {
+    return "javaBean";
   }
   
   @Override
   public void validate(Validator validator) {
-    json = validator.getJson();
+    this.jsonService = validator.getJsonService();
   }
 
   @SuppressWarnings("unchecked")
@@ -49,13 +52,8 @@ public class JavaBeanType extends AbstractDataType {
   public Object convertJsonToInternalValue(Object jsonValue) throws InvalidValueException {
     if (jsonValue==null) return null;
     if (Map.class.isAssignableFrom(jsonValue.getClass())) {
-      return json.jsonMapToObject((Map<String,Object>)jsonValue, javaClass);
+      return jsonService.jsonMapToObject((Map<String,Object>)jsonValue, javaClass);
     }
     throw new InvalidValueException("Couldn't convert json: "+jsonValue+" ("+jsonValue.getClass().getName()+")");
-  }
-
-  @Override
-  public String getLabel() {
-    return javaClass.getSimpleName();
   }
 }

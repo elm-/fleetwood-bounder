@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.task.Task;
-import com.heisenberg.api.task.TaskService;
 
 
 /**

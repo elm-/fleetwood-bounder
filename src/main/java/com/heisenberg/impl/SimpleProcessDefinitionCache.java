@@ -26,10 +26,10 @@ import com.heisenberg.impl.definition.ProcessDefinitionImpl;
  */
 public class SimpleProcessDefinitionCache implements ProcessDefinitionCache {
   
-  protected Map<Object, ProcessDefinitionImpl> processDefinitions = Collections.synchronizedMap(new HashMap<Object, ProcessDefinitionImpl>());
+  protected Map<String, ProcessDefinitionImpl> processDefinitions = Collections.synchronizedMap(new HashMap<String, ProcessDefinitionImpl>());
 
   @Override
-  public ProcessDefinitionImpl get(Object processDefinitionId) {
+  public ProcessDefinitionImpl get(String processDefinitionId) {
     return processDefinitions.get(processDefinitionId);
   }
 

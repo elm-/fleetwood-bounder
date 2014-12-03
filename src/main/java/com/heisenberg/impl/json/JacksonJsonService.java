@@ -27,14 +27,21 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.type.ChoiceType;
+import com.heisenberg.api.type.SingletonDataTypeProxy;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.VariableRequestImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -53,25 +60,21 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
 /**
  * @author Walter White
  */
-public class Json {
+public class JacksonJsonService implements JsonService {
   
   public ProcessEngineImpl processEngine;
   public JsonFactory jsonFactory;
   public ObjectMapper objectMapper;
   // private static final String ATTRIBUTE_KEY_PROCESS_ENGINE = "processEngine";
 
-  public Json(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
+  public JacksonJsonService() {
     this.jsonFactory = new JsonFactory();
     
     this.objectMapper = new ObjectMapper()
       .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
       .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
-      .setSerializationInclusion(Include.NON_NULL);
-    
-    // This is to get the process engine inside of the ActivityTypeIdResolver and DataTypeIdResolver
-    this.objectMapper.setHandlerInstantiator(new CustomFactory(processEngine));
+      .setSerializationInclusion(Include.NON_EMPTY);
     
     this.objectMapper.registerSubtypes(
        TextType.class,
@@ -86,9 +89,10 @@ public class Json {
        OperationRemoveFirstUpdate.class
        );
     
-    SimpleModule module = new SimpleModule("dateModule", new Version(1, 0, 0, null, null, null));
+    SimpleModule module = new SimpleModule();
     module.addSerializer(new LocalDateTimeSerializer());
     module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
+    
     this.objectMapper.registerModule(module);
   }
   
@@ -128,6 +132,11 @@ public class Json {
         ((ProcessInstanceImpl)object).visit(PROCESS_INSTANCE_SERIALIZER);
       } else if (object instanceof Update) {
         PROCESS_INSTANCE_SERIALIZER.update((Update)object, -1);
+      } else if (object instanceof VariableRequestImpl) {
+        VariableRequestImpl variableRequest = (VariableRequestImpl)object;
+        if (variableRequest.variableValues!=null && variableRequest.variableValuesJson==null) {
+          throw new RuntimeException("Please ensure that the serialized format of the variable values is set with variableValueJson(String,Object)");
+        }
       }
       objectWriter
         .withAttribute("processEngine", processEngine)
@@ -170,4 +179,13 @@ public class Json {
     return object;
   }
 
+  public ProcessEngineImpl getProcessEngine() {
+    return processEngine;
+  }
+
+  public void setProcessEngine(ProcessEngine processEngine) {
+    this.processEngine = (ProcessEngineImpl) processEngine;
+    // This is to get the process engine inside of the ActivityTypeIdResolver and DataTypeIdResolver
+    this.objectMapper.setHandlerInstantiator(new CustomFactory((ProcessEngineImpl)processEngine));
+  }
 }

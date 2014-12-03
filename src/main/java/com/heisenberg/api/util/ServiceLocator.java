@@ -14,9 +14,9 @@
  */
 package com.heisenberg.api.util;
 
-import com.heisenberg.api.task.TaskService;
-import com.heisenberg.impl.json.Json;
-import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.api.configuration.ScriptService;
+import com.heisenberg.api.configuration.TaskService;
 
 
 /**
@@ -24,7 +24,7 @@ import com.heisenberg.impl.script.ScriptService;
  */
 public interface ServiceLocator {
 
-  Json getJson();
+  JsonService getJsonService();
   ScriptService getScriptService();
   TaskService getTaskService();
 }

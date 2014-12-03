@@ -54,13 +54,19 @@ public class DataTypeIdResolver implements TypeIdResolver {
 
   @Override
   public String idFromValueAndType(Object obj, Class< ? > clazz) {
-    String typeId = processEngine.dataTypeDescriptorsByClass.get(clazz).getTypeId();
-    return typeId;
+    String type = processEngine.dataTypes.getType(clazz);
+    if (type==null) {
+      throw new RuntimeException("Couldn't find type for data type "+clazz.getName());
+    }
+    return type;
   }
 
   @Override
-  public JavaType typeFromId(String typeId) {
-    Class< ? > clazz = processEngine.dataTypeDescriptorsByTypeId.get(typeId).getPluginClass();
+  public JavaType typeFromId(String type) {
+    Class< ? > clazz = processEngine.dataTypes.getDataTypeClazz(type);
+    if (clazz==null) {
+      throw new RuntimeException("Couldn't find class for data type "+type);
+    }
     return TypeFactory.defaultInstance().constructSpecializedType(baseType, clazz);
   }
 }

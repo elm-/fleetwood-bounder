@@ -20,30 +20,32 @@ package com.heisenberg.api;
 /**
  * @author Walter White
  */
-public class StartProcessInstanceRequest extends VariableRequest {
+public class DeployResult extends ParseIssues {
 
-  public String processDefinitionId;
-
-  public StartProcessInstanceRequest processDefinitionId(String processDefinitionId) {
+  protected String processDefinitionId;
+  
+  public String getProcessDefinitionId() {
+    return processDefinitionId;
+  }
+  
+  public void setProcessDefinitionId(String processDefinitionId) {
     this.processDefinitionId = processDefinitionId;
+  }
+  
+  public void setIssues(ParseIssues parseIssues) {
+    this.issues = parseIssues.issues;
+  }
+  
+  public DeployResult checkNoErrors() {
+    super.checkNoErrors();
     return this;
   }
 
-  @Override
-  public StartProcessInstanceRequest variableValue(Object variableDefinitionIdInternal, Object value) {
-    super.variableValue(variableDefinitionIdInternal, value);
+  /** throws a RuntimeException if there were errors or warnings while deploying the process */
+  public DeployResult checkNoErrorsAndNoWarnings() {
+    super.checkNoErrorsAndNoWarnings();
     return this;
   }
 
-  @Override
-  public StartProcessInstanceRequest variableValueJson(Object variableDefinitionIdInternal, Object valueJson) {
-    super.variableValueJson(variableDefinitionIdInternal, valueJson);
-    return this;
-  }
 
-  @Override
-  public StartProcessInstanceRequest transientContext(String key, Object value) {
-    super.transientContext(key, value);
-    return this;
-  }
 }

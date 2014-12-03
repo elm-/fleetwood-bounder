@@ -20,10 +20,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
@@ -38,34 +38,37 @@ public class RegisterActivityTypeSimpleExample {
   @Test
   public void testSpiActivityPluggability() throws Exception {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
-      .registerActivityType(MyCustomType.class);
+      .registerActivityType("myCustomType", new MyCustomType());
     
-    ProcessBuilder process = processEngine.newProcess();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newActivity()
       .id("a")
-      .activityType(new MyCustomType());
+      .activityTypeId(MyCustomType.ID);
     
     String processDefinitionId = processEngine
       .deployProcessDefinition(process)
       .getProcessDefinitionId();
     
-    processEngine.startProcessInstance(new StartProcessInstanceRequest()
+    processEngine.newProcessInstance()
       .processDefinitionId(processDefinitionId));
     
     assertEquals("Leroy was here", message);
   }
   
-  static String message; 
+  String message; 
 
-  public static class MyCustomType extends AbstractActivityType {
+  public class MyCustomType extends AbstractActivityType {
+    
+    public static final String ID = "myCustomType";
+    
     @Override
     public void start(ControllableActivityInstance activityInstance) {
       message = "Leroy was here";
     }
 
     @Override
-    public String getTypeId() {
+    public String getType() {
       return "myCustomType";
     }
   }

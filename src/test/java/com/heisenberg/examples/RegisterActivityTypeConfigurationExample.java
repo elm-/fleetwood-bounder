@@ -26,15 +26,15 @@ import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.impl.PluginDescriptor;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.json.JacksonJsonService;
+import com.heisenberg.impl.plugin.PluginDescriptor;
 
 
 /**
@@ -49,14 +49,14 @@ public class RegisterActivityTypeConfigurationExample {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
       .registerActivityType(MyCustomType.class);
     
-    Json json = processEngine.json;
+    JacksonJsonService jacksonJsonService = processEngine.jsonService;
     PluginDescriptor spiDescriptor = processEngine.activityTypeDescriptorsByTypeId.get("myCustomType");
     log.debug("From oss on-premise to SaaS process builder:");
-    log.debug(json.objectToJsonStringPretty(spiDescriptor)+"\n");
+    log.debug(jacksonJsonService.objectToJsonStringPretty(spiDescriptor)+"\n");
     
     log.debug("SaaS process builder shows the activity in the pallete");
 
-    ProcessBuilder processBuilder = processEngine.newProcess();
+    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
     ActivityDefinitionImpl a = (ActivityDefinitionImpl) processBuilder.newActivity()
       .id("a")
       .activityType(new MyCustomType()
@@ -68,19 +68,19 @@ public class RegisterActivityTypeConfigurationExample {
       .dataType(TextType.INSTANCE);
 
     log.debug("The process as it is deployed into the engine:");
-    String processJson = json.objectToJsonStringPretty(processBuilder);
+    String processJson = jacksonJsonService.objectToJsonStringPretty(processBuilder);
     log.debug(processJson+"\n");
 
-    ProcessDefinitionImpl processDefinition = json.jsonToObject(processJson, ProcessDefinitionImpl.class);
+    ProcessDefinitionImpl processDefinition = jacksonJsonService.jsonToObject(processJson, ProcessDefinitionImpl.class);
     log.debug(processJson+"\n");
 
-    String aJsonText = json.objectToJsonStringPretty(a.activityType);
+    String aJsonText = jacksonJsonService.objectToJsonStringPretty(a.activityType);
     log.debug(aJsonText+"\n");
 
     @SuppressWarnings("unchecked")
-    Map<String,Object> aJsonMap = (Map<String,Object>)json.objectMapper.readValue(aJsonText, Map.class);
+    Map<String,Object> aJsonMap = (Map<String,Object>)jacksonJsonService.objectMapper.readValue(aJsonText, Map.class);
     
-    processBuilder = processEngine.newProcess();
+    processBuilder = processEngine.newProcessDefinition();
     processBuilder.newActivity()
       .activityTypeJson(aJsonMap);
     
@@ -117,7 +117,7 @@ public class RegisterActivityTypeConfigurationExample {
     }
 
     @Override
-    public String getTypeId() {
+    public String getType() {
       return "myCustomType";
     }
   }

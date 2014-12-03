@@ -68,7 +68,7 @@ public class Go extends AbstractActivityType {
   }
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "testGo";
   }
 }

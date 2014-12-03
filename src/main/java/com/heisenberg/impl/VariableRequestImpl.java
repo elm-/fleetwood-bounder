@@ -12,30 +12,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.impl;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.impl.definition.VariableDefinitionImpl;
 
 
 /**
  * @author Walter White
  */
-public class VariableRequest {
+public class VariableRequestImpl {
 
   @JsonIgnore
-  public Map<Object,Object> variableValues;
+  ProcessEngineImpl processEngine;
+  
+  @JsonIgnore
+  public Map<String,Object> variableValues;
 
-  public Map<Object,Object> variableValuesJson;
+  @JsonProperty("variableValues")
+  public Map<String,Object> variableValuesJson;
 
   /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
-  @JsonIgnore
   public Map<String,Object> transientContext;
 
-  public VariableRequest variableValue(Object variableDefinitionId, Object value) {
+//  public VariableRequestImpl() {
+//  }
+
+  public VariableRequestImpl(ProcessEngineImpl processEngine) {
+    super();
+    this.processEngine = processEngine;
+  }
+
+  public VariableRequestImpl variableValue(String variableDefinitionId, Object value) {
     if (variableValues==null) {
       variableValues = new LinkedHashMap<>();
     }
@@ -43,7 +57,7 @@ public class VariableRequest {
     return this;
   }
 
-  public VariableRequest variableValueJson(Object variableDefinitionId, Object valueJson) {
+  public VariableRequestImpl variableValueJson(String variableDefinitionId, Object valueJson) {
     if (variableValuesJson==null) {
       variableValuesJson = new LinkedHashMap<>();
     }
@@ -51,7 +65,7 @@ public class VariableRequest {
     return this;
   }
   
-  public VariableRequest transientContext(String key, Object value) {
+  public VariableRequestImpl transientContext(String key, Object value) {
     if (transientContext==null) {
       transientContext = new HashMap<>();
     }

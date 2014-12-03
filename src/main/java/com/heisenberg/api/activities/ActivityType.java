@@ -32,7 +32,7 @@ import com.heisenberg.impl.json.ActivityTypeIdResolver;
 @JsonTypeInfo(use=Id.CUSTOM, include=As.PROPERTY, property="typeId")
 @JsonTypeIdResolver(ActivityTypeIdResolver.class)
 public interface ActivityType extends Plugin {
-
+  
   /** called when the process is being deployed. 
    * @param activity */
   void validate(ActivityDefinition activity, Validator validator);

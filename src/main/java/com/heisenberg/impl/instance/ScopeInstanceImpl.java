@@ -144,24 +144,24 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     variableInstances.add(variableInstance);
   }
   
-  public void setVariableValuesRecursive(Map<Object, Object> variableValues) {
+  public void setVariableValuesRecursive(Map<String, Object> variableValues) {
     if (variableValues!=null) {
-      for (Object variableDefinitionId: variableValues.keySet()) {
+      for (String variableDefinitionId: variableValues.keySet()) {
         Object value = variableValues.get(variableDefinitionId);
         setVariableValueRecursive(variableDefinitionId, value);
       }
     }
   }
 
-  public void setVariableValueRecursive(Object variableDefinitionName, Object value) {
+  public void setVariableValueRecursive(String variableDefinitionId, Object value) {
     if (variableInstances!=null) {
-      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionName);
+      VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
         variableInstance.setValue(value);
       }
     }
     if (parent!=null) {
-      parent.setVariableValueRecursive(variableDefinitionName, value);
+      parent.setVariableValueRecursive(variableDefinitionId, value);
     }
   }
   

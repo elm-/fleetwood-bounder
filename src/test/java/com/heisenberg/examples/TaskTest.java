@@ -18,9 +18,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.bpmn.UserTask;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
 
@@ -34,7 +34,7 @@ public class TaskTest {
   public void testTask() throws Exception {
     MemoryProcessEngine processEngine = new MemoryProcessEngine();
     
-    ProcessBuilder process = processEngine.newProcess();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newActivity()
       .id("Task one")
@@ -46,7 +46,7 @@ public class TaskTest {
       .getProcessDefinitionId();
     
     processEngine.startProcessInstance(
-      new StartProcessInstanceRequest().processDefinitionId(processDefinitionId)
+      new ProcessInstanceBuilder().processDefinitionId(processDefinitionId)
     );
     
     MemoryTaskService taskService = processEngine.getTaskService();

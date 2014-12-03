@@ -14,25 +14,14 @@
  */
 package com.heisenberg.api.util;
 
-import com.heisenberg.impl.ProcessEngineImpl;
 
-
-/** super interface for all service provider interfaces.
- * 
- * By using this marker interface, 
- * we only have to do 1 scan to find all pluggable implementations.
- * @see ProcessEngineImpl#initializeDefaultPluggableImplementations()  
- * 
+/**
  * @author Walter White
  */
 public interface Plugin {
 
-  /** short, but unique name identifying the concrete java class.
-   * used by json/db (de)serialization. */
-  String getTypeId();
-
+  String getType();
   String getLabel();
-  // String getDescription();
-  // InputStream getIconInputStream();
-  // String getIconMimeType();
+  String getDescription();
+
 }

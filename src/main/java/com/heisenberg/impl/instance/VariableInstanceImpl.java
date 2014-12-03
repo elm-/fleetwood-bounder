@@ -108,4 +108,24 @@ public class VariableInstanceImpl implements VariableInstance {
   public void setId(String id) {
     this.id = id;
   }
+
+  
+  public DataType getDataType() {
+    return dataType;
+  }
+
+  
+  public void setDataType(DataType dataType) {
+    this.dataType = dataType;
+  }
+
+  
+  public void setDataTypeId(String dataTypeId) {
+    this.dataTypeId = dataTypeId;
+  }
+
+  
+  public void setVariableDefinitionId(String variableDefinitionId) {
+    this.variableDefinitionId = variableDefinitionId;
+  }
 }

@@ -21,13 +21,9 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.heisenberg.api.NotifyActivityInstanceRequest;
+import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.Page;
-import com.heisenberg.api.StartProcessInstanceRequest;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;
@@ -59,19 +55,19 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   protected MongoProcessDefinitions processDefinitions;
   protected MongoProcessInstances processInstances;
   
-  protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(json);
+  protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(jsonService);
   
-  public MongoProcessEngine(MongoConfiguration mongoDbConfiguration) {
+  public MongoProcessEngine(MongoProcessEngineConfiguration mongoDbConfiguration) {
+    super(mongoDbConfiguration);
     MongoClient mongoClient = new MongoClient(
-            mongoDbConfiguration.serverAddresses, 
-            mongoDbConfiguration.credentials, 
-            mongoDbConfiguration.optionBuilder.build());
-    initializeDefaults();
+            mongoDbConfiguration.getServerAddresses(), 
+            mongoDbConfiguration.getCredentials(), 
+            mongoDbConfiguration.getOptionBuilder().build());
     
-    this.db = mongoClient.getDB(mongoDbConfiguration.databaseName);
+    this.db = mongoClient.getDB(mongoDbConfiguration.getDatabaseName());
     this.processDefinitions = new MongoProcessDefinitions(this, db, mongoDbConfiguration);
     this.processInstances = new MongoProcessInstances(this, db, mongoDbConfiguration);
-    this.updateConverters = new MongoUpdateConverters(json);
+    this.updateConverters = new MongoUpdateConverters(jsonService);
   }
   
   @Override
@@ -92,16 +88,6 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   @Override
   protected String createVariableInstanceId() {
     return new ObjectId().toString();
-  }
-
-  @Override
-  public ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest) {
-    return super.startProcessInstance(startProcessInstanceRequest);
-  }
-
-  @Override
-  public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
-    return super.notifyActivityInstance(notifyActivityInstanceRequest);
   }
 
   @Override

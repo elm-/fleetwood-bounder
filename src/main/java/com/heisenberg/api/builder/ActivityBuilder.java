@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.builder;
 
-import java.util.Map;
-
 import com.heisenberg.api.activities.ActivityType;
 
 
@@ -26,8 +24,6 @@ import com.heisenberg.api.activities.ActivityType;
 public interface ActivityBuilder {
 
   ActivityBuilder activityType(ActivityType activityType);
-//  ActivityBuilder activityTypeId(String activityTypeId);
-  ActivityBuilder activityTypeJson(Map<String,Object> activityTypeJson);
 
   ActivityBuilder id(String activityDefinitionId);
 

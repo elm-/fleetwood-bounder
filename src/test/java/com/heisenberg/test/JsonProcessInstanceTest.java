@@ -37,7 +37,7 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
-import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.json.JacksonJsonService;
 
 /**
  * @author Walter White
@@ -111,13 +111,13 @@ public class JsonProcessInstanceTest {
     processInstance.updates = new ArrayList<>();
     processInstance.updates.add(new ActivityInstanceCreateUpdate(activityInstance));
 
-    Json json = processEngine.json;
+    JacksonJsonService jacksonJsonService = processEngine.jsonService;
     
-    String processInstanceJsonText = json.objectToJsonStringPretty(processInstance);
+    String processInstanceJsonText = jacksonJsonService.objectToJsonStringPretty(processInstance);
 
     log.debug(processInstanceJsonText);
     
-    processInstance = json.jsonToObject(processInstanceJsonText, ProcessInstanceImpl.class);
+    processInstance = jacksonJsonService.jsonToObject(processInstanceJsonText, ProcessInstanceImpl.class);
     assertNotNull(processInstance);
 //    assertEquals("myorg", processDefinition.organizationId.getInternal());
 //    ChoiceType choiceType = (ChoiceType) processDefinition.typesMap.get("country");

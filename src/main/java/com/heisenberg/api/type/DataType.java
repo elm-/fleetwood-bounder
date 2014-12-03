@@ -30,8 +30,6 @@ import com.heisenberg.impl.json.DataTypeIdResolver;
 @JsonTypeIdResolver(DataTypeIdResolver.class)
 public interface DataType extends Plugin {
   
-  String getTypeId();
-
   /** invoked to validate values submitted through the api. */
   void validateInternalValue(Object internalValue) throws InvalidValueException;
 

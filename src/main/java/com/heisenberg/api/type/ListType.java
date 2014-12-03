@@ -16,22 +16,25 @@ package com.heisenberg.api.type;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 /**
  * @author Walter White
  */
 public class ListType extends AbstractDataType implements DataType {
   
-  DataType dataType;
   String typeId;
+  @JsonIgnore
+  DataType elementDataType;
   
   /** constructor for json, dataType is a required field. */
   protected ListType() {
   }
 
-  public ListType(DataType dataType) {
-    this.dataType = dataType;
-    this.typeId = "list<"+dataType.getTypeId()+">";
+  public ListType(DataType elementDataType) {
+    this.elementDataType = elementDataType;
+    this.typeId = "list<"+elementDataType.getType()+">";
   }
 
   @Override
@@ -40,7 +43,7 @@ public class ListType extends AbstractDataType implements DataType {
   }
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return typeId;
   }
   
@@ -55,7 +58,7 @@ public class ListType extends AbstractDataType implements DataType {
     @SuppressWarnings("unchecked")
     List<Object> list = (List<Object>) internalValue;
     for (Object element: list) {
-      dataType.validateInternalValue(element);
+      elementDataType.validateInternalValue(element);
     }
   }
 
@@ -71,7 +74,7 @@ public class ListType extends AbstractDataType implements DataType {
     List<Object> list = (List<Object>) jsonValue;
     for (int i=0; i<list.size(); i++) {
       Object elementJsonValue = list.get(i);
-      Object elementInternalValue = dataType.convertJsonToInternalValue(elementJsonValue);
+      Object elementInternalValue = elementDataType.convertJsonToInternalValue(elementJsonValue);
       list.set(i, elementInternalValue);
     }
     return list;
@@ -86,7 +89,7 @@ public class ListType extends AbstractDataType implements DataType {
     List<Object> list = (List<Object>) internalValue;
     for (int i=0; i<list.size(); i++) {
       Object elementInternalValue = list.get(i);
-      Object elementJsonValue = dataType.convertInternalToJsonValue(elementInternalValue);
+      Object elementJsonValue = elementDataType.convertInternalToJsonValue(elementInternalValue);
       list.set(i, elementJsonValue);
     }
     return list;

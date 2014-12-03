@@ -16,13 +16,19 @@ package com.heisenberg.impl.engine.mongodb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.task.TaskService;
+import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.api.configuration.ScriptService;
+import com.heisenberg.api.configuration.TaskService;
+import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -30,8 +36,6 @@ import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
-import com.heisenberg.impl.json.Json;
-import com.heisenberg.impl.script.ScriptService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -46,33 +50,16 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   
   public static final Logger log = LoggerFactory.getLogger(MongoProcessEngine.class);
   
-  public static class Fields {
-    public String _id = "_id";
-    public String deployedTime = "deployedTime";
-    public String deployedBy = "deployedBy";
-    public String organizationId = "oorganizationId";
-    public String processId = "processId";
-    public String version = "version";
-    public String activityDefinitions = "activities";
-    public String variableDefinitions = "variables";
-    public String transitionDefinitions = "transitions";
-    public String activityType = "activityType";
-    public String dataType = "dataType";
-    public String initialValue = "initialValue";
-    public String from = "from";
-    public String to = "to";
-  }
-
   protected MongoProcessEngine processEngine;
-  protected Fields fields;
+  protected MongoProcessEngineConfiguration.ProcessDefinitionFields fields;
   protected WriteConcern writeConcernInsertProcessDefinition;
 
-  public MongoProcessDefinitions(MongoProcessEngine processEngine, DB db, MongoConfiguration mongoConfiguration) {
-    super(db, mongoConfiguration.processDefinitionsCollectionName);
+  public MongoProcessDefinitions(MongoProcessEngine processEngine, DB db, MongoProcessEngineConfiguration mongoConfiguration) {
+    super(db, mongoConfiguration.getProcessDefinitionsCollectionName());
     this.processEngine = processEngine;
-    this.fields = mongoConfiguration.processDefinitionFields!=null ? mongoConfiguration.processDefinitionFields : new Fields();
-    this.writeConcernInsertProcessDefinition = getWriteConcern(mongoConfiguration.writeConcernInsertProcessDefinition);
-    this.isPretty = mongoConfiguration.isPretty;
+    this.fields = mongoConfiguration.getProcessDefinitionFields();
+    this.writeConcernInsertProcessDefinition = getWriteConcern(mongoConfiguration.getWriteConcernInsertProcessDefinition());
+    this.isPretty = mongoConfiguration.isPretty();
   }
   
   public ProcessDefinitionImpl readProcessDefinition(BasicDBObject dbProcess) {
@@ -113,7 +100,9 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       for (BasicDBObject dbActivity: dbActivities) {
         ActivityDefinitionImpl activity = new ActivityDefinitionImpl();
         activity.id = readString(dbActivity, fields._id);
-        activity.activityTypeJson = readObjectMap(dbActivity, fields.activityType);
+        Map<String,Object> activityTypeJson = readObjectMap(dbActivity, fields.activityType);
+        activity.activityType = processEngine.jsonService
+                .jsonMapToObject(activityTypeJson, ActivityType.class);
         readActivities(activity, dbActivity);
         readVariables(activity, dbActivity);
         readTransitions(activity, dbActivity);
@@ -129,7 +118,11 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
         BasicDBObject dbActivity = new BasicDBObject();
         dbObjectStack.push(dbActivity);
         writeString(dbActivity, fields._id, activity.id);
-        writeObjectOpt(dbActivity, fields.activityType, activity.activityTypeJson);
+        
+        Map<String,Object> activityTypeJson = processEngine.jsonService
+                .objectToJsonMap(activity.activityType);
+        writeObjectOpt(dbActivity, fields.activityType, activityTypeJson);
+        
         writeListElementOpt(dbParentScope, fields.activityDefinitions, dbActivity);
         writeActivities(activity, dbObjectStack);
         writeTransitions(activity, dbObjectStack);
@@ -172,8 +165,15 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       for (BasicDBObject dbVariable: dbVariables) {
         VariableDefinitionImpl variable = new VariableDefinitionImpl();
         variable.id = readId(dbVariable, fields._id);
-        variable.dataTypeJson = readObjectMap(dbVariable, fields.dataType);
-        variable.initialValueJson = readObjectMap(dbVariable, fields.initialValue);
+        
+        Map<String,Object> dataTypeJson = readObjectMap(dbVariable, fields.dataType);
+        variable.dataType = processEngine.jsonService
+                .jsonMapToObject(dataTypeJson, DataType.class);
+
+        Object dbInitialValue = dbVariable.get(fields.initialValue);
+        variable.initialValue = variable.dataType
+                .convertJsonToInternalValue(dbInitialValue);
+        
         scope.variableDefinitions.add(variable);
       }
     }
@@ -185,8 +185,17 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbVariable = new BasicDBObject();
         writeIdOpt(dbVariable, fields._id, variable.id);
-        writeObjectOpt(dbVariable, fields.dataType, variable.dataTypeJson);
-        writeObjectOpt(dbVariable, fields.initialValue, variable.initialValueJson);
+        
+        Map<String,Object> dataTypeJson = processEngine.jsonService
+                .objectToJsonMap(variable.dataType);
+        writeObjectOpt(dbVariable, fields.dataType, dataTypeJson);
+
+        if (variable.initialValue!=null) {
+          Object jsonValue = variable.dataType
+                  .convertInternalToJsonValue(variable.initialValue);
+          writeObjectOpt(dbVariable, fields.initialValue, jsonValue);
+        }
+
         writeListElementOpt(dbParentScope, fields.variableDefinitions, dbVariable);
       }
     }
@@ -208,8 +217,8 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   }
 
   @Override
-  public Json getJson() {
-    return processEngine.getJson();
+  public JsonService getJsonService() {
+    return processEngine.getJsonService();
   }
 
   @Override

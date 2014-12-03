@@ -19,12 +19,12 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.heisenberg.api.NotifyActivityInstanceRequest;
+import com.heisenberg.api.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
@@ -46,7 +46,7 @@ public class EmbeddedSuprocessTest {
       .registerActivityType(Go.class)
       .registerActivityType(Wait.class);
   
-    ProcessBuilder process = processEngine.newProcess();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
   
     process.newActivity()
       .activityType(new Go())
@@ -81,7 +81,7 @@ public class EmbeddedSuprocessTest {
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
+    ProcessInstance processInstance = processEngine.newProcessInstance()
       .processDefinitionId(processDefinitionId));
 
     assertActivityInstancesOpen(processInstance, "sub", "w1", "w2");
@@ -89,7 +89,7 @@ public class EmbeddedSuprocessTest {
     String w1Id = processInstance.findActivityInstanceByActivityDefinitionId("w1").getId();
     assertNotNull(w1Id);
     
-    processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
+    processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
       .activityInstanceId(w1Id));
   }
 }

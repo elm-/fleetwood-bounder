@@ -14,6 +14,8 @@
  */
 package com.heisenberg.impl.definition;
 
+import com.heisenberg.impl.ProcessEngineImpl;
+
 
 
 
@@ -32,20 +34,40 @@ public class ProcessDefinitionSerializer implements ProcessDefinitionVisitor {
 
   @Override
   public void startActivityDefinition(ActivityDefinitionImpl activity, int index) {
-    if (activity.activityType!=null) {
-      if (activity.activityTypeJson==null && activity.activityType!=null) {
-        activity.activityTypeJson = activity.processEngine.json.objectToJsonMap(activity.activityType);
-      }
-    }
+//    if ( activity.activityType!=null
+//         && activity.activityTypeId==null
+//         && activity.activityTypeJson==null ) {
+//      ProcessEngineImpl processEngine = activity.processEngine;
+//      String activityTypeId = processEngine.activityTypes.getActivityTypeId(activity.activityType);
+//      if (activityTypeId!=null) {
+//        activity.activityTypeId = activityTypeId;
+//      } else {
+//        try {
+//          activity.activityTypeJson = activity.processEngine.jsonService.objectToJsonMap(activity.activityType);
+//        } catch (Exception e) {
+//          throw new RuntimeException("Couldn't serialize activity type: "+e.getMessage(), e);
+//        }
+//      }
+//    }
   }
 
   @Override
   public void variableDefinition(VariableDefinitionImpl variable, int index) {
-    if (variable.dataType!=null) {
-      if (variable.dataTypeJson==null && variable.dataType!=null) {
-        variable.dataTypeJson = variable.processEngine.json.objectToJsonMap(variable.dataType);
-      }
-    }
+//    if ( variable.dataType!=null
+//         && variable.dataTypeId==null
+//         && variable.dataTypeJson==null ) {
+//      ProcessEngineImpl processEngine = variable.processEngine;
+//      String dataTypeId = processEngine.dataTypes.getSingletonDataTypeId(variable.dataType);
+//      if (dataTypeId!=null) {
+//        variable.dataTypeId = dataTypeId;
+//      } else {
+//        try {
+//          variable.dataTypeJson = variable.processEngine.jsonService.objectToJsonMap(variable.dataType);
+//        } catch (Exception e) {
+//          throw new RuntimeException("Couldn't serialize data type: "+e.getMessage(), e);
+//        }
+//      }
+//    }
   }
 
   @Override

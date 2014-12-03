@@ -14,8 +14,9 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.util.ServiceLocator;
 
 
 /** Start here.
@@ -28,19 +29,22 @@ import com.heisenberg.api.instance.ProcessInstance;
  * 
  * @author Walter White
  */
-public interface ProcessEngine {
+public interface ProcessEngine extends ServiceLocator {
   
   /** Start building a new process */
-  ProcessBuilder newProcess();
+  ProcessDefinitionBuilder newProcessDefinition();
   
-  /** potentially changes the passed processDefinition (assigning ids) 
-   * and returns the same object as a way to indicate it may have changed. */
-  DeployProcessDefinitionResponse deployProcessDefinition(ProcessBuilder processDefinition);
+  ProcessInstanceBuilder newProcessInstance();
+
+  ActivityInstanceMessageBuilder newNotifyActivityInstance();
   
-  ProcessInstance startProcessInstance(StartProcessInstanceRequest startProcessInstanceRequest);
+//  /** potentially changes the passed processDefinition (assigning ids) 
+//   * and returns the same object as a way to indicate it may have changed. */
+//  DeployProcessDefinitionResponse deployProcessDefinition(ProcessBuilder processDefinition);
+//  
+//  ProcessInstance startProcessInstance(ProcessInstanceBuilder startProcessInstanceRequest);
+//
+//  ProcessInstance notifyActivityInstance(NotifyActivityInstanceBuilder notifyActivityInstanceRequest);
   
   ActivityInstanceQuery createActivityInstanceQuery(); 
-
-  ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest);
-
 }

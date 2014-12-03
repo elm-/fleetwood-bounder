@@ -26,7 +26,7 @@ public class StartEvent extends AbstractActivityType {
   public static final StartEvent INSTANCE = new StartEvent();
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "startEvent";
   }
 

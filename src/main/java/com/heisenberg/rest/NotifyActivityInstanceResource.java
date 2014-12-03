@@ -22,7 +22,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.NotifyActivityInstanceRequest;
+import com.heisenberg.api.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 
@@ -43,7 +43,7 @@ public class NotifyActivityInstanceResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public ProcessInstance notifyActivityInstance(NotifyActivityInstanceRequest notifyActivityInstanceRequest) {
-    return processEngine.notifyActivityInstance(notifyActivityInstanceRequest);
+  public ProcessInstance notifyActivityInstance(ActivityInstanceMessageBuilder notifyActivityInstanceRequest) {
+    return processEngine.sendActivityInstanceMessage(notifyActivityInstanceRequest);
   }
 }

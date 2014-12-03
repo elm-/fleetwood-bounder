@@ -14,10 +14,7 @@
  */
 package com.heisenberg.impl.definition;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.api.type.DataType;
@@ -32,15 +29,16 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
 
   public String id;
   
-  @JsonIgnore
+//  public String dataTypeId;
+//  @JsonIgnore
   public DataType dataType;
-  @JsonProperty("dataType")
-  public Map<String,Object> dataTypeJson;
+//  @JsonProperty("dataType")
+//  public Map<String,Object> dataTypeJson;
   
   @JsonIgnore
   public Object initialValue;
-  @JsonProperty("initialValue")
-  public Object initialValueJson;
+//  @JsonProperty("initialValue")
+//  public Object initialValueJson;
 
   @JsonIgnore
   public ProcessEngineImpl processEngine;
@@ -70,28 +68,35 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
   /** this class has to be registered with @link {@link ProcessEngineImpl#registerJavaBeanType(Class)} */
   public VariableDefinitionImpl dataTypeJavaBean(Class<?> userDefinedJavaBeanClass) {
     this.dataType = new JavaBeanType(userDefinedJavaBeanClass);
+//    this.dataTypeId = userDefinedJavaBeanClass.getClass().getName();
     return this;
   }
+  
+//  public VariableDefinitionImpl dataTypeId(String dataTypeId) {
+//    this.dataTypeId = dataTypeId;
+//    return this;
+//  }
+
 
   public VariableDefinitionImpl dataType(DataType dataType) {
     this.dataType = dataType;
     return this;
   }
 
-  public VariableDefinitionImpl dataTypeJson(Map<String,Object> dataTypeJson) {
-    this.dataTypeJson = dataTypeJson;
-    return this;
-  }
+//  public VariableDefinitionImpl dataTypeJson(Map<String,Object> dataTypeJson) {
+//    this.dataTypeJson = dataTypeJson;
+//    return this;
+//  }
 
   public VariableDefinitionImpl initialValue(Object initialValue) {
     this.initialValue = initialValue;
     return this;
   }
   
-  public VariableDefinitionImpl initialValueJson(Object initialValueJson) {
-    this.initialValueJson = initialValueJson;
-    return this;
-  }
+//  public VariableDefinitionImpl initialValueJson(Object initialValueJson) {
+//    this.initialValueJson = initialValueJson;
+//    return this;
+//  }
   
   public void prepare() {
   }

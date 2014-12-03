@@ -14,7 +14,7 @@
  */
 package com.heisenberg.test.load;
 
-import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
+import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.impl.engine.mongodb.MongoProcessEngine;
 import com.heisenberg.impl.engine.mongodb.MongoProcessInstances;
 import com.mongodb.BasicDBObject;
@@ -58,7 +58,7 @@ public class MeasuringProcessInstances extends MongoProcessInstances {
     findAndModifyMillis += millis;
   }
 
-  public MeasuringProcessInstances(MongoProcessEngine processEngine, DB db, MongoConfiguration mongoConfiguration) {
+  public MeasuringProcessInstances(MongoProcessEngine processEngine, DB db, MongoProcessEngineConfiguration mongoConfiguration) {
     super(processEngine, db, mongoConfiguration);
   }
 

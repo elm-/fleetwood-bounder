@@ -21,12 +21,12 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.NotifyActivityInstanceRequest;
+import com.heisenberg.api.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.bpmn.UserTask;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
@@ -44,7 +44,7 @@ public class BasicProcessExecutionTest {
       .registerActivityType(Go.class)
       .registerActivityType(Wait.class);
 
-    ProcessBuilder processBuilder = processEngine.newProcess();
+    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
 
     processBuilder.newVariable()
       .id("t")
@@ -74,7 +74,7 @@ public class BasicProcessExecutionTest {
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
+    ProcessInstance processInstance = processEngine.newProcessInstance()
       .processDefinitionId(processDefinitionId)
       .variableValue("t", "Hello World"));
 
@@ -96,7 +96,7 @@ public class BasicProcessExecutionTest {
     assertEquals("wait1", waitActivityInstance.getActivityDefinitionId());
     
     // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
-    processInstance = processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
+    processInstance = processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
       .activityInstanceId(waitActivityInstance.getId()));
     
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
@@ -113,7 +113,7 @@ public class BasicProcessExecutionTest {
     assertFalse(wait2ActivityInstance.isEnded());
     assertEquals("wait2", wait2ActivityInstance.getActivityDefinitionId());
 
-    processInstance = processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
+    processInstance = processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
       .activityInstanceId(wait2ActivityInstance.getId()));
     
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());

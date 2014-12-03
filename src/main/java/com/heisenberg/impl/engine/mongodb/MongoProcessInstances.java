@@ -23,6 +23,7 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
@@ -45,41 +46,21 @@ public class MongoProcessInstances extends MongoCollection {
   
   public static final Logger log = LoggerFactory.getLogger(MongoProcessInstances.class);
   
-  public static class Fields {
-    public String _id = "_id";
-    public String organizationId = "organizationId";
-    public String processDefinitionId = "processDefinitionId";
-    public String start = "start";
-    public String end = "end";
-    public String duration = "duration";
-    public String activityInstances = "activities";
-    public String variableInstances = "variables";
-    public String parent = "parent";
-    public String variableDefinitionId = "variableDefinitionId";
-    public String value = "value";
-    public String activityDefinitionId = "activityDefinitionId";
-    public String lock = "lock";
-    public String time = "time";
-    public String owner= "owner";
-    public String updates = "updates";
-    public String operations = "operations";
-  }
-  
   protected MongoProcessEngine processEngine;
-  protected Fields fields;
+  protected MongoProcessEngineConfiguration.ProcessInstanceFields fields;
   protected DBCollection dbCollection;
   
   protected WriteConcern writeConcernStoreProcessInstance;
   protected WriteConcern writeConcernFlushUpdates;
 
-  public MongoProcessInstances(MongoProcessEngine processEngine, DB db, MongoConfiguration mongoConfiguration) {
-    super(db, mongoConfiguration.processInstancesCollectionName);
+  public MongoProcessInstances(MongoProcessEngine processEngine, DB db, MongoProcessEngineConfiguration mongoConfiguration) {
+    super(db, mongoConfiguration.getProcessInstancesCollectionName());
     this.processEngine = processEngine;
-    this.fields = mongoConfiguration.processInstanceFields!=null ? mongoConfiguration.processInstanceFields : new Fields();
+    this.fields = mongoConfiguration.getProcessInstanceFields();
     this.dbCollection = db.getCollection("processInstances");
-    this.writeConcernStoreProcessInstance = getWriteConcern(mongoConfiguration.writeConcernInsertProcessInstance);
-    this.writeConcernFlushUpdates = getWriteConcern(mongoConfiguration.writeConcernFlushUpdates);
-    this.isPretty = mongoConfiguration.isPretty;
+    this.writeConcernStoreProcessInstance = getWriteConcern(mongoConfiguration.getWriteConcernInsertProcessInstance());
+    this.writeConcernFlushUpdates = getWriteConcern(mongoConfiguration.getWriteConcernFlushUpdates());
+    this.isPretty = mongoConfiguration.isPretty();
     // For the load testing, this is counter productive :)
     // this.dbCollection.createIndex(new BasicDBObject(fields.activityInstances+"."+fields._id, 1));
   }
@@ -273,7 +254,7 @@ public class MongoProcessInstances extends MongoCollection {
     variableInstance.variableDefinitionId = readString(dbVariableInstance, fields.variableDefinitionId);
     variableInstance.variableDefinition = processInstance.processDefinition.findVariableDefinition(variableInstance.variableDefinitionId);
     variableInstance.dataType = variableInstance.variableDefinition.dataType;
-    variableInstance.dataTypeId = variableInstance.dataType.getTypeId();
+    variableInstance.dataTypeId = variableInstance.dataType.getType();
     variableInstance.value = variableInstance.dataType.convertJsonToInternalValue(dbVariableInstance.get(fields.value));
     return variableInstance;
   }

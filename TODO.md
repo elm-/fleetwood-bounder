@@ -2,6 +2,8 @@
 
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
 - [ ] Test if the script engine is thread safe. CompiledScript seems to be tied to a ScriptEngine. It should be investigated if concurrent script execution can overwrite each other's context.
+- [ ] Move initializeBindings from ActivityDefinitionImpl into the ProcessDefinitionValidator.
+      Easier and I should not worry about the performance
 
 # In progress
 

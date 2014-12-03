@@ -273,7 +273,7 @@ public abstract class ScopeDefinitionImpl {
       }
     }
     if (startActivities==null) {
-      validator.addError("No start activities in %s", getId());
+      validator.addWarning("No start activities in %s", getId());
     }
   }
   

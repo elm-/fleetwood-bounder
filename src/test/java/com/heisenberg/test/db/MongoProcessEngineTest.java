@@ -23,9 +23,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.NotifyActivityInstanceRequest;
+import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.api.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
@@ -36,13 +37,12 @@ import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
 
 
 /**
@@ -54,45 +54,45 @@ public class MongoProcessEngineTest {
   
   @Test
   public void testMongoProcessEngine() {
-    ProcessEngine processEngine = new MongoConfiguration()
+    ProcessEngine processEngine = new MongoProcessEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     
-    ProcessBuilder process = createProcess(processEngine);
+    ProcessDefinitionBuilder process = createProcess(processEngine);
 
     String processDefinitionId = processEngine
         .deployProcessDefinition(process)
         .checkNoErrorsAndNoWarnings()
         .getProcessDefinitionId();
       
-    ProcessInstance processInstance = processEngine.startProcessInstance(new StartProcessInstanceRequest()
+    ProcessInstance processInstance = processEngine.newProcessInstance()
       .processDefinitionId(processDefinitionId));
     
     assertActivityInstancesOpen(processInstance, "sub", "subTask");
 
     ActivityInstance subTaskInstance = findActivityInstanceOpen(processInstance, "subTask");
     
-    processEngine.notifyActivityInstance(new NotifyActivityInstanceRequest()
+    processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
       .activityInstanceId(subTaskInstance.getId())
     );
   }
 
   @Test
   public void testPrintProcessDefinitionJson() {
-    ProcessEngine processEngine = new MongoConfiguration()
+    ProcessEngine processEngine = new MongoProcessEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     
-    ProcessBuilder process = createProcess(processEngine);
+    ProcessDefinitionBuilder process = createProcess(processEngine);
     
-    String processJsonPretty = ((ProcessEngineImpl)processEngine).json.objectToJsonStringPretty(process);
+    String processJsonPretty = ((ProcessEngineImpl)processEngine).jsonService.objectToJsonStringPretty(process);
 
     log.debug(processJsonPretty);
   }
 
 
-  public static ProcessBuilder createProcess(ProcessEngine processEngine) {
-    ProcessBuilder process = processEngine.newProcess();
+  public static ProcessDefinitionBuilder createProcess(ProcessEngine processEngine) {
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
   
     process.newActivity()
       .activityType(StartEvent.INSTANCE)
@@ -177,7 +177,7 @@ public class MongoProcessEngineTest {
     }
 
     @Override
-    public String getTypeId() {
+    public String getType() {
       return "testGo";
     }
   }

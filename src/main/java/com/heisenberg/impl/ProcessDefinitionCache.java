@@ -22,6 +22,6 @@ import com.heisenberg.impl.definition.ProcessDefinitionImpl;
  */
 public interface ProcessDefinitionCache {
 
-  ProcessDefinitionImpl get(Object processDefinitionId);
+  ProcessDefinitionImpl get(String processDefinitionId);
   void put(ProcessDefinitionImpl processDefinition);
 }

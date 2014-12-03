@@ -23,11 +23,13 @@ package com.heisenberg.api.type;
  */
 public class TextType extends AbstractDataType {
 
+  public static final String TYPE = "text";
+  
   public static final TextType INSTANCE = new TextType();
 
   @Override
-  public String getTypeId() {
-    return "text";
+  public String getType() {
+    return TYPE;
   }
 
   @Override

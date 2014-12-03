@@ -22,13 +22,14 @@ import static com.heisenberg.impl.engine.mongodb.MongoWriterHelper.putOptTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 import com.heisenberg.impl.engine.updates.Update;
-import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.json.JacksonJsonService;
 import com.mongodb.BasicDBObject;
 
 
@@ -54,10 +55,10 @@ public class MongoUpdateConverters {
   
   Map<Class<? extends Update>, UpdateConverter<? extends Update>> updateConvertersByUpdateClass = new HashMap<>();
   Map<String, UpdateConverter<? extends Update>> updateConvertersByType = new HashMap<>();
-  Json json;
+  JsonService jsonService;
   
-  public MongoUpdateConverters(Json json) {
-    this.json = json;
+  public MongoUpdateConverters(JsonService jsonService) {
+    this.jsonService = jsonService;
     registerConverter(new ActivityInstanceCreateConverter(), ActivityInstanceCreateUpdate.class, TYPE_ACTIVITY_INSTANCE_CREATE);
     registerConverter(new ActivityInstanceEndConverter(), ActivityInstanceEndUpdate.class, TYPE_ACTIVITY_INSTANCE_END);
     registerConverter(new OperationAddStartConverter(), OperationAddStartUpdate.class, TYPE_OPERATION_ADD_START);

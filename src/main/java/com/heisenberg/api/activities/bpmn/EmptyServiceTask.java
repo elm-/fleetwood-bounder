@@ -27,7 +27,7 @@ public class EmptyServiceTask extends ServiceTask {
   public static final EmptyServiceTask INSTANCE = new EmptyServiceTask();
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "emptyServiceTask";
   }
 

@@ -30,7 +30,7 @@ public class EmbeddedSubprocess extends AbstractActivityType {
   public static final EmbeddedSubprocess INSTANCE = new EmbeddedSubprocess();
   
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "embeddedSubprocess";
   }
   

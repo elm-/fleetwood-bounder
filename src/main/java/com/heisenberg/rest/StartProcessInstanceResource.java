@@ -22,7 +22,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 
@@ -43,7 +43,7 @@ public class StartProcessInstanceResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public ProcessInstance deploy(StartProcessInstanceRequest startProcessInstanceRequest) {
+  public ProcessInstance deploy(ProcessInstanceBuilder startProcessInstanceRequest) {
     return processEngine.startProcessInstance(startProcessInstanceRequest);
   }
 }

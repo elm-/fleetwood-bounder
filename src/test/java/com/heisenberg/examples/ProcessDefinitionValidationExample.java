@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.bpmn.EndEvent;
 import com.heisenberg.api.activities.bpmn.StartEvent;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.test.TestHelper;
 
@@ -38,24 +38,23 @@ public class ProcessDefinitionValidationExample {
     ProcessEngine processEngine = new MemoryProcessEngine();
     
     // cook the process
-    ProcessBuilder processBuilder = processEngine.newProcess();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
-    processBuilder.newActivity()
+    process.newActivity()
       .activityType(StartEvent.INSTANCE);
 
-    processBuilder.newActivity()
+    process.newActivity()
       .id("a");
   
-    processBuilder.newActivity()
+    process.newActivity()
       .id("b")
       .activityType(EndEvent.INSTANCE);
     
-    processBuilder.newTransition()
+    process.newTransition()
       .from("a")
       .to("non existing");
 
-    String issueReport = processEngine
-        .deployProcessDefinition(processBuilder)
+    String issueReport = process.deploy()
         .getIssueReport();
     
     log.debug(issueReport);

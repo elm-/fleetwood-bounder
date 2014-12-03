@@ -30,4 +30,6 @@ public interface VariableInstance {
   String getDataTypeId();
   
   Object getValue();
+
+  Object getDataType();
 }

@@ -22,7 +22,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
+import com.heisenberg.api.DeployResult;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 
@@ -43,7 +43,7 @@ public class DeployResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public DeployProcessDefinitionResponse deploy(ProcessDefinitionImpl processDefinition) {
+  public DeployResult deploy(ProcessDefinitionImpl processDefinition) {
     return processEngine.deployProcessDefinition(processDefinition);
   }
 }

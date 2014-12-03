@@ -47,4 +47,9 @@ public abstract class AbstractActivityType implements ActivityType {
   public String getLabel() {
     return null;
   }
+
+  @Override
+  public String getDescription() {
+    return null;
+  }
 }

@@ -12,22 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.script;
+package com.heisenberg.api;
 
-import com.heisenberg.api.instance.ScopeInstance;
-
-
+import com.heisenberg.api.instance.ProcessInstance;
 
 /**
  * @author Walter White
  */
-public interface ScriptService {
+public interface ActivityInstanceMessageBuilder {
+
+  ActivityInstanceMessageBuilder activityInstanceId(String activityInstanceId);
+
+  ActivityInstanceMessageBuilder processInstanceId(String processInstanceId);
+
+  ActivityInstanceMessageBuilder variableValue(String variableDefinitionIdInternal, Object value);
+
+  ActivityInstanceMessageBuilder variableValueJson(String variableDefinitionIdInternal, Object valueJson);
+
+  ActivityInstanceMessageBuilder transientContext(String key, Object value);
   
-  /** default language is JavaScript */
-  Script compile(String scriptText);
-  
-  Script compile(String scriptText, String language);
-  
-  ScriptResult evaluateScript(ScopeInstance scopeInstance, Script script);
-  
+  ProcessInstance send();
+
 }

@@ -31,14 +31,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.DeployProcessDefinitionResponse;
-import com.heisenberg.api.NotifyActivityInstanceRequest;
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.DeployResult;
+import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.api.ActivityInstanceMessageBuilder;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
-import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
@@ -72,7 +72,7 @@ public class RestTest extends JerseyTest {
     if (processEngine!=null) {
       return processEngine;
     }
-    processEngine = new MongoConfiguration()
+    processEngine = new MongoProcessEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     return processEngine;
@@ -88,9 +88,9 @@ public class RestTest extends JerseyTest {
     ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) MongoProcessEngineTest.createProcess(processEngine);
     processDefinition.visit(new ProcessDefinitionSerializer());
     
-    DeployProcessDefinitionResponse deployResponse = target("deploy").request()
+    DeployResult deployResponse = target("deploy").request()
             .post(Entity.entity(processDefinition, MediaType.APPLICATION_JSON))
-            .readEntity(DeployProcessDefinitionResponse.class);
+            .readEntity(DeployResult.class);
 
     assertFalse(deployResponse.getIssueReport(), deployResponse.hasIssues());
     
@@ -111,7 +111,7 @@ public class RestTest extends JerseyTest {
   }
 
   protected void runProcessInstance(String processDefinitionId) {
-    StartProcessInstanceRequest startProcessInstanceRequest = new StartProcessInstanceRequest()
+    ProcessInstanceBuilder startProcessInstanceRequest = new ProcessInstanceBuilder()
       .processDefinitionId(processDefinitionId);
     
     ProcessInstanceImpl processInstance = target("start").request()
@@ -120,14 +120,14 @@ public class RestTest extends JerseyTest {
 
     ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
 
-    NotifyActivityInstanceRequest notifyActivityInstanceRequest = new NotifyActivityInstanceRequest()
+    ActivityInstanceMessageBuilder notifyActivityInstanceRequest = new ActivityInstanceMessageBuilder()
       .activityInstanceId(subTaskInstance.getId());
     
     processInstance = target("notify").request()
             .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))
             .readEntity(ProcessInstanceImpl.class);
 
-    log.debug("response: " + processEngine.json.objectToJsonStringPretty(processInstance));
+    log.debug("response: " + processEngine.jsonService.objectToJsonStringPretty(processInstance));
     assertTrue(processInstance.isEnded());
   }
 }

@@ -12,35 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.builder;
+package com.heisenberg.api.configuration;
 
-import org.joda.time.LocalDateTime;
+import com.heisenberg.api.task.Task;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessBuilder {
+public interface TaskService {
 
-  ProcessBuilder deployedTime(LocalDateTime deployedTime);
-  
-  ProcessBuilder deployedUserId(String deployedUserId);
+  Task newTask();
 
-  ProcessBuilder processId(String processId);
-  
-  ProcessBuilder version(Long version);
-  
-  ProcessBuilder organizationId(String organizationId);
-  
-  ProcessBuilder line(Long lineNumber);
+  void save(Task task);
 
-  ProcessBuilder column(Long columnNumber);
-
-  ActivityBuilder newActivity();
-
-  TransitionBuilder newTransition();
-
-  VariableBuilder newVariable();
-
-  TimerBuilder newTimer();
 }

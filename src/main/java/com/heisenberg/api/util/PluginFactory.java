@@ -12,16 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.task;
+package com.heisenberg.api.util;
+
+import com.heisenberg.api.configuration.ProcessEngineConfiguration;
+import com.heisenberg.impl.ProcessEngineImpl;
 
 
-/**
+/** super interface for all service provider interfaces.
+ * 
+ * By using this marker interface, 
+ * we only have to do 1 scan to find all pluggable implementations.
+ * @see ProcessEngineImpl#initializeDefaultPluggableImplementations()  
+ * 
  * @author Walter White
  */
-public interface TaskService {
+public interface PluginFactory {
 
-  Task newTask();
-
-  void save(Task task);
-
+  void registerPlugins(ProcessEngineConfiguration processEngineConfiguration);
 }

@@ -27,7 +27,7 @@ import com.heisenberg.api.util.Validator;
 public class ParallelGateway extends AbstractActivityType {
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "parallelGateway";
   }
 

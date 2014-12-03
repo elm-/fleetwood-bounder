@@ -24,7 +24,7 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
 public class HttpServiceTask extends ServiceTask {
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "httpServiceTask";
   }
 

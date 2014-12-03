@@ -17,7 +17,7 @@ package com.heisenberg.test.load;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.impl.engine.mongodb.MongoConfiguration;
+import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.impl.engine.mongodb.MongoProcessEngine;
 
 
@@ -28,7 +28,7 @@ public class MeasuringMongoProcessEngine extends MongoProcessEngine {
   
   public static final Logger log = LoggerFactory.getLogger(MeasuringMongoProcessEngine.class);
   
-  public MeasuringMongoProcessEngine(MongoConfiguration mongoConfiguration) {
+  public MeasuringMongoProcessEngine(MongoProcessEngineConfiguration mongoConfiguration) {
     super(mongoConfiguration);
     this.processInstances = new MeasuringProcessInstances(this, db, mongoConfiguration);
   }

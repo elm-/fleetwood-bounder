@@ -26,17 +26,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.api.configuration.ScriptService;
+import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.impl.json.Json;
-import com.heisenberg.impl.script.ScriptService;
 
 
 /**
@@ -190,8 +190,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
 
   @Override
-  public Json getJson() {
-    return processEngine.json;
+  public JsonService getJsonService() {
+    return processEngine.jsonService;
   }
 
   @Override

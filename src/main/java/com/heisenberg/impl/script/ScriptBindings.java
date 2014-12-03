@@ -39,7 +39,7 @@ public class ScriptBindings implements Bindings {
   
   public static final Logger log = LoggerFactory.getLogger(ScriptBindings.class);
   
-  protected Map<String,Object> scriptToProcessMappings;
+  protected Map<String,String> scriptToProcessMappings;
   protected String language;
   protected ScopeInstanceImpl scopeInstance;
   protected Console console;
@@ -89,14 +89,14 @@ public class ScriptBindings implements Bindings {
     return dataType.convertInternalToScriptValue(value, language);
   }
   
-  protected Object getVariableDefinitionId(String scriptVariableName) {
+  protected String getVariableDefinitionId(String scriptVariableId) {
     if (scriptToProcessMappings!=null) {
-      Object variableDefinitionId = scriptToProcessMappings.get(scriptVariableName);
+      String variableDefinitionId = scriptToProcessMappings.get(scriptVariableId);
       if (variableDefinitionId!=null) {
         return variableDefinitionId;
       }
     }
-    return scriptVariableName;
+    return scriptVariableId;
   }
 
   public TypedValue getTypedValue(String scriptVariableName) {
@@ -124,7 +124,7 @@ public class ScriptBindings implements Bindings {
     }
     TypedValue typedValue = getTypedValue(scriptVariableName);
     if (typedValue!=null) {
-      Object variableDefinitionId = getVariableDefinitionId(scriptVariableName);
+      String variableDefinitionId = getVariableDefinitionId(scriptVariableName);
       DataType dataType = typedValue.getType();
       Object value = dataType.convertScriptValueToInternal(scriptValue, language);
       scopeInstance.setVariableValueRecursive(variableDefinitionId, value);

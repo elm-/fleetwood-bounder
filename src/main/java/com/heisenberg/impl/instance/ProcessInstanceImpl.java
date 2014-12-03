@@ -125,7 +125,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     }
     if (hasAsyncWork()) {
       processEngine.flush(processInstance);
-      Executor executor = processEngine.getExecutor();
+      Executor executor = processEngine.getExecutorService();
       executor.execute(new Runnable(){
         public void run() {
           operations = asyncOperations;

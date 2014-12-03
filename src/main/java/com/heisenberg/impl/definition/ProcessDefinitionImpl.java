@@ -19,14 +19,15 @@ import java.util.Map;
 import org.joda.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.DeployResult;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.definition.ProcessDefinition;
 
 
 /**
  * @author Walter White
  */
-public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements ProcessBuilder, ProcessDefinition {
+public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements ProcessDefinitionBuilder, ProcessDefinition {
 
   /** optional time when the process was deployed.
    * This field just serves as a read/write property and is not used during process execution. */
@@ -56,6 +57,11 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   
   /// Process Definition Builder methods /////////////////////////////////////////////
+
+  @Override
+  public DeployResult deploy() {
+    return processEngine.deployProcessDefinition(this);
+  }
 
   @Override
   public ProcessDefinitionImpl deployedTime(LocalDateTime deployedAt) {

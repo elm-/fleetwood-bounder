@@ -24,11 +24,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
+import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.ActivityTypeDescriptor;
-import com.heisenberg.impl.PluginConfigurationField;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
+import com.heisenberg.impl.plugin.PluginConfigurationField;
 
 
 /**
@@ -36,29 +36,27 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder, ActivityDefinition {
 
-//  /** References a type declared in the process engine by id.
+//  /** The json representation for singleton activity types.
 //   * 
-//   * With the {@link ActivityBuilder#activityTypeId() builder}, the activityTypeId can be specified.
-//   * The value can be specified directly or indirectly by specifying an activityType object.
-//   * When an activityType object is specified, then the {@link ProcessDefinitionValidator validator} and 
-//   * {@link ProcessDefinitionSerializer serializer} will initialize the activityTypeId.
+//   * This property is only used for singleton activity types registered 
+//   * with {@link ProcessEngineConfiguration#registerActivityType(ActivityType)}.
 //   * 
 //   * This value is jsonned and persisted.
 //   * This field is mutually exclusive with activityTypeJson. */
 //  public String activityTypeId;
-  
-  /** An inline, jsonnable and persistable declaration of an activityType. 
-   * This means that it contains the type and configuration of the activityType.
-   * With the {@link ActivityBuilder#activityTypeJson(Map) builder}, an activityType object can be specified.
-   * The validator and the serializer. */
-  @JsonProperty("activityType") 
-  public Map<String,Object> activityTypeJson;
-  
-  /** The object implementing the activity execution behavior.
-   * This object is not persisted nor serialized. 
-   * If the process is persisted or serialized, the activityType must be found
-   * in the process engine via {@link #activityTypeId} or constructed from {@link #activityTypeJson} */
-  @JsonIgnore
+//  
+//  /** An inline, jsonnable and persistable declaration of an activityType. 
+//   * This means that it contains the type and configuration of the activityType.
+//   * With the {@link ActivityBuilder#activityTypeJson(Map) builder}, an activityType object can be specified.
+//   * The validator and the serializer. */
+//  @JsonProperty("activityType") 
+//  public Map<String,Object> activityTypeJson;
+//  
+//  /** The object implementing the activity execution behavior.
+//   * This object is not persisted nor serialized. 
+//   * If the process is persisted or serialized, the activityType must be found
+//   * in the process engine via {@link #typeId} or constructed from {@link #activityTypeJson} */
+//  @JsonIgnore
   public ActivityType activityType;
 
   /** the list of transitions leaving this activity.
@@ -73,13 +71,8 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return this;
   }
   
-  public ActivityDefinitionImpl activityTypeJson(Map<String,Object> activityTypeJsonMap) {
-    this.activityTypeJson = activityTypeJsonMap;
-    return this;
-  }
-  
 //  public ActivityDefinitionImpl activityTypeId(String activityTypeId) {
-//    this.activityTypeId = activityTypeId;
+//    this.activityType = processEngine.activityTypes.createDelegate(activityTypeId);
 //    return this;
 //  }
   
@@ -165,18 +158,20 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   
   @Override
   public void initializeBindings(Validator validator) {
-    ActivityTypeDescriptor activityDescriptor = processEngine.findActivityDescriptorByClass(activityType.getClass());
-    for (PluginConfigurationField descriptorField: activityDescriptor.getBindingConfigurationFields()) {
-      Field field = descriptorField.field;
-      try {
-        Binding<?> binding = (Binding<?>) field.get(activityType);
-        if (binding!=null) {
-          binding.processEngine = processEngine;
-          binding.dataType = descriptorField.dataType;
-          binding.validate(this, activityType, descriptorField, validator);
+    List<PluginConfigurationField> configurationFields = processEngine.getActivityTypes().getConfigurationFields(activityType);
+    if (configurationFields!=null) {
+      for (PluginConfigurationField descriptorField : configurationFields) {
+        Field field = descriptorField.field;
+        try {
+          Binding< ? > binding = (Binding< ? >) field.get(activityType);
+          if (binding != null) {
+            binding.processEngine = processEngine;
+            binding.dataType = descriptorField.dataType;
+            binding.validate(this, activityType, descriptorField, validator);
+          }
+        } catch (Exception e) {
+          throw new RuntimeException(e);
         }
-      } catch (Exception e) {
-        throw new RuntimeException(e);
       }
     }
   }

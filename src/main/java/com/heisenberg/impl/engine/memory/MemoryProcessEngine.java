@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.Page;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
@@ -51,12 +52,16 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   protected Set<Object> lockedProcessInstances;
   
   public MemoryProcessEngine() {
-    initializeDefaults();
+    this(new MemoryProcessEngineConfiguration());
+  }
+  
+  public MemoryProcessEngine(MemoryProcessEngineConfiguration configuration) {
+    super(configuration);
     processDefinitions = Collections.synchronizedMap(new HashMap<Object, ProcessDefinitionImpl>());
     processInstances = Collections.synchronizedMap(new HashMap<Object, ProcessInstanceImpl>());
     lockedProcessInstances = Collections.synchronizedSet(new HashSet<Object>());
   }
-  
+
   @Override
   public MemoryTaskService getTaskService() {
     return (MemoryTaskService) taskService;
@@ -70,7 +75,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   @Override
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
-    log.debug("Saving: "+json.objectToJsonStringPretty(processInstance));
+    log.debug("Saving: "+jsonService.objectToJsonStringPretty(processInstance));
   }
 
   @Override
@@ -79,7 +84,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     if (updates!=null) {
       log.debug("Flushing updates: ");
       for (Update update : updates) {
-        log.debug("  " + json.objectToJsonString(update));
+        log.debug("  " + jsonService.objectToJsonString(update));
       }
     } else {
       log.debug("No updates to flush");
@@ -92,7 +97,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     lockedProcessInstances.remove(processInstance.getId());
     processInstance.removeLock();
     flush(processInstance);
-    log.debug("Process instance should be: "+json.objectToJsonStringPretty(processInstance));
+    log.debug("Process instance should be: "+jsonService.objectToJsonStringPretty(processInstance));
   }
 
   @Override
@@ -172,7 +177,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     lock.setTime(Time.now());
     lock.setOwner(getId());
     processInstance.setLock(lock);
-    log.debug("Locked process instance: "+json.objectToJsonStringPretty(processInstance));
+    log.debug("Locked process instance: "+jsonService.objectToJsonStringPretty(processInstance));
     return processInstance;
   }
 

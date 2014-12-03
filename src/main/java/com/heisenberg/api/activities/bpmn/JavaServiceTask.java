@@ -25,7 +25,7 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
 public class JavaServiceTask extends ServiceTask {
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "javaServiceTask";
   }
 

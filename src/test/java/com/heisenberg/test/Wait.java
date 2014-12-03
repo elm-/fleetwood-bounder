@@ -32,7 +32,7 @@ public class Wait implements ActivityType {
   public static final Wait INSTANCE = new Wait();
 
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "wait";
   }
 

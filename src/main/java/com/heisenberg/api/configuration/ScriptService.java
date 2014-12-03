@@ -12,26 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl;
+package com.heisenberg.api.configuration;
 
-import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.instance.ScopeInstance;
+import com.heisenberg.impl.script.Script;
+import com.heisenberg.impl.script.ScriptResult;
+
 
 
 /**
  * @author Walter White
  */
-public class DataTypeDescriptor extends PluginDescriptor {
+public interface ScriptService {
   
-  protected DataType dataType = null;
-
-  public DataTypeDescriptor(ProcessEngineImpl processEngine, DataType dataType) {
-    super(processEngine, dataType);
-    if (configurationFields==null) {
-      this.dataType = dataType;
-    }
-  }
+  /** default language is JavaScript */
+  Script compile(String scriptText);
   
-  public DataType getDataType() {
-    return dataType;
-  }
+  Script compile(String scriptText, String language);
+  
+  ScriptResult evaluateScript(ScopeInstance scopeInstance, Script script);
+  
 }

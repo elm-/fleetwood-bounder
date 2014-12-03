@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.type.ChoiceType;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.ProcessEngineImpl;
@@ -29,7 +29,7 @@ import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.json.Json;
+import com.heisenberg.impl.json.JacksonJsonService;
 
 /**
  * @author Walter White
@@ -46,7 +46,7 @@ public class JsonProcessDefinitionTest {
   
     // processEngine.json.objectMapper.registerSubtypes(new NamedType(Go.class, "go"));
 
-    ProcessBuilder process = processEngine.newProcess();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     process.deployedUserId("me")
     .deployedTime(Time.now())
     .organizationId("myorg")
@@ -89,13 +89,13 @@ public class JsonProcessDefinitionTest {
     
     processEngine.deployProcessDefinition(process);
     
-    Json json = processEngine.json;
+    JacksonJsonService jacksonJsonService = processEngine.jsonService;
     
-    String processDefinitionJsonText = json.objectToJsonStringPretty(process);
+    String processDefinitionJsonText = jacksonJsonService.objectToJsonStringPretty(process);
 
     log.debug(processDefinitionJsonText);
     
-    ProcessDefinitionImpl processDefinition = json.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
+    ProcessDefinitionImpl processDefinition = jacksonJsonService.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
     assertNotNull(processDefinition);
     assertEquals("myorg", processDefinition.organizationId);
     ActivityDefinitionImpl one = processDefinition.getActivityDefinition("one");

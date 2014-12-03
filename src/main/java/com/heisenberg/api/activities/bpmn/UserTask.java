@@ -20,8 +20,8 @@ import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.task.Task;
-import com.heisenberg.api.task.TaskService;
 
 
 /**
@@ -36,7 +36,7 @@ public class UserTask extends AbstractActivityType {
   List<Binding<String>> candidates;
   
   @Override
-  public String getTypeId() {
+  public String getType() {
     return "userTask";
   }
 

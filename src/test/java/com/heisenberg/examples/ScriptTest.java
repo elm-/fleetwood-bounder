@@ -24,14 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.StartProcessInstanceRequest;
+import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.builder.ProcessBuilder;
+import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
-import com.heisenberg.impl.script.ScriptService;
 
 
 /**
@@ -45,9 +45,9 @@ public class ScriptTest {
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine()
       .registerJavaBeanType(Money.class)
-      .registerActivityType(new ScriptActivity());
+      .registerActivityType(ScriptActivity.class);
 
-    ProcessBuilder processBuilder = processEngine.newProcess();
+    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
     
     processBuilder.newVariable()
       .id("m")
@@ -66,16 +66,16 @@ public class ScriptTest {
     fiveDollars.put("amount", 5d);
     fiveDollars.put("currency", "USD");
     
-    processEngine.startProcessInstance(new StartProcessInstanceRequest()
+    processEngine.newProcessInstance()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", new Money(5d, "USD")));
 
     assertEquals("It costs 5, which is in USD\nAnd mmmoney is 5.0 USD", scriptResultMessage);
   }
   
-  String scriptResultMessage = null;
+  static String scriptResultMessage = null;
 
-  public class ScriptActivity extends AbstractActivityType {
+  public static class ScriptActivity extends AbstractActivityType {
     @Override
     public String getLabel() {
       return "Script";
@@ -96,7 +96,7 @@ public class ScriptTest {
       activityInstance.onwards();
     }
     @Override
-    public String getTypeId() {
+    public String getType() {
       return "testScript";
     }
   }
