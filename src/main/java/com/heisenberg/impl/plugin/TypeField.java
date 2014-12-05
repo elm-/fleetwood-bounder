@@ -18,27 +18,26 @@ import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.type.DataType;
 
 
 /**
  * @author Walter White
  */
-public class PluginConfigurationField {
+public class TypeField {
 
   public String name;
   public String label;
   public boolean isRequired;
-  public DataType dataType;
+  public TypeDescriptor type;
   
   @JsonIgnore
   public Field field;
   
-  public PluginConfigurationField(Field field, DataType dataType, ConfigurationField configurationField) {
+  public TypeField(Field field, TypeDescriptor descriptor, ConfigurationField configurationField) {
     this.name = field.getName();
     this.field = field;
     this.field.setAccessible(true);
-    this.dataType = dataType;
+    this.type = descriptor;
     if (configurationField!=null) {
       this.label = configurationField.value();
       this.isRequired = configurationField.required();

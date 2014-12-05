@@ -29,7 +29,7 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.impl.JavaBeanType;
+import com.heisenberg.api.type.JavaBeanType;
 
 
 /**
@@ -58,7 +58,7 @@ public class PluginDataTypeJavaBeanTest {
     CustomMoney startProcessMoney = new CustomMoney(5d, "USD");
   
     // start a process instance supplying a java bean object as the variable value
-    ProcessInstance processInstance = processEngine.newProcessInstance()
+    ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", startProcessMoney)
       .start();
@@ -77,7 +77,7 @@ public class PluginDataTypeJavaBeanTest {
     customMoneyJson.put("currency", "EUR");
 
     // start a process instance supplying a json representation as the variable value
-    processInstance = processEngine.newProcessInstance()
+    processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
       .variableValueJson("m", customMoneyJson)
       .start();

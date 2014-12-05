@@ -14,56 +14,57 @@
  */
 package com.heisenberg.api.type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.util.Validator;
 
 
 /**
  * @author Walter White
  */
-public class SingletonDataTypeProxy implements DataType {
+@JsonTypeName("typeReference")
+public class TypeReference implements DataType {
+
+  public String typeId;
   
-  String dataTypeId;
+  @JsonIgnore
+  public DataType delegate;
   
-  @Override
-  public String getType() {
-    return dataTypeId;
+  public TypeReference() {
   }
 
-  @Override
-  public String getLabel() {
-    return null;
-  }
-
-  @Override
-  public String getDescription() {
-    return null;
-  }
-
-  @Override
-  public void validateInternalValue(Object internalValue) throws InvalidValueException {
+  public TypeReference(String typeId) {
+    this.typeId = typeId;
   }
 
   @Override
   public Object convertJsonToInternalValue(Object jsonValue) throws InvalidValueException {
-    return null;
+    return delegate.convertJsonToInternalValue(jsonValue);
+  }
+
+  @Override
+  public void validateInternalValue(Object internalValue) throws InvalidValueException {
+    delegate.validateInternalValue(internalValue);
   }
 
   @Override
   public Object convertInternalToJsonValue(Object internalValue) {
-    return null;
+    return delegate.convertInternalToJsonValue(internalValue);
   }
 
   @Override
   public Object convertInternalToScriptValue(Object internalValue, String language) {
-    return null;
+    return delegate.convertInternalToScriptValue(internalValue, language);
   }
 
   @Override
   public Object convertScriptValueToInternal(Object scriptValue, String language) {
-    return null;
+    return delegate.convertScriptValueToInternal(scriptValue, language);
   }
 
   @Override
   public void validate(Validator validator) {
+    delegate.validate(validator);
   }
+
 }

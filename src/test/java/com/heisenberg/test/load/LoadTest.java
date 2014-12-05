@@ -28,10 +28,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.DeployResult;
 import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.api.ActivityInstanceMessageBuilder;
-import com.heisenberg.api.ProcessInstanceBuilder;
+import com.heisenberg.api.builder.MessageBuilder;
+import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -143,7 +143,7 @@ public class LoadTest extends JerseyTest {
 
   void runProcessInstance(String... processDefinitionIds) {
     for (String processDefinitionId: processDefinitionIds) {
-      ProcessInstanceBuilder startProcessInstanceRequest = new ProcessInstanceBuilder()
+      TriggerBuilder startProcessInstanceRequest = new TriggerBuilder()
         .processDefinitionId(processDefinitionId);
       
       
@@ -153,7 +153,7 @@ public class LoadTest extends JerseyTest {
   
       ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
   
-      ActivityInstanceMessageBuilder notifyActivityInstanceRequest = new ActivityInstanceMessageBuilder()
+      MessageBuilder notifyActivityInstanceRequest = new MessageBuilder()
         .processInstanceId(processInstance.id)
         .activityInstanceId(subTaskInstance.getId());
       

@@ -17,7 +17,7 @@ package com.heisenberg.impl.definition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.TransitionBuilder;
 import com.heisenberg.api.definition.TransitionDefinition;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.AbstractProcessEngine;
 
 
 /**
@@ -32,7 +32,7 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
   public ActivityDefinitionImpl to;
 
   @JsonIgnore
-  public ProcessEngineImpl processEngine;
+  public AbstractProcessEngine processEngine;
   @JsonIgnore
   public ProcessDefinitionImpl processDefinition;
   @JsonIgnore
@@ -95,12 +95,12 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
   }
 
   
-  public ProcessEngineImpl getProcessEngine() {
+  public AbstractProcessEngine getProcessEngine() {
     return processEngine;
   }
 
   
-  public void setProcessEngine(ProcessEngineImpl processEngine) {
+  public void setProcessEngine(AbstractProcessEngine processEngine) {
     this.processEngine = processEngine;
   }
 

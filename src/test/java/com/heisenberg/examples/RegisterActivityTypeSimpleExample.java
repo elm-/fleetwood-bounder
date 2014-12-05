@@ -20,10 +20,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ProcessInstanceBuilder;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.ProcessInstanceBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
@@ -58,6 +59,7 @@ public class RegisterActivityTypeSimpleExample {
   
   String message; 
 
+  @JsonTypeName("myCustomType")
   public class MyCustomType extends AbstractActivityType {
     
     public static final String ID = "myCustomType";
@@ -65,11 +67,6 @@ public class RegisterActivityTypeSimpleExample {
     @Override
     public void start(ControllableActivityInstance activityInstance) {
       message = "Leroy was here";
-    }
-
-    @Override
-    public String getType() {
-      return "myCustomType";
     }
   }
 }

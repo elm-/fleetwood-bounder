@@ -19,32 +19,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.api.type.DataType;
 
 
 /**
  * @author Walter White
  */
-public class VariableRequestImpl {
+public abstract class VariableRequestImpl {
 
   @JsonIgnore
-  ProcessEngineImpl processEngine;
+  public AbstractProcessEngine processEngine;
   
-  @JsonIgnore
   public Map<String,Object> variableValues;
-
-  @JsonProperty("variableValues")
-  public Map<String,Object> variableValuesJson;
 
   /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
   public Map<String,Object> transientContext;
 
-//  public VariableRequestImpl() {
-//  }
+  public VariableRequestImpl() {
+  }
 
-  public VariableRequestImpl(ProcessEngineImpl processEngine) {
+  public VariableRequestImpl(AbstractProcessEngine processEngine) {
     super();
     this.processEngine = processEngine;
   }
@@ -57,14 +51,15 @@ public class VariableRequestImpl {
     return this;
   }
 
-  public VariableRequestImpl variableValueJson(String variableDefinitionId, Object valueJson) {
-    if (variableValuesJson==null) {
-      variableValuesJson = new LinkedHashMap<>();
+  public VariableRequestImpl variableValueJson(String variableDefinitionId, Object value, DataType dataType) {
+    if (variableValues==null) {
+      variableValues = new LinkedHashMap<>();
     }
-    variableValuesJson.put(variableDefinitionId, valueJson);
+    Object jsonValue = dataType.convertInternalToJsonValue(value);
+    variableValues.put(variableDefinitionId, jsonValue);
     return this;
   }
-  
+
   public VariableRequestImpl transientContext(String key, Object value) {
     if (transientContext==null) {
       transientContext = new HashMap<>();

@@ -36,6 +36,7 @@ import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.plugin.ActivityTypes;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -224,6 +225,11 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   @Override
   public TaskService getTaskService() {
     return processEngine.taskService;
+  }
+
+  @Override
+  public ActivityTypes getActivityTypes() {
+    return processEngine.activityTypes;
   }
 
   public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {

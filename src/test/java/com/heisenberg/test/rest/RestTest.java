@@ -31,10 +31,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.DeployResult;
 import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.api.ActivityInstanceMessageBuilder;
-import com.heisenberg.api.ProcessInstanceBuilder;
+import com.heisenberg.api.builder.MessageBuilder;
+import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -72,7 +72,7 @@ public class RestTest extends JerseyTest {
     if (processEngine!=null) {
       return processEngine;
     }
-    processEngine = new MongoProcessEngineConfiguration()
+    processEngine = (ProcessEngineImpl) new MongoProcessEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     return processEngine;
@@ -111,7 +111,7 @@ public class RestTest extends JerseyTest {
   }
 
   protected void runProcessInstance(String processDefinitionId) {
-    ProcessInstanceBuilder startProcessInstanceRequest = new ProcessInstanceBuilder()
+    TriggerBuilder startProcessInstanceRequest = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId);
     
     ProcessInstanceImpl processInstance = target("start").request()
@@ -120,7 +120,7 @@ public class RestTest extends JerseyTest {
 
     ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
 
-    ActivityInstanceMessageBuilder notifyActivityInstanceRequest = new ActivityInstanceMessageBuilder()
+    MessageBuilder notifyActivityInstanceRequest = processEngine.newMessage()
       .activityInstanceId(subTaskInstance.getId());
     
     processInstance = target("notify").request()

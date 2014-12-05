@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.AbstractActivityType;
@@ -45,6 +46,7 @@ public class PluginConfigurableActivityTypeTest {
   
   static List<String> executedConfigurations = new ArrayList<>();
   
+  @JsonTypeName("myConfigurableActivityTypeId")
   public static class MyConfigurableActivityType extends AbstractActivityType {
     @ConfigurationField("Configuration property label")
     String configuration;
@@ -52,10 +54,6 @@ public class PluginConfigurableActivityTypeTest {
     }
     public MyConfigurableActivityType(String configuration) {
       this.configuration = configuration;
-    }
-    @Override
-    public String getType() {
-      return "myConfigurableActivityTypeId";
     }
     @Override
     public void start(ControllableActivityInstance activityInstance) {
@@ -85,7 +83,7 @@ public class PluginConfigurableActivityTypeTest {
     
     executedConfigurations.clear();
 
-    processEngine.newProcessInstance()
+    processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
       .start();
     
@@ -113,7 +111,7 @@ public class PluginConfigurableActivityTypeTest {
       .id("b");
 
     // serialize the process to json text string and deserialize back to java object
-    JsonService jsonService = processEngine.getJsonService();
+    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
     String processDefinitionJsonText = jsonService.objectToJsonStringPretty(process);
     log.debug(processDefinitionJsonText);
     ProcessDefinitionImpl processDefinition = jsonService.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);

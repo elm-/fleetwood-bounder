@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.api.builder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.heisenberg.api.ParseIssue.IssueType;
+import com.heisenberg.api.builder.ParseIssue.IssueType;
 
 
 /**

@@ -27,11 +27,12 @@ import com.heisenberg.api.activities.ActivityType;
  */
 public class ActivityTypes {
 
-  public Map<String,ActivityTypeDescriptor> descriptorsByType;
+  public Map<String,TypeDescriptor> descriptorsByType;
+  public Map<String, ActivityType> activityTypesById;
   public Map<Class<? extends ActivityType>,String> typesByClass;
   public DataTypes dataTypes;
   
-  public List<PluginConfigurationField> getConfigurationFields(ActivityType activityType) {
+  public List<TypeField> getConfigurationFields(ActivityType activityType) {
     String typeId = typesByClass.get(activityType.getClass());
     ActivityTypeDescriptor descriptor = typeId!=null ? descriptorsByType.get(typeId) : null;
     return descriptor!=null ? descriptor.configurationFields : null;
@@ -48,13 +49,6 @@ public class ActivityTypes {
     this.typesByClass = new HashMap<>();
   }
 
-  /** registers a singleton object implementing a particular activity type */
-  public ActivityTypeDescriptor registerActivityType(ActivityType activityType) {
-    ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor(activityType);
-    registerActivityTypeDescriptor(activityTypeDescriptor);
-    return activityTypeDescriptor;
-  }
-  
   /** registers a configurable activity type */
   public ActivityTypeDescriptor registerActivityType(Class<? extends ActivityType> activityTypeClass) {
     ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor(activityTypeClass, dataTypes);
@@ -63,7 +57,7 @@ public class ActivityTypes {
   }
   
   public void registerActivityTypeDescriptor(ActivityTypeDescriptor activityTypeDescriptor) {
-    String id = activityTypeDescriptor.type;
+    String id = activityTypeDescriptor.id;
     if (id==null) {
       throw new RuntimeException("activityTypeId is null");
     }

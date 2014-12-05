@@ -35,13 +35,13 @@ import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.api.util.PluginFactory;
-import com.heisenberg.impl.JavaBeanType;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
-import com.heisenberg.impl.json.JacksonJsonService;
+import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
 import com.heisenberg.impl.plugin.ActivityTypes;
 import com.heisenberg.impl.plugin.DataTypes;
 import com.heisenberg.impl.script.ScriptServiceImpl;
@@ -64,6 +64,8 @@ public abstract class ProcessEngineConfiguration {
   protected ProcessEngineConfiguration() {
     this.dataTypes = new DataTypes();
     this.activityTypes = new ActivityTypes(this.dataTypes);
+    registerDefaultDataTypes();
+    registerDefaultActivityTypes();
   }
   
   public abstract ProcessEngine buildProcessEngine();
@@ -83,10 +85,10 @@ public abstract class ProcessEngineConfiguration {
   }
   
   protected void registerDefaultActivityTypes() {
-    registerActivityType(StartEvent.INSTANCE);
-    registerActivityType(EndEvent.INSTANCE);
-    registerActivityType(EmptyServiceTask.INSTANCE);
-    registerActivityType(EmbeddedSubprocess.INSTANCE);
+    registerActivityType(StartEvent.class);
+    registerActivityType(EndEvent.class);
+    registerActivityType(EmptyServiceTask.class);
+    registerActivityType(EmbeddedSubprocess.class);
     registerActivityType(ScriptTask.class);
     registerActivityType(UserTask.class);
     registerActivityType(JavaServiceTask.class);
@@ -120,11 +122,6 @@ public abstract class ProcessEngineConfiguration {
   
   public ProcessEngineConfiguration executorService(Executor executorService) {
     this.executorService = executorService;
-    return this;
-  }
-  
-  public ProcessEngineConfiguration registerActivityType(ActivityType activityType) {
-    activityTypes.registerActivityType(activityType);
     return this;
   }
   
@@ -214,7 +211,7 @@ public abstract class ProcessEngineConfiguration {
     this.dataTypes = dataTypes;
   }
   
-  protected String createDefaultId() {
+  public static String createDefaultId() {
     try {
       String id = InetAddress.getLocalHost().getHostAddress();
       String processName = ManagementFactory.getRuntimeMXBean().getName();
@@ -228,24 +225,24 @@ public abstract class ProcessEngineConfiguration {
     }
   }
 
-  protected ProcessDefinitionCache createDefaultProcessDefinitionCache() {
+  public static ProcessDefinitionCache createDefaultProcessDefinitionCache() {
     return new SimpleProcessDefinitionCache();
   }
 
-  protected Executor createDefaultExecutorService() {
+  public static Executor createDefaultExecutorService() {
     // TODO apply these tips: http://java.dzone.com/articles/executorservice-10-tips-and
     return new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  protected JsonService createDefaultJsonService() {
+  public static JsonService createDefaultJsonService() {
     return new JacksonJsonService();
   }
   
-  protected ScriptService createDefaultScriptService() {
+  public static ScriptService createDefaultScriptService() {
     return new ScriptServiceImpl();
   }
 
-  protected TaskService createDefaultTaskService() {
+  public static TaskService createDefaultTaskService() {
     return new MemoryTaskService();
   }
 }

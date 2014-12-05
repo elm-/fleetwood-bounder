@@ -17,20 +17,17 @@ package com.heisenberg.api.activities;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.Plugin;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.json.ActivityTypeIdResolver;
 
 
 
 /**
  * @author Walter White
  */
-@JsonTypeInfo(use=Id.CUSTOM, include=As.PROPERTY, property="typeId")
-@JsonTypeIdResolver(ActivityTypeIdResolver.class)
+@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
 public interface ActivityType extends Plugin {
   
   /** called when the process is being deployed. 

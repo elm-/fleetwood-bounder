@@ -31,12 +31,6 @@ import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
  */
 public class MemoryProcessEngineConfiguration extends ProcessEngineConfiguration {
   
-
-  public MemoryProcessEngineConfiguration() {
-    registerDefaultDataTypes();
-    registerDefaultActivityTypes();
-  }
-
   @Override
   public ProcessEngine buildProcessEngine() {
     return new MemoryProcessEngine(this);
@@ -75,12 +69,6 @@ public class MemoryProcessEngineConfiguration extends ProcessEngineConfiguration
   @Override
   public MemoryProcessEngineConfiguration executorService(Executor executorService) {
     super.executorService(executorService);
-    return this;
-  }
-
-  @Override
-  public MemoryProcessEngineConfiguration registerActivityType(ActivityType activityType) {
-    super.registerActivityType(activityType);
     return this;
   }
 

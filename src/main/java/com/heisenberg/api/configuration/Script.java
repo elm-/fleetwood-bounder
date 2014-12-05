@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.script;
+package com.heisenberg.api.configuration;
 
 import java.util.HashMap;
 import java.util.Map;

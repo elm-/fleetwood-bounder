@@ -14,6 +14,8 @@
  */
 package com.heisenberg.api.type;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 
 
 
@@ -21,21 +23,12 @@ package com.heisenberg.api.type;
 /**
  * @author Walter White
  */
+@JsonTypeName("text")
 public class TextType extends AbstractDataType {
 
   public static final String TYPE = "text";
   
   public static final TextType INSTANCE = new TextType();
-
-  @Override
-  public String getType() {
-    return TYPE;
-  }
-
-  @Override
-  public String getLabel() {
-    return "Text";
-  }
 
   @Override
   public Object convertJsonToInternalValue(Object apiValue) throws InvalidValueException {

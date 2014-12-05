@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
-import com.heisenberg.api.Page;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.util.Page;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.PageImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;

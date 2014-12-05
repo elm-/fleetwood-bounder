@@ -29,7 +29,7 @@ import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 import com.heisenberg.impl.engine.updates.Update;
-import com.heisenberg.impl.json.JacksonJsonService;
+import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
 import com.mongodb.BasicDBObject;
 
 

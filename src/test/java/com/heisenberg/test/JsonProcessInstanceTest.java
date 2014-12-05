@@ -37,7 +37,7 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
-import com.heisenberg.impl.json.JacksonJsonService;
+import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
 
 /**
  * @author Walter White

@@ -14,6 +14,7 @@
  */
 package com.heisenberg.api.activities.bpmn;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.ActivityDefinition;
@@ -24,17 +25,8 @@ import com.heisenberg.api.util.Validator;
 /**
  * @author Walter White
  */
+@JsonTypeName("parallelGateway")
 public class ParallelGateway extends AbstractActivityType {
-
-  @Override
-  public String getType() {
-    return "parallelGateway";
-  }
-
-  @Override
-  public String getLabel() {
-    return "Parallel gateway";
-  }
 
   @Override
   public void validate(ActivityDefinition activity, Validator validator) {

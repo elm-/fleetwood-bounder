@@ -14,6 +14,7 @@
  */
 package com.heisenberg.api.activities.bpmn;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 
@@ -21,19 +22,10 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
 /**
  * @author Walter White
  */
+@JsonTypeName("startEvent")
 public class StartEvent extends AbstractActivityType {
 
   public static final StartEvent INSTANCE = new StartEvent();
-
-  @Override
-  public String getType() {
-    return "startEvent";
-  }
-
-  @Override
-  public String getLabel() {
-    return "Start event";
-  }
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {

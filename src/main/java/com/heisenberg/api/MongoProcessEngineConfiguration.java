@@ -185,12 +185,6 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
   }
 
   @Override
-  public MongoProcessEngineConfiguration registerActivityType(ActivityType activityType) {
-    super.registerActivityType(activityType);
-    return this;
-  }
-
-  @Override
   public MongoProcessEngineConfiguration registerActivityType(Class< ? extends ActivityType> activityTypeClass) {
     super.registerActivityType(activityTypeClass);
     return this;

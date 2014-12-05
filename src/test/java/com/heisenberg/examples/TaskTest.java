@@ -18,9 +18,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
 
@@ -46,7 +46,7 @@ public class TaskTest {
       .getProcessDefinitionId();
     
     processEngine.startProcessInstance(
-      new ProcessInstanceBuilder().processDefinitionId(processDefinitionId)
+      new TriggerBuilder().processDefinitionId(processDefinitionId)
     );
     
     MemoryTaskService taskService = processEngine.getTaskService();

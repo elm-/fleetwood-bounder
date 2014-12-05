@@ -50,7 +50,7 @@ public class HeisenbergServer {
   }
 
   public static void main(String[] args) {
-    ProcessEngineImpl processEngine = new MongoProcessEngineConfiguration()
+    ProcessEngineImpl processEngine = (ProcessEngineImpl) new MongoProcessEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     HeisenbergServer heisenbergServer = new HeisenbergServer(processEngine);

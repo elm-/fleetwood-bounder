@@ -17,18 +17,16 @@ package com.heisenberg.impl.definition;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.impl.plugin.PluginConfigurationField;
+import com.heisenberg.impl.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.TypeField;
 
 
 /**
@@ -158,14 +156,14 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   
   @Override
   public void initializeBindings(Validator validator) {
-    List<PluginConfigurationField> configurationFields = processEngine.getActivityTypes().getConfigurationFields(activityType);
+    ActivityTypes activityTypes = validator.getActivityTypes();
+    List<TypeField> configurationFields = activityTypes.getConfigurationFields(activityType);
     if (configurationFields!=null) {
-      for (PluginConfigurationField descriptorField : configurationFields) {
+      for (TypeField descriptorField : configurationFields) {
         Field field = descriptorField.field;
         try {
           Binding< ? > binding = (Binding< ? >) field.get(activityType);
           if (binding != null) {
-            binding.processEngine = processEngine;
             binding.dataType = descriptorField.dataType;
             binding.validate(this, activityType, descriptorField, validator);
           }

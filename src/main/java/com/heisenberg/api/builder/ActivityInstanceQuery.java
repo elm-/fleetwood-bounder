@@ -12,25 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.api.builder;
 
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.util.Page;
+
 
 /**
  * @author Walter White
  */
-public interface ActivityInstanceMessageBuilder {
+public interface ActivityInstanceQuery {
 
-  ActivityInstanceMessageBuilder activityInstanceId(String activityInstanceId);
-
-  ActivityInstanceMessageBuilder processInstanceId(String processInstanceId);
-
-  ActivityInstanceMessageBuilder variableValue(String variableDefinitionIdInternal, Object value);
-
-  ActivityInstanceMessageBuilder variableValueJson(String variableDefinitionIdInternal, Object valueJson);
-
-  ActivityInstanceMessageBuilder transientContext(String key, Object value);
+  ActivityInstanceQuery activityType(Class<?> activityTypeClass);
   
-  ProcessInstance send();
-
+  Page<ActivityInstance> loadPage();
 }

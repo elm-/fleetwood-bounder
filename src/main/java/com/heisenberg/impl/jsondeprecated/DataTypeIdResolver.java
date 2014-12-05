@@ -12,24 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.json;
+package com.heisenberg.impl.jsondeprecated;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.plugin.DataTypes;
 
 /**
  * @author Walter White
  */
-public class ActivityTypeIdResolver implements TypeIdResolver {
+public class DataTypeIdResolver implements TypeIdResolver {
 
-  protected ProcessEngineImpl processEngine;
+  protected DataTypes dataTypes;
   protected JavaType baseType;
 
-  public ActivityTypeIdResolver(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
+  public DataTypeIdResolver(DataTypes dataTypes) {
+    this.dataTypes = dataTypes;
   }
 
   @Override
@@ -54,18 +54,19 @@ public class ActivityTypeIdResolver implements TypeIdResolver {
 
   @Override
   public String idFromValueAndType(Object obj, Class< ? > clazz) {
-    return processEngine
-      .getActivityTypes()
-      .getActivityTypeId(clazz);
+    String type = dataTypes.getType(clazz);
+    if (type==null) {
+      throw new RuntimeException("Couldn't find type for data type "+clazz.getName());
+    }
+    return type;
   }
 
   @Override
-  public JavaType typeFromId(String typeId) {
-    Class<?> clazz = processEngine
-            .getActivityTypes()
-            .getActivityTypeClass(typeId);
-    return TypeFactory
-            .defaultInstance()
-            .constructSpecializedType(baseType, clazz);
+  public JavaType typeFromId(String type) {
+    Class< ? > clazz = dataTypes.getDataTypeClazz(type);
+    if (clazz==null) {
+      throw new RuntimeException("Couldn't find class for data type "+type);
+    }
+    return TypeFactory.defaultInstance().constructSpecializedType(baseType, clazz);
   }
 }

@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.api.Page;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.util.Page;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQuery;
 import com.heisenberg.impl.ProcessEngineImpl;

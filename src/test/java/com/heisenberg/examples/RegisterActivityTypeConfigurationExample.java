@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
@@ -33,8 +34,8 @@ import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.json.JacksonJsonService;
-import com.heisenberg.impl.plugin.PluginDescriptor;
+import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
+import com.heisenberg.impl.plugin.TypeDescriptor;
 
 
 /**
@@ -50,7 +51,7 @@ public class RegisterActivityTypeConfigurationExample {
       .registerActivityType(MyCustomType.class);
     
     JacksonJsonService jacksonJsonService = processEngine.jsonService;
-    PluginDescriptor spiDescriptor = processEngine.activityTypeDescriptorsByTypeId.get("myCustomType");
+    TypeDescriptor spiDescriptor = processEngine.activityTypeDescriptorsByTypeId.get("myCustomType");
     log.debug("From oss on-premise to SaaS process builder:");
     log.debug(jacksonJsonService.objectToJsonStringPretty(spiDescriptor)+"\n");
     
@@ -92,6 +93,7 @@ public class RegisterActivityTypeConfigurationExample {
     assertEquals("v", myCustomActivity.parameterOne.variableDefinitionId);
   }
 
+  @JsonTypeName("myCustomType")
   public static class MyCustomType extends AbstractActivityType {
     
     @ConfigurationField("Function name")
@@ -114,11 +116,6 @@ public class RegisterActivityTypeConfigurationExample {
     public MyCustomType parameterOne(Binding<String> parameterOne) {
       this.parameterOne = parameterOne;
       return this;
-    }
-
-    @Override
-    public String getType() {
-      return "myCustomType";
     }
   }
 }

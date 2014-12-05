@@ -23,22 +23,11 @@ import com.heisenberg.api.activities.ActivityType;
 /**
  * @author Walter White
  */
-public class ActivityTypeDescriptor extends PluginDescriptor {
+public class ActivityTypeDescriptor extends TypeDescriptor {
 
-  @JsonIgnore
   protected ActivityType activityType; 
   
-  @JsonIgnore
-  protected Class<? extends ActivityType> activityTypeClass;
-  
-  protected List<PluginConfigurationField> configurationFields;
-  
   public ActivityTypeDescriptor(ActivityType activityType) {
-    super(activityType);
-    this.activityType = activityType;
-  }
-
-  public ActivityTypeDescriptor(Class<? extends ActivityType> activityTypeClass, DataTypes dataTypes) {
     super(activityTypeClass);
     this.activityTypeClass = activityTypeClass;
     this.configurationFields = dataTypes.initializeConfigurationFields(activityTypeClass);
@@ -72,12 +61,12 @@ public class ActivityTypeDescriptor extends PluginDescriptor {
 
   
   public String getType() {
-    return type;
+    return id;
   }
 
   
   public void setTypeId(String activityTypeId) {
-    this.type = activityTypeId;
+    this.id = activityTypeId;
   }
 
   
@@ -101,12 +90,12 @@ public class ActivityTypeDescriptor extends PluginDescriptor {
   }
 
   
-  public List<PluginConfigurationField> getConfigurationFields() {
+  public List<TypeField> getConfigurationFields() {
     return configurationFields;
   }
 
   
-  public void setConfigurationFields(List<PluginConfigurationField> configurationFields) {
+  public void setConfigurationFields(List<TypeField> configurationFields) {
     this.configurationFields = configurationFields;
   }
 }

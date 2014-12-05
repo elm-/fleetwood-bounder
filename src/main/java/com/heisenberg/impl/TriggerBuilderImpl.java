@@ -14,7 +14,7 @@
  */
 package com.heisenberg.impl;
 
-import com.heisenberg.api.ProcessInstanceBuilder;
+import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 
 
@@ -23,38 +23,32 @@ import com.heisenberg.api.instance.ProcessInstance;
 /**
  * @author Walter White
  */
-public class ProcessInstanceBuilderImpl extends VariableRequestImpl implements ProcessInstanceBuilder {
+public class TriggerBuilderImpl extends VariableRequestImpl implements TriggerBuilder {
 
   public String processDefinitionId;
 
-//  public ProcessInstanceBuilderImpl() {
-//  }
+  public TriggerBuilderImpl() {
+  }
 
-  public ProcessInstanceBuilderImpl(ProcessEngineImpl processEngine) {
+  public TriggerBuilderImpl(AbstractProcessEngine processEngine) {
     super(processEngine);
   }
 
 
   @Override
-  public ProcessInstanceBuilderImpl processDefinitionId(String processDefinitionId) {
+  public TriggerBuilderImpl processDefinitionId(String processDefinitionId) {
     this.processDefinitionId = processDefinitionId;
     return this;
   }
 
   @Override
-  public ProcessInstanceBuilderImpl variableValue(String variableDefinitionIdInternal, Object value) {
+  public TriggerBuilderImpl variableValue(String variableDefinitionIdInternal, Object value) {
     super.variableValue(variableDefinitionIdInternal, value);
     return this;
   }
 
   @Override
-  public ProcessInstanceBuilderImpl variableValueJson(String variableDefinitionIdInternal, Object valueJson) {
-    super.variableValueJson(variableDefinitionIdInternal, valueJson);
-    return this;
-  }
-
-  @Override
-  public ProcessInstanceBuilderImpl transientContext(String key, Object value) {
+  public TriggerBuilderImpl transientContext(String key, Object value) {
     super.transientContext(key, value);
     return this;
   }

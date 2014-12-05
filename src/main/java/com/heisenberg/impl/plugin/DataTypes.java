@@ -24,10 +24,11 @@ import java.util.Map;
 
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
+import com.heisenberg.api.type.BindingType;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.api.type.ListType;
-import com.heisenberg.impl.BindingType;
-import com.heisenberg.impl.JavaBeanType;
+import com.heisenberg.api.type.TypeReference;
 import com.heisenberg.impl.util.Reflection;
 
 
@@ -36,23 +37,38 @@ import com.heisenberg.impl.util.Reflection;
  */
 public class DataTypes {
   
-  public Map<String,DataTypeDescriptor> descriptorsByType = new LinkedHashMap<String, DataTypeDescriptor>();
-  public Map<Class<? extends DataType>,String> typesByClass = new HashMap<>();
-  public Map<Class<?>,DataType> dataTypesByValueClass = new HashMap<>();
+  public List<DataTypeDescriptor> descriptorsByType = new ArrayList<>();
+  public Map<String,DataType> dataTypesById = new LinkedHashMap<>();
 
   /** creates a descriptor for a java bean type */
-  public DataTypeDescriptor registerJavaBeanType(Class<?> javaBeanClass) {
-    JavaBeanType javaBeanType = new JavaBeanType(javaBeanClass);
-    DataTypeDescriptor dataTypeDescriptor = new DataTypeDescriptor(javaBeanType);
-    dataTypeDescriptor.type = javaBeanClass.getName();
-    addDataTypeDescriptor(dataTypeDescriptor);
-    setDataTypeForClass(javaBeanClass, javaBeanType);
+  public TypeDescriptor registerJavaBeanType(Class<?> javaBeanClass) {
+    return registerDataType(new JavaBeanType(javaBeanClass), javaBeanClass.getName()); 
+  }
+
+  public DataTypeDescriptor registerDataType(DataType dataType) {
+    return registerDataType(dataType, null);
+  }
+
+  /** creates a descriptor for a configurable dataType */
+  public DataTypeDescriptor registerDataType(DataType dataType, String typeId) {
+    addDataTypeById(typeId, dataType);
+    DataTypeDescriptor dataTypeDescriptor = new DataTypeDescriptor(new TypeReference(typeId));
+    descriptorsByType.add(dataTypeDescriptor);
     return dataTypeDescriptor;
+  }
+  
+  protected void addDataTypeById(String typeId, DataType dataType) {
+    if (dataTypesById.containsKey(typeId)) {
+      throw new RuntimeException("Duplicate type declaration for id "+typeId);
+    }
+    dataTypesById.put(typeId, dataType);
   }
   
   /** creates a descriptor for a configurable dataType */
   public DataTypeDescriptor registerDataType(Class<? extends DataType> dataTypeClass) {
-    DataTypeDescriptor dataTypeDescriptor = new DataTypeDescriptor(dataTypeClass, this);
+    DataTypeDescriptor robert = new DataTypeDescriptor(dataTypeClass, this);
+    robert.analyze(this); // :)
+    
     addDataTypeDescriptor(dataTypeDescriptor);
     return dataTypeDescriptor;
   }
@@ -60,10 +76,6 @@ public class DataTypes {
   protected void addDataTypeDescriptor(DataTypeDescriptor dataTypeDescriptor) {
     if (dataTypeDescriptor==null) {
       throw new RuntimeException("dataTypeDescriptor is null");
-    }
-    String id = dataTypeDescriptor.type;
-    if (id==null) {
-      throw new RuntimeException("dataTypeId is null");
     }
     if (descriptorsByType.containsKey(id)) {
       throw new RuntimeException("Duplicate data type descriptor: "+id);
@@ -80,95 +92,84 @@ public class DataTypes {
     typesByClass.put(dataTypeDescriptor.dataTypeClass, id);
   }
   
-  public String getType(Class< ? > clazz) {
-    return typesByClass.get(clazz);
+//  public String getType(Class< ? > clazz) {
+//    return typesByClass.get(clazz);
+//  }
+//
+//  public DataType getDataType(String type) {
+//    DataTypeDescriptor descriptor = descriptorsByType.get(type);
+//    return descriptor!=null ? descriptor.dataType : null;
+//  }
+//
+//  public void setDataTypeForClass(Class< ? > valueClass, DataType dataType) {
+//    dataTypesByValueClass.put(valueClass, dataType);
+//  }
+
+  public TypeDescriptor getTypeDescriptor(Field field) {
+    return getTypeDescriptor(field, field.getGenericType());
   }
 
-  public DataType getDataType(String type) {
-    DataTypeDescriptor descriptor = descriptorsByType.get(type);
-    return descriptor!=null ? descriptor.dataType : null;
-  }
-
-  public void setDataTypeForClass(Class< ? > valueClass, DataType dataType) {
-    dataTypesByValueClass.put(valueClass, dataType);
-  }
-
-  public DataType getDataType(Field field) {
-    return getDataType(field, field.getGenericType());
-  }
-
-  public DataType getDataType(Field field, java.lang.reflect.Type genericType) {
-    DataType dataType = dataTypesByValueClass.get(genericType);
-    if (dataType != null) {
-      return dataType;
+  public TypeDescriptor getTypeDescriptor(Field field, java.lang.reflect.Type genericType) {
+    TypeDescriptor typeDescriptor = descriptorsByType.get(genericType);
+    if (typeDescriptor != null) {
+      return typeDescriptor;
     }
     if (genericType instanceof ParameterizedType) {
       ParameterizedType parametrizedType = (ParameterizedType) genericType;
       java.lang.reflect.Type[] typeArgs = parametrizedType.getActualTypeArguments();
       java.lang.reflect.Type rawType = parametrizedType.getRawType();
       if (Binding.class==rawType) {
-        return new BindingType(getDataType(field, typeArgs[0]));
+        return createBindingDescriptor(getTypeDescriptor(field, typeArgs[0]));
       } else if (List.class==rawType) {
-        return new ListType(getDataType(field, typeArgs[0]));
+        return createListDescriptor(getTypeDescriptor(field, typeArgs[0]));
       } 
     } else if (genericType instanceof Class){
       Class<?> clazz = (Class< ? >) genericType;
-      dataType = getDataTypeByValueClass(clazz, true);
-      if (dataType!=null) {
-        return dataType;
+      typeDescriptor = getTypeDescriptorByValueClass(clazz, true);
+      if (typeDescriptor!=null) {
+        return typeDescriptor;
       }
     }
     throw new RuntimeException("Don't know how to handle "+genericType+"'s.  It's used in configuration field: "+field);
   }
 
-  private DataType getDataTypeByValueClass(Class< ? > clazz, boolean autoCreate) {
-    DataType dataType = dataTypesByValueClass.get(clazz);
-    if (dataType!=null) {
-      return dataType;
-    }
-    if (autoCreate) {
-      DataTypeDescriptor javaBeanDescriptor = registerJavaBeanType(clazz);
-      return javaBeanDescriptor.dataType;
-    }
+  private TypeDescriptor createBindingDescriptor(TypeDescriptor typeDescriptor) {
+    TypeDescriptor bindingDescriptor = new TypeDescriptor();
+    bindingDescriptor.id
     return null;
   }
 
-  protected DataType getDataType(DataTypeDescriptor dataTypeDescriptor) {
-    if (dataTypeDescriptor.dataType!=null) {
-      return dataTypeDescriptor.dataType;
-    }
-    try {
-      return dataTypeDescriptor.dataTypeClass.newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException("Couldn't instantiate new data type "+dataTypeDescriptor.dataTypeClass+": "+e.getMessage(),e);
-    }
-  }
-
-  public List<PluginConfigurationField> initializeConfigurationFields(Class<?> clazz) {
-    List<Field> fields = Reflection.getFieldsRecursive(clazz);
-    List<PluginConfigurationField> configurationFields = null;
-    if (!fields.isEmpty()) {
-      configurationFields = new ArrayList<PluginConfigurationField>(fields.size());
-      for (Field field : fields) {
-        ConfigurationField configurationField = field.getAnnotation(ConfigurationField.class);
-        if (field.getAnnotation(ConfigurationField.class) != null) {
-          DataType dataType = getDataType(field);
-          PluginConfigurationField descriptorField = new PluginConfigurationField(field, dataType, configurationField);
-          configurationFields.add(descriptorField);
-        }
-      }
-    }
-    return configurationFields;
-  }
-
-  public Class< ? > getDataTypeClazz(String typeId) {
-    DataTypeDescriptor dataTypeDescriptor = descriptorsByType.get(typeId);
-    if (dataTypeDescriptor==null) {
-      return null;
-    }
-    if (dataTypeDescriptor.dataTypeClass==null) {
-      throw new RuntimeException("Singleton data typeId "+typeId+" must be serialized with the ...Id field");
-    }
-    return dataTypeDescriptor.dataTypeClass;
-  }
+//  private TypeDescriptor getTypeDescriptorByValueClass(Class< ? > clazz, boolean autoCreate) {
+//    DataType dataType = dataTypesByValueClass.get(clazz);
+//    if (dataType!=null) {
+//      return dataType;
+//    }
+//    if (autoCreate) {
+//      DataTypeDescriptor javaBeanDescriptor = registerJavaBeanType(clazz);
+//      return javaBeanDescriptor.dataType;
+//    }
+//    return null;
+//  }
+//
+//  protected DataType getDataType(DataTypeDescriptor dataTypeDescriptor) {
+//    if (dataTypeDescriptor.dataType!=null) {
+//      return dataTypeDescriptor.dataType;
+//    }
+//    try {
+//      return dataTypeDescriptor.dataTypeClass.newInstance();
+//    } catch (Exception e) {
+//      throw new RuntimeException("Couldn't instantiate new data type "+dataTypeDescriptor.dataTypeClass+": "+e.getMessage(),e);
+//    }
+//  }
+//
+//  public Class< ? > getDataTypeClazz(String typeId) {
+//    DataTypeDescriptor dataTypeDescriptor = descriptorsByType.get(typeId);
+//    if (dataTypeDescriptor==null) {
+//      return null;
+//    }
+//    if (dataTypeDescriptor.dataTypeClass==null) {
+//      throw new RuntimeException("Singleton data typeId "+typeId+" must be serialized with the ...Id field");
+//    }
+//    return dataTypeDescriptor.dataTypeClass;
+//  }
 }

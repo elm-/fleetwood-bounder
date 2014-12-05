@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.test;
+package com.heisenberg.test.execution;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,11 +32,14 @@ import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.test.Go;
+import com.heisenberg.test.Wait;
+import com.heisenberg.test.Go.Execution;
 
 /**
  * @author Walter White
  */
-public class BasicProcessExecutionTest {
+public class MultipleStartActivitiesTest {
   
   @Test
   public void testOne() {

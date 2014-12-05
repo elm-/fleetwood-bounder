@@ -24,17 +24,11 @@ import com.heisenberg.impl.util.Exceptions;
 /**
  * @author Walter White
  */
-public class DataTypeDescriptor extends PluginDescriptor{
+public class DataTypeDescriptor extends TypeDescriptor {
 
-  @JsonIgnore
   protected DataType dataType; 
   
-  @JsonIgnore
-  protected Class<? extends DataType> dataTypeClass;
-  protected List<PluginConfigurationField> configurationFields;
-  
   public DataTypeDescriptor(DataType dataType) {
-    super(dataType);
     Exceptions.checkNotNullParameter(dataType, "dataType");
     this.dataType = dataType;
   }
@@ -65,12 +59,12 @@ public class DataTypeDescriptor extends PluginDescriptor{
 
   
   public String getType() {
-    return type;
+    return id;
   }
 
   
   public void setTypeId(String dataTypeId) {
-    this.type = dataTypeId;
+    this.id = dataTypeId;
   }
 
   
@@ -94,12 +88,12 @@ public class DataTypeDescriptor extends PluginDescriptor{
   }
 
   
-  public List<PluginConfigurationField> getConfigurationFields() {
+  public List<TypeField> getConfigurationFields() {
     return configurationFields;
   }
 
   
-  public void setConfigurationFields(List<PluginConfigurationField> configurationFields) {
+  public void setConfigurationFields(List<TypeField> configurationFields) {
     this.configurationFields = configurationFields;
   }
 }

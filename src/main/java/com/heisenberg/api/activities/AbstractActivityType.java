@@ -42,14 +42,4 @@ public abstract class AbstractActivityType implements ActivityType {
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
     // activityDefinition.initializeBindings(validator);
   }
-
-  @Override
-  public String getLabel() {
-    return null;
-  }
-
-  @Override
-  public String getDescription() {
-    return null;
-  }
 }

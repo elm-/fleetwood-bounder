@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.json;
+package com.heisenberg.impl.jsondeprecated;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -24,7 +24,8 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.DataTypes;
 
 
 /**
@@ -32,14 +33,12 @@ import com.heisenberg.impl.ProcessEngineImpl;
  */
 public class CustomFactory extends HandlerInstantiator {
   
-  protected ProcessEngineImpl processEngine;
   protected ActivityTypeIdResolver activityTypeIdResolver;
   protected DataTypeIdResolver dataTypeIdResolver;
   
-  public CustomFactory(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
-    this.activityTypeIdResolver = new ActivityTypeIdResolver(processEngine);
-    this.dataTypeIdResolver = new DataTypeIdResolver(processEngine);
+  public CustomFactory(ActivityTypes activityTypes, DataTypes dataTypes) {
+    this.activityTypeIdResolver = new ActivityTypeIdResolver(activityTypes);
+    this.dataTypeIdResolver = new DataTypeIdResolver(dataTypes);
   }
 
   @Override

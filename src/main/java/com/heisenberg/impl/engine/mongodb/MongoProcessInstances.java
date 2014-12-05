@@ -254,7 +254,6 @@ public class MongoProcessInstances extends MongoCollection {
     variableInstance.variableDefinitionId = readString(dbVariableInstance, fields.variableDefinitionId);
     variableInstance.variableDefinition = processInstance.processDefinition.findVariableDefinition(variableInstance.variableDefinitionId);
     variableInstance.dataType = variableInstance.variableDefinition.dataType;
-    variableInstance.dataTypeId = variableInstance.dataType.getType();
     variableInstance.value = variableInstance.dataType.convertJsonToInternalValue(dbVariableInstance.get(fields.value));
     return variableInstance;
   }

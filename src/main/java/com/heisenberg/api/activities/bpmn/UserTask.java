@@ -16,6 +16,7 @@ package com.heisenberg.api.activities.bpmn;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
@@ -27,6 +28,7 @@ import com.heisenberg.api.task.Task;
 /**
  * @author Walter White
  */
+@JsonTypeName("userTask")
 public class UserTask extends AbstractActivityType {
   
   @ConfigurationField("Name")
@@ -34,16 +36,6 @@ public class UserTask extends AbstractActivityType {
   
   @ConfigurationField("Candidates")
   List<Binding<String>> candidates;
-  
-  @Override
-  public String getType() {
-    return "userTask";
-  }
-
-  @Override
-  public String getLabel() {
-    return "User task";
-  }
   
   @Override
   public void start(ControllableActivityInstance activityInstance) {

@@ -12,34 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl;
+package com.heisenberg.api.type;
 
-import com.heisenberg.api.type.AbstractDataType;
-import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.InvalidValueException;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeName("binding")
 public class BindingType extends AbstractDataType {
   
-  String id;
   DataType dataType;
 
   public BindingType(DataType dataType) {
-    this.id = "binding<"+dataType.getType()+">";
     this.dataType = dataType;
-  }
-
-  @Override
-  public String getType() {
-    return id;
-  }
-
-  @Override
-  public String getLabel() {
-    return dataType.getLabel()+" binding";
   }
 
   @Override

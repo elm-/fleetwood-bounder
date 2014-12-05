@@ -14,7 +14,7 @@
  */
 package com.heisenberg.test.db;
 
-import static com.heisenberg.test.TestHelper.assertActivityInstancesOpen;
+import static com.heisenberg.test.TestHelper.assertOpen;
 import static com.heisenberg.test.TestHelper.findActivityInstanceOpen;
 
 import java.util.List;
@@ -23,10 +23,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.api.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
@@ -60,21 +59,21 @@ public class MongoProcessEngineTest {
     
     ProcessDefinitionBuilder process = createProcess(processEngine);
 
-    String processDefinitionId = processEngine
-        .deployProcessDefinition(process)
+    String processDefinitionId = process.deploy()
         .checkNoErrorsAndNoWarnings()
         .getProcessDefinitionId();
       
-    ProcessInstance processInstance = processEngine.newProcessInstance()
-      .processDefinitionId(processDefinitionId));
+    ProcessInstance processInstance = processEngine.newTrigger()
+      .processDefinitionId(processDefinitionId)
+      .start();
     
-    assertActivityInstancesOpen(processInstance, "sub", "subTask");
+    assertOpen(processInstance, "sub", "subTask");
 
     ActivityInstance subTaskInstance = findActivityInstanceOpen(processInstance, "subTask");
     
-    processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
+    processEngine.newMessage()
       .activityInstanceId(subTaskInstance.getId())
-    );
+      .send();
   }
 
   @Test
@@ -153,6 +152,7 @@ public class MongoProcessEngineTest {
     return process;
   }
   
+  @JsonTypeName("go")
   public static class Go extends AbstractActivityType {
     @ConfigurationField("Place")
     Binding<String> placeBinding;
@@ -174,11 +174,6 @@ public class MongoProcessEngineTest {
     @Override
     public void validate(ActivityDefinition activityDefinition, Validator validator) {
       activityDefinition.initializeBindings(validator);
-    }
-
-    @Override
-    public String getType() {
-      return "testGo";
     }
   }
 }

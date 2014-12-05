@@ -17,10 +17,13 @@ package com.heisenberg.api.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 
 /**
  * @author Walter White
  */
+@JsonTypeName("choice")
 public class ChoiceType extends AbstractDataType {
   
   public String label;
@@ -39,11 +42,6 @@ public class ChoiceType extends AbstractDataType {
   public ChoiceType label(String label) {
     this.label = label;
     return this;
-  }
-  
-  @Override
-  public String getType() {
-    return "choice";
   }
   
   public Map<String,String> getOptions() {

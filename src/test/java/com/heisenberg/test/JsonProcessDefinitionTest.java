@@ -29,7 +29,7 @@ import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.json.JacksonJsonService;
+import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
 
 /**
  * @author Walter White

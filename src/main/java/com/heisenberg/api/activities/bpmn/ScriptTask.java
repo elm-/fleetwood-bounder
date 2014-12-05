@@ -17,30 +17,22 @@ package com.heisenberg.api.activities.bpmn;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeName("serviceTask")
 public class ScriptTask extends AbstractActivityType {
 
-  @Override
-  public String getType() {
-    return "serviceTask";
-  }
-
-  @Override
-  public String getLabel() {
-    return "Service task";
-  }
-  
   public String script;
   public Map<String, String> scriptToProcessMappings;
   public Object resultVariableDefinitionId;

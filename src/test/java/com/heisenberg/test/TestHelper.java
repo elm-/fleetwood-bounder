@@ -60,7 +60,7 @@ public class TestHelper {
     return findActivityInstanceOpen(activityInstance.getActivityInstances(), activityDefinitionId);
   }
 
-  public static void assertActivityInstancesOpen(ProcessInstance processInstance, String... expectedActivityNames) {
+  public static void assertOpen(ProcessInstance processInstance, String... expectedActivityNames) {
     Map<String,Integer> expectedActivityCounts = new HashMap<String, Integer>();
     if (expectedActivityNames!=null) {
       for (String expectedActivityName: expectedActivityNames) {
@@ -85,6 +85,12 @@ public class TestHelper {
         }
       }
     }
+  }
+
+  public static String getActivityInstanceId(ProcessInstance processInstance, String activityDefinitionId) {
+    ActivityInstance activityInstance = processInstance.findActivityInstanceByActivityDefinitionId(activityDefinitionId);
+    Assert.assertNotNull("No open activity instance found "+activityDefinitionId+" not found", activityInstance);
+    return activityInstance.getId();
   }
 
 }

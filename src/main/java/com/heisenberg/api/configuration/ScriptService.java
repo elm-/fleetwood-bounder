@@ -15,7 +15,6 @@
 package com.heisenberg.api.configuration;
 
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 
 

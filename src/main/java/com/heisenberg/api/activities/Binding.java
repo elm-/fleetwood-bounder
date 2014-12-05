@@ -15,14 +15,13 @@
 package com.heisenberg.api.activities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.impl.plugin.PluginConfigurationField;
-import com.heisenberg.impl.script.Script;
+import com.heisenberg.impl.plugin.TypeField;
 import com.heisenberg.impl.script.ScriptResult;
 
 
@@ -32,7 +31,7 @@ import com.heisenberg.impl.script.ScriptResult;
 public class Binding<T> {
   
   @JsonIgnore
-  public ProcessEngineImpl processEngine;
+  public boolean isInitialized;
   @JsonIgnore
   public DataType dataType;
   
@@ -46,7 +45,7 @@ public class Binding<T> {
   
   @SuppressWarnings("unchecked")
   public T getValue(ControllableActivityInstance activityInstance) {
-    if (this.processEngine==null) {
+    if (!isInitialized) {
       String typeName = ((ActivityInstanceImpl)activityInstance).activityDefinition.activityType.getClass().getName();
       throw new RuntimeException("Please ensure that in the "+typeName+".validate, you call activityDefinition.initializeBindings(Validator)");
     }
@@ -85,7 +84,7 @@ public class Binding<T> {
   }
 
   // processEngine and dataType are already initialized when this is called
-  public void validate(ActivityDefinitionImpl activityDefinition, ActivityType activityType, PluginConfigurationField descriptorField, Validator validator) {
+  public void validate(ActivityDefinitionImpl activityDefinition, ActivityType activityType, TypeField descriptorField, Validator validator) {
     if (value!=null) {
       try {
         dataType.validateInternalValue(value);
@@ -100,7 +99,7 @@ public class Binding<T> {
       }
     } else if (expression!=null) {
       try {
-        expressionScript = processEngine.getScriptService().compile(expression, expressionLanguage);
+        expressionScript = validator.getScriptService().compile(expression, expressionLanguage);
       } catch (RuntimeException e) {
         Throwable cause = e.getCause();
         if (cause==null) {

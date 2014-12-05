@@ -14,7 +14,8 @@
  */
 package com.heisenberg.impl;
 
-import com.heisenberg.api.ActivityInstanceMessageBuilder;
+import com.heisenberg.api.builder.MessageBuilder;
+import com.heisenberg.api.type.DataType;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 
 
@@ -22,23 +23,23 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
 /**
  * @author Walter White
  */
-public class ActivityInstanceMessageBuilderImpl extends VariableRequestImpl implements ActivityInstanceMessageBuilder {
+public class MessageImpl extends VariableRequestImpl implements MessageBuilder {
 
   public String activityInstanceId;
   public String processInstanceId;
 
-  public ActivityInstanceMessageBuilderImpl(ProcessEngineImpl processEngine) {
+  public MessageImpl(AbstractProcessEngine processEngine) {
     super(processEngine);
   }
 
   @Override
-  public ActivityInstanceMessageBuilderImpl activityInstanceId(String activityInstanceId) {
+  public MessageImpl activityInstanceId(String activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
     return this;
   }
   
   @Override
-  public ActivityInstanceMessageBuilderImpl processInstanceId(String processInstanceId) {
+  public MessageImpl processInstanceId(String processInstanceId) {
     this.processInstanceId = processInstanceId;
     return this;
   }
@@ -51,19 +52,19 @@ public class ActivityInstanceMessageBuilderImpl extends VariableRequestImpl impl
   }
   
   @Override
-  public ActivityInstanceMessageBuilderImpl variableValue(String variableDefinitionIdInternal, Object value) {
+  public MessageImpl variableValue(String variableDefinitionIdInternal, Object value) {
     super.variableValue(variableDefinitionIdInternal, value);
     return this;
   }
-
+  
   @Override
-  public ActivityInstanceMessageBuilderImpl variableValueJson(String variableDefinitionIdInternal, Object valueJson) {
-    super.variableValueJson(variableDefinitionIdInternal, valueJson);
+  public MessageImpl variableValueJson(String variableDefinitionId, Object value, DataType dataType) {
+    super.variableValueJson(variableDefinitionId, value, dataType);
     return this;
   }
 
   @Override
-  public ActivityInstanceMessageBuilderImpl transientContext(String key, Object value) {
+  public MessageImpl transientContext(String key, Object value) {
     super.transientContext(key, value);
     return this;
   }

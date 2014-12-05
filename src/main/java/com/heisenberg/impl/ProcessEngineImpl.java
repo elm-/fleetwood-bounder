@@ -14,7 +14,6 @@
  */
 package com.heisenberg.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,14 +22,12 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ActivityInstanceQuery;
-import com.heisenberg.api.DeployResult;
-import com.heisenberg.api.ActivityInstanceMessageBuilder;
-import com.heisenberg.api.Page;
-import com.heisenberg.api.ParseIssues;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.ProcessInstanceBuilder;
+import com.heisenberg.api.builder.ActivityInstanceQuery;
+import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
@@ -38,6 +35,7 @@ import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.util.Page;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -48,16 +46,14 @@ import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
-import com.heisenberg.impl.json.JacksonJsonService;
 import com.heisenberg.impl.plugin.ActivityTypes;
 import com.heisenberg.impl.plugin.DataTypes;
-import com.heisenberg.impl.script.ScriptServiceImpl;
 import com.heisenberg.impl.util.Exceptions;
 
 /**
  * @author Walter White
  */
-public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator {
+public abstract class ProcessEngineImpl extends AbstractProcessEngine implements ProcessEngine, ServiceLocator {
 
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
@@ -70,7 +66,11 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
   public TaskService taskService;
   public Executor executorService;
   
+  public ProcessEngineImpl() {
+  }
+  
   public ProcessEngineImpl(ProcessEngineConfiguration configuration) {
+    // construct all objects
     this.id = configuration.getId();
     this.activityTypes = configuration.getActivityTypes();
     this.dataTypes = configuration.getDataTypes();
@@ -79,19 +79,10 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
     this.scriptService = configuration.getScriptService();
     this.jsonService = configuration.getJsonService();
     this.taskService = configuration.getTaskService();
-    this.jsonService.setProcessEngine(this);
   }
 
   /// Process Definition Builder 
   
-  @Override
-  public ProcessDefinitionBuilder newProcessDefinition() {
-    ProcessDefinitionImpl processDefinition = new ProcessDefinitionImpl();
-    processDefinition.processDefinition = processDefinition;
-    processDefinition.processEngine = this;
-    return processDefinition;
-  }
-
   public DeployResult deployProcessDefinition(ProcessDefinitionBuilder processBuilder) {
     Exceptions.checkNotNull(processBuilder, "processBuilder");
     log.debug("Deploying process");
@@ -114,12 +105,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
     return response;
   }
   
-  @Override
-  public ProcessInstanceBuilder newProcessInstance() {
-    return new ProcessInstanceBuilderImpl(this);
-  }
-  
-  public ProcessInstance startProcessInstance(ProcessInstanceBuilderImpl processInstanceBuilder) {
+  public ProcessInstance startProcessInstance(TriggerBuilderImpl processInstanceBuilder) {
     String processDefinitionId = processInstanceBuilder.processDefinitionId;
     Exceptions.checkNotNullParameter(processDefinitionId, "processDefinitionId");
     ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
@@ -148,11 +134,11 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
   }
   
   @Override
-  public ActivityInstanceMessageBuilderImpl newNotifyActivityInstance() {
-    return new ActivityInstanceMessageBuilderImpl(this);
+  public MessageImpl newMessage() {
+    return new MessageImpl(this);
   }
   
-  public ProcessInstanceImpl sendActivityInstanceMessage(ActivityInstanceMessageBuilderImpl notifyActivityInstanceBuilder) {
+  public ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl notifyActivityInstanceBuilder) {
     String activityInstanceId = notifyActivityInstanceBuilder.activityInstanceId;
     String processInstanceId = notifyActivityInstanceBuilder.processInstanceId;
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(processInstanceId, activityInstanceId);
@@ -178,7 +164,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
 
   private void setVariableApiValues(ScopeInstanceImpl scopeInstance, VariableRequestImpl variableRequest) {
     ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition;
-    Map<String, Object> variableValuesJson = variableRequest.variableValuesJson;
     Map<String, Object> variableValues = variableRequest.variableValues;
     if (variableValues!=null) {
       for (Object variableDefinitionId: variableValues.keySet()) {
@@ -189,18 +174,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
       if (variableValues!=null) {
         scopeInstance.setVariableValuesRecursive(variableValues);
       }
-      
-    // If there are variables in json format, they need to be converted
-    } else if (variableValuesJson!=null) { 
-      Map<String,Object> internalValues = new LinkedHashMap<>();
-      for (String variableDefinitionId: variableValuesJson.keySet()) {
-        Object jsonValue = variableValuesJson.get(variableDefinitionId);
-        VariableDefinitionImpl variableDefinition = processDefinition.findVariableDefinition(variableDefinitionId);
-        Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);
-        internalValues.put(variableDefinitionId, internalValue);
-      }
-      scopeInstance.setVariableValuesRecursive(internalValues);
-    } 
+    }
   }
 
   public ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(String processDefinitionId) {
@@ -259,7 +233,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceLocator
   public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
   
   @Override
-  public ActivityInstanceQuery createActivityInstanceQuery() {
+  public ActivityInstanceQuery newActivityInstanceQuery() {
     return new ActivityInstanceQueryImpl(this);
   }
 

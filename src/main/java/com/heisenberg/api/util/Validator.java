@@ -26,5 +26,5 @@ public interface Validator extends ServiceLocator {
   void addError(String message, Object... messageArgs);
 
   void addWarning(String message, Object... messageArgs);
-  
+
 }

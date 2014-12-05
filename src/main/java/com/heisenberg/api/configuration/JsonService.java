@@ -19,14 +19,13 @@ import java.io.Writer;
 import java.util.Map;
 
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.impl.plugin.ActivityTypes;
 
 
 /**
  * @author Walter White
  */
 public interface JsonService {
-
-  void setProcessEngine(ProcessEngine processEngine);
 
   String objectToJsonString(Object object);
 

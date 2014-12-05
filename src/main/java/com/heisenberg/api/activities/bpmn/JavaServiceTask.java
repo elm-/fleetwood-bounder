@@ -14,6 +14,7 @@
  */
 package com.heisenberg.api.activities.bpmn;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 
 
@@ -22,12 +23,8 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
  * 
  * @author Walter White
  */
+@JsonTypeName("javaServiceTask")
 public class JavaServiceTask extends ServiceTask {
-
-  @Override
-  public String getType() {
-    return "javaServiceTask";
-  }
 
   @Override
   public void invokeService(ControllableActivityInstance activityInstance) {

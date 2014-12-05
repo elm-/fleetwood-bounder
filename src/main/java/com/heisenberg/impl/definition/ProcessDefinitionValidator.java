@@ -26,14 +26,15 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ParseIssue.IssueType;
-import com.heisenberg.api.ParseIssues;
+import com.heisenberg.api.builder.ParseIssues;
+import com.heisenberg.api.builder.ParseIssue.IssueType;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.plugin.ActivityTypes;
 
 
 /** Validates and wires process definition after it's been built by either the builder api or json deserialization.
@@ -117,21 +118,6 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         addError("Duplicate activity id '%s'. Activity ids have to be unique in the process.", activity.id);
       }
     }
-//    if (activity.activityType==null) {
-//      if (activity.activityTypeId!=null) {
-//        activity.activityType = processEngine.activityTypes.getActivityTypeById(activity.activityTypeId);
-//        if (activity.activityType==null) {
-//          addError("Activity '%s' has invalid activityTypeId: %s", activity.id, activity.activityTypeId);
-//        }
-//      } else if (activity.activityTypeJson!=null) {
-//        try {
-//          activity.activityType = processEngine.jsonService.jsonMapToObject(activity.activityTypeJson, ActivityType.class);
-//        } catch (Exception e) {
-//          log.debug("Json exception", e);
-//          addError("Activity '%s' has invalid json value: %s", activity.id, activity.activityTypeJson);
-//        }
-//      }
-//    } 
     if (activity.activityType==null) {
       addError("Activity '%s' has no activityType configured", activity.id);
     }
@@ -141,6 +127,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   public void endActivityDefinition(ActivityDefinitionImpl activity, int index) {
     if (activity.activityType!=null) {
       activity.activityType.validate(activity, this);
+      activity.initializeBindings(this);
     }
     popContext();
   }
@@ -158,27 +145,8 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         addError("Duplicate variable name %s. Variables have to be unique in the process.", variable.id);
       }
     }
-//    if (variable.dataType==null) {
-//      if (variable.dataTypeId!=null) {
-//        variable.dataType = processEngine.dataTypes.getDataTypeById(variable.dataTypeId);
-//        if (variable.dataType==null) {
-//          addError("Variable '%s' has an invalid dataTypeId %s", variable.id, variable.dataTypeId);
-//        }
-//      } else if (variable.dataTypeJson!=null) {
-//        variable.dataType = processEngine.jsonService.jsonMapToObject(variable.dataTypeJson, DataType.class);
-//      } else {
-//        addError("Variable '%s' does not have a type", variable.id);
-//      }
-//    } 
     if (variable.dataType!=null) {
       variable.dataType.validate(this);
-//      if (variable.initialValueJson!=null) {
-//        try {
-//          variable.initialValueJson = variable.dataType.convertJsonToInternalValue(variable.initialValueJson);
-//        } catch (InvalidValueException e) {
-//          addError("Invalid initial value %s for variable %s (%s)", variable.initialValueJson, variable.id, variable.dataType.getType());
-//        }
-//      }
     } else {
       addError("No data type configured for variable %s", variable.id);
     }
@@ -277,5 +245,10 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   @Override
   public JsonService getJsonService() {
     return processEngine.jsonService;
+  }
+
+  @Override
+  public ActivityTypes getActivityTypes() {
+    return processEngine.activityTypes;
   }
 }

@@ -19,12 +19,12 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.heisenberg.api.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.builder.ActivityBuilder;
+import com.heisenberg.api.builder.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.ProcessInstanceBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 

@@ -12,19 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl;
+package com.heisenberg.api.type;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.type.AbstractDataType;
-import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeName("javaBean")
 public class JavaBeanType extends AbstractDataType {
   
   public Class<?> javaClass;
@@ -35,11 +35,6 @@ public class JavaBeanType extends AbstractDataType {
 
   public JavaBeanType(Class< ? > javaClass) {
     this.javaClass = javaClass;
-  }
-  
-  @Override
-  public String getType() {
-    return "javaBean";
   }
   
   @Override

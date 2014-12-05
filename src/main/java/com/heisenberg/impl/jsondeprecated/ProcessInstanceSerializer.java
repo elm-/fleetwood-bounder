@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.json;
+package com.heisenberg.impl.jsondeprecated;
 
 import com.heisenberg.impl.engine.operation.Operation;
 import com.heisenberg.impl.engine.updates.Update;
@@ -75,10 +75,6 @@ public class ProcessInstanceSerializer implements ProcessInstanceVisitor {
 
   @Override
   public void variableInstance(VariableInstanceImpl variableInstance, int index) {
-    if (variableInstance.dataTypeId==null
-        && variableInstance.dataType!=null) {
-      variableInstance.dataTypeId = variableInstance.dataType.getType();
-    }
     if (variableInstance.variableDefinitionId==null
         && variableInstance.variableDefinition!=null) {
       variableInstance.variableDefinitionId = variableInstance.variableDefinition.id;

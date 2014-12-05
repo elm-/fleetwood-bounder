@@ -16,16 +16,15 @@ package com.heisenberg.api.type;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeName("list")
 public class ListType extends AbstractDataType implements DataType {
   
-  String typeId;
-  @JsonIgnore
   DataType elementDataType;
   
   /** constructor for json, dataType is a required field. */
@@ -34,26 +33,15 @@ public class ListType extends AbstractDataType implements DataType {
 
   public ListType(DataType elementDataType) {
     this.elementDataType = elementDataType;
-    this.typeId = "list<"+elementDataType.getType()+">";
   }
 
-  @Override
-  public String getLabel() {
-    return null;
-  }
-
-  @Override
-  public String getType() {
-    return typeId;
-  }
-  
   @Override
   public void validateInternalValue(Object internalValue) throws InvalidValueException {
     if (internalValue==null) {
       return;
     }
     if (!(internalValue instanceof List)) {
-      throw new InvalidValueException("Value for "+typeId+" must be a list, but was "+internalValue+" ("+internalValue.getClass().getName()+")");
+      throw new InvalidValueException("Value for must be a list, but was "+internalValue+" ("+internalValue.getClass().getName()+")");
     }
     @SuppressWarnings("unchecked")
     List<Object> list = (List<Object>) internalValue;
@@ -68,7 +56,7 @@ public class ListType extends AbstractDataType implements DataType {
       return null;
     }
     if (!(jsonValue instanceof List)) {
-      throw new InvalidValueException("Json value for "+typeId+" must be a list, but was "+jsonValue+" ("+jsonValue.getClass().getName()+")");
+      throw new InvalidValueException("Json value must be a list, but was "+jsonValue+" ("+jsonValue.getClass().getName()+")");
     }
     @SuppressWarnings("unchecked")
     List<Object> list = (List<Object>) jsonValue;

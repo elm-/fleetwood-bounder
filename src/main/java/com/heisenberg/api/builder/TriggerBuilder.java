@@ -12,17 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.api.builder;
 
-import com.heisenberg.api.instance.ActivityInstance;
-
+import com.heisenberg.api.instance.ProcessInstance;
 
 /**
  * @author Walter White
  */
-public interface ActivityInstanceQuery {
+public interface TriggerBuilder {
 
-  ActivityInstanceQuery activityType(Class<?> activityTypeClass);
-  
-  Page<ActivityInstance> loadPage();
+  TriggerBuilder processDefinitionId(String processDefinitionId);
+
+  TriggerBuilder variableValue(String variableDefinitionIdInternal, Object value);
+
+  TriggerBuilder transientContext(String key, Object value);
+
+  ProcessInstance start();
+
 }

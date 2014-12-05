@@ -22,9 +22,9 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ProcessInstanceBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.TriggerBuilderImpl;
 
 
 /**
@@ -43,7 +43,7 @@ public class StartProcessInstanceResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public ProcessInstance deploy(ProcessInstanceBuilder startProcessInstanceRequest) {
-    return processEngine.startProcessInstance(startProcessInstanceRequest);
+  public ProcessInstance deploy(TriggerBuilderImpl processInstanceBuilder) {
+    return processEngine.startProcessInstance(processInstanceBuilder);
   }
 }

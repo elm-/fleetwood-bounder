@@ -16,6 +16,7 @@ package com.heisenberg.api.activities.bpmn;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.ActivityDefinition;
@@ -25,14 +26,10 @@ import com.heisenberg.api.util.Validator;
 /**
  * @author Walter White
  */
+@JsonTypeName("embeddedSubprocess")
 public class EmbeddedSubprocess extends AbstractActivityType {
 
   public static final EmbeddedSubprocess INSTANCE = new EmbeddedSubprocess();
-  
-  @Override
-  public String getType() {
-    return "embeddedSubprocess";
-  }
   
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {

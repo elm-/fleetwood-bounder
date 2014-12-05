@@ -21,6 +21,7 @@ import javax.script.CompiledScript;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;

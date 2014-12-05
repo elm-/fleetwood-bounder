@@ -12,23 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.api.builder;
 
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.type.DataType;
 
 /**
  * @author Walter White
  */
-public interface ProcessInstanceBuilder {
+public interface MessageBuilder {
 
-  ProcessInstanceBuilder processDefinitionId(String processDefinitionId);
+  MessageBuilder activityInstanceId(String activityInstanceId);
 
-  ProcessInstanceBuilder variableValue(String variableDefinitionIdInternal, Object value);
+  MessageBuilder processInstanceId(String processInstanceId);
 
-  ProcessInstanceBuilder variableValueJson(String variableDefinitionIdInternal, Object valueJson);
+  MessageBuilder variableValue(String variableDefinitionId, Object value);
 
-  ProcessInstanceBuilder transientContext(String key, Object value);
+  /** Only use this method with the client process engine */
+  MessageBuilder variableValueJson(String variableDefinitionId, Object value, DataType dataType);
 
-  ProcessInstance start();
+  MessageBuilder transientContext(String key, Object value);
+  
+  ProcessInstance send();
 
 }

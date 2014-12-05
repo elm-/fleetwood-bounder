@@ -14,6 +14,7 @@
  */
 package com.heisenberg.api.activities.bpmn;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 
 
@@ -22,14 +23,10 @@ import com.heisenberg.api.activities.ControllableActivityInstance;
  * 
  * @author Walter White
  */
+@JsonTypeName("emptyServiceTask")
 public class EmptyServiceTask extends ServiceTask {
   
   public static final EmptyServiceTask INSTANCE = new EmptyServiceTask();
-
-  @Override
-  public String getType() {
-    return "emptyServiceTask";
-  }
 
   @Override
   public void invokeService(ControllableActivityInstance activityInstance) {

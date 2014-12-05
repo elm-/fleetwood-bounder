@@ -17,6 +17,7 @@ package com.heisenberg.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.ActivityDefinition;
@@ -27,14 +28,10 @@ import com.heisenberg.api.util.Validator;
 /**
  * @author Walter White
  */
+@JsonTypeName("wait")
 public class Wait implements ActivityType {
   
   public static final Wait INSTANCE = new Wait();
-
-  @Override
-  public String getType() {
-    return "wait";
-  }
 
   @Override
   public String getLabel() {
@@ -66,5 +63,10 @@ public class Wait implements ActivityType {
 
   @Override
   public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
+  }
+
+  @Override
+  public String getDescription() {
+    return null;
   }
 }

@@ -37,6 +37,7 @@ import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
+import com.heisenberg.impl.plugin.ActivityTypes;
 
 
 /**
@@ -155,11 +156,6 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     visitor.endActivityInstance(this, index);
   }
 
-  @Override
-  public ScriptService getScriptService() {
-    return processEngine.scriptService;
-  }
-  
   public void setActivityDefinitionId(Object activityDefinitionId) {
     this.activityDefinitionId = activityDefinitionId;
   }
@@ -198,4 +194,15 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   public TaskService getTaskService() {
     return processEngine.taskService;
   }
+
+  @Override
+  public ScriptService getScriptService() {
+    return processEngine.scriptService;
+  }
+
+  @Override
+  public ActivityTypes getActivityTypes() {
+    return processEngine.activityTypes;
+  }
+  
 }

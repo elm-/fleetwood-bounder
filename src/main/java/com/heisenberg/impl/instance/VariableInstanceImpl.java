@@ -38,7 +38,6 @@ public class VariableInstanceImpl implements VariableInstance {
   public VariableDefinitionImpl variableDefinition;
   @JsonIgnore
   public DataType dataType;
-  public String dataTypeId;
 
   public Object value;
   public String variableDefinitionId;
@@ -96,11 +95,6 @@ public class VariableInstanceImpl implements VariableInstance {
     return variableDefinitionId;
   }
 
-  @Override
-  public String getDataTypeId() {
-    return dataTypeId;
-  }
-  
   public String getId() {
     return id;
   }
@@ -119,12 +113,6 @@ public class VariableInstanceImpl implements VariableInstance {
     this.dataType = dataType;
   }
 
-  
-  public void setDataTypeId(String dataTypeId) {
-    this.dataTypeId = dataTypeId;
-  }
-
-  
   public void setVariableDefinitionId(String variableDefinitionId) {
     this.variableDefinitionId = variableDefinitionId;
   }
