@@ -155,17 +155,23 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   }
   
   @Override
-  public void initializeBindings(Validator validator) {
+  public void validateConfigurationFields(Validator validator) {
     ActivityTypes activityTypes = validator.getActivityTypes();
     List<TypeField> configurationFields = activityTypes.getConfigurationFields(activityType);
     if (configurationFields!=null) {
-      for (TypeField descriptorField : configurationFields) {
-        Field field = descriptorField.field;
+      for (TypeField typeField : configurationFields) {
+        Field field = typeField.field;
         try {
-          Binding< ? > binding = (Binding< ? >) field.get(activityType);
-          if (binding != null) {
-            binding.dataType = descriptorField.dataType;
-            binding.validate(this, activityType, descriptorField, validator);
+          Object value = field.get(activityType);
+          if (value==null) {
+            if (Boolean.TRUE.equals(typeField.isRequired)) {
+              validator.addError("Configuration field %s is required", typeField.label);
+            }
+          }
+          if (value instanceof Binding) {
+            Binding< ? > binding = (Binding< ? >) field.get(activityType);
+            binding.dataType = typeField.dataType;
+            binding.validate(this, activityType, typeField, validator);
           }
         } catch (Exception e) {
           throw new RuntimeException(e);

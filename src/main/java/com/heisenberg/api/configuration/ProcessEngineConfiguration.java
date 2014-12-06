@@ -24,7 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
@@ -36,17 +36,14 @@ import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.type.TypeReference;
 import com.heisenberg.api.util.PluginFactory;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
-import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
+import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
 import com.heisenberg.impl.plugin.ActivityTypes;
 import com.heisenberg.impl.plugin.DataTypes;
-import com.heisenberg.impl.plugin.TypeDescriptor;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 
 
@@ -55,18 +52,21 @@ import com.heisenberg.impl.script.ScriptServiceImpl;
  */
 public abstract class ProcessEngineConfiguration {
 
+  public ObjectMapper objectMapper;
+  public DataTypes dataTypes;
+  public ActivityTypes activityTypes;
+
   public String id;
   public ProcessDefinitionCache processDefinitionCache;
   public JsonService jsonService;
   public TaskService taskService;
   public ScriptService scriptService;
   public Executor executorService;
-  public DataTypes dataTypes = new DataTypes();
-  public ActivityTypes activityTypes = new ActivityTypes(this.dataTypes);
   
   protected ProcessEngineConfiguration() {
-    this.dataTypes = new DataTypes();
-    this.activityTypes = new ActivityTypes(this.dataTypes);
+    this.objectMapper = JsonServiceImpl.createDefaultObjectMapper();
+    this.dataTypes = new DataTypes(objectMapper);
+    this.activityTypes = new ActivityTypes(this.dataTypes, objectMapper);
     registerDefaultDataTypes();
     registerDefaultActivityTypes();
   }
@@ -83,18 +83,17 @@ public abstract class ProcessEngineConfiguration {
   
   protected void registerDefaultDataTypes() {
     registerSingletonDataType(new TextType(), String.class);
-    registerConfigurableDataType(new JavaBeanType());
   }
   
   protected void registerDefaultActivityTypes() {
-//    registerActivityType(StartEvent.class);
-//    registerActivityType(EndEvent.class);
-//    registerActivityType(EmptyServiceTask.class);
-//    registerActivityType(EmbeddedSubprocess.class);
-//    registerActivityType(ScriptTask.class);
-//    registerActivityType(UserTask.class);
-//    registerActivityType(JavaServiceTask.class);
-//    registerActivityType(HttpServiceTask.class);
+    registerSingletonActivityType(new StartEvent());
+    registerSingletonActivityType(new EndEvent());
+    registerSingletonActivityType(new EmptyServiceTask());
+    registerSingletonActivityType(new EmbeddedSubprocess());
+    registerSingletonActivityType(new ScriptTask());
+    registerSingletonActivityType(new UserTask());
+    registerSingletonActivityType(new JavaServiceTask());
+    registerSingletonActivityType(new HttpServiceTask());
   }
   
   public ProcessEngineConfiguration id(String id) {
@@ -190,7 +189,7 @@ public abstract class ProcessEngineConfiguration {
   }
   
   public JsonService getJsonService() {
-    return jsonService!=null ? jsonService : createDefaultJsonService();
+    return jsonService!=null ? jsonService : new JsonServiceImpl(objectMapper);
   }
   
   public void setJsonService(JsonService jsonService) {
@@ -260,10 +259,6 @@ public abstract class ProcessEngineConfiguration {
     return new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  public static JsonService createDefaultJsonService() {
-    return new JacksonJsonService();
-  }
-  
   public static ScriptService createDefaultScriptService() {
     return new ScriptServiceImpl();
   }

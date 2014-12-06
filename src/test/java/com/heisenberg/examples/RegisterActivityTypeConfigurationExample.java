@@ -34,7 +34,7 @@ import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
+import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
 import com.heisenberg.impl.plugin.TypeDescriptor;
 
 
@@ -50,7 +50,7 @@ public class RegisterActivityTypeConfigurationExample {
     ProcessEngineImpl processEngine = new MemoryProcessEngine()
       .registerActivityType(MyCustomType.class);
     
-    JacksonJsonService jacksonJsonService = processEngine.jsonService;
+    JsonServiceImpl jacksonJsonService = processEngine.jsonService;
     TypeDescriptor spiDescriptor = processEngine.activityTypeDescriptorsByTypeId.get("myCustomType");
     log.debug("From oss on-premise to SaaS process builder:");
     log.debug(jacksonJsonService.objectToJsonStringPretty(spiDescriptor)+"\n");

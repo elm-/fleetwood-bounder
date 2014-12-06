@@ -23,10 +23,10 @@ public interface TriggerBuilder {
 
   TriggerBuilder processDefinitionId(String processDefinitionId);
 
-  TriggerBuilder variableValue(String variableDefinitionIdInternal, Object value);
+  TriggerBuilder variableValue(String variableDefinitionId, Object internalValue);
 
   TriggerBuilder transientContext(String key, Object value);
 
-  ProcessInstance start();
+  ProcessInstance startProcessInstance();
 
 }

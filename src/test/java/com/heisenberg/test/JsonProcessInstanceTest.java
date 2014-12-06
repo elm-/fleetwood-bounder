@@ -37,7 +37,7 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
-import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
+import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
 
 /**
  * @author Walter White
@@ -111,7 +111,7 @@ public class JsonProcessInstanceTest {
     processInstance.updates = new ArrayList<>();
     processInstance.updates.add(new ActivityInstanceCreateUpdate(activityInstance));
 
-    JacksonJsonService jacksonJsonService = processEngine.jsonService;
+    JsonServiceImpl jacksonJsonService = processEngine.jsonService;
     
     String processInstanceJsonText = jacksonJsonService.objectToJsonStringPretty(processInstance);
 

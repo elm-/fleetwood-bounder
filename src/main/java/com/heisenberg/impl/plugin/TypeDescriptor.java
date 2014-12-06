@@ -36,8 +36,9 @@ public class TypeDescriptor {
   
   protected String label;
   protected String description;
-//  protected byte[] iconBytes;
-//  protected String iconMimeType;
+// protected byte[] iconBytes;
+// protected String iconMimeType;
+// datatypes might also need a javascript rendering configuration
   protected List<TypeField> configurationFields;
   
   public TypeDescriptor() {
@@ -51,22 +52,27 @@ public class TypeDescriptor {
     this.dataType = dataType;
   }
 
-  public void analyze(DataTypes dataTypes) {
-    Class<?> pluginClass = (activityType!=null ? activityType.getClass() : dataType.getClass());
-    List<Field> fields = Reflection.getFieldsRecursive(pluginClass);
-    if (!fields.isEmpty()) {
-      configurationFields = new ArrayList<TypeField>(fields.size());
-      for (Field field : fields) {
-        ConfigurationField configurationField = field.getAnnotation(ConfigurationField.class);
-        if (field.getAnnotation(ConfigurationField.class) != null) {
-          TypeDescriptor typeDescriptor = dataTypes.getTypeDescriptor(field);
-          TypeField typeField = new TypeField(field, typeDescriptor, configurationField);
-          configurationFields.add(typeField);
-        }
-      }
-    }
+  public List<TypeField> analyze(ActivityTypes activityTypes) {
+    return analyze(activityTypes.dataTypes);
   }
 
+  public List<TypeField> analyze(DataTypes dataTypes) {
+    Class<?> pluginClass = (activityType!=null ? activityType.getClass() : dataType.getClass());
+    List<Field> fields = Reflection.getNonStaticFieldsRecursive(pluginClass);
+    if (fields.isEmpty()) {
+      return null;
+    }
+    configurationFields = new ArrayList<TypeField>(fields.size());
+    for (Field field : fields) {
+      ConfigurationField configurationField = field.getAnnotation(ConfigurationField.class);
+      if (field.getAnnotation(ConfigurationField.class) != null) {
+        TypeDescriptor typeDescriptor = dataTypes.getTypeDescriptor(field);
+        TypeField typeField = new TypeField(field, typeDescriptor.dataType, configurationField);
+        configurationFields.add(typeField);
+      }
+    }
+    return configurationFields;
+  }
 
   public TypeDescriptor(Plugin plugin) {
     Exceptions.checkNotNull(plugin);

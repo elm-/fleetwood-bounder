@@ -22,18 +22,18 @@ import com.heisenberg.api.util.Validator;
 /**
  * @author Walter White
  */
-@JsonTypeName("typeReference")
-public class TypeReference implements DataType {
+@JsonTypeName("dataTypeReference")
+public class DataTypeReference implements DataType {
 
   public String typeId;
   
   @JsonIgnore
   public DataType delegate;
   
-  public TypeReference() {
+  public DataTypeReference() {
   }
 
-  public TypeReference(String typeId) {
+  public DataTypeReference(String typeId) {
     this.typeId = typeId;
   }
 

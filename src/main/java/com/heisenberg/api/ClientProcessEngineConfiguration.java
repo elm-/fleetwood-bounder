@@ -15,7 +15,6 @@
 package com.heisenberg.api;
 
 import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.impl.client.ClientProcessEngine;
 
 
@@ -41,10 +40,6 @@ public class ClientProcessEngineConfiguration {
     return this;
   }
 
-  public JsonService getJsonService() {
-    return jsonService!=null ? jsonService : createDefaultJsonService();
-  }
-  
   public void setJsonService(JsonService jsonService) {
     this.jsonService = jsonService;
   }
@@ -57,11 +52,11 @@ public class ClientProcessEngineConfiguration {
     this.baseUrl = baseUrl;
   }
 
-  public static JsonService createDefaultJsonService() {
-    return ProcessEngineConfiguration.createDefaultJsonService();
-  }
-
   public static String createDefaultBaseUrl() {
     return "http://localhost:9999";
+  }
+
+  public JsonService getJsonService() {
+    return jsonService;
   }
 }

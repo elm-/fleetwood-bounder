@@ -149,7 +149,7 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     }
     log.debug("Signalling "+activityInstance);
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
-    activityDefinition.activityType.notify(activityInstance);
+    activityDefinition.activityType.message(activityInstance);
     processInstance.executeOperations();
     return processInstance;
   }

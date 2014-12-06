@@ -45,24 +45,19 @@ import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 /**
  * @author Walter White
  */
-public class JacksonJsonService implements JsonService {
+public class JsonServiceImpl implements JsonService {
   
   public JsonFactory jsonFactory;
   public ObjectMapper objectMapper;
-
-  public JacksonJsonService() {
-    this.jsonFactory = new JsonFactory();
-    
-    this.objectMapper = new ObjectMapper()
+  
+  public static ObjectMapper createDefaultObjectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper()
       .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
       .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
       .setSerializationInclusion(Include.NON_EMPTY);
     
-//    this.objectMapper
-//      .setHandlerInstantiator(new CustomFactory(activityTypes, dataTypes));
-
-    this.objectMapper.registerSubtypes(
+    objectMapper.registerSubtypes(
        StartActivityInstanceOperation.class,
        NotifyEndOperation.class,
        ActivityInstanceCreateUpdate.class,
@@ -76,8 +71,14 @@ public class JacksonJsonService implements JsonService {
     SimpleModule module = new SimpleModule();
     module.addSerializer(new LocalDateTimeSerializer());
     module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
-    
-    this.objectMapper.registerModule(module);
+    objectMapper.registerModule(module);
+
+    return objectMapper;
+  }
+
+  public JsonServiceImpl(ObjectMapper objectMapper) {
+    this.jsonFactory = new JsonFactory();
+    this.objectMapper = objectMapper;
   }
   
   public void registerSubtype(Class<?> subtype) {

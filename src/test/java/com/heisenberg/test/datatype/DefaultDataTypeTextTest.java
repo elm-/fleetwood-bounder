@@ -20,13 +20,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.test.activitytype.PluginConfigurableActivityTypeTest.MyConfigurableActivityType;
+import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
 
 /**
@@ -38,9 +37,7 @@ public class DefaultDataTypeTextTest {
   
   @Test
   public void testDefaultDataTypeText() {
-    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-      .registerActivityType(MyConfigurableActivityType.class)
-      .buildProcessEngine();
+    ProcessEngine processEngine = new MemoryProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
@@ -55,7 +52,7 @@ public class DefaultDataTypeTextTest {
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", "Hello World")
-      .start();
+      .startProcessInstance();
   
     VariableInstance v = processInstance.getVariableInstances().get(0);
     assertEquals("Hello World", v.getValue());

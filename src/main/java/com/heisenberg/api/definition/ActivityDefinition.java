@@ -36,6 +36,6 @@ public interface ActivityDefinition {
   List<ActivityDefinition> getStartActivities();
 
   void initializeStartActivities(Validator validator);
-  void initializeBindings(Validator validator);
+  void validateConfigurationFields(Validator validator);
 
 }

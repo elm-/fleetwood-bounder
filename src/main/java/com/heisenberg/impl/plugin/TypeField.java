@@ -18,6 +18,8 @@ import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.ConfigurationField;
+import com.heisenberg.api.activities.Label;
+import com.heisenberg.api.type.DataType;
 
 
 /**
@@ -27,20 +29,21 @@ public class TypeField {
 
   public String name;
   public String label;
-  public boolean isRequired;
-  public TypeDescriptor typeDescriptor;
+  public Boolean isRequired;
+  public DataType dataType;
   
   @JsonIgnore
   public Field field;
   
-  public TypeField(Field field, TypeDescriptor descriptor, ConfigurationField configurationField) {
+  public TypeField(Field field, DataType dataType, ConfigurationField configurationField) {
     this.name = field.getName();
     this.field = field;
     this.field.setAccessible(true);
-    this.typeDescriptor = descriptor;
-    if (configurationField!=null) {
-      this.label = configurationField.value();
-      this.isRequired = configurationField.required();
+    this.dataType = dataType;
+    this.isRequired = configurationField.required() ? true : null;
+    Label label = field.getAnnotation(Label.class);
+    if (label!=null) {
+      this.label = label.value();
     } else {
       this.label = name;
     }

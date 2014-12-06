@@ -46,7 +46,7 @@ public class Wait implements ActivityType {
   }
 
   @Override
-  public void notify(ControllableActivityInstance activityInstance) {
+  public void message(ControllableActivityInstance activityInstance) {
     activityInstance.onwards();
   }
 

@@ -15,6 +15,7 @@
 package com.heisenberg.impl.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,22 +25,24 @@ import java.util.List;
  */
 public class Reflection {
   
-  public static List<Field> getFieldsRecursive(Class< ? > type) {
+  public static List<Field> getNonStaticFieldsRecursive(Class< ? > type) {
     List<Field> fieldCollector = new ArrayList<>();
-    collectFieldsRecursive(type, fieldCollector);
+    collectNonStaticFieldsRecursive(type, fieldCollector);
     return fieldCollector;
   }
 
-  static void collectFieldsRecursive(Class< ? > type, List<Field> fieldCollector) {
+  static void collectNonStaticFieldsRecursive(Class< ? > type, List<Field> fieldCollector) {
     Field[] fields = type.getDeclaredFields();
     if (fields!=null) {
       for (Field field: fields) {
-        fieldCollector.add(field);
+        if (!Modifier.isStatic(field.getModifiers())) {
+          fieldCollector.add(field);
+        }
       }
     }
     Class< ? > superclass = type.getSuperclass();
     if (superclass!=null && superclass!=Object.class) {
-      collectFieldsRecursive(superclass, fieldCollector);
+      collectNonStaticFieldsRecursive(superclass, fieldCollector);
     }
   }
 

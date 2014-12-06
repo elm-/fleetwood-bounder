@@ -61,7 +61,7 @@ public class PluginDataTypeJavaBeanTest {
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", startProcessMoney)
-      .start();
+      .startProcessInstance();
   
     VariableInstance m = processInstance.getVariableInstances().get(0);
     CustomMoney variableInstanceMoney = (CustomMoney) m.getValue();
@@ -80,7 +80,7 @@ public class PluginDataTypeJavaBeanTest {
     processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
       .variableValueJson("m", customMoneyJson)
-      .start();
+      .startProcessInstance();
   
     VariableInstance mInstance = processInstance.getVariableInstances().get(0);
     javaBeanType = (JavaBeanType) m.getDataType();

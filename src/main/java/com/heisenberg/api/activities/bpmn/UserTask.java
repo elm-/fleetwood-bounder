@@ -21,6 +21,7 @@ import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.task.Task;
 
@@ -31,10 +32,12 @@ import com.heisenberg.api.task.Task;
 @JsonTypeName("userTask")
 public class UserTask extends AbstractActivityType {
   
-  @ConfigurationField("Name")
+  @ConfigurationField
+  @Label("Name")
   Binding<String> name;
   
-  @ConfigurationField("Candidates")
+  @ConfigurationField
+  @Label("Candidates")
   List<Binding<String>> candidates;
   
   @Override

@@ -65,7 +65,7 @@ public class MongoProcessEngineTest {
       
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .start();
+      .startProcessInstance();
     
     assertOpen(processInstance, "sub", "subTask");
 
@@ -173,7 +173,7 @@ public class MongoProcessEngineTest {
     
     @Override
     public void validate(ActivityDefinition activityDefinition, Validator validator) {
-      activityDefinition.initializeBindings(validator);
+      activityDefinition.validateConfigurationFields(validator);
     }
   }
 }

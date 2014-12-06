@@ -12,24 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.api.activities;
 
-import com.heisenberg.api.type.DataType;
-
-
-
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 /**
  * @author Walter White
  */
-public interface VariableInstance {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Description {
 
-  String getId();
-  
-  String getVariableDefinitionId();
-  
-  Object getValue();
-
-  DataType getDataType();
+  /** the label used in the process builder */
+  String value();
 }

@@ -28,7 +28,7 @@ public abstract class AbstractActivityType implements ActivityType {
   
   public abstract void start(ControllableActivityInstance activityInstance);
 
-  public void notify(ControllableActivityInstance activityInstance) {
+  public void message(ControllableActivityInstance activityInstance) {
     activityInstance.onwards();
   }
   
@@ -40,6 +40,6 @@ public abstract class AbstractActivityType implements ActivityType {
 
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    // activityDefinition.initializeBindings(validator);
+    activityDefinition.validateConfigurationFields(validator);
   }
 }

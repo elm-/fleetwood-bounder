@@ -85,6 +85,7 @@ public class Binding<T> {
 
   // processEngine and dataType are already initialized when this is called
   public void validate(ActivityDefinitionImpl activityDefinition, ActivityType activityType, TypeField descriptorField, Validator validator) {
+    isInitialized = true;
     if (value!=null) {
       try {
         dataType.validateInternalValue(value);

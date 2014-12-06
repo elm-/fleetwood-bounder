@@ -24,8 +24,5 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConfigurationField {
 
-  /** the label used in the process builder */
-  String value();
-  
   boolean required() default false;
 }

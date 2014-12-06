@@ -38,7 +38,7 @@ public interface ActivityType extends Plugin {
   void start(ControllableActivityInstance activityInstance);
 
   /** called when an external signal is invoked on this activity instance through the process engine api */
-  void notify(ControllableActivityInstance activityInstance);
+  void message(ControllableActivityInstance activityInstance);
 
   /** called when a nested activity instance is ended */
   void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance);

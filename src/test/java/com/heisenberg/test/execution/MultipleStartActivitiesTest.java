@@ -21,20 +21,16 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.bpmn.UserTask;
-import com.heisenberg.api.builder.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.ProcessInstanceBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.test.Go;
-import com.heisenberg.test.Wait;
-import com.heisenberg.test.Go.Execution;
 
 /**
  * @author Walter White
@@ -43,43 +39,43 @@ public class MultipleStartActivitiesTest {
   
   @Test
   public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(Go.class)
-      .registerActivityType(Wait.class);
+    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
+      .registerConfigurableActivityType(new Go())
+      .buildProcessEngine();
 
-    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
 
-    processBuilder.newVariable()
+    process.newVariable()
       .id("t")
       .dataType(TextType.INSTANCE);
 
     Go go = new Go()
       .placeBinding(new Binding<String>().expression("t.toLowerCase()"));
     
-    processBuilder.newActivity()
+    process.newActivity()
       .activityType(go)
       .id("go");
     
-    processBuilder.newActivity()
+    process.newActivity()
       .activityType(new UserTask())
       .id("wait1");
     
-    processBuilder.newActivity()
+    process.newActivity()
       .activityType(new UserTask())
       .id("wait2");
     
-    processBuilder.newTransition()
+    process.newTransition()
       .from("wait1")
       .to("wait2");
     
-    String processDefinitionId = processEngine
-      .deployProcessDefinition(processBuilder)
+    String processDefinitionId = process.deploy()
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    ProcessInstance processInstance = processEngine.newProcessInstance()
+    ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("t", "Hello World"));
+      .variableValue("t", "Hello World")
+      .startProcessInstance();
 
     assertNotNull(processInstance.getId());
     assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
@@ -99,8 +95,9 @@ public class MultipleStartActivitiesTest {
     assertEquals("wait1", waitActivityInstance.getActivityDefinitionId());
     
     // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
-    processInstance = processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
-      .activityInstanceId(waitActivityInstance.getId()));
+    processInstance = processEngine.newMessage()
+      .activityInstanceId(waitActivityInstance.getId())
+      .send();
     
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
 
@@ -116,8 +113,9 @@ public class MultipleStartActivitiesTest {
     assertFalse(wait2ActivityInstance.isEnded());
     assertEquals("wait2", wait2ActivityInstance.getActivityDefinitionId());
 
-    processInstance = processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
-      .activityInstanceId(wait2ActivityInstance.getId()));
+    processInstance = processEngine.newMessage()
+      .activityInstanceId(wait2ActivityInstance.getId())
+      .send();
     
     assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
   }

@@ -29,26 +29,34 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.activities.Description;
+import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 
 
 /**
  * @author Walter White
  */
-public class PluginConfigurableActivityTypeTest {
+public class ActivityTypeStaticConfigurationTest {
   
-  public static final Logger log = LoggerFactory.getLogger(PluginConfigurableActivityTypeTest.class);
+  public static final Logger log = LoggerFactory.getLogger(ActivityTypeStaticConfigurationTest.class);
   
   static List<String> executedConfigurations = new ArrayList<>();
   
   @JsonTypeName("myConfigurableActivityTypeId")
+  @Label("My configurable activity")
+  @Description("Records the configuration in a static member field")
   public static class MyConfigurableActivityType extends AbstractActivityType {
-    @ConfigurationField("Configuration property label")
+    
+    @ConfigurationField(required=true)
+    @Label("Configuration property label")
     String configuration;
+    
     public MyConfigurableActivityType() {
     }
     public MyConfigurableActivityType(String configuration) {
@@ -84,7 +92,7 @@ public class PluginConfigurableActivityTypeTest {
 
     processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .start();
+      .startProcessInstance();
     
     List<String> expectedConfigurations = new ArrayList<>();
     expectedConfigurations.add("one");
@@ -114,6 +122,7 @@ public class PluginConfigurableActivityTypeTest {
     String processDefinitionJsonText = jsonService.objectToJsonStringPretty(process);
     log.debug(processDefinitionJsonText);
     ProcessDefinitionImpl processDefinition = jsonService.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
+    processDefinition.visit(new ProcessDefinitionValidator((ProcessEngineImpl) processEngine));
     
     ActivityDefinitionImpl a = processDefinition.getActivityDefinition("a");
     MyConfigurableActivityType myConfigurableA = (MyConfigurableActivityType) a.activityType;
@@ -131,9 +140,9 @@ public class PluginConfigurableActivityTypeTest {
       .buildProcessEngine();
 
     JsonService jsonService = processEngine.getJsonService();
-    String descriptorsJson = jsonService.objectToJsonStringPretty(processEngine.activityTypes.descriptors);
-    log.debug("From oss on-premise to SaaS process builder:");
-    log.debug(descriptorsJson);
+    log.debug("Activity type descriptors:");
+    log.debug(jsonService.objectToJsonStringPretty(processEngine.activityTypes.descriptors));
+    log.debug("Data type descriptors:");
+    log.debug(jsonService.objectToJsonStringPretty(processEngine.dataTypes.descriptors));
   }
-
 }

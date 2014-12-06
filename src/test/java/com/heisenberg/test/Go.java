@@ -23,6 +23,7 @@ import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.Validator;
 
@@ -36,7 +37,8 @@ public class Go extends AbstractActivityType {
   @JsonIgnore
   public List<Execution> executions = new ArrayList<>();
   
-  @ConfigurationField("Place")
+  @ConfigurationField
+  @Label("Place")
   Binding<String> placeBinding;
 
   public Go placeBinding(Binding<String> placeBinding) {
@@ -53,11 +55,11 @@ public class Go extends AbstractActivityType {
   
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    activityDefinition.initializeBindings(validator);
+    activityDefinition.validateConfigurationFields(validator);
   }
 
   @Override
-  public void notify(ControllableActivityInstance activityInstance) {
+  public void message(ControllableActivityInstance activityInstance) {
   }
 
   public class Execution {

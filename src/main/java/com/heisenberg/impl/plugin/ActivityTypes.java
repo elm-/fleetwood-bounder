@@ -14,14 +14,20 @@
  */
 package com.heisenberg.impl.plugin;
 
+import static com.heisenberg.impl.plugin.PluginHelper.couldBeConfigured;
+import static com.heisenberg.impl.plugin.PluginHelper.getJsonTypeName;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.type.TypeReference;
+import com.heisenberg.api.type.ActivityTypeReference;
+import com.heisenberg.api.type.DataTypeReference;
+import com.heisenberg.impl.util.Exceptions;
 
 
 /**
@@ -31,36 +37,34 @@ public class ActivityTypes {
 
   public List<TypeDescriptor> descriptors = new ArrayList<>();
   public Map<String, ActivityType> activityTypesById = new HashMap<>();
+  public Map<Class<?>, List<TypeField>> configurationFieldsByClass = new HashMap<>();
   public DataTypes dataTypes;
+  public ObjectMapper objectMapper;
   
-  public ActivityTypes(DataTypes dataTypes) {
+  public ActivityTypes(DataTypes dataTypes, ObjectMapper objectMapper) {
+    Exceptions.checkNotNullParameter(dataTypes, "dataTypes");
     this.dataTypes = dataTypes;
+    this.objectMapper = objectMapper;
   }
 
   /** creates a descriptor for a configurable activityType */
   public TypeDescriptor registerSingletonActivityType(ActivityType activityType) {
-    if (activityType==null) {
-      throw new RuntimeException("activityTypeDescriptor.activityType is null");
-    }
-    Class< ? extends ActivityType> activityTypeClass = activityType.getClass();
-    JsonTypeName jsonTypeName = activityTypeClass.getAnnotation(JsonTypeName.class);
-    if (jsonTypeName==null) {
-      throw new RuntimeException("Activity type "+activityTypeClass+" doesn't have JsonTypeName annotation");
-    }
-    String typeId = jsonTypeName.value();
-
-    addActivityTypeById(typeId, activityType);
-    TypeDescriptor activityTypeDescriptor = new TypeDescriptor(new TypeReference(typeId));
-    descriptors.add(activityTypeDescriptor);
-    return activityTypeDescriptor;
+    Exceptions.checkNotNullParameter(activityType, "activityType");
+    return registerSingletonActivityType(activityType, getJsonTypeName(activityType));
   }
 
   /** creates a descriptor for a configurable activityType */
   public TypeDescriptor registerSingletonActivityType(ActivityType activityType, String typeId) {
     addActivityTypeById(typeId, activityType);
-    TypeDescriptor activityTypeDescriptor = new TypeDescriptor(new TypeReference(typeId));
-    descriptors.add(activityTypeDescriptor);
-    return activityTypeDescriptor;
+    
+    if (!couldBeConfigured(activityType)) {
+      // we need to keep track of the singleton object and reference it 
+      activityType = new ActivityTypeReference(typeId);
+    } // else we can just let json use the default constructor 
+
+    TypeDescriptor descriptor = new TypeDescriptor(activityType);
+    addDescriptor(descriptor);
+    return descriptor;
   }
 
   protected void addActivityTypeById(String typeId, ActivityType activityType) {
@@ -71,23 +75,23 @@ public class ActivityTypes {
   }
   
   public TypeDescriptor registerConfigurableActivityType(ActivityType activityType) {
-    TypeDescriptor robert = new TypeDescriptor(activityType);
-    robert.analyze(dataTypes); // this call reads much better in the DataTypes equivalent
-    descriptors.add(robert);
-    return robert;
+    TypeDescriptor robertDn = new TypeDescriptor(activityType);
+    addDescriptor(robertDn);
+    List<TypeField> issues = robertDn.analyze(this); // apologies for the bad naming of variables... couldn't resist :)
+    if (issues!=null) {
+      configurationFieldsByClass.put(activityType.getClass(), issues);
+    }
+    return robertDn;
   }
   
-//  public void setTypesByClass(Map<Class< ? extends ActivityType>, String> typeIdsByClass) {
-//    this.typesByClass = typeIdsByClass;
-//  }
-
-//  public List<TypeField> getConfigurationFields(ActivityType activityType) {
-//    String typeId = typesByClass.get(activityType.getClass());
-//    TypeDescriptor descriptor = typeId!=null ? descriptors.get(typeId) : null;
-//    return descriptor!=null ? descriptor.configurationFields : null;
-//  }
-
-
+  protected void addDescriptor(TypeDescriptor descriptor) {
+    descriptors.add(descriptor);
+    objectMapper.registerSubtypes(descriptor.activityType.getClass());
+  }
+  
+  public List<TypeField> getConfigurationFields(ActivityType activityType) {
+    return configurationFieldsByClass.get(activityType.getClass());
+  }
   
   public DataTypes getDataTypes() {
     return dataTypes;

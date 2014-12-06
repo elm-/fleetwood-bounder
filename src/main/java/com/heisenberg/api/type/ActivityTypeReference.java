@@ -12,10 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.api.type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.activities.AbstractActivityType;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
@@ -25,23 +26,39 @@ import com.heisenberg.api.util.Validator;
 /**
  * @author Walter White
  */
-@JsonTypeName("parallelGateway")
-public class ParallelGateway extends AbstractActivityType {
+@JsonTypeName("activityTypeReference")
+public class ActivityTypeReference implements ActivityType {
+
+  public String typeId;
+  
+  @JsonIgnore
+  public ActivityType delegate;
+  
+  public ActivityTypeReference() {
+  }
+
+  public ActivityTypeReference(String typeId) {
+    this.typeId = typeId;
+  }
 
   @Override
   public void validate(ActivityDefinition activity, Validator validator) {
-    // at least one in, at least one out
+    delegate.validate(activity, validator);
   }
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
+    delegate.start(activityInstance);
   }
 
   @Override
   public void message(ControllableActivityInstance activityInstance) {
+    delegate.message(activityInstance);
   }
 
   @Override
   public void ended(ControllableActivityInstance activityInstance, ActivityInstance nestedEndedActivityInstance) {
+    delegate.ended(activityInstance, nestedEndedActivityInstance);
   }
+
 }

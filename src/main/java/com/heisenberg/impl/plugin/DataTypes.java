@@ -14,6 +14,9 @@
  */
 package com.heisenberg.impl.plugin;
 
+import static com.heisenberg.impl.plugin.PluginHelper.couldBeConfigured;
+import static com.heisenberg.impl.plugin.PluginHelper.getJsonTypeName;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -22,13 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.type.BindingType;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.type.DataTypeReference;
 import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.api.type.ListType;
-import com.heisenberg.api.type.TypeReference;
 import com.heisenberg.impl.util.Exceptions;
 
 
@@ -40,6 +43,18 @@ public class DataTypes {
   public List<TypeDescriptor> descriptors = new ArrayList<>();
   public Map<String,DataType> dataTypesById = new HashMap<>();
   public Map<Type,TypeDescriptor> descriptorsByType = new HashMap<>();
+  public ObjectMapper objectMapper;
+  
+  public DataTypes(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
+
+  public TypeDescriptor registerConfigurableDataType(DataType dataType) {
+    TypeDescriptor robertDn = new TypeDescriptor(dataType);
+    robertDn.analyze(this); // :)
+    addDescriptor(robertDn);
+    return robertDn;
+  }
 
   /** creates a descriptor for a java bean type */
   public TypeDescriptor registerJavaBeanType(Class<?> javaBeanClass) {
@@ -49,21 +64,12 @@ public class DataTypes {
 
   /** creates a descriptor for a configurable dataType */
   public TypeDescriptor registerSingletonDataType(DataType dataType) {
-    Exceptions.checkNotNullParameter(dataType, "dataTypeDescriptor.dataType");
-    String typeId = getJsonTypeName(dataType);
-    addDataTypeById(typeId, dataType);
-    TypeDescriptor dataTypeDescriptor = new TypeDescriptor(new TypeReference(typeId));
-    descriptors.add(dataTypeDescriptor);
-    return dataTypeDescriptor;
+    return registerSingletonDataType(dataType, getJsonTypeName(dataType), null);
   }
 
-  protected String getJsonTypeName(DataType dataType) {
-    Class< ? extends DataType> dataTypeClass = dataType.getClass();
-    JsonTypeName jsonTypeName = dataTypeClass.getAnnotation(JsonTypeName.class);
-    if (jsonTypeName==null) {
-      throw new RuntimeException("Activity type "+dataTypeClass+" doesn't have JsonTypeName annotation");
-    }
-    return jsonTypeName.value();
+  /** creates a descriptor for a configurable dataType */
+  public TypeDescriptor registerSingletonDataType(DataType dataType, String typeId) {
+    return registerSingletonDataType(dataType, typeId, null);
   }
 
   public TypeDescriptor registerSingletonDataType(DataType dataType, Class<?> valueClass) {
@@ -74,19 +80,29 @@ public class DataTypes {
    * all configuration fields of this valueClass */
   public TypeDescriptor registerSingletonDataType(DataType dataType, String typeId, Class<?> valueClass) {
     Exceptions.checkNotNullParameter(dataType, "dataType");
-    TypeDescriptor descriptor = registerSingletonDataType(dataType, typeId);
-    descriptorsByType.put(valueClass, descriptor);
-    descriptors.add(descriptor);
+    Exceptions.checkNotNull(typeId, "Activity type "+dataType.getClass()+" doesn't have JsonTypeName annotation");
+
+    addDataTypeById(typeId, dataType);
+    if (!couldBeConfigured(dataType)) {
+      // we need to keep track of the singleton object and reference it 
+      dataType = new DataTypeReference(typeId);
+    } // else we can just let json use the default constructor 
+
+    TypeDescriptor descriptor = new TypeDescriptor(dataType);
+    addDescriptor(descriptor);
+
+    if (valueClass!=null) {
+      descriptorsByType.put(valueClass, descriptor);
+    }
+    
     return descriptor;
   }
-    
-  /** creates a descriptor for a configurable dataType */
-  public TypeDescriptor registerSingletonDataType(DataType dataType, String typeId) {
-    addDataTypeById(typeId, dataType);
-    TypeDescriptor dataTypeDescriptor = new TypeDescriptor(new TypeReference(typeId));
-    descriptors.add(dataTypeDescriptor);
-    return dataTypeDescriptor;
+
+  protected void addDescriptor(TypeDescriptor descriptor) {
+    descriptors.add(descriptor);
+    objectMapper.registerSubtypes(descriptor.dataType.getClass());
   }
+
 
   protected void addDataTypeById(String typeId, DataType dataType) {
     if (dataTypesById.containsKey(typeId)) {
@@ -95,16 +111,7 @@ public class DataTypes {
     dataTypesById.put(typeId, dataType);
   }
   
-  public TypeDescriptor registerConfigurableDataType(DataType dataType) {
-    TypeDescriptor robert = new TypeDescriptor(dataType);
-    robert.analyze(this); // :)
-    descriptors.add(robert);
-    return robert;
-  }
-
-
-  
-  public TypeDescriptor getTypeDescriptor(Field field) {
+  protected TypeDescriptor getTypeDescriptor(Field field) {
     return getTypeDescriptor(field.getGenericType(), field);
   }
 
@@ -125,7 +132,7 @@ public class DataTypes {
     throw new RuntimeException("Don't know how to handle "+type+"'s.  It's used in configuration field: "+field);
   }
 
-  private TypeDescriptor createDescriptor(Type rawType, Type[] typeArgs, Field field /* passed for error message only */) {
+  protected TypeDescriptor createDescriptor(Type rawType, Type[] typeArgs, Field field /* passed for error message only */) {
     if (Binding.class==rawType) {
       TypeDescriptor argDescriptor = getTypeDescriptor(typeArgs[0], field);
       BindingType bindingType = new BindingType(argDescriptor.dataType);
@@ -137,5 +144,4 @@ public class DataTypes {
     } 
     throw new RuntimeException("Don't know how to handle generic type "+rawType+"'s.  It's used in configuration field: "+field);
   }
-
 }

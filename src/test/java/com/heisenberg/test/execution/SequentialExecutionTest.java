@@ -58,7 +58,7 @@ public class SequentialExecutionTest {
     
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .start();
+      .startProcessInstance();
     
     assertOpen(processInstance, "one");
     

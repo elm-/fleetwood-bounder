@@ -127,7 +127,6 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   public void endActivityDefinition(ActivityDefinitionImpl activity, int index) {
     if (activity.activityType!=null) {
       activity.activityType.validate(activity, this);
-      activity.initializeBindings(this);
     }
     popContext();
   }

@@ -54,7 +54,7 @@ public class TriggerBuilderImpl extends VariableRequestImpl implements TriggerBu
   }
 
   @Override
-  public ProcessInstance start() {
+  public ProcessInstance startProcessInstance() {
     return processEngine.startProcessInstance(this);
   }
 }
