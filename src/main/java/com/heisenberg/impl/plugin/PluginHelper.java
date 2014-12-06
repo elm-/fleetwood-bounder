@@ -33,7 +33,7 @@ public class PluginHelper {
   protected static boolean couldBeConfigured(Object o) {
     Class< ? extends Object> clazz = o.getClass();
     return !hasDefaultConstructor(clazz)
-           && !Reflection.getNonStaticFieldsRecursive(clazz).isEmpty();
+           || !Reflection.getNonStaticFieldsRecursive(clazz).isEmpty();
   }
 
 //  /** returns true if the object o has the same member field values as an object that is created 

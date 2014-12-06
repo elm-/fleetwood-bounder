@@ -90,10 +90,11 @@ public abstract class ProcessEngineConfiguration {
     registerSingletonActivityType(new EndEvent());
     registerSingletonActivityType(new EmptyServiceTask());
     registerSingletonActivityType(new EmbeddedSubprocess());
-    registerSingletonActivityType(new ScriptTask());
-    registerSingletonActivityType(new UserTask());
-    registerSingletonActivityType(new JavaServiceTask());
-    registerSingletonActivityType(new HttpServiceTask());
+    
+    registerConfigurableActivityType(new ScriptTask());
+    registerConfigurableActivityType(new UserTask());
+    registerConfigurableActivityType(new JavaServiceTask());
+    registerConfigurableActivityType(new HttpServiceTask());
   }
   
   public ProcessEngineConfiguration id(String id) {

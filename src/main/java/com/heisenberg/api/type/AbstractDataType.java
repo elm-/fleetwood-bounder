@@ -14,8 +14,6 @@
  */
 package com.heisenberg.api.type;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.util.Validator;
 
 
@@ -23,10 +21,6 @@ import com.heisenberg.api.util.Validator;
  * @author Walter White
  */
 public abstract class AbstractDataType implements DataType {
-
-  /** gets injected automatically */
-  @JsonIgnore
-  public ProcessEngine processEngine;
 
   @Override
   public void validate(Validator validator) {

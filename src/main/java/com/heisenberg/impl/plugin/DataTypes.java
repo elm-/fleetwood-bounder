@@ -83,7 +83,7 @@ public class DataTypes {
     Exceptions.checkNotNull(typeId, "Activity type "+dataType.getClass()+" doesn't have JsonTypeName annotation");
 
     addDataTypeById(typeId, dataType);
-    if (!couldBeConfigured(dataType)) {
+    if (couldBeConfigured(dataType)) {
       // we need to keep track of the singleton object and reference it 
       dataType = new DataTypeReference(typeId);
     } // else we can just let json use the default constructor 

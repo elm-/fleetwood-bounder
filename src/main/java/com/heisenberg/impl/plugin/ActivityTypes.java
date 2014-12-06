@@ -22,11 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.type.ActivityTypeReference;
-import com.heisenberg.api.type.DataTypeReference;
 import com.heisenberg.impl.util.Exceptions;
 
 
@@ -57,7 +55,7 @@ public class ActivityTypes {
   public TypeDescriptor registerSingletonActivityType(ActivityType activityType, String typeId) {
     addActivityTypeById(typeId, activityType);
     
-    if (!couldBeConfigured(activityType)) {
+    if (couldBeConfigured(activityType)) {
       // we need to keep track of the singleton object and reference it 
       activityType = new ActivityTypeReference(typeId);
     } // else we can just let json use the default constructor 
