@@ -159,9 +159,6 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return UUID.randomUUID().toString();
   }
   
-  /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
-  protected abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
-
   private void setVariableApiValues(ScopeInstanceImpl scopeInstance, VariableRequestImpl variableRequest) {
     ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition;
     Map<String, Object> variableValues = variableRequest.variableValues;
@@ -186,8 +183,14 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return processDefinition;
   }
   
-  protected abstract ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId);
-
+  public ProcessDefinitionImpl findProcessDefinitionByProcessInstanceIdUsingCache(String processInstanceId) {
+    ProcessInstanceImpl processInstance = findProcessInstanceById(processInstanceId);
+    if (processInstance==null) {
+      return null;
+    }
+    return findProcessDefinitionByIdUsingCache(processInstance.processDefinitionId);
+  }
+  
   protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition) {
     return new ProcessInstanceImpl(this, processDefinition, createProcessInstanceId(processDefinition));
   }
@@ -224,14 +227,6 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return UUID.randomUUID().toString();
   }
 
-  public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId);
-
-  public abstract void insertProcessInstance(ProcessInstanceImpl processInstance);
-
-  public abstract void flush(ProcessInstanceImpl processInstance);
-
-  public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
-  
   @Override
   public ActivityInstanceQuery newActivityInstanceQuery() {
     return new ActivityInstanceQueryImpl(this);
@@ -265,9 +260,25 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return dataTypes;
   }
 
+  /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
+  public abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
+
+  public abstract ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId);
+
   public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
 
   public abstract List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
 
   public abstract Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl);
+
+  public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId);
+
+  public abstract void insertProcessInstance(ProcessInstanceImpl processInstance);
+
+  public abstract ProcessInstanceImpl findProcessInstanceById(String processInstanceId);
+
+  public abstract void flush(ProcessInstanceImpl processInstance);
+
+  public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
+  
 }

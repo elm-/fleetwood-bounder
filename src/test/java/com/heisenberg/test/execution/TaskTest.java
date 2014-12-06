@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.examples;
+package com.heisenberg.test.execution;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
 
@@ -45,9 +44,9 @@ public class TaskTest {
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    processEngine.startProcessInstance(
-      new TriggerBuilder().processDefinitionId(processDefinitionId)
-    );
+    processEngine.newTrigger()
+      .processDefinitionId(processDefinitionId)
+      .startProcessInstance();
     
     MemoryTaskService taskService = processEngine.getTaskService();
     assertEquals("Task one", taskService.getTasks().get(0).getName());

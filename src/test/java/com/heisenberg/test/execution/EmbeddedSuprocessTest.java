@@ -12,19 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.test;
+package com.heisenberg.test.execution;
 
-import static com.heisenberg.test.TestHelper.assertActivityInstancesOpen;
+import static com.heisenberg.test.TestHelper.assertOpen;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
+import com.heisenberg.api.activities.bpmn.EndEvent;
+import com.heisenberg.api.activities.bpmn.ScriptTask;
+import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.builder.ActivityInstanceMessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.ProcessInstanceBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
@@ -42,14 +43,12 @@ public class EmbeddedSuprocessTest {
    *           +-------------+
    */ 
   @Test public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine()
-      .registerActivityType(Go.class)
-      .registerActivityType(Wait.class);
+    ProcessEngine processEngine = new MemoryProcessEngine();
   
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
   
     process.newActivity()
-      .activityType(new Go())
+      .activityType(new ScriptTask())
       .id("start");
     
     ActivityBuilder subprocess = process.newActivity()
@@ -57,15 +56,15 @@ public class EmbeddedSuprocessTest {
       .id("sub");
     
     subprocess.newActivity()
-      .activityType(Wait.INSTANCE)
+      .activityType(new UserTask())
       .id("w1");
   
     subprocess.newActivity()
-      .activityType(Wait.INSTANCE)
+      .activityType(new UserTask())
       .id("w2");
   
     process.newActivity()
-      .activityType(Wait.INSTANCE)
+      .activityType(new EndEvent())
       .id("end");
   
     process.newTransition()
@@ -76,20 +75,23 @@ public class EmbeddedSuprocessTest {
       .from("sub")
       .to("end");
   
-    String processDefinitionId = processEngine
-      .deployProcessDefinition(process)
+    String processDefinitionId = process
+      .deploy()
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    ProcessInstance processInstance = processEngine.newProcessInstance()
-      .processDefinitionId(processDefinitionId));
+    ProcessInstance processInstance = processEngine
+      .newTrigger()
+      .processDefinitionId(processDefinitionId)
+      .startProcessInstance();
 
-    assertActivityInstancesOpen(processInstance, "sub", "w1", "w2");
+    assertOpen(processInstance, "sub", "w1", "w2");
     
     String w1Id = processInstance.findActivityInstanceByActivityDefinitionId("w1").getId();
     assertNotNull(w1Id);
     
-    processEngine.sendActivityInstanceMessage(new ActivityInstanceMessageBuilder()
-      .activityInstanceId(w1Id));
+    processEngine.newMessage()
+      .activityInstanceId(w1Id)
+      .send();
   }
 }

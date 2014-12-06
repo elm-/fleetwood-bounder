@@ -16,6 +16,7 @@ package com.heisenberg.impl;
 
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 
 
@@ -58,8 +59,8 @@ public class MessageImpl extends VariableRequestImpl implements MessageBuilder {
   }
   
   @Override
-  public MessageImpl variableValueJson(String variableDefinitionId, Object value, DataType dataType) {
-    super.variableValueJson(variableDefinitionId, value, dataType);
+  public MessageImpl variableValue(String variableDefinitionId, Object value, DataType dataType) {
+    super.variableValue(variableDefinitionId, value, dataType);
     return this;
   }
 
@@ -72,5 +73,13 @@ public class MessageImpl extends VariableRequestImpl implements MessageBuilder {
   @Override
   public ProcessInstanceImpl send() {
     return processEngine.sendActivityInstanceMessage(this);
+  }
+
+  @Override
+  protected ProcessDefinitionImpl getProcessDefinition(ProcessEngineImpl processEngine) {
+    if (processInstanceId!=null) {
+      return processEngine.findProcessDefinitionByProcessInstanceIdUsingCache(processInstanceId);
+    }
+    throw new RuntimeException("Process instance id is required when serializing a message");
   }
 }

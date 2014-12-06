@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.examples;
+package com.heisenberg.test.execution;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,14 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.ProcessInstanceBuilder;
 import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.script.ScriptResult;
 
 
@@ -44,22 +44,23 @@ public class ScriptTest {
   
   @Test
   public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine()
+    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
-      .registerActivityType(ScriptActivity.class);
+      .registerSingletonActivityType(new ScriptActivity())
+      .buildProcessEngine();
 
-    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
-    processBuilder.newVariable()
+    process.newVariable()
       .id("m")
       .dataTypeJavaBean(Money.class);
     
-    processBuilder.newActivity()
+    process.newActivity()
       .activityType(new ScriptActivity())
       .id("a");
 
-    String processDefinitionId = processEngine
-      .deployProcessDefinition(processBuilder)
+    String processDefinitionId = process
+      .deploy()
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
@@ -67,9 +68,10 @@ public class ScriptTest {
     fiveDollars.put("amount", 5d);
     fiveDollars.put("currency", "USD");
     
-    processEngine.newProcessInstance()
+    processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("m", new Money(5d, "USD")));
+      .variableValue("m", new Money(5d, "USD"))
+      .startProcessInstance();
 
     assertEquals("It costs 5, which is in USD\nAnd mmmoney is 5.0 USD", scriptResultMessage);
   }
@@ -77,11 +79,8 @@ public class ScriptTest {
   static String scriptResultMessage = null;
 
   @JsonTypeName("testScript")
+  @Label("Script")
   public static class ScriptActivity extends AbstractActivityType {
-    @Override
-    public String getLabel() {
-      return "Script";
-    }
     @Override
     public void start(ControllableActivityInstance activityInstance) {
       ScriptService scriptService = activityInstance.getScriptService();
@@ -96,6 +95,21 @@ public class ScriptTest {
       ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, script);
       scriptResultMessage = (String) scriptResult.getResult();
       activityInstance.onwards();
+    }
+  }
+  
+  public static class Money {
+
+    public double amount;
+    public String currency;
+
+    public Money(double amount, String currency) {
+      this.amount = amount;
+      this.currency = currency;
+    }
+    
+    public String toString() {
+      return amount+" "+currency;
     }
   }
 }

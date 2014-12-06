@@ -132,17 +132,4 @@ public class ActivityTypeStaticConfigurationTest {
     MyConfigurableActivityType myConfigurableB = (MyConfigurableActivityType) b.activityType;
     assertEquals("two", myConfigurableB.configuration);
   }
-  
-  @Test 
-  public void testConfigurableActivityTypeDescriptor() {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new MemoryProcessEngineConfiguration()
-      .registerConfigurableActivityType(new MyConfigurableActivityType())
-      .buildProcessEngine();
-
-    JsonService jsonService = processEngine.getJsonService();
-    log.debug("Activity type descriptors:");
-    log.debug(jsonService.objectToJsonStringPretty(processEngine.activityTypes.descriptors));
-    log.debug("Data type descriptors:");
-    log.debug(jsonService.objectToJsonStringPretty(processEngine.dataTypes.descriptors));
-  }
 }

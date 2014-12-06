@@ -68,7 +68,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
+  public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
     processDefinitions.put(processDefinition.id, processDefinition);
   }
 
@@ -99,9 +99,9 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     flush(processInstance);
     log.debug("Process instance should be: "+jsonService.objectToJsonStringPretty(processInstance));
   }
-
+  
   @Override
-  protected ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
+  public ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
     return processDefinitions.get(processDefinitionId);
   }
 
@@ -181,4 +181,8 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     return processInstance;
   }
 
+  @Override
+  public ProcessInstanceImpl findProcessInstanceById(String processInstanceId) {
+    return processInstances.get(processInstanceId);
+  }
 }

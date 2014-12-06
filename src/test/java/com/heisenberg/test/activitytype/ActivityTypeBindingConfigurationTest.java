@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
@@ -35,15 +34,11 @@ import com.heisenberg.api.activities.Description;
 import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.type.TextType;
-import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
-import com.heisenberg.test.Go;
-import com.heisenberg.test.Go.Execution;
 
 
 /**
@@ -111,48 +106,37 @@ public class ActivityTypeBindingConfigurationTest {
     assertEquals(expectedConfigurations, executedConfigurations);
   }
 
-//  @Test 
-//  public void testConfigurableActivityTypeSerialization() {
-//    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-//    .registerConfigurableActivityType(new MyBindingActivityType())
-//    .buildProcessEngine();
-//
-//    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
-//    
-//    process.newActivity()
-//      .activityType(new MyBindingActivityType("one"))
-//      .id("a");
-//
-//    process.newActivity()
-//      .activityType(new MyBindingActivityType("two"))
-//      .id("b");
-//
-//    // serialize the process to json text string and deserialize back to java object
-//    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
-//    String processDefinitionJsonText = jsonService.objectToJsonStringPretty(process);
-//    log.debug(processDefinitionJsonText);
-//    ProcessDefinitionImpl processDefinition = jsonService.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
-//    processDefinition.visit(new ProcessDefinitionValidator((ProcessEngineImpl) processEngine));
-//    
-//    ActivityDefinitionImpl a = processDefinition.getActivityDefinition("a");
-//    MyBindingActivityType myConfigurableA = (MyBindingActivityType) a.activityType;
-//    assertEquals("one", myConfigurableA.configuration);
-//
-//    ActivityDefinitionImpl b = processDefinition.getActivityDefinition("b");
-//    MyBindingActivityType myConfigurableB = (MyBindingActivityType) b.activityType;
-//    assertEquals("two", myConfigurableB.configuration);
-//  }
-//  
   @Test 
-  public void testConfigurableActivityTypeDescriptor() {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new MemoryProcessEngineConfiguration()
-      .registerConfigurableActivityType(new MyBindingActivityType())
-      .buildProcessEngine();
+  public void testConfigurableActivityTypeSerialization() {
+    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
+    .registerConfigurableActivityType(new MyBindingActivityType())
+    .buildProcessEngine();
 
-    JsonService jsonService = processEngine.getJsonService();
-    log.debug("Activity type descriptors:");
-    log.debug(jsonService.objectToJsonStringPretty(processEngine.activityTypes.descriptors));
-    log.debug("Data type descriptors:");
-    log.debug(jsonService.objectToJsonStringPretty(processEngine.dataTypes.descriptors));
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    
+    process.newActivity()
+      .activityType(new MyBindingActivityType(new Binding<String>()
+              .expression("v.toLowerCase()")))
+      .id("a");
+
+    process.newActivity()
+      .activityType(new MyBindingActivityType(new Binding<String>()
+              .variableDefinitionId("v")))
+      .id("b");
+
+    // serialize the process to json text string and deserialize back to java object
+    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
+    String processDefinitionJsonText = jsonService.objectToJsonStringPretty(process);
+    log.debug(processDefinitionJsonText);
+    ProcessDefinitionImpl processDefinition = jsonService.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
+    processDefinition.visit(new ProcessDefinitionValidator((ProcessEngineImpl) processEngine));
+    
+    ActivityDefinitionImpl a = processDefinition.getActivityDefinition("a");
+    MyBindingActivityType myConfigurableA = (MyBindingActivityType) a.activityType;
+    assertEquals("v.toLowerCase()", myConfigurableA.place.expression);
+
+    ActivityDefinitionImpl b = processDefinition.getActivityDefinition("b");
+    MyBindingActivityType myConfigurableB = (MyBindingActivityType) b.activityType;
+    assertEquals("v", myConfigurableB.place.variableDefinitionId);
   }
 }

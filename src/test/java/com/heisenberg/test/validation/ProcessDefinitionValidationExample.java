@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.examples;
+package com.heisenberg.test.validation;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,6 +23,7 @@ import com.heisenberg.api.activities.bpmn.EndEvent;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.test.Go;
 import com.heisenberg.test.TestHelper;
 
 
@@ -61,4 +62,36 @@ public class ProcessDefinitionValidationExample {
     
     TestHelper.assertTextPresent("Activity has no id", issueReport);
   }
+  
+  @Test
+  public void testActivityDefinitionWithoutName() {
+    ProcessEngine processEngine = new MemoryProcessEngine()
+      .registerActivityType(Go.class);
+    
+    // cook the process
+    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
+    
+    processBuilder.newActivity()
+      .activityType(new Go());
+
+    TestHelper.assertTextPresent("Activity has no id", processEngine
+        .deployProcessDefinition(processBuilder)
+        .getIssueReport());
+  }
+
+  @Test
+  public void testActivityDefinitionWithoutType() {
+    ProcessEngine processEngine = new MemoryProcessEngine()
+      .registerActivityType(Go.class);
+    
+    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
+    
+    processBuilder.newActivity()
+      .id("a");
+
+    TestHelper.assertTextPresent("Activity 'a' has no activityType configured", processEngine
+        .deployProcessDefinition(processBuilder)
+        .getIssueReport());
+  }
+
 }

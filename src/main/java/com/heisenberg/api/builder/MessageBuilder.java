@@ -29,7 +29,7 @@ public interface MessageBuilder {
   MessageBuilder variableValue(String variableDefinitionId, Object value);
 
   /** Only use this method with the client process engine */
-  MessageBuilder variableValueJson(String variableDefinitionId, Object value, DataType dataType);
+  MessageBuilder variableValue(String variableDefinitionId, Object value, DataType dataType);
 
   MessageBuilder transientContext(String key, Object value);
   

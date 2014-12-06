@@ -16,6 +16,8 @@ package com.heisenberg.impl;
 
 import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 
 
 
@@ -42,8 +44,14 @@ public class TriggerBuilderImpl extends VariableRequestImpl implements TriggerBu
   }
 
   @Override
-  public TriggerBuilderImpl variableValue(String variableDefinitionIdInternal, Object value) {
-    super.variableValue(variableDefinitionIdInternal, value);
+  public TriggerBuilderImpl variableValue(String variableDefinitionId, Object internalValue) {
+    super.variableValue(variableDefinitionId, internalValue);
+    return this;
+  }
+
+  @Override
+  public TriggerBuilderImpl variableValue(String variableDefinitionId, Object jsonValue, DataType dataType) {
+    super.variableValue(variableDefinitionId, jsonValue, dataType);
     return this;
   }
 
@@ -56,5 +64,10 @@ public class TriggerBuilderImpl extends VariableRequestImpl implements TriggerBu
   @Override
   public ProcessInstance startProcessInstance() {
     return processEngine.startProcessInstance(this);
+  }
+
+  @Override
+  protected ProcessDefinitionImpl getProcessDefinition(ProcessEngineImpl processEngine) {
+    return processEngine.findProcessDefinitionByIdUsingCache(processDefinitionId);
   }
 }

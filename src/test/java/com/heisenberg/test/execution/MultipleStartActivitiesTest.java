@@ -30,7 +30,7 @@ import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
-import com.heisenberg.test.Go;
+import com.heisenberg.test.db.MongoProcessEngineTest.Go;
 
 /**
  * @author Walter White

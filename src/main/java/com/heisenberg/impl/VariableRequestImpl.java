@@ -16,10 +16,13 @@ package com.heisenberg.impl;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.definition.VariableDefinitionImpl;
 
 
 /**
@@ -42,6 +45,25 @@ public abstract class VariableRequestImpl {
     super();
     this.processEngine = processEngine;
   }
+  
+  public void deserialize(ProcessEngineImpl processEngine) {
+    if (variableValues!=null && !variableValues.isEmpty()) {
+      Map<String,Object> internalValues = new HashMap<>();
+      ProcessDefinitionImpl processDefinition = getProcessDefinition(processEngine);
+      List<VariableDefinitionImpl> variableDefinitions = processDefinition.getVariableDefinitions();
+      if (variableDefinitions!=null) {
+        for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
+          String variableId = variableDefinition.id;
+          Object jsonValue = variableValues.get(variableId);
+          Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);
+          internalValues.put(variableId, internalValue);
+        }
+      }
+      variableValues = internalValues;
+    }
+  }
+
+  protected abstract ProcessDefinitionImpl getProcessDefinition(ProcessEngineImpl processEngine);
 
   public VariableRequestImpl variableValue(String variableDefinitionId, Object value) {
     if (variableValues==null) {
@@ -51,7 +73,7 @@ public abstract class VariableRequestImpl {
     return this;
   }
 
-  public VariableRequestImpl variableValueJson(String variableDefinitionId, Object value, DataType dataType) {
+  public VariableRequestImpl variableValue(String variableDefinitionId, Object value, DataType dataType) {
     if (variableValues==null) {
       variableValues = new LinkedHashMap<>();
     }
