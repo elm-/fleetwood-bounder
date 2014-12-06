@@ -18,7 +18,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.type.DataType;
@@ -52,10 +51,9 @@ public class TypeDescriptor {
     this.dataType = dataType;
   }
 
-  public void scanConfigurationFields(DataTypes dataTypes) {
+  public void analyze(DataTypes dataTypes) {
     Class<?> pluginClass = (activityType!=null ? activityType.getClass() : dataType.getClass());
     List<Field> fields = Reflection.getFieldsRecursive(pluginClass);
-    List<TypeField> configurationFields = null;
     if (!fields.isEmpty()) {
       configurationFields = new ArrayList<TypeField>(fields.size());
       for (Field field : fields) {

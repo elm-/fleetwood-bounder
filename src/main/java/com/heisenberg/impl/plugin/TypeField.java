@@ -28,7 +28,7 @@ public class TypeField {
   public String name;
   public String label;
   public boolean isRequired;
-  public TypeDescriptor type;
+  public TypeDescriptor typeDescriptor;
   
   @JsonIgnore
   public Field field;
@@ -37,7 +37,7 @@ public class TypeField {
     this.name = field.getName();
     this.field = field;
     this.field.setAccessible(true);
-    this.type = descriptor;
+    this.typeDescriptor = descriptor;
     if (configurationField!=null) {
       this.label = configurationField.value();
       this.isRequired = configurationField.required();

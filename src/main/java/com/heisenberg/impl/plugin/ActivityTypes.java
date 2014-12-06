@@ -14,12 +14,14 @@
  */
 package com.heisenberg.impl.plugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.type.TypeReference;
 
 
 /**
@@ -27,94 +29,64 @@ import com.heisenberg.api.activities.ActivityType;
  */
 public class ActivityTypes {
 
-  public Map<String,TypeDescriptor> descriptorsByType;
-  public Map<String, ActivityType> activityTypesById;
-  public Map<Class<? extends ActivityType>,String> typesByClass;
+  public List<TypeDescriptor> descriptors = new ArrayList<>();
+  public Map<String, ActivityType> activityTypesById = new HashMap<>();
   public DataTypes dataTypes;
   
-  public List<TypeField> getConfigurationFields(ActivityType activityType) {
-    String typeId = typesByClass.get(activityType.getClass());
-    ActivityTypeDescriptor descriptor = typeId!=null ? descriptorsByType.get(typeId) : null;
-    return descriptor!=null ? descriptor.configurationFields : null;
-  }
-
   public ActivityTypes(DataTypes dataTypes) {
-    this();
     this.dataTypes = dataTypes;
   }
 
-  /** When using this constructor, please ensure you wire the data types in with the {@link #setDataTypes(DataTypes) setter} */
-  public ActivityTypes() {
-    this.descriptorsByType = new LinkedHashMap<String, ActivityTypeDescriptor>();
-    this.typesByClass = new HashMap<>();
-  }
+  /** creates a descriptor for a configurable activityType */
+  public TypeDescriptor registerSingletonActivityType(ActivityType activityType) {
+    if (activityType==null) {
+      throw new RuntimeException("activityTypeDescriptor.activityType is null");
+    }
+    Class< ? extends ActivityType> activityTypeClass = activityType.getClass();
+    JsonTypeName jsonTypeName = activityTypeClass.getAnnotation(JsonTypeName.class);
+    if (jsonTypeName==null) {
+      throw new RuntimeException("Activity type "+activityTypeClass+" doesn't have JsonTypeName annotation");
+    }
+    String typeId = jsonTypeName.value();
 
-  /** registers a configurable activity type */
-  public ActivityTypeDescriptor registerActivityType(Class<? extends ActivityType> activityTypeClass) {
-    ActivityTypeDescriptor activityTypeDescriptor = new ActivityTypeDescriptor(activityTypeClass, dataTypes);
-    registerActivityTypeDescriptor(activityTypeDescriptor);
+    addActivityTypeById(typeId, activityType);
+    TypeDescriptor activityTypeDescriptor = new TypeDescriptor(new TypeReference(typeId));
+    descriptors.add(activityTypeDescriptor);
     return activityTypeDescriptor;
   }
-  
-  public void registerActivityTypeDescriptor(ActivityTypeDescriptor activityTypeDescriptor) {
-    String id = activityTypeDescriptor.id;
-    if (id==null) {
-      throw new RuntimeException("activityTypeId is null");
-    }
-    if (descriptorsByType.containsKey(id)) {
-      throw new RuntimeException("Duplicate activity type descriptor: "+id);
-    }
-    if (activityTypeDescriptor.activityType!=null && activityTypeDescriptor.activityTypeClass!=null) {
-      throw new RuntimeException("Activity type descriptor should specify a class or an object, but not both: "+id);
-    }
-    if (activityTypeDescriptor.activityType==null && activityTypeDescriptor.activityTypeClass==null) {
-      throw new RuntimeException("Activity type descriptor doesn't specify a class or an object: "+id);
-    }
-    descriptorsByType.put(id, activityTypeDescriptor);
-    typesByClass.put(activityTypeDescriptor.activityTypeClass, id);
-  }
-  
-  public ActivityType getActivityTypeById(String activityTypeId) {
-    ActivityTypeDescriptor activityTypeDescriptor = descriptorsByType.get(activityTypeId);
-    if (activityTypeDescriptor==null) {
-      return null;
-    }
-    return activityTypeDescriptor.activityType;
+
+  /** creates a descriptor for a configurable activityType */
+  public TypeDescriptor registerSingletonActivityType(ActivityType activityType, String typeId) {
+    addActivityTypeById(typeId, activityType);
+    TypeDescriptor activityTypeDescriptor = new TypeDescriptor(new TypeReference(typeId));
+    descriptors.add(activityTypeDescriptor);
+    return activityTypeDescriptor;
   }
 
-  public String getActivityTypeId(Class< ? > clazz) {
-    return typesByClass.get(clazz);
-  }
-  
-  public Class< ? > getActivityTypeClass(String typeId) {
-    ActivityTypeDescriptor activityTypeDescriptor = descriptorsByType.get(typeId);
-    if (activityTypeDescriptor==null) {
-      return null;
+  protected void addActivityTypeById(String typeId, ActivityType activityType) {
+    if (activityTypesById.containsKey(typeId)) {
+      throw new RuntimeException("Duplicate type declaration for id "+typeId);
     }
-    if (activityTypeDescriptor.activityTypeClass==null) {
-      throw new RuntimeException("Singleton typeId "+typeId+" must be serialized with the ...Id field");
-    }
-    return activityTypeDescriptor.activityTypeClass;
+    activityTypesById.put(typeId, activityType);
   }
-
   
-  public Map<String, ActivityTypeDescriptor> getDescriptorsByType() {
-    return descriptorsByType;
+  public TypeDescriptor registerConfigurableActivityType(ActivityType activityType) {
+    TypeDescriptor robert = new TypeDescriptor(activityType);
+    robert.analyze(dataTypes); // this call reads much better in the DataTypes equivalent
+    descriptors.add(robert);
+    return robert;
   }
-
   
-  public void setDescriptorsByType(Map<String, ActivityTypeDescriptor> activityTypeDescriptorsByTypeId) {
-    this.descriptorsByType = activityTypeDescriptorsByTypeId;
-  }
+//  public void setTypesByClass(Map<Class< ? extends ActivityType>, String> typeIdsByClass) {
+//    this.typesByClass = typeIdsByClass;
+//  }
 
-  public Map<Class< ? extends ActivityType>, String> getTypesByClass() {
-    return typesByClass;
-  }
+//  public List<TypeField> getConfigurationFields(ActivityType activityType) {
+//    String typeId = typesByClass.get(activityType.getClass());
+//    TypeDescriptor descriptor = typeId!=null ? descriptors.get(typeId) : null;
+//    return descriptor!=null ? descriptor.configurationFields : null;
+//  }
 
-  
-  public void setTypesByClass(Map<Class< ? extends ActivityType>, String> typeIdsByClass) {
-    this.typesByClass = typeIdsByClass;
-  }
 
   
   public DataTypes getDataTypes() {

@@ -16,12 +16,10 @@ package com.heisenberg.api;
 
 import java.util.concurrent.Executor;
 
-import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 
@@ -73,20 +71,9 @@ public class MemoryProcessEngineConfiguration extends ProcessEngineConfiguration
   }
 
   @Override
-  public MemoryProcessEngineConfiguration registerActivityType(Class< ? extends ActivityType> activityTypeClass) {
-    super.registerActivityType(activityTypeClass);
-    return this;
-  }
-
-  @Override
   public MemoryProcessEngineConfiguration registerJavaBeanType(Class< ? > javaBeanClass) {
     super.registerJavaBeanType(javaBeanClass);
     return this;
   }
 
-  @Override
-  public MemoryProcessEngineConfiguration registerDataType(Class< ? extends DataType> dataTypeClass) {
-    super.registerDataType(dataTypeClass);
-    return this;
-  }
 }

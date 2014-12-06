@@ -34,7 +34,6 @@ import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.plugin.ActivityTypeDescriptor;
 
 
 /**
@@ -64,7 +63,7 @@ public class PluginConfigurableActivityTypeTest {
   @Test 
   public void testConfigurableActivityTypeExecution() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-      .registerActivityType(MyConfigurableActivityType.class)
+      .registerConfigurableActivityType(new MyConfigurableActivityType())
       .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
@@ -97,8 +96,8 @@ public class PluginConfigurableActivityTypeTest {
   @Test 
   public void testConfigurableActivityTypeSerialization() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-      .registerActivityType(MyConfigurableActivityType.class)
-      .buildProcessEngine();
+    .registerConfigurableActivityType(new MyConfigurableActivityType())
+    .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
@@ -128,13 +127,13 @@ public class PluginConfigurableActivityTypeTest {
   @Test 
   public void testConfigurableActivityTypeDescriptor() {
     ProcessEngineImpl processEngine = (ProcessEngineImpl) new MemoryProcessEngineConfiguration()
-      .registerActivityType(MyConfigurableActivityType.class)
+      .registerConfigurableActivityType(new MyConfigurableActivityType())
       .buildProcessEngine();
 
     JsonService jsonService = processEngine.getJsonService();
-    ActivityTypeDescriptor activityTypeDescriptor = processEngine.activityTypes.getDescriptorsByType().get("myConfigurableActivityTypeId");
+    String descriptorsJson = jsonService.objectToJsonStringPretty(processEngine.activityTypes.descriptors);
     log.debug("From oss on-premise to SaaS process builder:");
-    log.debug(jsonService.objectToJsonStringPretty(activityTypeDescriptor)+"\n");
+    log.debug(descriptorsJson);
   }
 
 }

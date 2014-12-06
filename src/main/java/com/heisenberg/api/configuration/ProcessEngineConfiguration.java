@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
@@ -37,6 +38,7 @@ import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.api.type.TextType;
+import com.heisenberg.api.type.TypeReference;
 import com.heisenberg.api.util.PluginFactory;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
@@ -44,6 +46,7 @@ import com.heisenberg.impl.engine.memory.MemoryTaskService;
 import com.heisenberg.impl.jsondeprecated.JacksonJsonService;
 import com.heisenberg.impl.plugin.ActivityTypes;
 import com.heisenberg.impl.plugin.DataTypes;
+import com.heisenberg.impl.plugin.TypeDescriptor;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 
 
@@ -79,20 +82,19 @@ public abstract class ProcessEngineConfiguration {
   }
   
   protected void registerDefaultDataTypes() {
-    registerDataType(TextType.class);
-    registerDataType(JavaBeanType.class);
-    setDataTypeForClass(String.class, new TextType());
+    registerSingletonDataType(new TextType(), String.class);
+    registerConfigurableDataType(new JavaBeanType());
   }
   
   protected void registerDefaultActivityTypes() {
-    registerActivityType(StartEvent.class);
-    registerActivityType(EndEvent.class);
-    registerActivityType(EmptyServiceTask.class);
-    registerActivityType(EmbeddedSubprocess.class);
-    registerActivityType(ScriptTask.class);
-    registerActivityType(UserTask.class);
-    registerActivityType(JavaServiceTask.class);
-    registerActivityType(HttpServiceTask.class);
+//    registerActivityType(StartEvent.class);
+//    registerActivityType(EndEvent.class);
+//    registerActivityType(EmptyServiceTask.class);
+//    registerActivityType(EmbeddedSubprocess.class);
+//    registerActivityType(ScriptTask.class);
+//    registerActivityType(UserTask.class);
+//    registerActivityType(JavaServiceTask.class);
+//    registerActivityType(HttpServiceTask.class);
   }
   
   public ProcessEngineConfiguration id(String id) {
@@ -125,26 +127,50 @@ public abstract class ProcessEngineConfiguration {
     return this;
   }
   
-  /** registers a configurable activity type */
-  public ProcessEngineConfiguration registerActivityType(Class<? extends ActivityType> activityTypeClass) {
-    activityTypes.registerActivityType(activityTypeClass);
+  
+  public ProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType) {
+    activityTypes.registerSingletonActivityType(activityType);
     return this;
   }
   
+  public ProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType, String typeId) {
+    activityTypes.registerSingletonActivityType(activityType, typeId);
+    return this;
+  }
+
+  public ProcessEngineConfiguration registerConfigurableActivityType(ActivityType activityType) {
+    activityTypes.registerConfigurableActivityType(activityType);
+    return this;
+  }
+
   public ProcessEngineConfiguration registerJavaBeanType(Class<?> javaBeanClass) {
     dataTypes.registerJavaBeanType(javaBeanClass);
     return this;
   }
   
-  /** creates a descriptor for a configurable dataType */
-  public ProcessEngineConfiguration registerDataType(Class<? extends DataType> dataTypeClass) {
-    dataTypes.registerDataType(dataTypeClass);
+  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType) {
+    dataTypes.registerSingletonDataType(dataType);
     return this;
   }
   
-  /** specifies which dataType to use when scanning activity type configuration fields. */
-  public void setDataTypeForClass(Class<?> valueClass, DataType dataType) {
-    dataTypes.setDataTypeForClass(valueClass, dataType);
+  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId) {
+    dataTypes.registerSingletonDataType(dataType, typeId);
+    return this;
+  }
+
+  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, Class<?> javaClass) {
+    dataTypes.registerSingletonDataType(dataType, javaClass);
+    return this;
+  }
+
+  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId, Class<?> javaClass) {
+    dataTypes.registerSingletonDataType(dataType, typeId, javaClass);
+    return this;
+  }
+
+  public ProcessEngineConfiguration registerConfigurableDataType(DataType dataType) {
+    dataTypes.registerConfigurableDataType(dataType);
+    return this;
   }
 
   public String getId() {
