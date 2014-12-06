@@ -70,9 +70,12 @@ public class MongoProcessInstances extends MongoCollection {
     insert(dbProcessInstance, writeConcernStoreProcessInstance);
   }
   
-  public void flushUpdates(String processInstanceId, List<BasicDBObject> dbUpdates) {
-    BasicDBObject query = new BasicDBObject(fields._id,  new ObjectId(processInstanceId));
-    BasicDBObject update = new BasicDBObject("$pushAll", new BasicDBObject(fields.updates, dbUpdates));
+  public void flushUpdates(String processInstanceId, LockImpl lock, List<BasicDBObject> dbUpdates) {
+    DBObject query = BasicDBObjectBuilder.start()
+            .add(fields._id,  new ObjectId(processInstanceId))
+            .add(fields.lock,  writeLock(lock))
+            .get();
+    DBObject update = new BasicDBObject("$pushAll", new BasicDBObject(fields.updates, dbUpdates));
     update(query, update, false, false, writeConcernFlushUpdates);
   }
 
@@ -99,7 +102,23 @@ public class MongoProcessInstances extends MongoCollection {
             .pop()
           .pop()
           .get();
+    long wait = 50l;
+    long attempts = 0;
+    long maxAttempts = 4;
+    long backofFactor = 5;
     BasicDBObject dbProcessInstance = findAndModify(query, update);
+    while ( dbProcessInstance==null 
+            && attempts <= maxAttempts ) {
+      try {
+        log.debug("Locking failed... retrying");
+        Thread.sleep(wait);
+      } catch (InterruptedException e) {
+        log.debug("Waiting for lock to be released was interrupted");
+      }
+      wait = wait * backofFactor;
+      attempts++;
+      dbProcessInstance = findAndModify(query, update);
+    }
     if (dbProcessInstance==null) {
       throw new RuntimeException("Couldn't lock process instance with "+query);
     }
@@ -256,5 +275,10 @@ public class MongoProcessInstances extends MongoCollection {
     variableInstance.dataType = variableInstance.variableDefinition.dataType;
     variableInstance.value = variableInstance.dataType.convertJsonToInternalValue(dbVariableInstance.get(fields.value));
     return variableInstance;
+  }
+
+  public ProcessInstanceImpl findProcessInstanceById(String processInstanceId) {
+    BasicDBObject dbProcess = findOne(new BasicDBObject(fields._id, new ObjectId(processInstanceId)));
+    return readProcessInstance(dbProcess);
   }
 }

@@ -29,11 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.impl.MessageImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.TriggerBuilderImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
@@ -41,11 +43,11 @@ import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
 import com.heisenberg.test.TestHelper;
 import com.heisenberg.test.db.MongoProcessEngineTest;
+import com.mongodb.WriteConcern;
 
 /**
  * @author Walter White
  */
-@Ignore
 public class LoadTest extends JerseyTest {
   
   static {
@@ -66,6 +68,9 @@ public class LoadTest extends JerseyTest {
       return processEngine;
     }
     processEngine = new MeasuringMongoProcessEngine(new MongoProcessEngineConfiguration()
+//      .writeConcernInsertProcessDefinition(WriteConcern.UNACKNOWLEDGED)
+//      .writeConcernFlushUpdates(WriteConcern.UNACKNOWLEDGED)
+//      .writeConcernInsertProcessInstance(WriteConcern.UNACKNOWLEDGED)
       .server("localhost", 27017));
     return processEngine;
   }
@@ -143,9 +148,8 @@ public class LoadTest extends JerseyTest {
 
   void runProcessInstance(String... processDefinitionIds) {
     for (String processDefinitionId: processDefinitionIds) {
-      TriggerBuilder startProcessInstanceRequest = new TriggerBuilder()
+      TriggerBuilder startProcessInstanceRequest = new TriggerBuilderImpl()
         .processDefinitionId(processDefinitionId);
-      
       
       ProcessInstanceImpl processInstance = target("start").request()
               .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
@@ -153,7 +157,7 @@ public class LoadTest extends JerseyTest {
   
       ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
   
-      MessageBuilder notifyActivityInstanceRequest = new MessageBuilder()
+      MessageBuilder notifyActivityInstanceRequest = new MessageImpl()
         .processInstanceId(processInstance.id)
         .activityInstanceId(subTaskInstance.getId());
       

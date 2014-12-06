@@ -29,6 +29,9 @@ public class MessageImpl extends VariableRequestImpl implements MessageBuilder {
   public String activityInstanceId;
   public String processInstanceId;
 
+  public MessageImpl() {
+  }
+
   public MessageImpl(AbstractProcessEngine processEngine) {
     super(processEngine);
   }

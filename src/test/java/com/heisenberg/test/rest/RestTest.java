@@ -120,11 +120,11 @@ public class RestTest extends JerseyTest {
 
     ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
 
-    MessageBuilder notifyActivityInstanceRequest = processEngine.newMessage()
+    MessageBuilder message = processEngine.newMessage()
       .activityInstanceId(subTaskInstance.getId());
     
     processInstance = target("notify").request()
-            .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))
+            .post(Entity.entity(message, MediaType.APPLICATION_JSON))
             .readEntity(ProcessInstanceImpl.class);
 
     log.debug("response: " + processEngine.jsonService.objectToJsonStringPretty(processInstance));

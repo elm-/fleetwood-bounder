@@ -156,23 +156,23 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   public void transitionDefinition(TransitionDefinitionImpl transition, int index) {
     pushContext(transition, transition.id, index, transition.line, transition.column);
     if (transition.fromId==null) {
-      addWarning("Transition does not have from (source) specified");
+      addWarning("Transition has no 'from' specified");
     } else {
       transition.from = processDefinition.findActivityDefinition(transition.fromId);
       if (transition.from!=null) {
         transition.from.addOutgoingTransition(transition);
       } else {
         ScopeDefinitionImpl scope = getContextObject(ScopeDefinitionImpl.class);
-        addError("Transition has an invalid from (source) '%s' : %s", transition.fromId, getExistingActivityNamesText(scope));
+        addError("Transition has an invalid value for 'from' (%s) : %s", transition.fromId, getExistingActivityNamesText(scope));
       }
     }
     if (transition.toId==null) {
-      addWarning("Transition does not have to (destination) specified");
+      addWarning("Transition has no 'to' specified");
     } else {
       transition.to = processDefinition.findActivityDefinition(transition.toId);
       if (transition.to==null) {
         ScopeDefinitionImpl scope = getContextObject(ScopeDefinitionImpl.class);
-        addError("Transition has an invalid to (destination) '%s' : %s", transition.toId, getExistingActivityNamesText(scope));
+        addError("Transition has an invalid value for 'to' (%s) : %s", transition.toId, getExistingActivityNamesText(scope));
       }
     }
     popContext();

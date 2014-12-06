@@ -30,6 +30,7 @@ import com.heisenberg.api.activities.AbstractActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.activities.bpmn.EndEvent;
 import com.heisenberg.api.activities.bpmn.ScriptTask;
@@ -152,12 +153,13 @@ public class MongoProcessEngineTest {
     return process;
   }
   
-  @JsonTypeName("go")
-  public static class Go extends AbstractActivityType {
-    @ConfigurationField("Place")
+  @JsonTypeName("auto")
+  public static class Auto extends AbstractActivityType {
+    @ConfigurationField()
+    @Label("Place")
     Binding<String> placeBinding;
 
-    public Go placeBinding(Binding<String> placeBinding) {
+    public Auto placeBinding(Binding<String> placeBinding) {
       this.placeBinding = placeBinding;
       return this;
     }

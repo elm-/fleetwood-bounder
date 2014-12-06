@@ -91,18 +91,24 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  protected void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
+  public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
     processDefinitions.insertProcessDefinition(processDefinition);
   }
 
   @Override
-  protected ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
+  public ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
     return processDefinitions.findProcessDefinitionById(processDefinitionId);
   }
 
   @Override
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
     processInstances.insertProcessInstance(processInstance);
+  }
+
+
+  @Override
+  public ProcessInstanceImpl findProcessInstanceById(String processInstanceId) {
+    return processInstances.findProcessInstanceById(processInstanceId);
   }
 
   @Override
@@ -116,7 +122,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
           dbUpdates.add(dbUpdate);
         }
       }
-      processInstances.flushUpdates(processInstance.id, dbUpdates);
+      processInstances.flushUpdates(processInstance.id, processInstance.lock, dbUpdates);
       // After the first and all subsequent flushes, we need to capture the updates so we initialize the collection
       // @see ProcessInstanceImpl.updates
       processInstance.setUpdates(new ArrayList<Update>());

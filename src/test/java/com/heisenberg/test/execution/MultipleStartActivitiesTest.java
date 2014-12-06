@@ -15,22 +15,17 @@
 package com.heisenberg.test.execution;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.type.TextType;
-import com.heisenberg.impl.definition.ActivityDefinitionImpl;
-import com.heisenberg.test.db.MongoProcessEngineTest.Go;
+import com.heisenberg.test.TestHelper;
 
 /**
  * @author Walter White
@@ -40,21 +35,13 @@ public class MultipleStartActivitiesTest {
   @Test
   public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-      .registerConfigurableActivityType(new Go())
       .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
 
-    process.newVariable()
-      .id("t")
-      .dataType(TextType.INSTANCE);
-
-    Go go = new Go()
-      .placeBinding(new Binding<String>().expression("t.toLowerCase()"));
-    
     process.newActivity()
-      .activityType(go)
-      .id("go");
+      .activityType(new ScriptTask())
+      .id("automatic");
     
     process.newActivity()
       .activityType(new UserTask())
@@ -74,49 +61,10 @@ public class MultipleStartActivitiesTest {
     
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("t", "Hello World")
       .startProcessInstance();
 
     assertNotNull(processInstance.getId());
+    TestHelper.assertOpen(processInstance, "wait1");
     assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
-
-    assertEquals(1, go.executions.size());
-    Go.Execution goExecution = go.executions.get(0);
-    ActivityDefinitionImpl activityDefinition = (ActivityDefinitionImpl) goExecution.activityInstance.getActivityDefinition();
-    assertEquals(Go.class, activityDefinition.activityType.getClass());
-    assertEquals("hello world", goExecution.place);
-    
-    ActivityInstance goInstance = processInstance.getActivityInstances().get(0);
-    assertTrue(goInstance.isEnded());
-    assertEquals("go", goInstance.getActivityDefinitionId());
-    
-    ActivityInstance waitActivityInstance = processInstance.getActivityInstances().get(1);
-    assertFalse(waitActivityInstance.isEnded());
-    assertEquals("wait1", waitActivityInstance.getActivityDefinitionId());
-    
-    // signalRequest.putVariable(variableDefinition.getId(), "hello world2");
-    processInstance = processEngine.newMessage()
-      .activityInstanceId(waitActivityInstance.getId())
-      .send();
-    
-    assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
-
-    goInstance = processInstance.getActivityInstances().get(0);
-    assertTrue(goInstance.isEnded());
-    assertEquals("go", goInstance.getActivityDefinitionId());
-    
-    waitActivityInstance = processInstance.getActivityInstances().get(1);
-    assertTrue(waitActivityInstance.isEnded());
-    assertEquals("wait1", waitActivityInstance.getActivityDefinitionId());
-    
-    ActivityInstance wait2ActivityInstance = processInstance.getActivityInstances().get(2);
-    assertFalse(wait2ActivityInstance.isEnded());
-    assertEquals("wait2", wait2ActivityInstance.getActivityDefinitionId());
-
-    processInstance = processEngine.newMessage()
-      .activityInstanceId(wait2ActivityInstance.getId())
-      .send();
-    
-    assertEquals("Expected 3 but was "+processInstance.getActivityInstances(), 3, processInstance.getActivityInstances().size());
   }
 }

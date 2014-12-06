@@ -98,9 +98,9 @@ public class MeasuringProcessInstances extends MongoProcessInstances {
     log.info("");
     log.info("Total processExecutions  : "+nbrOfProcessExecutions);
     logStat("inserts", inserts, insertMillis);
-    logStat("save", saves, saveMillis);
-    logStat("udpate", updates, updateMillis);
-    logStat("findAndModify", findAndModifies, findAndModifyMillis);
+    logStat("saves", saves, saveMillis);
+    logStat("updates", updates, updateMillis);
+    logStat("findAndModifies", findAndModifies, findAndModifyMillis);
 
     log.info("");
     log.info("Total time in db  : "+(((float)(insertMillis+saveMillis+updateMillis+findAndModifyMillis))/1000f)+" seconds");
