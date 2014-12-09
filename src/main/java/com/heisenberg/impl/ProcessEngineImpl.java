@@ -22,12 +22,12 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ActivityInstanceQuery;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
@@ -35,6 +35,10 @@ import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.type.DataTypeReference;
+import com.heisenberg.api.type.JavaBeanType;
+import com.heisenberg.api.type.ListType;
 import com.heisenberg.api.util.Page;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -46,7 +50,10 @@ import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
+import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
+import com.heisenberg.impl.plugin.ActivityTypeRegistration;
 import com.heisenberg.impl.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.DataTypeRegistration;
 import com.heisenberg.impl.plugin.DataTypes;
 import com.heisenberg.impl.util.Exceptions;
 
@@ -70,15 +77,30 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   }
   
   public ProcessEngineImpl(ProcessEngineConfiguration configuration) {
-    // construct all objects
     this.id = configuration.getId();
-    this.activityTypes = configuration.getActivityTypes();
-    this.dataTypes = configuration.getDataTypes();
     this.executorService = configuration.getExecutorService();
     this.processDefinitionCache = configuration.getProcessDefinitionCache();
     this.scriptService = configuration.getScriptService();
-    this.jsonService = configuration.getJsonService();
     this.taskService = configuration.getTaskService();
+    
+    ObjectMapper objectMapper = configuration.getObjectMapper();
+    this.jsonService = new JsonServiceImpl(objectMapper); 
+
+    this.dataTypes = new DataTypes(objectMapper);
+    if (configuration.registerDefaultDataTypes) {
+      dataTypes.registerDefaultDataTypes();
+    }
+    for (DataTypeRegistration dataTypeRegistration: configuration.getDataTypeRegistrations()) {
+      dataTypeRegistration.register(this, dataTypes);
+    }
+    
+    this.activityTypes = new ActivityTypes(objectMapper, dataTypes);
+    if (configuration.registerDefaultActivityTypes) {
+      activityTypes.registerDefaultActivityTypes();
+    }
+    for (ActivityTypeRegistration activityTypeRegistration: configuration.getActivityTypeRegistrations()) {
+      activityTypeRegistration.register(this, activityTypes);
+    }
   }
 
   /// Process Definition Builder 
@@ -115,7 +137,6 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
     processInstance.transientContext = processInstanceBuilder.transientContext;
     setVariableApiValues(processInstance, processInstanceBuilder);
-      
     log.debug("Starting "+processInstance);
     processInstance.setStart(Time.now());
     List<ActivityDefinition> startActivityDefinitions = processDefinition.getStartActivities();
@@ -259,7 +280,7 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   public DataTypes getDataTypes() {
     return dataTypes;
   }
-
+  
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
   public abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 
@@ -280,5 +301,9 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   public abstract void flush(ProcessInstanceImpl processInstance);
 
   public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
-  
+
+  @Override
+  public ServiceLocator getServiceLocator() {
+    return this;
+  }
 }

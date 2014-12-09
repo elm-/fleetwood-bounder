@@ -17,10 +17,6 @@ package com.heisenberg.test.rest;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.LogManager;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
@@ -32,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ProcessEngineImpl;

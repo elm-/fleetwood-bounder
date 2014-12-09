@@ -68,6 +68,12 @@ public class MessageImpl extends VariableRequestImpl implements MessageBuilder {
   }
 
   @Override
+  public MessageImpl variableValue(String variableDefinitionId, Object value, Class<?> javaBeanType) {
+    super.variableValue(variableDefinitionId, value, javaBeanType);
+    return this;
+  }
+
+  @Override
   public MessageImpl transientContext(String key, Object value) {
     super.transientContext(key, value);
     return this;

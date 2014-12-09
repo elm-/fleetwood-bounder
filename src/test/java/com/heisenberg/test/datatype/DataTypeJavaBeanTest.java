@@ -27,35 +27,39 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.api.type.DataTypeReference;
 import com.heisenberg.api.type.JavaBeanType;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.plugin.DataTypeRegistration;
 
 
 /**
  * @author Walter White
  */
-public class CustomJavaBeanDataTypeTest {
+public class DataTypeJavaBeanTest {
 
-  public static final Logger log = LoggerFactory.getLogger(CustomJavaBeanDataTypeTest.class);
+  public static final Logger log = LoggerFactory.getLogger(DataTypeJavaBeanTest.class);
   
   @Test
   public void testProcessEngineCustomMoneyType() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-      .registerJavaBeanType(CustomMoney.class)
+      .registerJavaBeanType(Money.class)
       .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newVariable()
       .id("m")
-      .dataTypeJavaBean(CustomMoney.class);
+      .dataTypeJavaBean(Money.class);
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
       .getProcessDefinitionId();
     
-    CustomMoney startProcessMoney = new CustomMoney(5d, "USD");
+    Money startProcessMoney = new Money(5d, "USD");
   
     // start a process instance supplying a java bean object as the variable value
     ProcessInstance processInstance = processEngine.newTrigger()
@@ -64,12 +68,13 @@ public class CustomJavaBeanDataTypeTest {
       .startProcessInstance();
   
     VariableInstance m = processInstance.getVariableInstances().get(0);
-    CustomMoney variableInstanceMoney = (CustomMoney) m.getValue();
+    Money variableInstanceMoney = (Money) m.getValue();
     assertSame(startProcessMoney, variableInstanceMoney);
     assertEquals(5d, variableInstanceMoney.amount, 0.000001d);
     assertEquals("USD", variableInstanceMoney.currency);
-    JavaBeanType javaBeanType = (JavaBeanType) m.getDataType();
-    assertEquals(CustomMoney.class, javaBeanType.javaClass);
+    DataTypeReference dataTypeReference = (DataTypeReference) m.getDataType();
+    JavaBeanType javaBeanType = (JavaBeanType) dataTypeReference.delegate;
+    assertEquals(Money.class, javaBeanType.javaClass);
 
     // create the json representation of a custom money object
     Map<String,Object> customMoneyJson = new HashMap<>();
@@ -79,23 +84,23 @@ public class CustomJavaBeanDataTypeTest {
     // start a process instance supplying a json representation as the variable value
     processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("m", customMoneyJson, new JavaBeanType(CustomMoney.class))
+      .variableValue("m", customMoneyJson, Money.class)
       .startProcessInstance();
   
     VariableInstance mInstance = processInstance.getVariableInstances().get(0);
     javaBeanType = (JavaBeanType) m.getDataType();
-    assertEquals(CustomMoney.class, javaBeanType.javaClass);
-    CustomMoney money = (CustomMoney) mInstance.getValue();
+    assertEquals(Money.class, javaBeanType.javaClass);
+    Money money = (Money) mInstance.getValue();
     assertEquals(6d, money.amount, 0.000001d);
     assertEquals("EUR", money.currency);
   }
 
-  static class CustomMoney {
+  static class Money {
     public double amount;
     public String currency;
-    public CustomMoney() {
+    public Money() {
     }
-    public CustomMoney(double amount, String currency) {
+    public Money(double amount, String currency) {
       this.amount = amount;
       this.currency = currency;
     }

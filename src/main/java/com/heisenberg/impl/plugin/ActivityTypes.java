@@ -15,7 +15,6 @@
 package com.heisenberg.impl.plugin;
 
 import static com.heisenberg.impl.plugin.PluginHelper.couldBeConfigured;
-import static com.heisenberg.impl.plugin.PluginHelper.getJsonTypeName;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +23,14 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
+import com.heisenberg.api.activities.bpmn.EmptyServiceTask;
+import com.heisenberg.api.activities.bpmn.EndEvent;
+import com.heisenberg.api.activities.bpmn.HttpServiceTask;
+import com.heisenberg.api.activities.bpmn.JavaServiceTask;
+import com.heisenberg.api.activities.bpmn.ScriptTask;
+import com.heisenberg.api.activities.bpmn.StartEvent;
+import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.type.ActivityTypeReference;
 import com.heisenberg.impl.util.Exceptions;
 
@@ -39,16 +46,27 @@ public class ActivityTypes {
   public DataTypes dataTypes;
   public ObjectMapper objectMapper;
   
-  public ActivityTypes(DataTypes dataTypes, ObjectMapper objectMapper) {
+  public ActivityTypes(ObjectMapper objectMapper, DataTypes dataTypes) {
     Exceptions.checkNotNullParameter(dataTypes, "dataTypes");
+    Exceptions.checkNotNullParameter(objectMapper, "objectMapper");
     this.dataTypes = dataTypes;
     this.objectMapper = objectMapper;
   }
+  
+  public void registerDefaultActivityTypes() {
+    registerSingletonActivityType(new StartEvent());
+    registerSingletonActivityType(new EndEvent());
+    registerSingletonActivityType(new EmptyServiceTask());
+    registerSingletonActivityType(new EmbeddedSubprocess());
+    
+    registerConfigurableActivityType(new ScriptTask());
+    registerConfigurableActivityType(new UserTask());
+    registerConfigurableActivityType(new JavaServiceTask());
+    registerConfigurableActivityType(new HttpServiceTask());
+  }
 
-  /** creates a descriptor for a configurable activityType */
   public TypeDescriptor registerSingletonActivityType(ActivityType activityType) {
-    Exceptions.checkNotNullParameter(activityType, "activityType");
-    return registerSingletonActivityType(activityType, getJsonTypeName(activityType));
+    return registerSingletonActivityType(activityType, PluginHelper.getJsonTypeName(activityType));
   }
 
   /** creates a descriptor for a configurable activityType */
@@ -95,7 +113,6 @@ public class ActivityTypes {
     return dataTypes;
   }
 
-  
   public void setDataTypes(DataTypes dataTypes) {
     this.dataTypes = dataTypes;
   }

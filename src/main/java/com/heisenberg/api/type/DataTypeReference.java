@@ -16,6 +16,7 @@ package com.heisenberg.api.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.util.Validator;
 
 
@@ -35,6 +36,11 @@ public class DataTypeReference implements DataType {
 
   public DataTypeReference(String typeId) {
     this.typeId = typeId;
+  }
+
+  public DataTypeReference(String typeId, DataType delegate) {
+    this.typeId = typeId;
+    this.delegate = delegate;
   }
 
   @Override
@@ -64,6 +70,13 @@ public class DataTypeReference implements DataType {
 
   @Override
   public void validate(Validator validator) {
+    if (delegate==null) {
+      if (typeId!=null) {
+        delegate = validator.getDataTypes().findByTypeId(typeId);
+      } else {
+        validator.addError("No typeId specified");
+      }
+    }
     delegate.validate(validator);
   }
 

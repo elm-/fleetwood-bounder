@@ -14,8 +14,8 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ActivityInstanceQuery;
+import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.builder.TriggerBuilder;
 

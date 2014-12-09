@@ -37,6 +37,7 @@ import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.DataTypes;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -165,7 +166,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       scope.variableDefinitions = new ArrayList<>();
       for (BasicDBObject dbVariable: dbVariables) {
         VariableDefinitionImpl variable = new VariableDefinitionImpl();
-        variable.id = readId(dbVariable, fields._id);
+        variable.id = readString(dbVariable, fields._id);
         
         Map<String,Object> dataTypeJson = readObjectMap(dbVariable, fields.dataType);
         variable.dataType = processEngine.jsonService
@@ -185,7 +186,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       for (VariableDefinitionImpl variable: scope.variableDefinitions) {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbVariable = new BasicDBObject();
-        writeIdOpt(dbVariable, fields._id, variable.id);
+        writeString(dbVariable, fields._id, variable.id);
         
         Map<String,Object> dataTypeJson = processEngine.jsonService
                 .objectToJsonMap(variable.dataType);
@@ -231,6 +232,12 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   public ActivityTypes getActivityTypes() {
     return processEngine.activityTypes;
   }
+
+  @Override
+  public DataTypes getDataTypes() {
+    return processEngine.dataTypes;
+  }
+
 
   public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
     BasicDBObject dbProcessDefinition = writeProcessDefinition(processDefinition);

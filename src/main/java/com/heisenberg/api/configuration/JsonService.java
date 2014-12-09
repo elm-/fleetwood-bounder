@@ -18,9 +18,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
 
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.impl.plugin.ActivityTypes;
-
 
 /**
  * @author Walter White

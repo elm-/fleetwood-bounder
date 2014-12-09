@@ -28,6 +28,7 @@ import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.api.type.DataTypeReference;
 import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.TriggerBuilderImpl;
@@ -36,34 +37,35 @@ import com.heisenberg.impl.TriggerBuilderImpl;
 /**
  * @author Walter White
  */
-public class CustomJavaBeanSerializationTest {
+public class DataTypeJavaBeanSerializationTest {
 
-  public static final Logger log = LoggerFactory.getLogger(CustomJavaBeanSerializationTest.class);
+  public static final Logger log = LoggerFactory.getLogger(DataTypeJavaBeanSerializationTest.class);
   
   @Test
   public void testProcessEngineCustomMoneyType() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-      .registerJavaBeanType(CustomMoney.class)
+      .registerJavaBeanType(Money.class)
       .buildProcessEngine();
-
+    
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newVariable()
       .id("m")
-      .dataTypeJavaBean(CustomMoney.class);
+      .dataTypeJavaBean(Money.class);
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
       .getProcessDefinitionId();
     
-    CustomMoney startProcessMoney = new CustomMoney(5d, "USD");
-  
+    Money startProcessMoney = new Money(5d, "USD");
+
+    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
+
     // start a process instance supplying a java bean object as the variable value
     TriggerBuilder trigger = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("m", startProcessMoney, new JavaBeanType(CustomMoney.class));
+      .variableValue("m", startProcessMoney, Money.class);
 
-    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
     String triggerJson = jsonService.objectToJsonStringPretty(trigger);
     log.debug("Serialized trigger message that can be sent to remote REST API:");
     log.debug(triggerJson);
@@ -71,24 +73,26 @@ public class CustomJavaBeanSerializationTest {
     TriggerBuilderImpl triggerImpl = jsonService.jsonToObject(triggerJson, TriggerBuilderImpl.class);
     triggerImpl.deserialize((ProcessEngineImpl)processEngine);
     
-    ProcessInstance processInstance = trigger
+    ProcessInstance processInstance = triggerImpl
       .startProcessInstance();
   
     VariableInstance m = processInstance.getVariableInstances().get(0);
-    CustomMoney variableInstanceMoney = (CustomMoney) m.getValue();
-    assertSame(startProcessMoney, variableInstanceMoney);
+    Money variableInstanceMoney = (Money) m.getValue();
+    assertEquals(startProcessMoney.amount, variableInstanceMoney.amount, 0.0001);
+    assertEquals(startProcessMoney.currency, variableInstanceMoney.currency);
     assertEquals(5d, variableInstanceMoney.amount, 0.000001d);
     assertEquals("USD", variableInstanceMoney.currency);
-    JavaBeanType javaBeanType = (JavaBeanType) m.getDataType();
-    assertEquals(CustomMoney.class, javaBeanType.javaClass);
+    DataTypeReference dataTypeReference = (DataTypeReference) m.getDataType();
+    JavaBeanType javaBeanType = (JavaBeanType) dataTypeReference.delegate;
+    assertEquals(Money.class, javaBeanType.javaClass);
   }
 
-  static class CustomMoney {
+  static class Money {
     public double amount;
     public String currency;
-    public CustomMoney() {
+    public Money() {
     }
-    public CustomMoney(double amount, String currency) {
+    public Money(double amount, String currency) {
       this.amount = amount;
       this.currency = currency;
     }

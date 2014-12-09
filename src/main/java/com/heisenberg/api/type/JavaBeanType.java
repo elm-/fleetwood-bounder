@@ -16,6 +16,7 @@ package com.heisenberg.api.type;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.util.Validator;
@@ -36,7 +37,12 @@ public class JavaBeanType extends AbstractDataType {
   public JavaBeanType(Class< ? > javaClass) {
     this.javaClass = javaClass;
   }
-  
+
+  public JavaBeanType(Class< ? > javaClass, JsonService jsonService) {
+    this.javaClass = javaClass;
+    this.jsonService = jsonService;
+  }
+
   @Override
   public void validate(Validator validator) {
     this.jsonService = validator.getJsonService();
@@ -50,5 +56,19 @@ public class JavaBeanType extends AbstractDataType {
       return jsonService.jsonMapToObject((Map<String,Object>)jsonValue, javaClass);
     }
     throw new InvalidValueException("Couldn't convert json: "+jsonValue+" ("+jsonValue.getClass().getName()+")");
+  }
+  
+  @Override
+  public Object convertInternalToJsonValue(Object internalValue) {
+    if (internalValue==null) return null;
+    return jsonService.objectToJsonMap(internalValue);
+  }
+  
+  public JsonService getJsonService() {
+    return jsonService;
+  }
+  
+  public void setJsonService(JsonService jsonService) {
+    this.jsonService = jsonService;
   }
 }

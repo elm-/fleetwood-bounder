@@ -28,7 +28,8 @@ public interface TriggerBuilder {
 
   /** converts the internal value to json and sets that as the value in the trigger message so that the message is serializable */
   TriggerBuilder variableValue(String variableDefinitionId, Object internalValue, DataType dataType);
-
+  TriggerBuilder variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass);
+  
   TriggerBuilder transientContext(String key, Object value);
 
   ProcessInstance startProcessInstance();

@@ -27,11 +27,13 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.type.BindingType;
 import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.type.DataTypeReference;
 import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.api.type.ListType;
+import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.util.Exceptions;
 
 
@@ -44,9 +46,24 @@ public class DataTypes {
   public Map<String,DataType> dataTypesById = new HashMap<>();
   public Map<Type,TypeDescriptor> descriptorsByType = new HashMap<>();
   public ObjectMapper objectMapper;
+  public JsonService jsonService;
   
   public DataTypes(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
+  }
+  
+  public ListType newListType(DataType dataType) {
+    return new ListType(dataType);
+  }
+
+  public DataTypeReference newJavaBeanType(Class< ? > javaBeanType) {
+    return new DataTypeReference(javaBeanType.getName(), new JavaBeanType(javaBeanType, jsonService));
+  }
+
+
+  
+  public void registerDefaultDataTypes() {
+    registerSingletonDataType(new TextType(), String.class);
   }
 
   public TypeDescriptor registerConfigurableDataType(DataType dataType) {
@@ -144,4 +161,9 @@ public class DataTypes {
     } 
     throw new RuntimeException("Don't know how to handle generic type "+rawType+"'s.  It's used in configuration field: "+field);
   }
+  
+  public DataType findByTypeId(String typeId) {
+    return dataTypesById.get(typeId);
+  }
+
 }

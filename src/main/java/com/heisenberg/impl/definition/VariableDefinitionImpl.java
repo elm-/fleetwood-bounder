@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.JavaBeanType;
+import com.heisenberg.api.type.DataTypeReference;
 import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
 
@@ -68,36 +68,19 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
 
   /** this class has to be registered with @link {@link ProcessEngineImpl#registerJavaBeanType(Class)} */
   public VariableDefinitionImpl dataTypeJavaBean(Class<?> userDefinedJavaBeanClass) {
-    this.dataType = new JavaBeanType(userDefinedJavaBeanClass);
-//    this.dataTypeId = userDefinedJavaBeanClass.getClass().getName();
+    this.dataType = new DataTypeReference(userDefinedJavaBeanClass.getName());
     return this;
   }
   
-//  public VariableDefinitionImpl dataTypeId(String dataTypeId) {
-//    this.dataTypeId = dataTypeId;
-//    return this;
-//  }
-
-
   public VariableDefinitionImpl dataType(DataType dataType) {
     this.dataType = dataType;
     return this;
   }
 
-//  public VariableDefinitionImpl dataTypeJson(Map<String,Object> dataTypeJson) {
-//    this.dataTypeJson = dataTypeJson;
-//    return this;
-//  }
-
   public VariableDefinitionImpl initialValue(Object initialValue) {
     this.initialValue = initialValue;
     return this;
   }
-  
-//  public VariableDefinitionImpl initialValueJson(Object initialValueJson) {
-//    this.initialValueJson = initialValueJson;
-//    return this;
-//  }
   
   public void prepare() {
   }

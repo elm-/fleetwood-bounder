@@ -30,6 +30,7 @@ public interface MessageBuilder {
 
   /** Only use this method with the client process engine */
   MessageBuilder variableValue(String variableDefinitionId, Object value, DataType dataType);
+  MessageBuilder variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass);
 
   MessageBuilder transientContext(String key, Object value);
   

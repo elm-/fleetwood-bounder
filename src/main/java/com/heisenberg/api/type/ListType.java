@@ -17,6 +17,7 @@ package com.heisenberg.api.type;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.api.util.Validator;
 
 
 /**
@@ -81,5 +82,10 @@ public class ListType extends AbstractDataType implements DataType {
       list.set(i, elementJsonValue);
     }
     return list;
+  }
+
+  @Override
+  public void validate(Validator validator) {
+    elementDataType.validate(validator);
   }
 }

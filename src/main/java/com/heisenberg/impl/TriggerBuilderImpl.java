@@ -56,6 +56,12 @@ public class TriggerBuilderImpl extends VariableRequestImpl implements TriggerBu
   }
 
   @Override
+  public TriggerBuilderImpl variableValue(String variableDefinitionId, Object value, Class<?> javaBeanType) {
+    super.variableValue(variableDefinitionId, value, javaBeanType);
+    return this;
+  }
+
+  @Override
   public TriggerBuilderImpl transientContext(String key, Object value) {
     super.transientContext(key, value);
     return this;

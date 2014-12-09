@@ -38,6 +38,7 @@ import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.DataTypes;
 
 
 /**
@@ -205,4 +206,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return processEngine.activityTypes;
   }
   
+  @Override
+  public DataTypes getDataTypes() {
+    return processEngine.dataTypes;
+  }
 }

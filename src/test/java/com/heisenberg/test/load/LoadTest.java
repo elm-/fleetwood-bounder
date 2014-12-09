@@ -43,11 +43,11 @@ import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
 import com.heisenberg.test.TestHelper;
 import com.heisenberg.test.db.MongoProcessEngineTest;
-import com.mongodb.WriteConcern;
 
 /**
  * @author Walter White
  */
+@Ignore
 public class LoadTest extends JerseyTest {
   
   static {

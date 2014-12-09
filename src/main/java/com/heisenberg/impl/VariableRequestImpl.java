@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.type.DataType;
+import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 
@@ -47,6 +49,7 @@ public abstract class VariableRequestImpl {
   }
   
   public void deserialize(ProcessEngineImpl processEngine) {
+    this.processEngine = processEngine;
     if (variableValues!=null && !variableValues.isEmpty()) {
       Map<String,Object> internalValues = new HashMap<>();
       ProcessDefinitionImpl processDefinition = getProcessDefinition(processEngine);
@@ -79,6 +82,14 @@ public abstract class VariableRequestImpl {
     }
     Object jsonValue = dataType.convertInternalToJsonValue(value);
     variableValues.put(variableDefinitionId, jsonValue);
+    return this;
+  }
+
+  public VariableRequestImpl variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass) {
+    JsonService jsonService = processEngine.getServiceLocator().getJsonService();
+    JavaBeanType javaBeanType = new JavaBeanType(javaBeanClass);
+    javaBeanType.setJsonService(jsonService);
+    variableValue(variableDefinitionId, value, javaBeanType);
     return this;
   }
 

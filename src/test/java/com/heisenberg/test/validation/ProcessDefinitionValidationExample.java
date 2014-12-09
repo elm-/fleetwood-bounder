@@ -25,7 +25,6 @@ import com.heisenberg.api.activities.bpmn.EndEvent;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.test.TestHelper;
 
 
 /**

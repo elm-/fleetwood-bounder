@@ -15,12 +15,13 @@
 package com.heisenberg.impl;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ActivityInstanceQuery;
 import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 
@@ -35,6 +36,8 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
   public abstract ProcessInstance startProcessInstance(TriggerBuilderImpl processInstanceBuilder);
 
   public abstract ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl notifyActivityInstanceBuilder);
+
+  public abstract ServiceLocator getServiceLocator();
 
   @Override
   public ActivityInstanceQuery newActivityInstanceQuery() {

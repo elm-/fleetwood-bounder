@@ -51,7 +51,14 @@ public class JsonServiceImpl implements JsonService {
   public ObjectMapper objectMapper;
   
   public static ObjectMapper createDefaultObjectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper()
+    return new ObjectMapper();
+  }
+  
+  public JsonServiceImpl(ObjectMapper objectMapper) {
+    this.jsonFactory = new JsonFactory();
+    this.objectMapper = objectMapper;
+    
+    objectMapper
       .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
       .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
@@ -72,13 +79,6 @@ public class JsonServiceImpl implements JsonService {
     module.addSerializer(new LocalDateTimeSerializer());
     module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
     objectMapper.registerModule(module);
-
-    return objectMapper;
-  }
-
-  public JsonServiceImpl(ObjectMapper objectMapper) {
-    this.jsonFactory = new JsonFactory();
-    this.objectMapper = objectMapper;
   }
   
   public void registerSubtype(Class<?> subtype) {

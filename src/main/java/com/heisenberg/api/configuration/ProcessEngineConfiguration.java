@@ -17,7 +17,9 @@ package com.heisenberg.api.configuration;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -27,23 +29,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
-import com.heisenberg.api.activities.bpmn.EmptyServiceTask;
-import com.heisenberg.api.activities.bpmn.EndEvent;
-import com.heisenberg.api.activities.bpmn.HttpServiceTask;
-import com.heisenberg.api.activities.bpmn.JavaServiceTask;
-import com.heisenberg.api.activities.bpmn.ScriptTask;
-import com.heisenberg.api.activities.bpmn.StartEvent;
-import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.TextType;
 import com.heisenberg.api.util.PluginFactory;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
 import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.DataTypes;
+import com.heisenberg.impl.plugin.ActivityTypeRegistration;
+import com.heisenberg.impl.plugin.DataTypeRegistration;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 
 
@@ -52,23 +45,19 @@ import com.heisenberg.impl.script.ScriptServiceImpl;
  */
 public abstract class ProcessEngineConfiguration {
 
-  public ObjectMapper objectMapper;
-  public DataTypes dataTypes;
-  public ActivityTypes activityTypes;
-
   public String id;
   public ProcessDefinitionCache processDefinitionCache;
   public JsonService jsonService;
   public TaskService taskService;
   public ScriptService scriptService;
   public Executor executorService;
+  public ObjectMapper objectMapper;
+  public List<ActivityTypeRegistration> activityTypeRegistrations = new ArrayList<>();
+  public List<DataTypeRegistration> dataTypeRegistrations = new ArrayList<>();
+  public boolean registerDefaultDataTypes = true;
+  public boolean registerDefaultActivityTypes = true;
   
   protected ProcessEngineConfiguration() {
-    this.objectMapper = JsonServiceImpl.createDefaultObjectMapper();
-    this.dataTypes = new DataTypes(objectMapper);
-    this.activityTypes = new ActivityTypes(this.dataTypes, objectMapper);
-    registerDefaultDataTypes();
-    registerDefaultActivityTypes();
   }
   
   public abstract ProcessEngine buildProcessEngine();
@@ -79,22 +68,6 @@ public abstract class ProcessEngineConfiguration {
       PluginFactory spiObject = spis.next();
       spiObject.registerPlugins(this);
     }
-  }
-  
-  protected void registerDefaultDataTypes() {
-    registerSingletonDataType(new TextType(), String.class);
-  }
-  
-  protected void registerDefaultActivityTypes() {
-    registerSingletonActivityType(new StartEvent());
-    registerSingletonActivityType(new EndEvent());
-    registerSingletonActivityType(new EmptyServiceTask());
-    registerSingletonActivityType(new EmbeddedSubprocess());
-    
-    registerConfigurableActivityType(new ScriptTask());
-    registerConfigurableActivityType(new UserTask());
-    registerConfigurableActivityType(new JavaServiceTask());
-    registerConfigurableActivityType(new HttpServiceTask());
   }
   
   public ProcessEngineConfiguration id(String id) {
@@ -127,49 +100,48 @@ public abstract class ProcessEngineConfiguration {
     return this;
   }
   
-  
   public ProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType) {
-    activityTypes.registerSingletonActivityType(activityType);
+    activityTypeRegistrations.add(new ActivityTypeRegistration.Singleton(activityType));
     return this;
   }
   
   public ProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType, String typeId) {
-    activityTypes.registerSingletonActivityType(activityType, typeId);
+    activityTypeRegistrations.add(new ActivityTypeRegistration.Singleton(activityType, typeId));
     return this;
   }
 
   public ProcessEngineConfiguration registerConfigurableActivityType(ActivityType activityType) {
-    activityTypes.registerConfigurableActivityType(activityType);
+    activityTypeRegistrations.add(new ActivityTypeRegistration.Configurable(activityType));
     return this;
   }
 
   public ProcessEngineConfiguration registerJavaBeanType(Class<?> javaBeanClass) {
-    dataTypes.registerJavaBeanType(javaBeanClass);
+    dataTypeRegistrations.add(new DataTypeRegistration.JavaBean(javaBeanClass));
     return this;
   }
   
   public ProcessEngineConfiguration registerSingletonDataType(DataType dataType) {
-    dataTypes.registerSingletonDataType(dataType);
+    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, null, null));
     return this;
   }
   
   public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId) {
-    dataTypes.registerSingletonDataType(dataType, typeId);
+    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, typeId, null));
     return this;
   }
 
   public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, Class<?> javaClass) {
-    dataTypes.registerSingletonDataType(dataType, javaClass);
+    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, null, javaClass));
     return this;
   }
 
   public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId, Class<?> javaClass) {
-    dataTypes.registerSingletonDataType(dataType, typeId, javaClass);
+    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, typeId, javaClass));
     return this;
   }
 
   public ProcessEngineConfiguration registerConfigurableDataType(DataType dataType) {
-    dataTypes.registerConfigurableDataType(dataType);
+    dataTypeRegistrations.add(new DataTypeRegistration.Configurable(dataType));
     return this;
   }
 
@@ -221,21 +193,7 @@ public abstract class ProcessEngineConfiguration {
     this.executorService = executorService;
   }
   
-  public ActivityTypes getActivityTypes() {
-    return activityTypes;
-  }
   
-  public void setActivityTypes(ActivityTypes activityTypes) {
-    this.activityTypes = activityTypes;
-  }
-  
-  public DataTypes getDataTypes() {
-    return dataTypes;
-  }
-  
-  public void setDataTypes(DataTypes dataTypes) {
-    this.dataTypes = dataTypes;
-  }
   
   public static String createDefaultId() {
     try {
@@ -266,5 +224,35 @@ public abstract class ProcessEngineConfiguration {
 
   public static TaskService createDefaultTaskService() {
     return new MemoryTaskService();
+  }
+
+  
+  public ObjectMapper getObjectMapper() {
+    return objectMapper!=null ? objectMapper : JsonServiceImpl.createDefaultObjectMapper();
+  }
+
+  
+  public void setObjectMapper(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
+
+  
+  public List<ActivityTypeRegistration> getActivityTypeRegistrations() {
+    return activityTypeRegistrations;
+  }
+
+  
+  public void setActivityTypeRegistrations(List<ActivityTypeRegistration> activityTypeRegistrations) {
+    this.activityTypeRegistrations = activityTypeRegistrations;
+  }
+
+  
+  public List<DataTypeRegistration> getDataTypeRegistrations() {
+    return dataTypeRegistrations;
+  }
+
+  
+  public void setDataTypeRegistrations(List<DataTypeRegistration> dataTypeRegistrations) {
+    this.dataTypeRegistrations = dataTypeRegistrations;
   }
 }

@@ -26,8 +26,8 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.ParseIssue.IssueType;
+import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
@@ -35,6 +35,7 @@ import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.DataTypes;
 
 
 /** Validates and wires process definition after it's been built by either the builder api or json deserialization.
@@ -249,5 +250,10 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   @Override
   public ActivityTypes getActivityTypes() {
     return processEngine.activityTypes;
+  }
+
+  @Override
+  public DataTypes getDataTypes() {
+    return processEngine.dataTypes;
   }
 }
