@@ -14,8 +14,8 @@
  */
 package com.heisenberg.impl.plugin;
 
-import com.heisenberg.api.type.DataType;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.type.DataType;
 
 
 /**
@@ -23,7 +23,7 @@ import com.heisenberg.impl.ProcessEngineImpl;
  */
 public abstract class DataTypeRegistration {
 
-  public abstract void register(ProcessEngineImpl processEngine, DataTypes dataTypes);
+  public abstract void register(AbstractProcessEngine processEngine, DataTypes dataTypes);
 
   public static class JavaBean extends DataTypeRegistration {
     Class<?> javaBeanClass;
@@ -33,7 +33,7 @@ public abstract class DataTypeRegistration {
       this.javaBeanClass = javaBeanClass;
     }
     @Override
-    public void register(ProcessEngineImpl processEngine, DataTypes dataTypes) {
+    public void register(AbstractProcessEngine processEngine, DataTypes dataTypes) {
       dataTypes.registerJavaBeanType(javaBeanClass);
     }
     public Class< ? > getJavaBeanClass() {
@@ -56,7 +56,7 @@ public abstract class DataTypeRegistration {
       this.valueClass = valueClass;
     }
     @Override
-    public void register(ProcessEngineImpl processEngine, DataTypes dataTypes) {
+    public void register(AbstractProcessEngine processEngine, DataTypes dataTypes) {
       dataTypes.registerSingletonDataType(dataType, typeId, valueClass);
     }
     public DataType getDataType() {
@@ -87,7 +87,7 @@ public abstract class DataTypeRegistration {
       this.dataType = dataType;
     }
     @Override
-    public void register(ProcessEngineImpl processEngine, DataTypes dataTypes) {
+    public void register(AbstractProcessEngine processEngine, DataTypes dataTypes) {
       dataTypes.registerConfigurableDataType(dataType);
     }
     public DataType getDataType() {

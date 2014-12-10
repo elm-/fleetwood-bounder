@@ -14,8 +14,6 @@
  */
 package com.heisenberg.impl.client;
 
-import javax.ws.rs.NotSupportedException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +40,10 @@ public class ClientProcessEngine extends AbstractProcessEngine implements Servic
   
   public static final Logger log = LoggerFactory.getLogger(ClientProcessEngine.class);
 
-  protected JsonService jsonService;
   protected String baseUrl;
   
   public ClientProcessEngine(ClientProcessEngineConfiguration configuration) {
-    this.jsonService = configuration.getJsonService();
+    super(configuration);
     this.baseUrl = configuration.getBaseUrl();
   }
 
@@ -75,11 +72,6 @@ public class ClientProcessEngine extends AbstractProcessEngine implements Servic
   }
 
   @Override
-  public JsonService getJsonService() {
-    return jsonService;
-  }
-
-  @Override
   public ScriptService getScriptService() {
     throw newUnexpectedInvocationException();
   }
@@ -91,11 +83,6 @@ public class ClientProcessEngine extends AbstractProcessEngine implements Servic
 
   @Override
   public ActivityTypes getActivityTypes() {
-    throw newUnexpectedInvocationException();
-  }
-
-  @Override
-  public DataTypes getDataTypes() {
     throw newUnexpectedInvocationException();
   }
 

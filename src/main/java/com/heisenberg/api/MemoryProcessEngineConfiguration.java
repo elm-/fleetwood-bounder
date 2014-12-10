@@ -16,12 +16,14 @@ package com.heisenberg.api;
 
 import java.util.concurrent.Executor;
 
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.impl.type.DataType;
 
 
 /**
@@ -76,4 +78,51 @@ public class MemoryProcessEngineConfiguration extends ProcessEngineConfiguration
     return this;
   }
 
+  @Override
+  public MemoryProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType) {
+    super.registerSingletonActivityType(activityType);
+    return this;
+  }
+
+  @Override
+  public MemoryProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType, String typeId) {
+    super.registerSingletonActivityType(activityType, typeId);
+    return this;
+  }
+
+  @Override
+  public MemoryProcessEngineConfiguration registerConfigurableActivityType(ActivityType activityType) {
+    super.registerConfigurableActivityType(activityType);
+    return this;
+  }
+
+  @Override
+  public MemoryProcessEngineConfiguration registerSingletonDataType(DataType dataType) {
+    super.registerSingletonDataType(dataType);
+    return this;
+  }
+
+  @Override
+  public MemoryProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId) {
+    super.registerSingletonDataType(dataType, typeId);
+    return this;
+  }
+
+  @Override
+  public MemoryProcessEngineConfiguration registerSingletonDataType(DataType dataType, Class< ? > javaClass) {
+    super.registerSingletonDataType(dataType, javaClass);
+    return this;
+  }
+
+  @Override
+  public MemoryProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId, Class< ? > javaClass) {
+    super.registerSingletonDataType(dataType, typeId, javaClass);
+    return this;
+  }
+
+  @Override
+  public MemoryProcessEngineConfiguration registerConfigurableDataType(DataType dataType) {
+    super.registerConfigurableDataType(dataType);
+    return this;
+  }
 }

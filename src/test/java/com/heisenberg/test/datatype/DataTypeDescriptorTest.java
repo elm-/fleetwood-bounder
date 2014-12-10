@@ -23,9 +23,9 @@ import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.type.AbstractDataType;
-import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.type.AbstractDataType;
+import com.heisenberg.impl.type.InvalidValueException;
 import com.heisenberg.test.activitytype.ActivityTypeDescriptorTest;
 
 
@@ -49,11 +49,11 @@ public class DataTypeDescriptorTest {
   }
 
   static class Money {
-    public double amount;
+    public int amount;
     public String currency;
     public Money() {
     }
-    public Money(double amount, String currency) {
+    public Money(int amount, String currency) {
       this.amount = amount;
       this.currency = currency;
     }

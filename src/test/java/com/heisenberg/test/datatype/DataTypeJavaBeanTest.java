@@ -27,13 +27,11 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.type.DataTypeReference;
-import com.heisenberg.api.type.JavaBeanType;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.plugin.DataTypeRegistration;
+import com.heisenberg.impl.type.DataTypeReference;
+import com.heisenberg.impl.type.JavaBeanType;
+import com.heisenberg.test.datatype.DataTypeJavaBeanSerializationTest.Money;
 
 
 /**
@@ -53,13 +51,13 @@ public class DataTypeJavaBeanTest {
     
     process.newVariable()
       .id("m")
-      .dataTypeJavaBean(Money.class);
+      .dataType(process.newDataTypeJavaBean(Money.class));
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
       .getProcessDefinitionId();
     
-    Money startProcessMoney = new Money(5d, "USD");
+    Money startProcessMoney = new Money(5, "USD");
   
     // start a process instance supplying a java bean object as the variable value
     ProcessInstance processInstance = processEngine.newTrigger()
@@ -75,32 +73,14 @@ public class DataTypeJavaBeanTest {
     DataTypeReference dataTypeReference = (DataTypeReference) m.getDataType();
     JavaBeanType javaBeanType = (JavaBeanType) dataTypeReference.delegate;
     assertEquals(Money.class, javaBeanType.javaClass);
-
-    // create the json representation of a custom money object
-    Map<String,Object> customMoneyJson = new HashMap<>();
-    customMoneyJson.put("amount", 6);
-    customMoneyJson.put("currency", "EUR");
-
-    // start a process instance supplying a json representation as the variable value
-    processInstance = processEngine.newTrigger()
-      .processDefinitionId(processDefinitionId)
-      .variableValue("m", customMoneyJson, Money.class)
-      .startProcessInstance();
-  
-    VariableInstance mInstance = processInstance.getVariableInstances().get(0);
-    javaBeanType = (JavaBeanType) m.getDataType();
-    assertEquals(Money.class, javaBeanType.javaClass);
-    Money money = (Money) mInstance.getValue();
-    assertEquals(6d, money.amount, 0.000001d);
-    assertEquals("EUR", money.currency);
   }
 
   static class Money {
-    public double amount;
+    public int amount;
     public String currency;
     public Money() {
     }
-    public Money(double amount, String currency) {
+    public Money(int amount, String currency) {
       this.amount = amount;
       this.currency = currency;
     }

@@ -34,11 +34,11 @@ import com.heisenberg.api.activities.Description;
 import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
+import com.heisenberg.impl.type.TextType;
 
 
 /**

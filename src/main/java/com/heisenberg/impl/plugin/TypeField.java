@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.Label;
-import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.type.DataType;
 
 
 /**

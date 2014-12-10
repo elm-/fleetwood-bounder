@@ -16,13 +16,13 @@ package com.heisenberg.api.activities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.configuration.Script;
-import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.InvalidValueException;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.plugin.TypeField;
 import com.heisenberg.impl.script.ScriptResult;
+import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.InvalidValueException;
 
 
 /**

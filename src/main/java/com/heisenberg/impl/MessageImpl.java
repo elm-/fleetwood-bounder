@@ -15,9 +15,9 @@
 package com.heisenberg.impl;
 
 import com.heisenberg.api.builder.MessageBuilder;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.type.DataType;
 
 
 

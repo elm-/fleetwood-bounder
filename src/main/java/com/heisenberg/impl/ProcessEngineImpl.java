@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ActivityInstanceQuery;
 import com.heisenberg.api.builder.DeployResult;
@@ -35,10 +34,6 @@ import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.DataTypeReference;
-import com.heisenberg.api.type.JavaBeanType;
-import com.heisenberg.api.type.ListType;
 import com.heisenberg.api.util.Page;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -50,11 +45,6 @@ import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
-import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
-import com.heisenberg.impl.plugin.ActivityTypeRegistration;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.DataTypeRegistration;
-import com.heisenberg.impl.plugin.DataTypes;
 import com.heisenberg.impl.util.Exceptions;
 
 /**
@@ -65,11 +55,8 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
-  public ActivityTypes activityTypes;
-  public DataTypes dataTypes;
   public ProcessDefinitionCache processDefinitionCache;
   public ScriptService scriptService;
-  public JsonService jsonService;
   public TaskService taskService;
   public Executor executorService;
   
@@ -77,30 +64,12 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   }
   
   public ProcessEngineImpl(ProcessEngineConfiguration configuration) {
+    super(configuration);
     this.id = configuration.getId();
     this.executorService = configuration.getExecutorService();
     this.processDefinitionCache = configuration.getProcessDefinitionCache();
     this.scriptService = configuration.getScriptService();
     this.taskService = configuration.getTaskService();
-    
-    ObjectMapper objectMapper = configuration.getObjectMapper();
-    this.jsonService = new JsonServiceImpl(objectMapper); 
-
-    this.dataTypes = new DataTypes(objectMapper);
-    if (configuration.registerDefaultDataTypes) {
-      dataTypes.registerDefaultDataTypes();
-    }
-    for (DataTypeRegistration dataTypeRegistration: configuration.getDataTypeRegistrations()) {
-      dataTypeRegistration.register(this, dataTypes);
-    }
-    
-    this.activityTypes = new ActivityTypes(objectMapper, dataTypes);
-    if (configuration.registerDefaultActivityTypes) {
-      activityTypes.registerDefaultActivityTypes();
-    }
-    for (ActivityTypeRegistration activityTypeRegistration: configuration.getActivityTypeRegistrations()) {
-      activityTypeRegistration.register(this, activityTypes);
-    }
   }
 
   /// Process Definition Builder 
@@ -271,14 +240,6 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   
   public TaskService getTaskService() {
     return taskService;
-  }
-  
-  public ActivityTypes getActivityTypes() {
-    return activityTypes;
-  }
-  
-  public DataTypes getDataTypes() {
-    return dataTypes;
   }
   
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */

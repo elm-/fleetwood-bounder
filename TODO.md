@@ -4,6 +4,8 @@
 - [ ] Test if the script engine is thread safe. CompiledScript seems to be tied to a ScriptEngine. It should be investigated if concurrent script execution can overwrite each other's context.
 - [ ] Move initializeBindings from ActivityDefinitionImpl into the ProcessDefinitionValidator.
       Easier and I should not worry about the performance
+- [ ] Move activity types to implementation and replace it with builder 
+      methods in the ProcessDefintionBuilder similar to the ProcessDefinitionBuilder.newDataTypeXxx methods 
 
 # In progress
 

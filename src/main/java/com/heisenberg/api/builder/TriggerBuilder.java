@@ -15,7 +15,7 @@
 package com.heisenberg.api.builder;
 
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.type.DataType;
 
 /**
  * @author Walter White
@@ -26,8 +26,9 @@ public interface TriggerBuilder {
 
   TriggerBuilder variableValue(String variableDefinitionId, Object internalValue);
 
-  /** converts the internal value to json and sets that as the value in the trigger message so that the message is serializable */
+  /** ONLY use this method with the ClientProcessEngine! it converts the internal value to json and sets that as the value in the trigger message so that the message is serializable */
   TriggerBuilder variableValue(String variableDefinitionId, Object internalValue, DataType dataType);
+  /** ONLY use this method with the ClientProcessEngine! it converts the internal value to json and sets that as the value in the trigger message so that the message is serializable */
   TriggerBuilder variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass);
   
   TriggerBuilder transientContext(String key, Object value);

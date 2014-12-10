@@ -12,17 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.type;
+package com.heisenberg.impl.type;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 /**
  * @author Walter White
  */
-public class InvalidValueException extends RuntimeException {
+@JsonTypeName("binding")
+public class BindingType extends AbstractDataType {
+  
+  DataType dataType;
 
-  private static final long serialVersionUID = 1L;
-
-  public InvalidValueException(String message) {
-    super(message);
+  public BindingType(DataType dataType) {
+    this.dataType = dataType;
   }
+
+  @Override
+  public Object convertJsonToInternalValue(Object apiValue) throws InvalidValueException {
+    throw new UnsupportedOperationException("TODO");
+  }
+
+  @Override
+  public Object convertInternalToJsonValue(Object internalValue) {
+    throw new UnsupportedOperationException("TODO");
+  }
+ 
 }

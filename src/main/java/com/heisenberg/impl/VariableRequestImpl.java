@@ -21,10 +21,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.JavaBeanType;
 
 
 /**

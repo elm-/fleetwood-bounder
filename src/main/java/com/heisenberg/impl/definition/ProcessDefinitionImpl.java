@@ -23,6 +23,11 @@ import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.DataTypeReference;
+import com.heisenberg.impl.type.ListType;
+import com.heisenberg.impl.type.TextType;
 
 
 /**
@@ -134,6 +139,29 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   public TimerDefinitionImpl newTimer() {
     return super.newTimer();
   }
+  
+  /** this class has to be registered with @link {@link ProcessEngineImpl#registerJavaBeanType(Class)} */
+  @Override
+  public DataType newDataTypeJavaBean(Class<?> userDefinedJavaBeanClass) {
+    return new DataTypeReference(userDefinedJavaBeanClass.getName());
+  }
+  
+
+  @Override
+  public DataType newDataTypeList(DataType elementDataType) {
+    return new ListType(elementDataType);
+  }
+
+  @Override
+  public DataType newDataTypeText() {
+    return new TextType();
+  }
+
+  @Override
+  public DataType newDataType(String dataTypeId) {
+    return processEngine.getDataTypes().createDataTypeReference(dataTypeId);
+  }
+
   
   // other methods ////////////////////////////////////////////////////////////////////
 

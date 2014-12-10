@@ -17,33 +17,26 @@ package com.heisenberg.api.configuration;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.PluginFactory;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
 import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
-import com.heisenberg.impl.plugin.ActivityTypeRegistration;
-import com.heisenberg.impl.plugin.DataTypeRegistration;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 
 
 /**
  * @author Walter White
  */
-public abstract class ProcessEngineConfiguration {
+public abstract class ProcessEngineConfiguration extends AbstractProcessEngineConfiguration {
 
   public String id;
   public ProcessDefinitionCache processDefinitionCache;
@@ -51,11 +44,6 @@ public abstract class ProcessEngineConfiguration {
   public TaskService taskService;
   public ScriptService scriptService;
   public Executor executorService;
-  public ObjectMapper objectMapper;
-  public List<ActivityTypeRegistration> activityTypeRegistrations = new ArrayList<>();
-  public List<DataTypeRegistration> dataTypeRegistrations = new ArrayList<>();
-  public boolean registerDefaultDataTypes = true;
-  public boolean registerDefaultActivityTypes = true;
   
   protected ProcessEngineConfiguration() {
   }
@@ -100,50 +88,7 @@ public abstract class ProcessEngineConfiguration {
     return this;
   }
   
-  public ProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType) {
-    activityTypeRegistrations.add(new ActivityTypeRegistration.Singleton(activityType));
-    return this;
-  }
-  
-  public ProcessEngineConfiguration registerSingletonActivityType(ActivityType activityType, String typeId) {
-    activityTypeRegistrations.add(new ActivityTypeRegistration.Singleton(activityType, typeId));
-    return this;
-  }
 
-  public ProcessEngineConfiguration registerConfigurableActivityType(ActivityType activityType) {
-    activityTypeRegistrations.add(new ActivityTypeRegistration.Configurable(activityType));
-    return this;
-  }
-
-  public ProcessEngineConfiguration registerJavaBeanType(Class<?> javaBeanClass) {
-    dataTypeRegistrations.add(new DataTypeRegistration.JavaBean(javaBeanClass));
-    return this;
-  }
-  
-  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType) {
-    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, null, null));
-    return this;
-  }
-  
-  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId) {
-    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, typeId, null));
-    return this;
-  }
-
-  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, Class<?> javaClass) {
-    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, null, javaClass));
-    return this;
-  }
-
-  public ProcessEngineConfiguration registerSingletonDataType(DataType dataType, String typeId, Class<?> javaClass) {
-    dataTypeRegistrations.add(new DataTypeRegistration.Singleton(dataType, typeId, javaClass));
-    return this;
-  }
-
-  public ProcessEngineConfiguration registerConfigurableDataType(DataType dataType) {
-    dataTypeRegistrations.add(new DataTypeRegistration.Configurable(dataType));
-    return this;
-  }
 
   public String getId() {
     return id!=null ? id : createDefaultId();
@@ -193,8 +138,6 @@ public abstract class ProcessEngineConfiguration {
     this.executorService = executorService;
   }
   
-  
-  
   public static String createDefaultId() {
     try {
       String id = InetAddress.getLocalHost().getHostAddress();
@@ -226,33 +169,5 @@ public abstract class ProcessEngineConfiguration {
     return new MemoryTaskService();
   }
 
-  
-  public ObjectMapper getObjectMapper() {
-    return objectMapper!=null ? objectMapper : JsonServiceImpl.createDefaultObjectMapper();
-  }
 
-  
-  public void setObjectMapper(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
-
-  
-  public List<ActivityTypeRegistration> getActivityTypeRegistrations() {
-    return activityTypeRegistrations;
-  }
-
-  
-  public void setActivityTypeRegistrations(List<ActivityTypeRegistration> activityTypeRegistrations) {
-    this.activityTypeRegistrations = activityTypeRegistrations;
-  }
-
-  
-  public List<DataTypeRegistration> getDataTypeRegistrations() {
-    return dataTypeRegistrations;
-  }
-
-  
-  public void setDataTypeRegistrations(List<DataTypeRegistration> dataTypeRegistrations) {
-    this.dataTypeRegistrations = dataTypeRegistrations;
-  }
 }

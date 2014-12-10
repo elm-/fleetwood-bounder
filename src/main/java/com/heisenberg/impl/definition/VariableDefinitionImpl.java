@@ -17,10 +17,12 @@ package com.heisenberg.impl.definition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
-import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.DataTypeReference;
 import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.DataTypeReference;
+import com.heisenberg.impl.type.ListType;
+import com.heisenberg.impl.type.TextType;
 
 
 /**
@@ -66,12 +68,6 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     return this;
   }
 
-  /** this class has to be registered with @link {@link ProcessEngineImpl#registerJavaBeanType(Class)} */
-  public VariableDefinitionImpl dataTypeJavaBean(Class<?> userDefinedJavaBeanClass) {
-    this.dataType = new DataTypeReference(userDefinedJavaBeanClass.getName());
-    return this;
-  }
-  
   public VariableDefinitionImpl dataType(DataType dataType) {
     this.dataType = dataType;
     return this;
@@ -118,11 +114,11 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     this.processEngine = processEngine;
   }
   
-  public DataType getType() {
+  public DataType getDataType() {
     return dataType;
   }
   
-  public void setType(DataType dataType) {
+  public void setDataType(DataType dataType) {
     this.dataType = dataType;
   }
 }

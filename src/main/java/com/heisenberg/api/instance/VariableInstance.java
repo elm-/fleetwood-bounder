@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.instance;
 
-import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.type.DataType;
 
 
 

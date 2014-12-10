@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.builder;
 
-import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.type.DataType;
 
 
 
@@ -27,16 +27,11 @@ public interface VariableBuilder {
    * for getting and setting variable values. 
    * The given idInternal will be wrapped in a VariableDefinitionId. */
   VariableBuilder id(String id);
-  
+
+  /** set the dataType, @see {@link ProcessBuilder the newXxxx methods on ProcessDefinitionBuilder} to obtain dataType objects */
   VariableBuilder dataType(DataType dataType);
-  
-//  VariableBuilder dataTypeId(String dataTypeId);
-  
-  VariableBuilder dataTypeJavaBean(Class<?> userDefinedJavaBeanClass);
 
   VariableBuilder initialValue(Object initialValue);
-  
-//  VariableBuilder initialValueJson(Object initialValueJson);
   
   VariableBuilder line(Long lineNumber);
   

@@ -15,7 +15,7 @@
 package com.heisenberg.api.builder;
 
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.type.DataType;
+import com.heisenberg.impl.type.DataType;
 
 /**
  * @author Walter White

@@ -16,8 +16,8 @@ package com.heisenberg.impl;
 
 import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.type.DataType;
 
 
 

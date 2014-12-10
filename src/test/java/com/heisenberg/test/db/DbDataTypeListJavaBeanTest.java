@@ -16,6 +16,8 @@ package com.heisenberg.test.db;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +27,6 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.type.JavaBeanType;
-import com.heisenberg.api.type.ListType;
 import com.heisenberg.impl.util.Lists;
 
 
@@ -37,9 +37,11 @@ public class DbDataTypeListJavaBeanTest {
 
   public static final Logger log = LoggerFactory.getLogger(DbDataTypeListJavaBeanTest.class);
   
+  @SuppressWarnings("unchecked")
   @Test
   public void testVariableStoringListOfBeans() {
     ProcessEngine processEngine = new MongoProcessEngineConfiguration()
+      .registerJavaBeanType(Money.class)
       .server("localhost", 27017)
       .buildProcessEngine();
 
@@ -47,7 +49,7 @@ public class DbDataTypeListJavaBeanTest {
     
     process.newVariable()
       .id("v")
-      .dataType(new ListType(new JavaBeanType(Money.class)));
+      .dataType(process.newDataTypeList(process.newDataTypeJavaBean(Money.class)));
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
@@ -59,15 +61,19 @@ public class DbDataTypeListJavaBeanTest {
       .startProcessInstance();
   
     VariableInstance v = processInstance.getVariableInstances().get(0);
-    assertEquals(Lists.of(new Money(5, "USD"), new Money(6, "EUR")), v.getValue());
+    List<Money> values = (List<Money>) v.getValue();
+    assertEquals(5, values.get(0).amount);
+    assertEquals("USD", values.get(0).currency);
+    assertEquals(6, values.get(1).amount);
+    assertEquals("EUR", values.get(1).currency);
   }
 
   static class Money {
-    public double amount;
+    public int amount;
     public String currency;
     public Money() {
     }
-    public Money(double amount, String currency) {
+    public Money(int amount, String currency) {
       this.amount = amount;
       this.currency = currency;
     }

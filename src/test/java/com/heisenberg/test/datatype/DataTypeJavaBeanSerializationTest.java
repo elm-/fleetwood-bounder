@@ -15,7 +15,6 @@
 package com.heisenberg.test.datatype;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -28,10 +27,10 @@ import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.type.DataTypeReference;
-import com.heisenberg.api.type.JavaBeanType;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.TriggerBuilderImpl;
+import com.heisenberg.impl.type.DataTypeReference;
+import com.heisenberg.impl.type.JavaBeanType;
 
 
 /**
@@ -51,13 +50,13 @@ public class DataTypeJavaBeanSerializationTest {
     
     process.newVariable()
       .id("m")
-      .dataTypeJavaBean(Money.class);
+      .dataType(process.newDataTypeJavaBean(Money.class));
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
       .getProcessDefinitionId();
     
-    Money startProcessMoney = new Money(5d, "USD");
+    Money startProcessMoney = new Money(5, "USD");
 
     JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
 
@@ -88,11 +87,11 @@ public class DataTypeJavaBeanSerializationTest {
   }
 
   static class Money {
-    public double amount;
+    public int amount;
     public String currency;
     public Money() {
     }
-    public Money(double amount, String currency) {
+    public Money(int amount, String currency) {
       this.amount = amount;
       this.currency = currency;
     }

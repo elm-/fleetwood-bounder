@@ -24,9 +24,9 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.type.ListType;
-import com.heisenberg.api.type.TextType;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.impl.type.ListType;
+import com.heisenberg.impl.type.TextType;
 import com.heisenberg.impl.util.Lists;
 
 
@@ -59,28 +59,4 @@ public class DataTypeListTextTest {
     VariableInstance v = processInstance.getVariableInstances().get(0);
     assertEquals(Lists.of("Hello", "World"), v.getValue());
   }
-
-  @Test
-  public void testVariableStoringListOfDates() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
-
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
-    
-    process.newVariable()
-      .id("v")
-      .dataType(new ListType(TextType.INSTANCE));
-    
-    String processDefinitionId = process.deploy()
-      .checkNoErrors()
-      .getProcessDefinitionId();
-
-    ProcessInstance processInstance = processEngine.newTrigger()
-      .processDefinitionId(processDefinitionId)
-      .variableValue("v", Lists.of("Hello", "World"))
-      .startProcessInstance();
-  
-    VariableInstance v = processInstance.getVariableInstances().get(0);
-    assertEquals(Lists.of("Hello", "World"), v.getValue());
-  }
-
 }

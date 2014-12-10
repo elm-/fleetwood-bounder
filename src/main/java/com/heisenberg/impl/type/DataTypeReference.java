@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.type;
+package com.heisenberg.impl.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.util.Exceptions;
 
 
 /**
@@ -26,7 +26,7 @@ import com.heisenberg.api.util.Validator;
 @JsonTypeName("dataTypeReference")
 public class DataTypeReference implements DataType {
 
-  public String typeId;
+  public String dataTypeId;
   
   @JsonIgnore
   public DataType delegate;
@@ -34,13 +34,14 @@ public class DataTypeReference implements DataType {
   public DataTypeReference() {
   }
 
-  public DataTypeReference(String typeId) {
-    this.typeId = typeId;
+  public DataTypeReference(String dataTypeId) {
+    this.dataTypeId = dataTypeId;
   }
 
-  public DataTypeReference(String typeId, DataType delegate) {
-    this.typeId = typeId;
-    this.delegate = delegate;
+  public DataTypeReference(String dataTypeId, DataType delegate) {
+    Exceptions.checkNotNullParameter(dataTypeId, "dataTypeId");
+    this.dataTypeId = dataTypeId;
+    this.delegate = delegate; // potentially, with a client process engine, the delegate could be null
   }
 
   @Override
@@ -50,7 +51,9 @@ public class DataTypeReference implements DataType {
 
   @Override
   public void validateInternalValue(Object internalValue) throws InvalidValueException {
-    delegate.validateInternalValue(internalValue);
+    if (delegate!=null) {
+      delegate.validateInternalValue(internalValue);
+    }
   }
 
   @Override
@@ -71,13 +74,18 @@ public class DataTypeReference implements DataType {
   @Override
   public void validate(Validator validator) {
     if (delegate==null) {
-      if (typeId!=null) {
-        delegate = validator.getDataTypes().findByTypeId(typeId);
+      if (dataTypeId!=null) {
+        delegate = validator.getDataTypes().findByTypeId(dataTypeId);
+        if (delegate==null) {
+          validator.addError("Invalid dataTypeId specified: "+dataTypeId);
+        }
       } else {
         validator.addError("No typeId specified");
       }
     }
-    delegate.validate(validator);
+    if (delegate!=null) {
+      delegate.validate(validator);
+    }
   }
 
 }

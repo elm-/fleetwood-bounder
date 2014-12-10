@@ -31,7 +31,7 @@ import com.heisenberg.api.activities.bpmn.JavaServiceTask;
 import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
-import com.heisenberg.api.type.ActivityTypeReference;
+import com.heisenberg.impl.type.ActivityTypeReference;
 import com.heisenberg.impl.util.Exceptions;
 
 

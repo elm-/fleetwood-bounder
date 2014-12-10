@@ -31,11 +31,11 @@ import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.plugin.ActivityTypes;
 import com.heisenberg.impl.plugin.DataTypes;
+import com.heisenberg.impl.type.DataType;
 
 
 /** Validates and wires process definition after it's been built by either the builder api or json deserialization.

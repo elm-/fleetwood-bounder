@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.type;
+package com.heisenberg.impl.type;
 
 import java.util.Map;
 
@@ -29,6 +29,7 @@ import com.heisenberg.api.util.Validator;
 public class JavaBeanType extends AbstractDataType {
   
   public Class<?> javaClass;
+  @JsonIgnore
   public JsonService jsonService;
 
   public JavaBeanType() {
@@ -46,6 +47,16 @@ public class JavaBeanType extends AbstractDataType {
   @Override
   public void validate(Validator validator) {
     this.jsonService = validator.getJsonService();
+  }
+  
+  @Override
+  public void validateInternalValue(Object internalValue) throws InvalidValueException {
+    if (internalValue==null) {
+      return;
+    }
+    if (! javaClass.isAssignableFrom(internalValue.getClass())) {
+      throw new InvalidValueException("Invalid internal value: was "+internalValue+" ("+internalValue.getClass().getName()+"), expected "+javaClass.getName());
+    }
   }
 
   @SuppressWarnings("unchecked")

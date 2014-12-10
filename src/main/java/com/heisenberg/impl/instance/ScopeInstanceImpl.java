@@ -27,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.TypedValue;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
@@ -37,6 +36,7 @@ import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
+import com.heisenberg.impl.type.DataType;
 
 
 /**
@@ -169,7 +169,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     if (variableInstances!=null) {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
-        DataType dataType = variableInstance.getVariableDefinition().getType();
+        DataType dataType = variableInstance.variableDefinition.dataType;
         Object value = variableInstance.getValue();
         return new TypedValue(dataType, value);
       }

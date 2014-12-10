@@ -16,9 +16,9 @@ package com.heisenberg.impl.instance;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.type.DataType;
 
 
 /**

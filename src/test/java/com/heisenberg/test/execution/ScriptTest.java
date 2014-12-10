@@ -43,7 +43,7 @@ public class ScriptTest {
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
   
   @Test
-  public void testOne() {
+  public void testScript() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .registerSingletonActivityType(new ScriptActivity())
@@ -53,7 +53,7 @@ public class ScriptTest {
     
     process.newVariable()
       .id("m")
-      .dataTypeJavaBean(Money.class);
+      .dataType(process.newDataTypeJavaBean(Money.class));
     
     process.newActivity()
       .activityType(new ScriptActivity())
@@ -70,10 +70,10 @@ public class ScriptTest {
     
     processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("m", new Money(5d, "USD"))
+      .variableValue("m", new Money(5, "USD"))
       .startProcessInstance();
 
-    assertEquals("It costs 5, which is in USD\nAnd mmmoney is 5.0 USD", scriptResultMessage);
+    assertEquals("It costs 5, which is in USD\nAnd mmmoney is 5 USD", scriptResultMessage);
   }
   
   static String scriptResultMessage = null;
@@ -100,10 +100,10 @@ public class ScriptTest {
   
   public static class Money {
 
-    public double amount;
+    public int amount;
     public String currency;
 
-    public Money(double amount, String currency) {
+    public Money(int amount, String currency) {
       this.amount = amount;
       this.currency = currency;
     }

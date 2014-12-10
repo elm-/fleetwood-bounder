@@ -34,7 +34,7 @@ public interface ProcessEngine {
   
   /** Start building a new process, see  */
   ProcessDefinitionBuilder newProcessDefinition();
-  
+
   /** Use a {@link TriggerBuilder trigger} to start a new process instance for a process definition. */
   TriggerBuilder newTrigger();
 
@@ -42,4 +42,5 @@ public interface ProcessEngine {
   MessageBuilder newMessage();
   
   ActivityInstanceQuery newActivityInstanceQuery();
+
 }

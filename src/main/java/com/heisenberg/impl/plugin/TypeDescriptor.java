@@ -20,8 +20,8 @@ import java.util.List;
 
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.type.DataType;
 import com.heisenberg.api.util.Plugin;
+import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Reflection;
 

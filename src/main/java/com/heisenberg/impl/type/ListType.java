@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.type;
+package com.heisenberg.impl.type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -69,19 +70,19 @@ public class ListType extends AbstractDataType implements DataType {
     return list;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Object convertInternalToJsonValue(Object internalValue) {
     if (internalValue==null) {
       return null;
     }
-    @SuppressWarnings("unchecked")
-    List<Object> list = (List<Object>) internalValue;
-    for (int i=0; i<list.size(); i++) {
-      Object elementInternalValue = list.get(i);
+    List<Object> internalValues = (List<Object>) internalValue;
+    List<Object> jsonValues = new ArrayList<>(internalValues.size());
+    for (Object elementInternalValue: internalValues) {
       Object elementJsonValue = elementDataType.convertInternalToJsonValue(elementInternalValue);
-      list.set(i, elementJsonValue);
+      jsonValues.add(elementJsonValue);
     }
-    return list;
+    return jsonValues;
   }
 
   @Override

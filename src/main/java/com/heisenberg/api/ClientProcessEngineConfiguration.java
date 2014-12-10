@@ -14,25 +14,19 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.api.configuration.AbstractProcessEngineConfiguration;
 import com.heisenberg.impl.client.ClientProcessEngine;
 
 
 /**
  * @author Walter White
  */
-public class ClientProcessEngineConfiguration {
+public class ClientProcessEngineConfiguration extends AbstractProcessEngineConfiguration {
 
-  public JsonService jsonService;
   public String baseUrl;
 
   public ProcessEngine buildProcessEngine() {
     return new ClientProcessEngine(this);
-  }
-
-  public ClientProcessEngineConfiguration jsonService(JsonService jsonService) {
-    this.jsonService = jsonService;
-    return this;
   }
 
   public ClientProcessEngineConfiguration baseUrl(String baseUrl) {
@@ -40,10 +34,6 @@ public class ClientProcessEngineConfiguration {
     return this;
   }
 
-  public void setJsonService(JsonService jsonService) {
-    this.jsonService = jsonService;
-  }
-  
   public String getBaseUrl() {
     return baseUrl!=null ? baseUrl : createDefaultBaseUrl();
   }
@@ -54,9 +44,5 @@ public class ClientProcessEngineConfiguration {
 
   public static String createDefaultBaseUrl() {
     return "http://localhost:9999";
-  }
-
-  public JsonService getJsonService() {
-    return jsonService;
   }
 }

@@ -28,12 +28,12 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.type.BindingType;
-import com.heisenberg.api.type.DataType;
-import com.heisenberg.api.type.DataTypeReference;
-import com.heisenberg.api.type.JavaBeanType;
-import com.heisenberg.api.type.ListType;
-import com.heisenberg.api.type.TextType;
+import com.heisenberg.impl.type.BindingType;
+import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.DataTypeReference;
+import com.heisenberg.impl.type.JavaBeanType;
+import com.heisenberg.impl.type.ListType;
+import com.heisenberg.impl.type.TextType;
 import com.heisenberg.impl.util.Exceptions;
 
 
@@ -60,8 +60,6 @@ public class DataTypes {
     return new DataTypeReference(javaBeanType.getName(), new JavaBeanType(javaBeanType, jsonService));
   }
 
-
-  
   public void registerDefaultDataTypes() {
     registerSingletonDataType(new TextType(), String.class);
   }
@@ -164,6 +162,11 @@ public class DataTypes {
   
   public DataType findByTypeId(String typeId) {
     return dataTypesById.get(typeId);
+  }
+
+  public DataType createDataTypeReference(String dataTypeId) {
+    DataType delegate = dataTypesById.get(dataTypeId);
+    return new DataTypeReference(dataTypeId, delegate);
   }
 
 }
