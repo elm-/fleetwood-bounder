@@ -17,8 +17,8 @@ package com.heisenberg.api.util;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.DataTypes;
+import com.heisenberg.api.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.DataTypeService;
 
 
 /**
@@ -30,5 +30,5 @@ public interface ServiceLocator {
   ScriptService getScriptService();
   TaskService getTaskService();
   ActivityTypes getActivityTypes();
-  DataTypes getDataTypes();
+  DataTypeService getDataTypes();
 }

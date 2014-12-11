@@ -19,6 +19,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.ScopeDefinition;
+import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.util.Exceptions;
@@ -27,7 +29,7 @@ import com.heisenberg.impl.util.Exceptions;
 /**
  * @author Walter White
  */
-public abstract class ScopeDefinitionImpl {
+public abstract class ScopeDefinitionImpl implements ScopeDefinition {
 
   // parsed and stored member fields
   
@@ -300,8 +302,9 @@ public abstract class ScopeDefinitionImpl {
     this.variableDefinitions = variableDefinitions;
   }
 
-  public List<TransitionDefinitionImpl> getTransitionDefinitions() {
-    return transitionDefinitions;
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public List<TransitionDefinition> getTransitionDefinitions() {
+    return (List) transitionDefinitions;
   }
   
   public void setTransitionDefinitions(List<TransitionDefinitionImpl> transitionDefinitions) {

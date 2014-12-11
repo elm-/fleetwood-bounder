@@ -12,28 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.impl.plugin;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.api.util.Validator;
-
+import com.heisenberg.api.plugin.Triggers;
+import com.heisenberg.api.plugin.TypeDescriptor;
 
 
 /**
  * @author Walter White
  */
-public interface ActivityDefinition extends ScopeDefinition {
-  
-  ScopeDefinition getParent();
-  
-  ActivityDefinition getActivityDefinition(String activityDefinitionId);
-  
-  /** the transitions, defined in the parent scope, for which this activity is the source. */
-  List<TransitionDefinition> getOutgoingTransitionDefinitions();
-  /** the transitions, defined in the parent scope, for which this activity is the destination. */
-  List<TransitionDefinition> getIncomingTransitionDefinitions();
+public class TriggerService implements Triggers {
 
-  void validateConfigurationFields(Validator validator);
+  public List<TypeDescriptor> descriptors = new ArrayList<>();
 
+  @Override
+  public List<TypeDescriptor> getDescriptors() {
+    return descriptors;
+  }
 }

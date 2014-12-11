@@ -28,13 +28,10 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.builder.ParseIssue.IssueType;
 import com.heisenberg.api.builder.ParseIssues;
-import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.api.configuration.TaskService;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.DataTypes;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -99,6 +96,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   @Override
   public void endProcessDefinition(ProcessDefinitionImpl processDefinition) {
     processDefinition.initializeStartActivities(this);
+    endScope(processDefinition);
     popContext();
   }
 
@@ -126,10 +124,21 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
 
   @Override
   public void endActivityDefinition(ActivityDefinitionImpl activity, int index) {
-    if (activity.activityType!=null) {
-      activity.activityType.validate(activity, this);
-    }
+    endScope(activity);
     popContext();
+  }
+
+  protected void endScope(ScopeDefinitionImpl scope) {
+    // validation of activity definitions was moved to the end of the scope as 
+    // some need to access and validate the number of incoming/outgoing transitions
+    List<ActivityDefinitionImpl> activityDefinitions = scope.activityDefinitions;
+    if (activityDefinitions!=null && !activityDefinitions.isEmpty()) {
+      for (ActivityDefinitionImpl activity: activityDefinitions) {
+        if (activity.activityType!=null) {
+          activity.activityType.validate(activity, this);
+        }
+      }
+    }
   }
 
   @Override
@@ -171,7 +180,9 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       addWarning("Transition has no 'to' specified");
     } else {
       transition.to = processDefinition.findActivityDefinition(transition.toId);
-      if (transition.to==null) {
+      if (transition.to!=null) {
+        transition.to.addIncomingTransition(transition);
+      } else {
         ScopeDefinitionImpl scope = getContextObject(ScopeDefinitionImpl.class);
         addError("Transition has an invalid value for 'to' (%s) : %s", transition.toId, getExistingActivityNamesText(scope));
       }
@@ -233,27 +244,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   }
 
   @Override
-  public ScriptService getScriptService() {
-    return processEngine.scriptService;
-  }
-
-  @Override
-  public TaskService getTaskService() {
-    return processEngine.taskService;
-  }
-
-  @Override
-  public JsonService getJsonService() {
-    return processEngine.jsonService;
-  }
-
-  @Override
-  public ActivityTypes getActivityTypes() {
-    return processEngine.activityTypes;
-  }
-
-  @Override
-  public DataTypes getDataTypes() {
-    return processEngine.dataTypes;
+  public ServiceLocator getServiceLocator() {
+    return processEngine;
   }
 }

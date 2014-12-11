@@ -25,7 +25,7 @@ import com.heisenberg.impl.AbstractProcessEngine;
  */
 public abstract class ActivityTypeRegistration {
   
-  public abstract void register(AbstractProcessEngine processEngine, ActivityTypes activityTypes);
+  public abstract void register(AbstractProcessEngine processEngine, ActivityTypeService activityTypeService);
 
   public static class Singleton extends ActivityTypeRegistration {
     ActivityType activityType;
@@ -40,11 +40,11 @@ public abstract class ActivityTypeRegistration {
       this.typeId = typeId;
     }
     @Override
-    public void register(AbstractProcessEngine processEngine, ActivityTypes activityTypes) {
+    public void register(AbstractProcessEngine processEngine, ActivityTypeService activityTypeService) {
       if (typeId==null) {
         this.typeId = getJsonTypeName(activityType);
       }
-      activityTypes.registerSingletonActivityType(activityType, typeId);
+      activityTypeService.registerSingletonActivityType(activityType, typeId);
     }
     public ActivityType getActivityType() {
       return activityType;
@@ -68,8 +68,8 @@ public abstract class ActivityTypeRegistration {
       this.activityType = activityType;
     }
     @Override
-    public void register(AbstractProcessEngine processEngine, ActivityTypes activityTypes) {
-      activityTypes.registerConfigurableActivityType(activityType);
+    public void register(AbstractProcessEngine processEngine, ActivityTypeService activityTypeService) {
+      activityTypeService.registerConfigurableActivityType(activityType);
     }
     public ActivityType getActivityType() {
       return activityType;

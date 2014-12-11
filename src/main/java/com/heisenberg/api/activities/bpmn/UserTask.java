@@ -42,7 +42,7 @@ public class UserTask extends AbstractActivityType {
   
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    TaskService taskService = activityInstance.getTaskService();
+    TaskService taskService = activityInstance.getServiceLocator().getTaskService();
     
     String taskName = activityInstance.getValue(name);
     if (taskName==null) {

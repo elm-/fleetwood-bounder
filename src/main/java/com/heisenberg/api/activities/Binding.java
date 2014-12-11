@@ -16,10 +16,11 @@ package com.heisenberg.api.activities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.configuration.Script;
+import com.heisenberg.api.configuration.ScriptService;
+import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.plugin.TypeField;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.impl.plugin.TypeField;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.InvalidValueException;
@@ -56,7 +57,8 @@ public class Binding<T> {
       return (T) activityInstance.getVariableValueRecursive(this.variableDefinitionId).getValue();
     }
     if (this.expressionScript!=null) {
-      ScriptResult scriptResult = activityInstance.getScriptService().evaluateScript(activityInstance, this.expressionScript);
+      ScriptService scriptService = activityInstance.getServiceLocator().getScriptService();
+      ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, this.expressionScript);
       Object result = scriptResult.getResult();
       return (T) this.dataType.convertScriptValueToInternal(result, this.expressionScript.language);
     }
@@ -84,7 +86,7 @@ public class Binding<T> {
   }
 
   // processEngine and dataType are already initialized when this is called
-  public void validate(ActivityDefinitionImpl activityDefinition, ActivityType activityType, TypeField descriptorField, Validator validator) {
+  public void validate(ActivityDefinition activityDefinition, ActivityType activityType, TypeField descriptorField, Validator validator) {
     isInitialized = true;
     if (value!=null) {
       try {
@@ -100,7 +102,7 @@ public class Binding<T> {
       }
     } else if (expression!=null) {
       try {
-        expressionScript = validator.getScriptService().compile(expression, expressionLanguage);
+        expressionScript = validator.getServiceLocator().getScriptService().compile(expression, expressionLanguage);
       } catch (RuntimeException e) {
         Throwable cause = e.getCause();
         if (cause==null) {

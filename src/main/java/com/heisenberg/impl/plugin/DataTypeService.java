@@ -26,8 +26,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.activities.ConfigurationField;
+import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.api.plugin.DataTypes;
+import com.heisenberg.api.plugin.TypeDescriptor;
+import com.heisenberg.api.plugin.TypeField;
+import com.heisenberg.api.util.Plugin;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.type.BindingType;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.DataTypeReference;
@@ -35,12 +43,13 @@ import com.heisenberg.impl.type.JavaBeanType;
 import com.heisenberg.impl.type.ListType;
 import com.heisenberg.impl.type.TextType;
 import com.heisenberg.impl.util.Exceptions;
+import com.heisenberg.impl.util.Reflection;
 
 
 /**
  * @author Walter White
  */
-public class DataTypes {
+public class DataTypeService implements DataTypes {
   
   public List<TypeDescriptor> descriptors = new ArrayList<>();
   public Map<String,DataType> dataTypesById = new HashMap<>();
@@ -48,16 +57,24 @@ public class DataTypes {
   public ObjectMapper objectMapper;
   public JsonService jsonService;
   
-  public DataTypes(ObjectMapper objectMapper) {
+  public DataTypeService(ObjectMapper objectMapper, JsonService jsonService) {
     this.objectMapper = objectMapper;
+    this.jsonService = jsonService;
   }
   
-  public ListType newListType(DataType dataType) {
-    return new ListType(dataType);
+  @Override
+  public DataType list(DataType elementDataType) {
+    return new ListType(elementDataType);
   }
 
-  public DataTypeReference newJavaBeanType(Class< ? > javaBeanType) {
-    return new DataTypeReference(javaBeanType.getName(), new JavaBeanType(javaBeanType, jsonService));
+  @Override
+  public DataType id(String dataTypeId) {
+    return createDataTypeReference(dataTypeId);
+  }
+
+  @Override
+  public List<TypeDescriptor> getDescriptors() {
+    return descriptors;
   }
 
   public void registerDefaultDataTypes() {
@@ -65,12 +82,11 @@ public class DataTypes {
   }
 
   public TypeDescriptor registerConfigurableDataType(DataType dataType) {
-    TypeDescriptor robertDn = new TypeDescriptor(dataType);
-    robertDn.analyze(this); // :)
-    addDescriptor(robertDn);
-    return robertDn;
+    TypeDescriptor typeDescriptor = createTypeDescriptor(dataType);
+    addDataTypeDescriptor(typeDescriptor);
+    return typeDescriptor;
   }
-
+  
   /** creates a descriptor for a java bean type */
   public TypeDescriptor registerJavaBeanType(Class<?> javaBeanClass) {
     Exceptions.checkNotNullParameter(javaBeanClass, "javaBeanClass");
@@ -103,21 +119,52 @@ public class DataTypes {
       dataType = new DataTypeReference(typeId);
     } // else we can just let json use the default constructor 
 
-    TypeDescriptor descriptor = new TypeDescriptor(dataType);
-    addDescriptor(descriptor);
+    TypeDescriptor dataTypeDescriptor = createTypeDescriptor(dataType);
+    addDataTypeDescriptor(dataTypeDescriptor);
 
     if (valueClass!=null) {
-      descriptorsByType.put(valueClass, descriptor);
+      descriptorsByType.put(valueClass, dataTypeDescriptor);
     }
     
-    return descriptor;
+    return dataTypeDescriptor;
   }
-
-  protected void addDescriptor(TypeDescriptor descriptor) {
+  
+  protected void addDataTypeDescriptor(TypeDescriptor descriptor) {
     descriptors.add(descriptor);
-    objectMapper.registerSubtypes(descriptor.dataType.getClass());
+    objectMapper.registerSubtypes(descriptor.getDataType().getClass());
   }
 
+  public TypeDescriptor createTypeDescriptor(Plugin plugin) {
+    TypeDescriptor typeDescriptor = new TypeDescriptor();
+    if (plugin instanceof DataType) {
+      typeDescriptor.setDataType((DataType) plugin);
+    } else if (plugin instanceof ActivityType) {
+      typeDescriptor.setActivityType((ActivityType) plugin);
+    } else if (plugin instanceof DataType) {
+      typeDescriptor.setDataType((DataType) plugin);
+    }
+    
+    
+    Class<?> pluginClass = plugin.getClass();
+    List<Field> fields = Reflection.getNonStaticFieldsRecursive(pluginClass);
+    if (!fields.isEmpty()) {
+      List<TypeField> configurationFields = new ArrayList<TypeField>(fields.size());
+      typeDescriptor.setConfigurationFields(configurationFields);
+      for (Field field : fields) {
+        ConfigurationField configurationField = field.getAnnotation(ConfigurationField.class);
+        if (field.getAnnotation(ConfigurationField.class) != null) {
+          TypeDescriptor fieldDescriptor = getTypeDescriptor(field);
+          TypeField typeField = new TypeField(field, fieldDescriptor.getDataType(), configurationField);
+          configurationFields.add(typeField);
+        }
+      }
+    }
+    Label label = pluginClass.getAnnotation(Label.class);
+    if (label!=null) {
+      typeDescriptor.setLabel(label.value());
+    }
+    return typeDescriptor;
+  }
 
   protected void addDataTypeById(String typeId, DataType dataType) {
     if (dataTypesById.containsKey(typeId)) {
@@ -126,7 +173,7 @@ public class DataTypes {
     dataTypesById.put(typeId, dataType);
   }
   
-  protected TypeDescriptor getTypeDescriptor(Field field) {
+  public TypeDescriptor getTypeDescriptor(Field field) {
     return getTypeDescriptor(field.getGenericType(), field);
   }
 
@@ -146,15 +193,17 @@ public class DataTypes {
     }
     throw new RuntimeException("Don't know how to handle "+type+"'s.  It's used in configuration field: "+field);
   }
+  
+  
 
   protected TypeDescriptor createDescriptor(Type rawType, Type[] typeArgs, Field field /* passed for error message only */) {
     if (Binding.class==rawType) {
       TypeDescriptor argDescriptor = getTypeDescriptor(typeArgs[0], field);
-      BindingType bindingType = new BindingType(argDescriptor.dataType);
+      BindingType bindingType = new BindingType(argDescriptor.getDataType());
       return new TypeDescriptor(bindingType);
     } else if (List.class==rawType) {
       TypeDescriptor argDescriptor = getTypeDescriptor(typeArgs[0], field);
-      ListType listType = new ListType(argDescriptor.dataType);
+      ListType listType = new ListType(argDescriptor.getDataType());
       return new TypeDescriptor(listType);
     } 
     throw new RuntimeException("Don't know how to handle generic type "+rawType+"'s.  It's used in configuration field: "+field);
@@ -169,4 +218,9 @@ public class DataTypes {
     return new DataTypeReference(dataTypeId, delegate);
   }
 
+  /** this class has to be registered with @link {@link ProcessEngineImpl#registerJavaBeanType(Class)} */
+  @Override
+  public DataType javaBean(Class<?> userDefinedJavaBeanClass) {
+    return new DataTypeReference(userDefinedJavaBeanClass.getName(), new JavaBeanType(userDefinedJavaBeanClass, jsonService));
+  }
 }

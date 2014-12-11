@@ -14,8 +14,12 @@
  */
 package com.heisenberg.test.execution;
 
+import static com.heisenberg.test.TestHelper.assertOpen;
+import static com.heisenberg.test.TestHelper.endTask;
+import static com.heisenberg.test.TestHelper.getActivityInstanceId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -25,6 +29,7 @@ import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.test.TestHelper;
 
 /**
@@ -33,27 +38,24 @@ import com.heisenberg.test.TestHelper;
 public class MultipleStartActivitiesTest {
   
   @Test
-  public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
-      .buildProcessEngine();
+  public void testDefaultStartActivitiesParallelExecution() {
+    ProcessEngine processEngine = new MemoryProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
 
     process.newActivity()
-      .activityType(new ScriptTask())
-      .id("automatic");
+      .activityType(new UserTask())
+      .id("one");
     
     process.newActivity()
       .activityType(new UserTask())
-      .id("wait1");
+      .id("two");
     
     process.newActivity()
       .activityType(new UserTask())
-      .id("wait2");
+      .id("three");
     
-    process.newTransition()
-      .from("wait1")
-      .to("wait2");
+    process.newTransition().from("two").to("three");
     
     String processDefinitionId = process.deploy()
       .checkNoErrorsAndNoWarnings()
@@ -62,9 +64,18 @@ public class MultipleStartActivitiesTest {
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
+    
+    assertOpen(processInstance, "one", "two");
+    
+    processInstance = endTask(processEngine, processInstance, "two");
 
-    assertNotNull(processInstance.getId());
-    TestHelper.assertOpen(processInstance, "wait1");
-    assertEquals("Expected 2 but was "+processInstance.getActivityInstances(), 2, processInstance.getActivityInstances().size());
+    assertOpen(processInstance, "one", "three");
+
+    processInstance = endTask(processEngine, processInstance, "one");
+    processInstance = endTask(processEngine, processInstance, "three");
+
+    assertOpen(processInstance);
+
+    assertTrue(processInstance.isEnded());
   }
 }

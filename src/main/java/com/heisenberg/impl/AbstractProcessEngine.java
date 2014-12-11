@@ -24,14 +24,18 @@ import com.heisenberg.api.builder.TriggerBuilder;
 import com.heisenberg.api.configuration.AbstractProcessEngineConfiguration;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.util.ServiceLocator;
+import com.heisenberg.api.plugin.ActivityTypes;
+import com.heisenberg.api.plugin.DataSources;
+import com.heisenberg.api.plugin.Triggers;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
+import com.heisenberg.impl.json.JsonServiceImpl;
 import com.heisenberg.impl.plugin.ActivityTypeRegistration;
-import com.heisenberg.impl.plugin.ActivityTypes;
+import com.heisenberg.impl.plugin.ActivityTypeService;
+import com.heisenberg.impl.plugin.DataSourceService;
 import com.heisenberg.impl.plugin.DataTypeRegistration;
-import com.heisenberg.impl.plugin.DataTypes;
+import com.heisenberg.impl.plugin.DataTypeService;
+import com.heisenberg.impl.plugin.TriggerService;
 
 
 /**
@@ -40,8 +44,10 @@ import com.heisenberg.impl.plugin.DataTypes;
 public abstract class AbstractProcessEngine implements ProcessEngine {
 
   public JsonService jsonService;
-  public DataTypes dataTypes;
-  public ActivityTypes activityTypes;
+  public DataTypeService dataTypeService;
+  public ActivityTypeService activityTypeService;
+  public DataSourceService dataSourceService;
+  public TriggerService triggerService;
 
   public AbstractProcessEngine() {
   }
@@ -50,21 +56,24 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
     ObjectMapper objectMapper = configuration.getObjectMapper();
     this.jsonService = new JsonServiceImpl(objectMapper); 
 
-    this.dataTypes = new DataTypes(objectMapper);
+    this.dataTypeService = new DataTypeService(objectMapper, jsonService);
     if (configuration.registerDefaultDataTypes) {
-      dataTypes.registerDefaultDataTypes();
+      dataTypeService.registerDefaultDataTypes();
     }
     for (DataTypeRegistration dataTypeRegistration: configuration.getDataTypeRegistrations()) {
-      dataTypeRegistration.register(this, dataTypes);
+      dataTypeRegistration.register(this, dataTypeService);
     }
     
-    this.activityTypes = new ActivityTypes(objectMapper, dataTypes);
+    this.activityTypeService = new ActivityTypeService(objectMapper, dataTypeService);
     if (configuration.registerDefaultActivityTypes) {
-      activityTypes.registerDefaultActivityTypes();
+      activityTypeService.registerDefaultActivityTypes();
     }
     for (ActivityTypeRegistration activityTypeRegistration: configuration.getActivityTypeRegistrations()) {
-      activityTypeRegistration.register(this, activityTypes);
+      activityTypeRegistration.register(this, activityTypeService);
     }
+
+    this.dataSourceService = new DataSourceService();
+    this.triggerService = new TriggerService();
   }
 
   @Override
@@ -93,8 +102,6 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
 
   public abstract ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl notifyActivityInstanceBuilder);
 
-  public abstract ServiceLocator getServiceLocator();
-
   
   public JsonService getJsonService() {
     return jsonService;
@@ -106,22 +113,65 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
   }
 
   
-  public DataTypes getDataTypes() {
-    return dataTypes;
+  public DataTypeService getDataTypes() {
+    return dataTypeService;
   }
 
-  
-  public void setDataTypes(DataTypes dataTypes) {
-    this.dataTypes = dataTypes;
-  }
-
-  
   public ActivityTypes getActivityTypes() {
-    return activityTypes;
+    return activityTypeService;
+  }
+
+  public DataSources getDataSources() {
+    return dataSourceService;
+  }
+
+  public Triggers getTriggers() {
+    return triggerService;
+  }
+  
+  public void setDataTypes(DataTypeService dataTypeService) {
+    this.dataTypeService = dataTypeService;
   }
 
   
-  public void setActivityTypes(ActivityTypes activityTypes) {
-    this.activityTypes = activityTypes;
+  public void setActivityTypes(ActivityTypeService activityTypeService) {
+    this.activityTypeService = activityTypeService;
+  }
+
+  
+  public DataTypeService getDataTypeService() {
+    return dataTypeService;
+  }
+
+  
+  public void setDataTypeService(DataTypeService dataTypeService) {
+    this.dataTypeService = dataTypeService;
+  }
+
+  
+  public ActivityTypeService getActivityTypeService() {
+    return activityTypeService;
+  }
+
+  
+  public void setActivityTypeService(ActivityTypeService activityTypeService) {
+    this.activityTypeService = activityTypeService;
+  }
+
+  
+  public DataSourceService getDataSourceService() {
+    return dataSourceService;
+  }
+  
+  public void setDataSourceService(DataSourceService dataSourceService) {
+    this.dataSourceService = dataSourceService;
+  }
+  
+  public TriggerService getTriggerService() {
+    return triggerService;
+  }
+  
+  public void setTriggerService(TriggerService triggerService) {
+    this.triggerService = triggerService;
   }
 }

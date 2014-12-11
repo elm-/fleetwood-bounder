@@ -16,24 +16,22 @@ package com.heisenberg.api.definition;
 
 import java.util.List;
 
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.util.Validator;
-
 
 
 /**
  * @author Walter White
  */
-public interface ActivityDefinition extends ScopeDefinition {
-  
-  ScopeDefinition getParent();
-  
-  ActivityDefinition getActivityDefinition(String activityDefinitionId);
-  
-  /** the transitions, defined in the parent scope, for which this activity is the source. */
-  List<TransitionDefinition> getOutgoingTransitionDefinitions();
-  /** the transitions, defined in the parent scope, for which this activity is the destination. */
-  List<TransitionDefinition> getIncomingTransitionDefinitions();
+public interface ScopeDefinition {
 
-  void validateConfigurationFields(Validator validator);
+  String getId();
 
+  /** the transitions defined in this scope. */
+  List<TransitionDefinition> getTransitionDefinitions();
+
+  /** If you use this, you must call the @link {@link #initializeStartActivities()} in the @link {@link ActivityType#validate(ActivityDefinition, com.heisenberg.api.util.Validator)} */
+  List<ActivityDefinition> getStartActivities();
+
+  void initializeStartActivities(Validator validator);
 }

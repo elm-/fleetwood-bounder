@@ -18,11 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
 import com.heisenberg.impl.AbstractProcessEngine;
-import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.type.DataType;
-import com.heisenberg.impl.type.DataTypeReference;
-import com.heisenberg.impl.type.ListType;
-import com.heisenberg.impl.type.TextType;
 
 
 /**

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.jsondeprecated;
+package com.heisenberg.impl.json;
 
 import com.heisenberg.impl.engine.operation.Operation;
 import com.heisenberg.impl.engine.updates.Update;

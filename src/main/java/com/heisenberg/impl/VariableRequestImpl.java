@@ -86,7 +86,7 @@ public abstract class VariableRequestImpl {
   }
 
   public VariableRequestImpl variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass) {
-    JsonService jsonService = processEngine.getServiceLocator().getJsonService();
+    JsonService jsonService = processEngine.getJsonService();
     JavaBeanType javaBeanType = new JavaBeanType(javaBeanClass);
     javaBeanType.setJsonService(jsonService);
     variableValue(variableDefinitionId, value, javaBeanType);

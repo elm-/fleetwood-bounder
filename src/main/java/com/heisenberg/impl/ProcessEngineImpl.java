@@ -34,6 +34,7 @@ import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.plugin.ProcessProfileBuilder;
 import com.heisenberg.api.util.Page;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -59,6 +60,7 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   public ScriptService scriptService;
   public TaskService taskService;
   public Executor executorService;
+  public String builderUrl;
   
   public ProcessEngineImpl() {
   }
@@ -96,6 +98,26 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return response;
   }
   
+  @Override
+  public ProcessProfileBuilder newProcessProfile() {
+    return new ProcessProfileImpl(this);
+  }
+  
+  public String updateProcessProfile(ProcessProfileImpl profile) {
+    log.debug("Sending process profile over HTTP to the process builder:");
+    log.debug(">>> PUT "+profile.getUrl());
+    // TODO send over HTTP to the server
+    ProcessProfileRequestBody processProfileBody = new ProcessProfileRequestBody();
+    processProfileBody.key = profile.profileKey;
+    processProfileBody.name = profile.profileName;
+    processProfileBody.activityDescriptors = activityTypeService.descriptors;
+    processProfileBody.dataTypeDescriptors = dataTypeService.descriptors;
+    processProfileBody.dataSourceDescriptors = dataSourceService.descriptors;
+    processProfileBody.triggerDescriptors = triggerService.descriptors;
+    log.debug(">>> "+jsonService.objectToJsonStringPretty(processProfileBody));
+    return null;
+  }
+
   public ProcessInstance startProcessInstance(TriggerBuilderImpl processInstanceBuilder) {
     String processDefinitionId = processInstanceBuilder.processDefinitionId;
     Exceptions.checkNotNullParameter(processDefinitionId, "processDefinitionId");
@@ -262,9 +284,4 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   public abstract void flush(ProcessInstanceImpl processInstance);
 
   public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
-
-  @Override
-  public ServiceLocator getServiceLocator() {
-    return this;
-  }
 }

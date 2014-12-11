@@ -46,7 +46,7 @@ public class JavaBeanType extends AbstractDataType {
 
   @Override
   public void validate(Validator validator) {
-    this.jsonService = validator.getJsonService();
+    this.jsonService = validator.getServiceLocator().getJsonService();
   }
   
   @Override

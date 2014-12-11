@@ -14,6 +14,7 @@
  */
 package com.heisenberg.test;
 
+import static com.heisenberg.test.TestHelper.getActivityInstanceId;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 
+import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.ScopeInstance;
@@ -93,4 +95,9 @@ public class TestHelper {
     return activityInstance.getId();
   }
 
+  public static ProcessInstance endTask(ProcessEngine processEngine, ProcessInstance processInstance, String activityDefinitionId) {
+    return processEngine.newMessage()
+      .activityInstanceId(getActivityInstanceId(processInstance, activityDefinitionId))
+      .send();
+  }
 }

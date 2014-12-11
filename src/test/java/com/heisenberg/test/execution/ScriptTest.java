@@ -32,6 +32,7 @@ import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.configuration.ScriptService;
+import com.heisenberg.api.plugin.DataTypes;
 import com.heisenberg.impl.script.ScriptResult;
 
 
@@ -49,11 +50,13 @@ public class ScriptTest {
       .registerSingletonActivityType(new ScriptActivity())
       .buildProcessEngine();
 
+    DataTypes dataTypes = processEngine.getDataTypes();
+    
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newVariable()
       .id("m")
-      .dataType(process.newDataTypeJavaBean(Money.class));
+      .dataType(dataTypes.javaBean(Money.class));
     
     process.newActivity()
       .activityType(new ScriptActivity())
@@ -83,7 +86,7 @@ public class ScriptTest {
   public static class ScriptActivity extends AbstractActivityType {
     @Override
     public void start(ControllableActivityInstance activityInstance) {
-      ScriptService scriptService = activityInstance.getScriptService();
+      ScriptService scriptService = activityInstance.getServiceLocator().getScriptService();
       Script script = scriptService.compile(
              // Each variable is automatically available with it's variableDefinitionName
              // Individual fields (and on Rhino also properties) can be dereferenced

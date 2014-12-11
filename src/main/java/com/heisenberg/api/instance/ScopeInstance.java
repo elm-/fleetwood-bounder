@@ -38,8 +38,6 @@ public interface ScopeInstance {
 
   boolean hasOpenActivityInstances();
 
-  void end();
-
   /** recurses downward over the nested activities (not over the parent) */
   ActivityInstance findActivityInstanceByActivityDefinitionId(String activityDefinitionId);
 }

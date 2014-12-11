@@ -26,7 +26,7 @@ import com.heisenberg.api.util.TypedValue;
 /**
  * @author Walter White
  */
-public interface ControllableActivityInstance extends ActivityInstance, ServiceLocator {
+public interface ControllableActivityInstance extends ActivityInstance {
 
   TypedValue getVariableValueRecursive(Object variableDefinitionId);
   <T> T getValue(Binding<T> binding);
@@ -36,8 +36,13 @@ public interface ControllableActivityInstance extends ActivityInstance, ServiceL
 
   void onwards();
 
+  void end();
+
   /** starts a nested activity instance for the given activity definition */
   void start(ActivityDefinition activityDefinition);
 
   void takeTransition(TransitionDefinition transitionDefinition);
+  
+  ServiceLocator getServiceLocator();
+  void setJoining();
 }

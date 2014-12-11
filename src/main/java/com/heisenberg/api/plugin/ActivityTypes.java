@@ -12,28 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.api.plugin;
 
 import java.util.List;
-
-import com.heisenberg.api.util.Validator;
-
 
 
 /**
  * @author Walter White
  */
-public interface ActivityDefinition extends ScopeDefinition {
+public interface ActivityTypes {
   
-  ScopeDefinition getParent();
-  
-  ActivityDefinition getActivityDefinition(String activityDefinitionId);
-  
-  /** the transitions, defined in the parent scope, for which this activity is the source. */
-  List<TransitionDefinition> getOutgoingTransitionDefinitions();
-  /** the transitions, defined in the parent scope, for which this activity is the destination. */
-  List<TransitionDefinition> getIncomingTransitionDefinitions();
-
-  void validateConfigurationFields(Validator validator);
-
+  List<TypeDescriptor> getDescriptors();
 }

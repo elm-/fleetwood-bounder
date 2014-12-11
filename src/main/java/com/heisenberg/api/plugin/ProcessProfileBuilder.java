@@ -12,28 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.api.plugin;
 
-import com.heisenberg.api.definition.ActivityDefinition;
-
-
-
+import com.heisenberg.impl.ProcessProfileImpl;
 
 
 /**
  * @author Walter White
  */
-public interface ActivityInstance extends ScopeInstance {
+public interface ProcessProfileBuilder {
+
+  ProcessProfileImpl profileKey(String profileKey);
+
+  ProcessProfileImpl profileName(String profileName);
   
-  String getId();
+  ProcessProfileImpl authenticationToken(String authenticationToken);
+  
+  ProcessProfileImpl authentication(String username, String password);
 
-  ActivityDefinition getActivityDefinition();
-
-  Object getActivityDefinitionId();
-
-  ScopeInstance getParent();
-
-  void setJoining();
-  void removeJoining();
-  boolean isJoining();
+  ProcessProfileImpl scheme(String scheme);
+  
+  ProcessProfileImpl server(String server);
+  
+  ProcessProfileImpl port(Integer port);
+  
+  ProcessProfileImpl organizationKey(String organizationKey);
+  
+  String update();
 }

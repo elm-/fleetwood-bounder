@@ -18,6 +18,11 @@ import com.heisenberg.api.builder.ActivityInstanceQuery;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.plugin.ActivityTypes;
+import com.heisenberg.api.plugin.DataSources;
+import com.heisenberg.api.plugin.DataTypes;
+import com.heisenberg.api.plugin.ProcessProfileBuilder;
+import com.heisenberg.api.plugin.Triggers;
 
 
 /** Start here.
@@ -40,7 +45,17 @@ public interface ProcessEngine {
 
   /** Use a {@link MessageBuilder message} to end a waiting activity instance in a process instance. */
   MessageBuilder newMessage();
-  
-  ActivityInstanceQuery newActivityInstanceQuery();
 
+  ActivityInstanceQuery newActivityInstanceQuery();
+  
+  /** sends the process engine configuration (ie the activity types, data sources, data types 
+   * and triggers) to the process editor.  Once this is done, the process builder will allow you 
+   * to select a profile when creating a new process. 
+   * @return A textual description of the result.  Can be 'Profile {profileName} was up to date', 'Profile {profileName} created', 'Profile {profileName} updated' or a communication error */
+  ProcessProfileBuilder newProcessProfile();
+  
+  ActivityTypes getActivityTypes();
+  DataTypes getDataTypes();
+  DataSources getDataSources();
+  Triggers getTriggers();
 }

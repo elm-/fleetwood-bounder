@@ -29,7 +29,7 @@ import com.heisenberg.api.util.PluginFactory;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
-import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
+import com.heisenberg.impl.json.JsonServiceImpl;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 
 
@@ -88,8 +88,6 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
     return this;
   }
   
-
-
   public String getId() {
     return id!=null ? id : createDefaultId();
   }
@@ -138,7 +136,7 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
     this.executorService = executorService;
   }
   
-  public static String createDefaultId() {
+  public String createDefaultId() {
     try {
       String id = InetAddress.getLocalHost().getHostAddress();
       String processName = ManagementFactory.getRuntimeMXBean().getName();
@@ -152,22 +150,20 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
     }
   }
 
-  public static ProcessDefinitionCache createDefaultProcessDefinitionCache() {
+  public ProcessDefinitionCache createDefaultProcessDefinitionCache() {
     return new SimpleProcessDefinitionCache();
   }
 
-  public static Executor createDefaultExecutorService() {
+  public Executor createDefaultExecutorService() {
     // TODO apply these tips: http://java.dzone.com/articles/executorservice-10-tips-and
     return new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  public static ScriptService createDefaultScriptService() {
+  public ScriptService createDefaultScriptService() {
     return new ScriptServiceImpl();
   }
 
-  public static TaskService createDefaultTaskService() {
+  public TaskService createDefaultTaskService() {
     return new MemoryTaskService();
   }
-
-
 }

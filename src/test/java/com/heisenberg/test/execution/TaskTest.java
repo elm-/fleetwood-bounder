@@ -39,8 +39,8 @@ public class TaskTest {
       .id("Task one")
       .activityType(new UserTask());
     
-    String processDefinitionId = processEngine
-      .deployProcessDefinition(process)
+    String processDefinitionId = process
+      .deploy()
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     

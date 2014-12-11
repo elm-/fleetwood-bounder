@@ -18,6 +18,6 @@ package com.heisenberg.api.definition;
 /**
  * @author Walter White
  */
-public interface ProcessDefinition {
+public interface ProcessDefinition extends ScopeDefinition {
 
 }

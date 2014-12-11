@@ -75,7 +75,7 @@ public class DataTypeReference implements DataType {
   public void validate(Validator validator) {
     if (delegate==null) {
       if (dataTypeId!=null) {
-        delegate = validator.getDataTypes().findByTypeId(dataTypeId);
+        delegate = validator.getServiceLocator().getDataTypes().findByTypeId(dataTypeId);
         if (delegate==null) {
           validator.addError("Invalid dataTypeId specified: "+dataTypeId);
         }

@@ -14,9 +14,17 @@
  */
 package com.heisenberg.api.activities;
 
+import java.lang.reflect.Field;
+import java.util.List;
+
+import org.slf4j.Logger;
+
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.plugin.TypeField;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.plugin.ActivityTypeService;
 
 
 
@@ -25,6 +33,8 @@ import com.heisenberg.api.util.Validator;
  * @author Walter White
  */
 public abstract class AbstractActivityType implements ActivityType {
+  
+  public static final Logger log = ProcessEngineImpl.log;
   
   public abstract void start(ControllableActivityInstance activityInstance);
 
@@ -40,6 +50,31 @@ public abstract class AbstractActivityType implements ActivityType {
 
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    activityDefinition.validateConfigurationFields(validator);
+    validateConfigurationFields(activityDefinition, validator);
+  }
+
+  protected void validateConfigurationFields(ActivityDefinition activityDefinition, Validator validator) {
+    ActivityTypeService activityTypeService = (ActivityTypeService) validator.getServiceLocator().getActivityTypes();
+    List<TypeField> configurationFields = activityTypeService.getConfigurationFields(this);
+    if (configurationFields!=null) {
+      for (TypeField typeField : configurationFields) {
+        Field field = typeField.field;
+        try {
+          Object value = field.get(this);
+          if (value==null) {
+            if (Boolean.TRUE.equals(typeField.isRequired)) {
+              validator.addError("Configuration field %s is required", typeField.label);
+            }
+          }
+          if (value instanceof Binding) {
+            Binding< ? > binding = (Binding< ? >) value;
+            binding.dataType = typeField.dataType;
+            binding.validate(activityDefinition, this, typeField, validator);
+          }
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
   }
 }

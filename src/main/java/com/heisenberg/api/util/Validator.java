@@ -21,10 +21,12 @@ package com.heisenberg.api.util;
 /**
  * @author Walter White
  */
-public interface Validator extends ServiceLocator {
+public interface Validator {
 
   void addError(String message, Object... messageArgs);
 
   void addWarning(String message, Object... messageArgs);
+  
+  ServiceLocator getServiceLocator();
 
 }

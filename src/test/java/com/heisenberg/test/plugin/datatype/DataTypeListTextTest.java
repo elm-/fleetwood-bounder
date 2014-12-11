@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.test.datatype;
+package com.heisenberg.test.plugin.datatype;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,25 +25,27 @@ import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.impl.type.ListType;
 import com.heisenberg.impl.type.TextType;
+import com.heisenberg.impl.util.Lists;
 
 
 /**
  * @author Walter White
  */
-public class DataTypeTextTest {
+public class DataTypeListTextTest {
 
-  public static final Logger log = LoggerFactory.getLogger(DataTypeTextTest.class);
+  public static final Logger log = LoggerFactory.getLogger(DataTypeListTextTest.class);
   
   @Test
-  public void testDefaultDataTypeText() {
+  public void testVariableStoringListOfTexts() {
     ProcessEngine processEngine = new MemoryProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newVariable()
       .id("v")
-      .dataType(TextType.INSTANCE);
+      .dataType(new ListType(TextType.INSTANCE));
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
@@ -51,11 +53,10 @@ public class DataTypeTextTest {
 
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("v", "Hello World")
+      .variableValue("v", Lists.of("Hello", "World"))
       .startProcessInstance();
   
     VariableInstance v = processInstance.getVariableInstances().get(0);
-    assertEquals("Hello World", v.getValue());
+    assertEquals(Lists.of("Hello", "World"), v.getValue());
   }
-
 }

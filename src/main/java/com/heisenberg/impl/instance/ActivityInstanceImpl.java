@@ -26,19 +26,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.DataTypes;
 
 
 /**
@@ -52,6 +48,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   public ActivityDefinitionImpl activityDefinition;
   
   public Object activityDefinitionId;
+  public Boolean joining;
 
   public <T> T getValue(Binding<T> binding) {
     if (binding==null) {
@@ -77,7 +74,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     if (activityDefinition.hasOutgoingTransitionDefinitions()) {
       // Ensure that each transition is taken
       // Note that process concurrency does not require java concurrency
-      for (TransitionDefinitionImpl transitionDefinition: activityDefinition.getOutgoingTransitionDefinitions()) {
+      for (TransitionDefinitionImpl transitionDefinition: activityDefinition.outgoingTransitionDefinitions) {
         takeTransition(transitionDefinition);  
       }
     }
@@ -121,6 +118,19 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   public void ended(ActivityInstanceImpl nestedEndedActivityInstance) {
     activityDefinition.activityType.ended(this, nestedEndedActivityInstance);
   }
+  
+  public void setJoining() {
+    joining = true;
+  }
+
+  public void removeJoining() {
+    joining = null;
+  }
+  
+  public boolean isJoining() {
+    return Boolean.TRUE.equals(joining);
+  }
+
   
   @Override
   public ActivityInstanceImpl findActivityInstance(Object activityInstanceId) {
@@ -187,27 +197,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
 
   @Override
-  public JsonService getJsonService() {
-    return processEngine.jsonService;
-  }
-
-  @Override
-  public TaskService getTaskService() {
-    return processEngine.taskService;
-  }
-
-  @Override
-  public ScriptService getScriptService() {
-    return processEngine.scriptService;
-  }
-
-  @Override
-  public ActivityTypes getActivityTypes() {
-    return processEngine.activityTypes;
-  }
-  
-  @Override
-  public DataTypes getDataTypes() {
-    return processEngine.dataTypes;
+  public ServiceLocator getServiceLocator() {
+    return processEngine;
   }
 }

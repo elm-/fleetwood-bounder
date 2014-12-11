@@ -12,38 +12,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.test.activitytype;
+package com.heisenberg.test.plugin.datatype;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
+import com.heisenberg.api.activities.ConfigurationField;
+import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.test.activitytype.ActivityTypeBindingConfigurationTest.MyBindingActivityType;
-import com.heisenberg.test.activitytype.ActivityTypeStaticConfigurationTest.MyConfigurableActivityType;
+import com.heisenberg.impl.type.AbstractDataType;
+import com.heisenberg.impl.type.InvalidValueException;
+import com.heisenberg.test.plugin.activitytype.ActivityTypeDescriptorTest;
 
 
 /**
  * @author Walter White
  */
-public class ActivityTypeDescriptorTest {
-  
+public class DataTypeDescriptorTest {
+
   public static final Logger log = LoggerFactory.getLogger(ActivityTypeDescriptorTest.class);
 
   @Test 
-  public void testConfigurableActivityTypeDescriptor() {
+  public void testDataTypeDescriptors() {
     ProcessEngineImpl processEngine = (ProcessEngineImpl) new MemoryProcessEngineConfiguration()
-      .registerConfigurableActivityType(new MyConfigurableActivityType())
-      .registerConfigurableActivityType(new MyBindingActivityType())
+      .registerJavaBeanType(Money.class)
+      .registerConfigurableDataType(new InvoiceType())
       .buildProcessEngine();
 
     JsonService jsonService = processEngine.getJsonService();
-    log.debug("Activity type descriptors:");
-    log.debug(jsonService.objectToJsonStringPretty(processEngine.activityTypes.descriptors));
     log.debug("Data type descriptors:");
-    log.debug(jsonService.objectToJsonStringPretty(processEngine.dataTypes.descriptors));
+    log.debug(jsonService.objectToJsonStringPretty(processEngine.dataTypeService.descriptors));
   }
 
+  static class Money {
+    public int amount;
+    public String currency;
+    public Money() {
+    }
+    public Money(int amount, String currency) {
+      this.amount = amount;
+      this.currency = currency;
+    }
+  }
+
+  @JsonTypeName("invoice")
+  static class InvoiceType extends AbstractDataType {
+    @ConfigurationField
+    @Label("Include lines?")
+    public String includeLines;
+    @Override
+    public Object convertJsonToInternalValue(Object jsonValue) throws InvalidValueException {
+      return null;
+    }
+    
+  }
 }

@@ -20,7 +20,5 @@ package com.heisenberg.api.util;
  */
 public interface Plugin {
 
-//  String getLabel();
-//  String getDescription();
 
 }

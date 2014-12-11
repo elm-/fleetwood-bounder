@@ -18,7 +18,7 @@ import javax.ws.rs.ext.ContextResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
+import com.heisenberg.impl.json.JsonServiceImpl;
 
 
 /**

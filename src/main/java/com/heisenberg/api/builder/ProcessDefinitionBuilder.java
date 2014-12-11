@@ -16,9 +16,6 @@ package com.heisenberg.api.builder;
 
 import org.joda.time.LocalDateTime;
 
-import com.heisenberg.api.configuration.ProcessEngineConfiguration;
-import com.heisenberg.impl.type.DataType;
-
 
 /**
  * @author Walter White
@@ -47,15 +44,5 @@ public interface ProcessDefinitionBuilder {
 
   TimerBuilder newTimer();
   
-  /** create a list data type from the element data type used to set in {@link #dataType(DataType)} */
-  DataType newDataTypeList(DataType elementDataType);
-  /** create a javabean data type used to set in {@link #dataType(DataType)} */
-  DataType newDataTypeJavaBean(Class<?> javaBeanClass);
-  /** create a text type used to set in {@link #dataType(DataType)} */
-  DataType newDataTypeText();
-  /** obtain the dataType matching the given id to set in {@link #dataType(DataType)}.
-   * dataTypeIds are specified with {@link ProcessEngineConfiguration#registerSingletonDataType(DataType, String)} */
-  DataType newDataType(String dataTypeId);
-
   DeployResult deploy();
 }

@@ -72,6 +72,7 @@ public class HeisenbergServer {
 
   public static ResourceConfig buildRestApplication(ProcessEngineImpl processEngine) {
     ResourceConfig config = new ResourceConfig();
+    
     config.registerInstances(
             new JacksonFeature(),
             new DeployResource(processEngine),

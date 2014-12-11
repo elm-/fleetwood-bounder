@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.impl.jsondeprecated.JsonServiceImpl;
+import com.heisenberg.impl.json.JsonServiceImpl;
 import com.heisenberg.impl.plugin.ActivityTypeRegistration;
 import com.heisenberg.impl.plugin.DataTypeRegistration;
 import com.heisenberg.impl.type.DataType;

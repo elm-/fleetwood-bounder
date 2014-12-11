@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.test.datatype;
+package com.heisenberg.test.plugin.datatype;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -27,47 +23,65 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.api.plugin.DataTypes;
+import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.TriggerBuilderImpl;
 import com.heisenberg.impl.type.DataTypeReference;
 import com.heisenberg.impl.type.JavaBeanType;
-import com.heisenberg.test.datatype.DataTypeJavaBeanSerializationTest.Money;
 
 
 /**
  * @author Walter White
  */
-public class DataTypeJavaBeanTest {
+public class DataTypeJavaBeanSerializationTest {
 
-  public static final Logger log = LoggerFactory.getLogger(DataTypeJavaBeanTest.class);
+  public static final Logger log = LoggerFactory.getLogger(DataTypeJavaBeanSerializationTest.class);
   
   @Test
   public void testProcessEngineCustomMoneyType() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .buildProcessEngine();
-
+    
+    DataTypes dataTypes = processEngine.getDataTypes();
+    
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newVariable()
       .id("m")
-      .dataType(process.newDataTypeJavaBean(Money.class));
+      .dataType(dataTypes.javaBean(Money.class));
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
       .getProcessDefinitionId();
     
     Money startProcessMoney = new Money(5, "USD");
-  
+
+    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
+
     // start a process instance supplying a java bean object as the variable value
-    ProcessInstance processInstance = processEngine.newTrigger()
+    TriggerBuilder trigger = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("m", startProcessMoney)
+      .variableValue("m", startProcessMoney, Money.class);
+
+    String triggerJson = jsonService.objectToJsonStringPretty(trigger);
+    log.debug("Serialized trigger message that can be sent to remote REST API:");
+    log.debug(triggerJson);
+
+    TriggerBuilderImpl triggerImpl = jsonService.jsonToObject(triggerJson, TriggerBuilderImpl.class);
+    triggerImpl.deserialize((ProcessEngineImpl)processEngine);
+    
+    ProcessInstance processInstance = triggerImpl
       .startProcessInstance();
   
     VariableInstance m = processInstance.getVariableInstances().get(0);
     Money variableInstanceMoney = (Money) m.getValue();
-    assertSame(startProcessMoney, variableInstanceMoney);
+    assertEquals(startProcessMoney.amount, variableInstanceMoney.amount, 0.0001);
+    assertEquals(startProcessMoney.currency, variableInstanceMoney.currency);
     assertEquals(5d, variableInstanceMoney.amount, 0.000001d);
     assertEquals("USD", variableInstanceMoney.currency);
     DataTypeReference dataTypeReference = (DataTypeReference) m.getDataType();

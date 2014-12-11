@@ -17,6 +17,9 @@ package com.heisenberg.test.rest;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
+import java.util.logging.LogManager;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
@@ -46,14 +49,14 @@ import com.heisenberg.test.db.MongoProcessEngineTest;
  */
 public class RestTest extends JerseyTest {
   
-//  static {
-//    try {
-//      final InputStream inputStream = RestTest.class.getResourceAsStream("/logging.properties");
-//      LogManager.getLogManager().readConfiguration(inputStream);
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//    }
-//  }
+  static {
+    try {
+      final InputStream inputStream = RestTest.class.getResourceAsStream("/logging.properties");
+      LogManager.getLogManager().readConfiguration(inputStream);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
   public static final Logger log = LoggerFactory.getLogger(RestTest.class);
   

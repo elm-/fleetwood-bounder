@@ -20,23 +20,18 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.ClientProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.util.ServiceLocator;
+import com.heisenberg.api.plugin.ProcessProfileBuilder;
 import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.MessageImpl;
 import com.heisenberg.impl.TriggerBuilderImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.DataTypes;
 
 
 /**
  * @author Walter White
  */
-public class ClientProcessEngine extends AbstractProcessEngine implements ServiceLocator {
+public class ClientProcessEngine extends AbstractProcessEngine /* implements ServiceLocator */ {
   
   public static final Logger log = LoggerFactory.getLogger(ClientProcessEngine.class);
 
@@ -65,28 +60,33 @@ public class ClientProcessEngine extends AbstractProcessEngine implements Servic
   public ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl notifyActivityInstanceBuilder) {
     return null;
   }
+
+  @Override
+  public ProcessProfileBuilder newProcessProfile() {
+    throw new RuntimeException("Client process engine doesn't support this method");
+  }
   
-  @Override
-  public ServiceLocator getServiceLocator() {
-    return this;
-  }
-
-  @Override
-  public ScriptService getScriptService() {
-    throw newUnexpectedInvocationException();
-  }
-
-  @Override
-  public TaskService getTaskService() {
-    throw newUnexpectedInvocationException();
-  }
-
-  @Override
-  public ActivityTypes getActivityTypes() {
-    throw newUnexpectedInvocationException();
-  }
-
-  protected RuntimeException newUnexpectedInvocationException() {
-    return new RuntimeException("I didn't think this was ever going to be called.");
-  }
+//  @Override
+//  public ServiceLocator getServiceLocator() {
+//    return this;
+//  }
+//
+//  @Override
+//  public ScriptService getScriptService() {
+//    throw newUnexpectedInvocationException();
+//  }
+//
+//  @Override
+//  public TaskService getTaskService() {
+//    throw newUnexpectedInvocationException();
+//  }
+//
+//  @Override
+//  public ActivityTypeService getActivityTypes() {
+//    throw newUnexpectedInvocationException();
+//  }
+//
+//  protected RuntimeException newUnexpectedInvocationException() {
+//    return new RuntimeException("I didn't think this was ever going to be called.");
+//  }
 }

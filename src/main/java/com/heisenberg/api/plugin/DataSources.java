@@ -12,28 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
-
-import com.heisenberg.api.definition.ActivityDefinition;
-
-
-
+package com.heisenberg.api.plugin;
 
 
 /**
  * @author Walter White
  */
-public interface ActivityInstance extends ScopeInstance {
-  
-  String getId();
+public interface DataSources {
 
-  ActivityDefinition getActivityDefinition();
-
-  Object getActivityDefinitionId();
-
-  ScopeInstance getParent();
-
-  void setJoining();
-  void removeJoining();
-  boolean isJoining();
 }

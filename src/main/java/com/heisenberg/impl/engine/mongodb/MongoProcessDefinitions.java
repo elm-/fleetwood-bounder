@@ -25,9 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.api.configuration.TaskService;
+import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -35,8 +33,6 @@ import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.DataTypes;
 import com.heisenberg.impl.type.DataType;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -213,32 +209,6 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     // warnings should be ignored during reading of process definition from db.
   }
   
-  @Override
-  public ScriptService getScriptService() {
-    return processEngine.getScriptService();
-  }
-
-  @Override
-  public JsonService getJsonService() {
-    return processEngine.getJsonService();
-  }
-
-  @Override
-  public TaskService getTaskService() {
-    return processEngine.taskService;
-  }
-
-  @Override
-  public ActivityTypes getActivityTypes() {
-    return processEngine.activityTypes;
-  }
-
-  @Override
-  public DataTypes getDataTypes() {
-    return processEngine.dataTypes;
-  }
-
-
   public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
     BasicDBObject dbProcessDefinition = writeProcessDefinition(processDefinition);
     insert(dbProcessDefinition, writeConcernInsertProcessDefinition);
@@ -250,5 +220,10 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
             .get();
     BasicDBObject dbProcess = findOne(query);
     return readProcessDefinition(dbProcess);
+  }
+
+  @Override
+  public ServiceLocator getServiceLocator() {
+    return processEngine;
   }
 }

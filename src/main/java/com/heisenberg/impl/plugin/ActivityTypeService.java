@@ -31,6 +31,9 @@ import com.heisenberg.api.activities.bpmn.JavaServiceTask;
 import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.plugin.ActivityTypes;
+import com.heisenberg.api.plugin.TypeDescriptor;
+import com.heisenberg.api.plugin.TypeField;
 import com.heisenberg.impl.type.ActivityTypeReference;
 import com.heisenberg.impl.util.Exceptions;
 
@@ -38,18 +41,18 @@ import com.heisenberg.impl.util.Exceptions;
 /**
  * @author Walter White
  */
-public class ActivityTypes {
+public class ActivityTypeService implements ActivityTypes {
 
   public List<TypeDescriptor> descriptors = new ArrayList<>();
   public Map<String, ActivityType> activityTypesById = new HashMap<>();
-  public Map<Class<?>, List<TypeField>> configurationFieldsByClass = new HashMap<>();
-  public DataTypes dataTypes;
+  public Map<Class<?>, TypeDescriptor> typeDescriptorsByClass = new HashMap<>();
+  public DataTypeService dataTypeService;
   public ObjectMapper objectMapper;
   
-  public ActivityTypes(ObjectMapper objectMapper, DataTypes dataTypes) {
-    Exceptions.checkNotNullParameter(dataTypes, "dataTypes");
+  public ActivityTypeService(ObjectMapper objectMapper, DataTypeService dataTypeService) {
+    Exceptions.checkNotNullParameter(dataTypeService, "dataTypes");
     Exceptions.checkNotNullParameter(objectMapper, "objectMapper");
-    this.dataTypes = dataTypes;
+    this.dataTypeService = dataTypeService;
     this.objectMapper = objectMapper;
   }
   
@@ -78,7 +81,7 @@ public class ActivityTypes {
       activityType = new ActivityTypeReference(typeId);
     } // else we can just let json use the default constructor 
 
-    TypeDescriptor descriptor = new TypeDescriptor(activityType);
+    TypeDescriptor descriptor = dataTypeService.createTypeDescriptor(activityType);
     addDescriptor(descriptor);
     return descriptor;
   }
@@ -91,29 +94,35 @@ public class ActivityTypes {
   }
   
   public TypeDescriptor registerConfigurableActivityType(ActivityType activityType) {
-    TypeDescriptor robertDn = new TypeDescriptor(activityType);
-    addDescriptor(robertDn);
-    List<TypeField> issues = robertDn.analyze(this); // apologies for the bad naming of variables... couldn't resist :)
-    if (issues!=null) {
-      configurationFieldsByClass.put(activityType.getClass(), issues);
-    }
-    return robertDn;
+    TypeDescriptor typeDescriptor = dataTypeService.createTypeDescriptor(activityType);
+    addDescriptor(typeDescriptor);
+    typeDescriptorsByClass.put(activityType.getClass(), typeDescriptor);
+    return typeDescriptor;
   }
   
   protected void addDescriptor(TypeDescriptor descriptor) {
     descriptors.add(descriptor);
-    objectMapper.registerSubtypes(descriptor.activityType.getClass());
+    objectMapper.registerSubtypes(descriptor.getActivityType().getClass());
   }
   
   public List<TypeField> getConfigurationFields(ActivityType activityType) {
-    return configurationFieldsByClass.get(activityType.getClass());
+    TypeDescriptor typeDescriptor = typeDescriptorsByClass.get(activityType.getClass());
+    if (typeDescriptor==null) {
+      return null;
+    }
+    return typeDescriptor.getConfigurationFields();
   }
   
-  public DataTypes getDataTypes() {
-    return dataTypes;
+  public DataTypeService getDataTypes() {
+    return dataTypeService;
   }
 
-  public void setDataTypes(DataTypes dataTypes) {
-    this.dataTypes = dataTypes;
+  public void setDataTypes(DataTypeService dataTypeService) {
+    this.dataTypeService = dataTypeService;
+  }
+
+  @Override
+  public List<TypeDescriptor> getDescriptors() {
+    return descriptors;
   }
 }

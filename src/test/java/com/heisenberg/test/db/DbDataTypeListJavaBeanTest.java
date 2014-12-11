@@ -27,6 +27,7 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.api.plugin.DataTypes;
 import com.heisenberg.impl.util.Lists;
 
 
@@ -45,19 +46,22 @@ public class DbDataTypeListJavaBeanTest {
       .server("localhost", 27017)
       .buildProcessEngine();
 
+    DataTypes types = processEngine.getDataTypes();
+    
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newVariable()
       .id("v")
-      .dataType(process.newDataTypeList(process.newDataTypeJavaBean(Money.class)));
+      .dataType(types.list(types.javaBean(Money.class)));
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
       .getProcessDefinitionId();
 
+    List<Money> moneys = Lists.of(new Money(5, "USD"), new Money(6, "EUR"));
     ProcessInstance processInstance = processEngine.newTrigger()
       .processDefinitionId(processDefinitionId)
-      .variableValue("v", Lists.of(new Money(5, "USD"), new Money(6, "EUR")))
+      .variableValue("v", moneys, types.list(types.javaBean(Money.class)))
       .startProcessInstance();
   
     VariableInstance v = processInstance.getVariableInstances().get(0);

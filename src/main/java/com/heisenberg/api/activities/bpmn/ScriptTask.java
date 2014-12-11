@@ -43,7 +43,7 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
     if (script!=null) {
-      ScriptService scriptService = validator.getScriptService();
+      ScriptService scriptService = validator.getServiceLocator().getScriptService();
       compiledScript = scriptService.compile(script);
       compiledScript.scriptToProcessMappings = scriptToProcessMappings;
     }
@@ -53,7 +53,7 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void start(ControllableActivityInstance activityInstance) {
     if (script!=null) {
-      ScriptService scriptService = activityInstance.getScriptService();
+      ScriptService scriptService = activityInstance.getServiceLocator().getScriptService();
       ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, compiledScript);
       scriptResult.getResult();
       /* Object result = 

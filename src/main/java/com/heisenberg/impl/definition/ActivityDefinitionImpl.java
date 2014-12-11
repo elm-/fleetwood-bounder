@@ -14,19 +14,16 @@
  */
 package com.heisenberg.impl.definition;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.impl.plugin.ActivityTypes;
-import com.heisenberg.impl.plugin.TypeField;
 
 
 /**
@@ -57,8 +54,13 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
 //  @JsonIgnore
   public ActivityType activityType;
 
-  /** the list of transitions leaving this activity.
-   * This field is not persisted nor jsonned. It is derived from {@link ScopeDefinitionImpl#transitionDefinitions} */
+  /** the list of transitions for which this activity is the destination.
+   * This field is not persisted nor jsonned. It is derived from the parent's {@link ScopeDefinitionImpl#transitionDefinitions} */
+  @JsonIgnore
+  public List<TransitionDefinitionImpl> incomingTransitionDefinitions;
+
+  /** the list of transitions for which this activity is the source.
+   * This field is not persisted nor jsonned. It is derived from the parent's {@link ScopeDefinitionImpl#transitionDefinitions} */
   @JsonIgnore
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
 
@@ -140,43 +142,51 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   public boolean hasOutgoingTransitionDefinitions() {
     return outgoingTransitionDefinitions!=null && !outgoingTransitionDefinitions.isEmpty();
   }
-
   
-  public List<TransitionDefinitionImpl> getOutgoingTransitionDefinitions() {
-    return outgoingTransitionDefinitions;
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public List<TransitionDefinition> getOutgoingTransitionDefinitions() {
+    return (List) outgoingTransitionDefinitions;
   }
 
   public void setOutgoingTransitionDefinitions(List<TransitionDefinitionImpl> outgoingTransitionDefinitions) {
     this.outgoingTransitionDefinitions = outgoingTransitionDefinitions;
   }
 
+
+  public void addIncomingTransition(TransitionDefinitionImpl transitionDefinition) {
+    if (incomingTransitionDefinitions==null) {
+      incomingTransitionDefinitions = new ArrayList<TransitionDefinitionImpl>();
+    }
+    incomingTransitionDefinitions.add(transitionDefinition);
+  }
+
+  public boolean hasIncomingTransitionDefinitions() {
+    return incomingTransitionDefinitions!=null && !incomingTransitionDefinitions.isEmpty();
+  }
+
+  
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public List<TransitionDefinition> getIncomingTransitionDefinitions() {
+    return (List) incomingTransitionDefinitions;
+  }
+
+  public void setIncomingTransitionDefinitions(List<TransitionDefinitionImpl> incomingTransitionDefinitions) {
+    this.incomingTransitionDefinitions = incomingTransitionDefinitions;
+  }
+
+
+  
+  
   public String toString() {
     return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
   
   @Override
   public void validateConfigurationFields(Validator validator) {
-    ActivityTypes activityTypes = validator.getActivityTypes();
-    List<TypeField> configurationFields = activityTypes.getConfigurationFields(activityType);
-    if (configurationFields!=null) {
-      for (TypeField typeField : configurationFields) {
-        Field field = typeField.field;
-        try {
-          Object value = field.get(activityType);
-          if (value==null) {
-            if (Boolean.TRUE.equals(typeField.isRequired)) {
-              validator.addError("Configuration field %s is required", typeField.label);
-            }
-          }
-          if (value instanceof Binding) {
-            Binding< ? > binding = (Binding< ? >) field.get(activityType);
-            binding.dataType = typeField.dataType;
-            binding.validate(this, activityType, typeField, validator);
-          }
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
+    if (activityType!=null) {
+      activityType.validate(this, validator);
+    } else {
+      validator.addError("No activityType configured in activity definition %s", id);
     }
   }
 }
