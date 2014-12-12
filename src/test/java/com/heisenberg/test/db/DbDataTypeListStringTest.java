@@ -58,7 +58,7 @@ public class DbDataTypeListStringTest {
       .checkNoErrors()
       .getProcessDefinitionId();
 
-    ProcessInstance processInstance = processEngine.newTrigger()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", Lists.of(new Money(1,"EUR"), new Money(2,"USD")))
       .startProcessInstance();

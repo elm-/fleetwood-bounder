@@ -12,19 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
-
-import com.heisenberg.api.configuration.Script;
-
+package com.heisenberg.impl.type;
 
 
 /**
  * @author Walter White
  */
-public interface TransitionDefinition {
+public class NumberType extends AbstractDataType {
 
-  String getId();
-  ActivityDefinition getTo();
-  ActivityDefinition getFrom();
-  Script getConditionScript();
+  @Override
+  public Object convertJsonToInternalValue(Object jsonValue) throws InvalidValueException {
+    if (jsonValue instanceof Double) {
+      return jsonValue;
+    } else if (jsonValue instanceof Number) {
+      return ((Number)jsonValue).doubleValue();
+    } else if (jsonValue instanceof String) { 
+      try {
+        return Double.parseDouble((String) jsonValue);
+      } catch (NumberFormatException e) {
+        throw new InvalidValueException("Invalid number string "+jsonValue);
+      }
+    }
+    return null;
+  }
+
 }

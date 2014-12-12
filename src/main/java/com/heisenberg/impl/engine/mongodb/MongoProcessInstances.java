@@ -21,9 +21,9 @@ import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
@@ -44,7 +44,7 @@ import com.mongodb.WriteConcern;
  */
 public class MongoProcessInstances extends MongoCollection {
   
-  public static final Logger log = LoggerFactory.getLogger(MongoProcessInstances.class);
+  public static final Logger log = MongoProcessEngine.log;
   
   protected MongoProcessEngine processEngine;
   protected MongoProcessEngineConfiguration.ProcessInstanceFields fields;
@@ -145,7 +145,10 @@ public class MongoProcessInstances extends MongoCollection {
     process.processEngine = processEngine;
     process.organizationId = readString(dbProcess, fields.organizationId);
     process.processDefinitionId = readId(dbProcess, fields.processDefinitionId);
-    ProcessDefinitionImpl processDefinition = processEngine.findProcessDefinitionByIdUsingCache(process.processDefinitionId);
+    ProcessDefinitionImpl processDefinition = processEngine.newProcessDefinitionQuery()
+            .representation(Representation.EXECUTABLE)
+            .id(process.processDefinitionId)
+            .get();
     process.processDefinition = processDefinition;
     process.processInstance = process;
     process.scopeDefinition = process.processDefinition;

@@ -49,7 +49,7 @@ public class DataTypeTextTest {
       .checkNoErrors()
       .getProcessDefinitionId();
 
-    ProcessInstance processInstance = processEngine.newTrigger()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", "Hello World")
       .startProcessInstance();

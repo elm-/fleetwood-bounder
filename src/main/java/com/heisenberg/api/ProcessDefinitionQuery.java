@@ -12,19 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.definition;
+package com.heisenberg.api;
 
-import com.heisenberg.api.configuration.Script;
+import java.util.List;
 
-
+import com.heisenberg.api.definition.ProcessDefinition;
 
 /**
  * @author Walter White
  */
-public interface TransitionDefinition {
+public interface ProcessDefinitionQuery {
 
-  String getId();
-  ActivityDefinition getTo();
-  ActivityDefinition getFrom();
-  Script getConditionScript();
+  ProcessDefinitionQuery id(String id);
+
+  ProcessDefinitionQuery name(String name);
+
+  ProcessDefinitionQuery maxResults(int maxResults);
+  
+  ProcessDefinition get();
+
+  List<? extends ProcessDefinition> asList();
 }

@@ -20,10 +20,11 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.builder.ActivityBuilder;
+import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
-import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
+import com.heisenberg.impl.type.DataType;
 
 
 /**
@@ -31,27 +32,6 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements ActivityBuilder, ActivityDefinition {
 
-//  /** The json representation for singleton activity types.
-//   * 
-//   * This property is only used for singleton activity types registered 
-//   * with {@link ProcessEngineConfiguration#registerActivityType(ActivityType)}.
-//   * 
-//   * This value is jsonned and persisted.
-//   * This field is mutually exclusive with activityTypeJson. */
-//  public String activityTypeId;
-//  
-//  /** An inline, jsonnable and persistable declaration of an activityType. 
-//   * This means that it contains the type and configuration of the activityType.
-//   * With the {@link ActivityBuilder#activityTypeJson(Map) builder}, an activityType object can be specified.
-//   * The validator and the serializer. */
-//  @JsonProperty("activityType") 
-//  public Map<String,Object> activityTypeJson;
-//  
-//  /** The object implementing the activity execution behavior.
-//   * This object is not persisted nor serialized. 
-//   * If the process is persisted or serialized, the activityType must be found
-//   * in the process engine via {@link #typeId} or constructed from {@link #activityTypeJson} */
-//  @JsonIgnore
   public ActivityType activityType;
 
   /** the list of transitions for which this activity is the destination.
@@ -64,6 +44,20 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   @JsonIgnore
   public List<TransitionDefinitionImpl> outgoingTransitionDefinitions;
 
+  public String defaultTransitionId;
+  
+  @JsonIgnore
+  public TransitionDefinitionImpl defaultTransition;
+  
+  public String forEach;
+  public String forEachExpression;
+  public String forEachElementVariableId;
+  
+  @JsonIgnore 
+  public Script forEachExpressionScript;
+
+  
+
   /// Activity Definition Builder methods ////////////////////////////////////////////////
 
   public ActivityDefinitionImpl activityType(ActivityType activityType) {
@@ -71,10 +65,10 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return this;
   }
   
-//  public ActivityDefinitionImpl activityTypeId(String activityTypeId) {
-//    this.activityType = processEngine.activityTypes.createDelegate(activityTypeId);
-//    return this;
-//  }
+  public ActivityDefinitionImpl defaultOutgoingTransitionId(String defaultOutgoingTransitionId) {
+    this.defaultTransitionId = defaultOutgoingTransitionId;
+    return this;
+  }
   
   public ActivityDefinitionImpl id(String id) {
     this.id = id;
@@ -91,6 +85,31 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
     return this;
   }
   
+  @Override
+  public ActivityBuilder defaultTransition(String transitionId) {
+    this.defaultTransitionId = transitionId;
+    return this;
+  }
+  
+  @Override
+  public ActivityBuilder forEach(String elementVariableId, DataType elementDataType, String collectionVariableId) {
+    newVariable()
+      .id(elementVariableId)
+      .dataType(elementDataType);
+    this.forEach = collectionVariableId;
+    this.forEachElementVariableId = elementVariableId; 
+    return this;
+  }
+  
+  @Override
+  public ActivityBuilder forEachExpression(String elementVariableId, DataType elementDataType, String collectionExpression) {
+    newVariable()
+      .id(elementVariableId)
+      .dataType(elementDataType);
+    this.forEachExpression = collectionExpression;
+    return this;
+  }
+
   @Override
   public ActivityDefinitionImpl newActivity() {
     return super.newActivity();
@@ -110,7 +129,7 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   public TimerDefinitionImpl newTimer() {
     return super.newTimer();
   }
-
+  
   /// other methods ////////////////////////////
 
   public ProcessDefinitionPath getPath() {
@@ -173,20 +192,32 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   public void setIncomingTransitionDefinitions(List<TransitionDefinitionImpl> incomingTransitionDefinitions) {
     this.incomingTransitionDefinitions = incomingTransitionDefinitions;
   }
-
-
   
-  
-  public String toString() {
-    return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
+  public ActivityType getActivityType() {
+    return activityType;
   }
   
-  @Override
-  public void validateConfigurationFields(Validator validator) {
-    if (activityType!=null) {
-      activityType.validate(this, validator);
-    } else {
-      validator.addError("No activityType configured in activity definition %s", id);
-    }
+  public void setActivityType(ActivityType activityType) {
+    this.activityType = activityType;
+  }
+
+  public String getDefaultTransitionId() {
+    return defaultTransitionId;
+  }
+
+  public void setDefaultTransitionId(String defaultOutgoingTransitionId) {
+    this.defaultTransitionId = defaultOutgoingTransitionId;
+  }
+
+  public TransitionDefinitionImpl getDefaultTransition() {
+    return defaultTransition;
+  }
+  
+  public void setDefaultTransition(TransitionDefinitionImpl defaultTransition) {
+    this.defaultTransition = defaultTransition;
+  }
+
+  public String toString() {
+    return id!=null ? "["+id.toString()+"]" : "["+Integer.toString(System.identityHashCode(this))+"]";
   }
 }

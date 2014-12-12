@@ -16,8 +16,6 @@ package com.heisenberg.api.definition;
 
 import java.util.List;
 
-import com.heisenberg.api.util.Validator;
-
 
 
 /**
@@ -34,6 +32,5 @@ public interface ActivityDefinition extends ScopeDefinition {
   /** the transitions, defined in the parent scope, for which this activity is the destination. */
   List<TransitionDefinition> getIncomingTransitionDefinitions();
 
-  void validateConfigurationFields(Validator validator);
-
+  TransitionDefinition getDefaultTransition();
 }

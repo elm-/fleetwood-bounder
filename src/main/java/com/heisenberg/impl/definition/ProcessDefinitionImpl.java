@@ -68,14 +68,19 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /// Process Definition Builder methods /////////////////////////////////////////////
 
+  public ProcessDefinitionImpl deployedTime(LocalDateTime deployedAt) {
+    this.deployedTime = deployedAt;
+    return this;
+  }
+
   @Override
   public DeployResult deploy() {
     return processEngine.deployProcessDefinition(this);
   }
 
   @Override
-  public ProcessDefinitionImpl deployedTime(LocalDateTime deployedAt) {
-    this.deployedTime = deployedAt;
+  public ProcessDefinitionImpl name(String name) {
+    this.name = name;
     return this;
   }
 

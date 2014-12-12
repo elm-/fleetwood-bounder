@@ -14,9 +14,8 @@
  */
 package com.heisenberg.impl;
 
-import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -25,44 +24,51 @@ import com.heisenberg.impl.type.DataType;
 /**
  * @author Walter White
  */
-public class TriggerBuilderImpl extends VariableRequestImpl implements TriggerBuilder {
+public class StartBuilderImpl extends VariableRequestImpl implements StartBuilder {
 
   public String processDefinitionId;
+  public String processDefinitionName;
 
-  public TriggerBuilderImpl() {
+  public StartBuilderImpl() {
   }
 
-  public TriggerBuilderImpl(AbstractProcessEngine processEngine) {
+  public StartBuilderImpl(AbstractProcessEngine processEngine) {
     super(processEngine);
   }
 
 
   @Override
-  public TriggerBuilderImpl processDefinitionId(String processDefinitionId) {
+  public StartBuilderImpl processDefinitionId(String processDefinitionId) {
     this.processDefinitionId = processDefinitionId;
     return this;
   }
 
   @Override
-  public TriggerBuilderImpl variableValue(String variableDefinitionId, Object internalValue) {
+  public StartBuilderImpl processDefinitionName(String processDefinitionName) {
+    this.processDefinitionName = processDefinitionName;
+    return this;
+  }
+
+  @Override
+  public StartBuilderImpl variableValue(String variableDefinitionId, Object internalValue) {
     super.variableValue(variableDefinitionId, internalValue);
     return this;
   }
 
   @Override
-  public TriggerBuilderImpl variableValue(String variableDefinitionId, Object jsonValue, DataType dataType) {
+  public StartBuilderImpl variableValue(String variableDefinitionId, Object jsonValue, DataType dataType) {
     super.variableValue(variableDefinitionId, jsonValue, dataType);
     return this;
   }
 
   @Override
-  public TriggerBuilderImpl variableValue(String variableDefinitionId, Object value, Class<?> javaBeanType) {
+  public StartBuilderImpl variableValue(String variableDefinitionId, Object value, Class<?> javaBeanType) {
     super.variableValue(variableDefinitionId, value, javaBeanType);
     return this;
   }
 
   @Override
-  public TriggerBuilderImpl transientContext(String key, Object value) {
+  public StartBuilderImpl transientContext(String key, Object value) {
     super.transientContext(key, value);
     return this;
   }
@@ -70,10 +76,5 @@ public class TriggerBuilderImpl extends VariableRequestImpl implements TriggerBu
   @Override
   public ProcessInstance startProcessInstance() {
     return processEngine.startProcessInstance(this);
-  }
-
-  @Override
-  protected ProcessDefinitionImpl getProcessDefinition(ProcessEngineImpl processEngine) {
-    return processEngine.findProcessDefinitionByIdUsingCache(processDefinitionId);
   }
 }

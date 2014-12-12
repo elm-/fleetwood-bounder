@@ -30,14 +30,14 @@ import com.heisenberg.impl.ProcessEngineImpl;
 /**
  * @author Walter White
  */
-@Path("/notify")
-public class NotifyActivityInstanceResource {
+@Path("/message")
+public class MessageResource {
   
-  public static final Logger log = LoggerFactory.getLogger(NotifyActivityInstanceResource.class);
+  public static final Logger log = LoggerFactory.getLogger(MessageResource.class);
   
   ProcessEngineImpl processEngine;
   
-  public NotifyActivityInstanceResource(ProcessEngineImpl processEngine) {
+  public MessageResource(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 

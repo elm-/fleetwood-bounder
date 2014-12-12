@@ -23,13 +23,15 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.api.plugin.DataTypes;
+import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.TriggerBuilderImpl;
+import com.heisenberg.impl.StartBuilderImpl;
+import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.type.DataTypeReference;
 import com.heisenberg.impl.type.JavaBeanType;
 
@@ -64,7 +66,7 @@ public class DataTypeJavaBeanSerializationTest {
     JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
 
     // start a process instance supplying a java bean object as the variable value
-    TriggerBuilder trigger = processEngine.newTrigger()
+    StartBuilder trigger = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", startProcessMoney, Money.class);
 
@@ -72,8 +74,9 @@ public class DataTypeJavaBeanSerializationTest {
     log.debug("Serialized trigger message that can be sent to remote REST API:");
     log.debug(triggerJson);
 
-    TriggerBuilderImpl triggerImpl = jsonService.jsonToObject(triggerJson, TriggerBuilderImpl.class);
-    triggerImpl.deserialize((ProcessEngineImpl)processEngine);
+    StartBuilderImpl triggerImpl = jsonService.jsonToObject(triggerJson, StartBuilderImpl.class);
+    triggerImpl.processEngine = (AbstractProcessEngine) processEngine;
+    triggerImpl.deserialize((ProcessDefinitionImpl)process);
     
     ProcessInstance processInstance = triggerImpl
       .startProcessInstance();

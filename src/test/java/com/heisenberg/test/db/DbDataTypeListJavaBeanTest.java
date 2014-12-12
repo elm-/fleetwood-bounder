@@ -59,7 +59,7 @@ public class DbDataTypeListJavaBeanTest {
       .getProcessDefinitionId();
 
     List<Money> moneys = Lists.of(new Money(5, "USD"), new Money(6, "EUR"));
-    ProcessInstance processInstance = processEngine.newTrigger()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", moneys, types.list(types.javaBean(Money.class)))
       .startProcessInstance();

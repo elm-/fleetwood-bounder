@@ -81,7 +81,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     log.debug("Created "+processInstance);
   }
   
-  void addOperation(Operation operation) {
+  public void addOperation(Operation operation) {
     OperationAddUpdate update = operation.createUpdate();
     if (Boolean.TRUE.equals(isAsync) || !operation.isAsync()) {
       if (operations==null) {

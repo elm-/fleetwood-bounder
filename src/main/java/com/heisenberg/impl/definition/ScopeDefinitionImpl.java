@@ -35,6 +35,8 @@ public abstract class ScopeDefinitionImpl implements ScopeDefinition {
   
   public String id;
 
+  public String name;
+
   public List<ActivityDefinitionImpl> activityDefinitions;
   public List<VariableDefinitionImpl> variableDefinitions;
   public List<TransitionDefinitionImpl> transitionDefinitions;
@@ -58,6 +60,11 @@ public abstract class ScopeDefinitionImpl implements ScopeDefinition {
   
   public ScopeDefinitionImpl id(String id) {
     this.id = id;
+    return this;
+  }
+  
+  public ScopeDefinitionImpl name(String name) {
+    this.name = name;
     return this;
   }
   

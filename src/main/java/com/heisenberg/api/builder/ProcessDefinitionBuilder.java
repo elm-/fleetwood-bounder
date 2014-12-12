@@ -14,7 +14,6 @@
  */
 package com.heisenberg.api.builder;
 
-import org.joda.time.LocalDateTime;
 
 
 /**
@@ -22,7 +21,9 @@ import org.joda.time.LocalDateTime;
  */
 public interface ProcessDefinitionBuilder {
 
-  ProcessDefinitionBuilder deployedTime(LocalDateTime deployedTime);
+  ProcessDefinitionBuilder name(String string);
+
+  // ProcessDefinitionBuilder deployedTime(LocalDateTime deployedTime);
   
   ProcessDefinitionBuilder deployedUserId(String deployedUserId);
 
@@ -45,4 +46,5 @@ public interface ProcessDefinitionBuilder {
   TimerBuilder newTimer();
   
   DeployResult deploy();
+
 }

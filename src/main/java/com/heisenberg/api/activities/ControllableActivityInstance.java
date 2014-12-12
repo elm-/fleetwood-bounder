@@ -34,9 +34,14 @@ public interface ControllableActivityInstance extends ActivityInstance {
   
   Object getTransientContextObject(String key);
 
+  /** ends this activity instance, takes outgoing transitions if there are any and if not, notifies the parent this execution path has ended. */
   void onwards();
 
+  /** ends this activity instance and notifies the parent that this execution path has ended. */
   void end();
+
+  /** ends this activity instance and optionally notifies the parent that this execution path has ended. */
+  void end(boolean notifyParent);
 
   /** starts a nested activity instance for the given activity definition */
   void start(ActivityDefinition activityDefinition);
@@ -44,5 +49,6 @@ public interface ControllableActivityInstance extends ActivityInstance {
   void takeTransition(TransitionDefinition transitionDefinition);
   
   ServiceLocator getServiceLocator();
+
   void setJoining();
 }

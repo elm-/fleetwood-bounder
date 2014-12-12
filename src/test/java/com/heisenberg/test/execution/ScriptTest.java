@@ -71,7 +71,7 @@ public class ScriptTest {
     fiveDollars.put("amount", 5d);
     fiveDollars.put("currency", "USD");
     
-    processEngine.newTrigger()
+    processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", new Money(5, "USD"))
       .startProcessInstance();

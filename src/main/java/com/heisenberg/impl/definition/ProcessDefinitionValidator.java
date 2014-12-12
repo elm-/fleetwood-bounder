@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.builder.ParseIssue.IssueType;
 import com.heisenberg.api.builder.ParseIssues;
-import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
@@ -137,8 +136,25 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         if (activity.activityType!=null) {
           activity.activityType.validate(activity, this);
         }
+        if (activity.defaultTransitionId!=null) {
+          activity.defaultTransition = findTransitionById(activity.outgoingTransitionDefinitions, activity.defaultTransitionId);
+          if (activity.defaultTransition==null) {
+            addError("Activity '%s' has invalid default transition id %s", activity.id, activity.defaultTransitionId);
+          }
+        }
       }
     }
+  }
+
+  protected TransitionDefinitionImpl findTransitionById(List<TransitionDefinitionImpl> transitions, String transitionId) {
+    if (transitions!=null) {
+      for (TransitionDefinitionImpl transition: transitions) {
+        if (transitionId.equals(transition.id)) {
+          return transition;
+        }
+      }
+    }
+    return null;
   }
 
   @Override
@@ -185,6 +201,17 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
       } else {
         ScopeDefinitionImpl scope = getContextObject(ScopeDefinitionImpl.class);
         addError("Transition has an invalid value for 'to' (%s) : %s", transition.toId, getExistingActivityNamesText(scope));
+      }
+    }
+    if (transition.condition!=null) {
+      try {
+        transition.conditionScript = processEngine
+          .getScriptService()
+          .compile(transition.condition);
+      } catch (Exception e) {
+        addError("Transition (%s)--%s>(%s) has an invalid condition expression '%s' : %s", 
+                transition.fromId, (transition.id!=null ? transition.id+"--" : ""),
+                transition.toId, transition.condition, e.getMessage());
       }
     }
     popContext();

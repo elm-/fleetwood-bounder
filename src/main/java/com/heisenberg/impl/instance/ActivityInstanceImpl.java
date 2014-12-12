@@ -89,7 +89,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     end(true);
   }
 
-  void end(boolean notifyParent) {
+  public void end(boolean notifyParent) {
     if (this.end==null) {
       if (hasOpenActivityInstances()) {
         throw new RuntimeException("Can't end this activity instance. There are open activity instances: " +this);

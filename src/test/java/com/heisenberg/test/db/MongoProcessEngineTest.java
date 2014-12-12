@@ -38,10 +38,8 @@ import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.ProcessEngineImpl;
 
 
@@ -64,7 +62,7 @@ public class MongoProcessEngineTest {
         .checkNoErrorsAndNoWarnings()
         .getProcessDefinitionId();
       
-    ProcessInstance processInstance = processEngine.newTrigger()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
@@ -92,7 +90,8 @@ public class MongoProcessEngineTest {
 
 
   public static ProcessDefinitionBuilder createProcess(ProcessEngine processEngine) {
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    ProcessDefinitionBuilder process = processEngine.newProcessDefinition()
+      .name("load");
   
     process.newActivity()
       .activityType(StartEvent.INSTANCE)
@@ -172,10 +171,9 @@ public class MongoProcessEngineTest {
       places.add(place);
       activityInstance.onwards();
     }
-    
-    @Override
-    public void validate(ActivityDefinition activityDefinition, Validator validator) {
-      activityDefinition.validateConfigurationFields(validator);
-    }
+//    @Override
+//    public void validate(ActivityDefinition activityDefinition, Validator validator) {
+//      activityDefinition.validateConfigurationFields(validator);
+//    }
   }
 }

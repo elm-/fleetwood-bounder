@@ -27,7 +27,7 @@ import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.Page;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
 import com.heisenberg.impl.PageImpl;
-import com.heisenberg.impl.ProcessDefinitionQuery;
+import com.heisenberg.impl.ProcessDefinitionQueryImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.impl.Time;
@@ -100,28 +100,43 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     log.debug("Process instance should be: "+jsonService.objectToJsonStringPretty(processInstance));
   }
   
-  @Override
-  public ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
-    return processDefinitions.get(processDefinitionId);
-  }
-
-  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
-    List<ProcessDefinitionImpl> result = new ArrayList<>();
-    if (processDefinitionQuery.getProcessDefinitionId()!=null) {
-      ProcessDefinitionImpl processDefinition = processDefinitions.get(processDefinitionQuery.getProcessDefinitionId());
+  public List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl query) {
+    List<ProcessDefinitionImpl> result = null;
+    if (query.id!=null) {
+      result = new ArrayList<ProcessDefinitionImpl>();
+      ProcessDefinitionImpl processDefinition = processDefinitions.get(query.id);
       if (processDefinition!=null) {
         result.add(processDefinition);
       }
-    } else {
-      for (ProcessDefinitionImpl processDefinition: processDefinitions.values()) {
-        if (processDefinitionQuery.satisfiesCriteria(processDefinition)) {
-          result.add(processDefinition);
-        }
+    } else if (result==null) {
+      result = new ArrayList<ProcessDefinitionImpl>(processDefinitions.values());
+    }
+    if (query.name!=null && !result.isEmpty()) {
+      filterByName(result, query.name);
+    }
+    if (query.maxResults!=null) {
+      while (result.size()>query.maxResults) {
+        result.remove(result.size()-1);
       }
     }
     return result;
   }
   
+  private void filterByName(List<ProcessDefinitionImpl> result, String name) {
+    for (int i=result.size()-1; i<=0; i--) {
+      if (!name.equals(result.get(i).name)) {
+        result.remove(i);
+      }
+    }
+  }
+
+  public boolean matchesProcessDefinitionCriteria(ProcessDefinitionImpl process, ProcessDefinitionQueryImpl query) {
+    if (query.name!=null && !query.name.equals(process.name)) {
+      return false;
+    }
+    return true;
+  }
+
   public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
     throw new RuntimeException("TODO");
   }

@@ -38,6 +38,7 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
 
   public static class ProcessDefinitionFields {
     public String _id = "_id";
+    public String name = "name";
     public String deployedTime = "deployedTime";
     public String deployedBy = "deployedBy";
     public String organizationId = "oorganizationId";

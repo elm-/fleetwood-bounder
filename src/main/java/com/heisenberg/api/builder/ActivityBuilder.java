@@ -15,6 +15,7 @@
 package com.heisenberg.api.builder;
 
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.impl.type.DataType;
 
 
 
@@ -38,4 +39,10 @@ public interface ActivityBuilder {
   ActivityBuilder line(Long lineNumber);
   
   ActivityBuilder column(Long columnNumber);
+  
+  ActivityBuilder defaultTransition(String transitionId);
+
+  ActivityBuilder forEach(String elementVariableId, DataType elementDataType, String collectionVariableId);
+  
+  ActivityBuilder forEachExpression(String elementVariableId, DataType elementDataType, String collectionExpression); 
 }

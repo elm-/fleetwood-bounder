@@ -90,7 +90,7 @@ public class ActivityTypeStaticConfigurationTest {
     
     executedConfigurations.clear();
 
-    processEngine.newTrigger()
+    processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     

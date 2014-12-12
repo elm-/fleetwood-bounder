@@ -14,6 +14,7 @@
  */
 package com.heisenberg.api.activities.bpmn;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -23,7 +24,9 @@ import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.configuration.TaskService;
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.task.Task;
+import com.heisenberg.api.util.Validator;
 
 
 /**
@@ -60,18 +63,40 @@ public class UserTask extends AbstractActivityType {
     taskService.save(task);
   }
   
-  public UserTask nameValue(String nameValue) {
+  public UserTask name(String nameValue) {
     this.name = new Binding<String>().value(nameValue);
     return this;
   }
 
-  public UserTask nameVariableBinding(Object nameVariableDefinitionId) {
+  public UserTask nameVariable(Object nameVariableDefinitionId) {
     this.name = new Binding<String>().variableDefinitionId(nameVariableDefinitionId);
     return this;
   }
 
-  public UserTask nameExpressionBinding(String nameExpressionText) {
+  public UserTask nameExpression(String nameExpressionText) {
     this.name = new Binding<String>().expression(nameExpressionText);
     return this;
+  }
+
+  public UserTask candidateId(String candidateId) {
+    addCandidateBinding(new Binding<String>().value(candidateId));
+    return this;
+  }
+
+  public UserTask candidateVariable(String candidateVariableId) {
+    addCandidateBinding(new Binding<String>().variableDefinitionId(candidateVariableId));
+    return this;
+  }
+
+  public UserTask candidateExpression(String candidateExpression) {
+    addCandidateBinding(new Binding<String>().expression(candidateExpression));
+    return this;
+  }
+
+  protected void addCandidateBinding(Binding<String> binding) {
+    if (candidates==null) {
+      candidates = new ArrayList<Binding<String>>();
+    }
+    candidates.add(binding);
   }
 }

@@ -48,11 +48,9 @@ public abstract class VariableRequestImpl {
     this.processEngine = processEngine;
   }
   
-  public void deserialize(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
+  public void deserialize(ProcessDefinitionImpl processDefinition) {
     if (variableValues!=null && !variableValues.isEmpty()) {
       Map<String,Object> internalValues = new HashMap<>();
-      ProcessDefinitionImpl processDefinition = getProcessDefinition(processEngine);
       List<VariableDefinitionImpl> variableDefinitions = processDefinition.getVariableDefinitions();
       if (variableDefinitions!=null) {
         for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
@@ -66,8 +64,6 @@ public abstract class VariableRequestImpl {
     }
   }
 
-  protected abstract ProcessDefinitionImpl getProcessDefinition(ProcessEngineImpl processEngine);
-
   public VariableRequestImpl variableValue(String variableDefinitionId, Object value) {
     if (variableValues==null) {
       variableValues = new LinkedHashMap<>();
@@ -80,8 +76,10 @@ public abstract class VariableRequestImpl {
     if (variableValues==null) {
       variableValues = new LinkedHashMap<>();
     }
-    Object jsonValue = dataType.convertInternalToJsonValue(value);
-    variableValues.put(variableDefinitionId, jsonValue);
+    if (processEngine.requiresValuesInJson()) {
+      value = dataType.convertInternalToJsonValue(value);
+    }
+    variableValues.put(variableDefinitionId, value);
     return this;
   }
 

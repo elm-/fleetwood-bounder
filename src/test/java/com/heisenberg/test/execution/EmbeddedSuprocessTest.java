@@ -15,7 +15,8 @@
 package com.heisenberg.test.execution;
 
 import static com.heisenberg.test.TestHelper.assertOpen;
-import static org.junit.Assert.assertNotNull;
+import static com.heisenberg.test.TestHelper.endTask;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -28,6 +29,7 @@ import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.test.TestHelper;
 
 
 /**
@@ -38,11 +40,12 @@ public class EmbeddedSuprocessTest {
   /**          +-------------+
    *           | sub         |
    * +-----+   | +--+   +--+ |   +---+
-   * |start|-->| |w1|-->|w2| |-->|end|
+   * |start|-->| |w1|   |w2| |-->|end|
    * +-----+   | +--+   +--+ |   +---+
    *           +-------------+
    */ 
-  @Test public void testOne() {
+  @Test 
+  public void testOne() {
     ProcessEngine processEngine = new MemoryProcessEngine();
   
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
@@ -81,17 +84,18 @@ public class EmbeddedSuprocessTest {
       .getProcessDefinitionId();
     
     ProcessInstance processInstance = processEngine
-      .newTrigger()
+      .newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
 
     assertOpen(processInstance, "sub", "w1", "w2");
     
-    String w1Id = processInstance.findActivityInstanceByActivityDefinitionId("w1").getId();
-    assertNotNull(w1Id);
+    processInstance = endTask(processEngine, processInstance, "w1");
+
+    assertOpen(processInstance, "sub", "w2");
+
+    processInstance = endTask(processEngine, processInstance, "w2");
     
-    processEngine.newMessage()
-      .activityInstanceId(w1Id)
-      .send();
+    assertTrue(processInstance.isEnded());
   }
 }

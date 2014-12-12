@@ -56,7 +56,7 @@ public class SequentialExecutionTest {
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    ProcessInstance processInstance = processEngine.newTrigger()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     

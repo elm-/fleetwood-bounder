@@ -76,8 +76,8 @@ public class HeisenbergServer {
     config.registerInstances(
             new JacksonFeature(),
             new DeployResource(processEngine),
-            new StartProcessInstanceResource(processEngine),
-            new NotifyActivityInstanceResource(processEngine),
+            new StartResource(processEngine),
+            new MessageResource(processEngine),
             new ObjectMapperProvider(processEngine),
             new RequestLogger()
             );

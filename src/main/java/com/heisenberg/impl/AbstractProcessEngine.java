@@ -20,7 +20,7 @@ import com.heisenberg.api.builder.ActivityInstanceQuery;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.configuration.AbstractProcessEngineConfiguration;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
@@ -75,6 +75,10 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
     this.dataSourceService = new DataSourceService();
     this.triggerService = new TriggerService();
   }
+  
+  public boolean requiresValuesInJson() {
+    return false;
+  }
 
   @Override
   public ActivityInstanceQuery newActivityInstanceQuery() {
@@ -87,8 +91,8 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
   }
 
   @Override
-  public TriggerBuilder newTrigger() {
-    return new TriggerBuilderImpl(this);
+  public StartBuilder newStart() {
+    return new StartBuilderImpl(this);
   }
 
   @Override
@@ -98,7 +102,7 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
 
   public abstract DeployResult deployProcessDefinition(ProcessDefinitionBuilder processBuilder);
 
-  public abstract ProcessInstance startProcessInstance(TriggerBuilderImpl processInstanceBuilder);
+  public abstract ProcessInstance startProcessInstance(StartBuilderImpl processInstanceBuilder);
 
   public abstract ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl notifyActivityInstanceBuilder);
 

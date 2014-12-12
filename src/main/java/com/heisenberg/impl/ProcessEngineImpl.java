@@ -14,11 +14,13 @@
  */
 package com.heisenberg.impl;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.plugin.ProcessProfileBuilder;
 import com.heisenberg.api.util.Page;
 import com.heisenberg.api.util.ServiceLocator;
+import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -47,6 +50,7 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.heisenberg.impl.util.Exceptions;
+import com.heisenberg.impl.util.Lists;
 
 /**
  * @author Walter White
@@ -83,6 +87,8 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     DeployResult response = new DeployResult();
 
     ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) processBuilder;
+    processDefinition.deployedTime = new LocalDateTime();
+    
     ProcessDefinitionValidator validator = new ProcessDefinitionValidator(this);
     processDefinition.visit(validator);
     ParseIssues issues = validator.getIssues();
@@ -118,12 +124,15 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return null;
   }
 
-  public ProcessInstance startProcessInstance(TriggerBuilderImpl processInstanceBuilder) {
-    String processDefinitionId = processInstanceBuilder.processDefinitionId;
-    Exceptions.checkNotNullParameter(processDefinitionId, "processDefinitionId");
-    ProcessDefinitionImpl processDefinition = findProcessDefinitionByIdUsingCache(processDefinitionId);
+  public ProcessInstance startProcessInstance(StartBuilderImpl processInstanceBuilder) {
+    ProcessDefinitionImpl processDefinition = newProcessDefinitionQuery()
+      .representation(Representation.EXECUTABLE)
+      .id(processInstanceBuilder.processDefinitionId)
+      .name(processInstanceBuilder.processDefinitionName)
+      .get();
+    
     if (processDefinition==null) {
-      throw new RuntimeException("Could not find process definition "+processDefinitionId);
+      throw new RuntimeException("Could not find process definition "+processInstanceBuilder.processDefinitionId+" "+processInstanceBuilder.processDefinitionName);
     }
     ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
     processInstance.transientContext = processInstanceBuilder.transientContext;
@@ -185,24 +194,29 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
       }
     }
   }
+  
+  public ProcessDefinitionQueryImpl newProcessDefinitionQuery() {
+    return new ProcessDefinitionQueryImpl(this);
+  }
+  
+  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQueryImpl query) {
+    if (query.onlyIdSpecified()) {
+      ProcessDefinitionImpl cachedProcessDefinition = processDefinitionCache.get(query.id);
+      if (cachedProcessDefinition!=null) {
+        return Lists.of(cachedProcessDefinition);
+      }
+    }
+    List<ProcessDefinitionImpl> result = loadProcessDefinitions(query);
+    if (Representation.EXECUTABLE==query.representation) {
+      for (ProcessDefinitionImpl processDefinition: result) {
+        ProcessDefinitionValidator validator = new ProcessDefinitionValidator(this);
+        processDefinition.visit(validator);
+        processDefinitionCache.put(processDefinition);
+      }
+    }
+    return result;
+  }
 
-  public ProcessDefinitionImpl findProcessDefinitionByIdUsingCache(String processDefinitionId) {
-    ProcessDefinitionImpl processDefinition = processDefinitionCache.get(processDefinitionId);
-    if (processDefinition==null) {
-      processDefinition = loadProcessDefinitionById(processDefinitionId);
-      processDefinitionCache.put(processDefinition);
-    }
-    return processDefinition;
-  }
-  
-  public ProcessDefinitionImpl findProcessDefinitionByProcessInstanceIdUsingCache(String processInstanceId) {
-    ProcessInstanceImpl processInstance = findProcessInstanceById(processInstanceId);
-    if (processInstance==null) {
-      return null;
-    }
-    return findProcessDefinitionByIdUsingCache(processInstance.processDefinitionId);
-  }
-  
   protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition) {
     return new ProcessInstanceImpl(this, processDefinition, createProcessInstanceId(processDefinition));
   }
@@ -267,11 +281,9 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
   public abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 
-  public abstract ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId);
-
   public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
 
-  public abstract List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery);
+  public abstract List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl processDefinitionQuery);
 
   public abstract Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl);
 

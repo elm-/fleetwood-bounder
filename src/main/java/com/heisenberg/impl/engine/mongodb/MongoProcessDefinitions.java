@@ -21,12 +21,12 @@ import java.util.Stack;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.ProcessDefinitionQueryImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
@@ -35,9 +35,8 @@ import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.type.DataType;
 import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
-import com.mongodb.DBObject;
+import com.mongodb.DBCursor;
 import com.mongodb.WriteConcern;
 
 
@@ -46,7 +45,7 @@ import com.mongodb.WriteConcern;
  */
 public class MongoProcessDefinitions extends MongoCollection implements Validator {
   
-  public static final Logger log = LoggerFactory.getLogger(MongoProcessEngine.class);
+  public static final Logger log = MongoProcessEngine.log;
   
   protected MongoProcessEngine processEngine;
   protected MongoProcessEngineConfiguration.ProcessDefinitionFields fields;
@@ -63,6 +62,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
   public ProcessDefinitionImpl readProcessDefinition(BasicDBObject dbProcess) {
     ProcessDefinitionImpl process = new ProcessDefinitionImpl();
     process.id = readId(dbProcess, fields._id);
+    process.name = readString(dbProcess, fields.name);
     process.deployedTime = readTime(dbProcess, fields.deployedTime);
     process.deployedBy = readObject(dbProcess, fields.deployedBy);
     process.organizationId = readString(dbProcess, fields.organizationId);
@@ -71,7 +71,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     readActivities(process, dbProcess);
     readVariables(process, dbProcess);
     readTransitions(process, dbProcess);
-    process.visit(new ProcessDefinitionValidator(processEngine));
+    // process.visit(new ProcessDefinitionValidator(processEngine));
     return process;
   }
   
@@ -80,6 +80,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     Stack<BasicDBObject> dbObjectStack = new Stack<>();
     dbObjectStack.push(dbProcess);
     writeId(dbProcess, fields._id, process.id);
+    writeString(dbProcess, fields.name, process.name);
     writeTimeOpt(dbProcess, fields.deployedTime, process.deployedTime);
     writeObjectOpt(dbProcess, fields.deployedBy, process.deployedBy);
     writeObjectOpt(dbProcess, fields.organizationId, process.organizationId);
@@ -214,16 +215,32 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     insert(dbProcessDefinition, writeConcernInsertProcessDefinition);
   }
 
-  public ProcessDefinitionImpl findProcessDefinitionById(String processDefinitionId) {
-    DBObject query = BasicDBObjectBuilder.start()
-            .add(fields._id, new ObjectId(processDefinitionId))
-            .get();
-    BasicDBObject dbProcess = findOne(query);
-    return readProcessDefinition(dbProcess);
-  }
-
   @Override
   public ServiceLocator getServiceLocator() {
     return processEngine;
+  }
+
+  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQueryImpl query) {
+    BasicDBObject q = new BasicDBObject();
+    if (query.id!=null) {
+      q.append(fields._id, new ObjectId(query.id));
+    }
+    if (query.name!=null) {
+      q.append(fields.name, query.name);
+    }
+    List<ProcessDefinitionImpl> processes = new ArrayList<ProcessDefinitionImpl>();
+    DBCursor cursor = find(q);
+    if (query.maxResults!=null) {
+      cursor.maxScan(query.maxResults);
+    }
+    if (query.name!=null) {
+      cursor.sort(new BasicDBObject(fields.deployedTime, -1));
+    }
+    while (cursor.hasNext()) {
+      BasicDBObject dbProcess = (BasicDBObject) cursor.next();
+      ProcessDefinitionImpl processDefinition = readProcessDefinition(dbProcess);
+      processes.add(processDefinition);
+    }
+    return processes;
   }
 }

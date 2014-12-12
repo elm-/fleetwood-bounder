@@ -24,26 +24,26 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.TriggerBuilderImpl;
+import com.heisenberg.impl.StartBuilderImpl;
 
 
 /**
  * @author Walter White
  */
 @Path("/start")
-public class StartProcessInstanceResource {
+public class StartResource {
   
-  public static final Logger log = LoggerFactory.getLogger(StartProcessInstanceResource.class);
+  public static final Logger log = LoggerFactory.getLogger(StartResource.class);
   
   ProcessEngineImpl processEngine;
   
-  public StartProcessInstanceResource(ProcessEngineImpl processEngine) {
+  public StartResource(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public ProcessInstance deploy(TriggerBuilderImpl processInstanceBuilder) {
+  public ProcessInstance deploy(StartBuilderImpl processInstanceBuilder) {
     return processEngine.startProcessInstance(processInstanceBuilder);
   }
 }

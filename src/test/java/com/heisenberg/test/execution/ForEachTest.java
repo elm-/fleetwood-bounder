@@ -14,41 +14,54 @@
  */
 package com.heisenberg.test.execution;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.plugin.DataTypes;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.engine.memory.MemoryTaskService;
+import com.heisenberg.impl.plugin.DataTypeService;
+import com.heisenberg.impl.util.Lists;
+import com.heisenberg.test.TestHelper;
 
 
 /**
  * @author Walter White
  */
-public class TaskTest {
-
+public class ForEachTest {
+  
   @Test
   public void testTask() throws Exception {
     MemoryProcessEngine processEngine = new MemoryProcessEngine();
     
+    DataTypeService dataTypes = processEngine.getDataTypes();
+    
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
+    process.newVariable()
+      .id("reviewers")
+      .dataType(dataTypes.list(DataTypes.TEXT));
+    
     process.newActivity()
-      .id("Task one")
-      .activityType(new UserTask());
+      .id("Review")
+      .forEach("reviewer", DataTypes.TEXT, "reviewers")
+      .activityType(new UserTask()
+        .candidateVariable("reviewer")
+      );
     
     String processDefinitionId = process
       .deploy()
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    processEngine.newStart()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
+      .variableValue("reviewers", Lists.of("John", "Jack", "Mary"))
       .startProcessInstance();
-    
-    MemoryTaskService taskService = processEngine.getTaskService();
-    assertEquals("Task one", taskService.getTasks().get(0).getName());
+
+    // TODO make it so that the parent activity 
+    // instance doesn't have a name and doesn't have the empty variable declaration
+    TestHelper.assertOpen(processInstance, "Review", "Review", "Review", "Review");
   }
 }

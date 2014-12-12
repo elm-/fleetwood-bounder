@@ -14,6 +14,7 @@
  */
 package com.heisenberg.api.instance;
 
+import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.definition.ActivityDefinition;
 
 
@@ -33,7 +34,8 @@ public interface ActivityInstance extends ScopeInstance {
 
   ScopeInstance getParent();
 
-  void setJoining();
   void removeJoining();
   boolean isJoining();
+
+  ProcessInstance getProcessInstance();
 }

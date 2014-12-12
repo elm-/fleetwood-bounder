@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
-import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -93,9 +93,7 @@ public class RestTest extends JerseyTest {
 
     assertFalse(deployResponse.getIssueReport(), deployResponse.hasIssues());
     
-    String processDefinitionId = deployResponse.getProcessDefinitionId();
-    
-    runProcessInstance(processDefinitionId);
+    runProcessInstance();
 //    for (int i=0; i<20; i++) {
 //      runProcessInstance(processDefinitionId);
 //    }
@@ -109,9 +107,9 @@ public class RestTest extends JerseyTest {
 //    log.info("1000 process instances in "+(1000000f/(end-start))+ " per second");
   }
 
-  protected void runProcessInstance(String processDefinitionId) {
-    TriggerBuilder startProcessInstanceRequest = processEngine.newTrigger()
-      .processDefinitionId(processDefinitionId);
+  protected void runProcessInstance() {
+    StartBuilder startProcessInstanceRequest = processEngine.newStart()
+      .processDefinitionName("load");
     
     ProcessInstanceImpl processInstance = target("start").request()
             .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
@@ -120,9 +118,10 @@ public class RestTest extends JerseyTest {
     ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
 
     MessageBuilder message = processEngine.newMessage()
+      .processInstanceId(processInstance.getId())
       .activityInstanceId(subTaskInstance.getId());
     
-    processInstance = target("notify").request()
+    processInstance = target("message").request()
             .post(Entity.entity(message, MediaType.APPLICATION_JSON))
             .readEntity(ProcessInstanceImpl.class);
 

@@ -15,8 +15,6 @@
 package com.heisenberg.api.builder;
 
 
-
-
 /**
  * @author Walter White
  */
@@ -27,4 +25,8 @@ public interface TransitionBuilder {
   TransitionBuilder from(String fromId);
 
   TransitionBuilder to(String toId);
+  
+  TransitionBuilder condition(String conditionExpression);
+
+  TransitionBuilder id(String id);
 }

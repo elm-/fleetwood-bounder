@@ -15,6 +15,8 @@
 package com.heisenberg.api.activities;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -53,6 +55,7 @@ public abstract class AbstractActivityType implements ActivityType {
     validateConfigurationFields(activityDefinition, validator);
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void validateConfigurationFields(ActivityDefinition activityDefinition, Validator validator) {
     ActivityTypeService activityTypeService = (ActivityTypeService) validator.getServiceLocator().getActivityTypes();
     List<TypeField> configurationFields = activityTypeService.getConfigurationFields(this);
@@ -67,14 +70,39 @@ public abstract class AbstractActivityType implements ActivityType {
             }
           }
           if (value instanceof Binding) {
-            Binding< ? > binding = (Binding< ? >) value;
-            binding.dataType = typeField.dataType;
-            binding.validate(activityDefinition, this, typeField, validator);
+            validateBinding(activityDefinition, validator, typeField, (Binding< ? >) value);
+          } else if (isListOfBindings(field)) {
+            List<Binding> bindings = (List<Binding>) value;
+            if (bindings!=null) {
+              for (Binding binding: bindings) {
+                validateBinding(activityDefinition, validator, typeField, binding);
+              }
+            }
           }
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
       }
     }
+  }
+
+  private boolean isListOfBindings(Field field) {
+    Type genericType = field.getGenericType();
+    if (! (genericType instanceof ParameterizedType)) {
+      return false;
+    }
+    ParameterizedType parameterizedType = (ParameterizedType) genericType;
+    if ( List.class.isAssignableFrom((Class<?>)parameterizedType.getRawType())
+         && parameterizedType.getActualTypeArguments().length==1 ) {
+      Type listParameter = parameterizedType.getActualTypeArguments()[0];
+      Class<?> rawListParameter = (Class<?>) (listParameter instanceof ParameterizedType ? ((ParameterizedType)listParameter).getRawType() : listParameter);
+      return Binding.class.equals(rawListParameter);
+    }
+    return false;
+  }
+
+  protected void validateBinding(ActivityDefinition activityDefinition, Validator validator, TypeField typeField, Binding< ? > binding) {
+    binding.dataType = typeField.dataType;
+    binding.validate(activityDefinition, this, typeField, validator);
   }
 }

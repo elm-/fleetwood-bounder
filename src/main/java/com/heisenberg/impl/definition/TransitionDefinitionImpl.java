@@ -16,6 +16,7 @@ package com.heisenberg.impl.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.TransitionBuilder;
+import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.impl.AbstractProcessEngine;
 
@@ -25,7 +26,6 @@ import com.heisenberg.impl.AbstractProcessEngine;
  */
 public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDefinition {
 
-  public String id;
   @JsonIgnore
   public ActivityDefinitionImpl from;
   @JsonIgnore
@@ -38,10 +38,15 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
   @JsonIgnore
   public ScopeDefinitionImpl parent;
   
+  public String id;
   public String fromId;
   public String toId;
   public Long line;
   public Long column;
+  public String condition;
+  
+  @JsonIgnore
+  public Script conditionScript;
 
   public TransitionDefinitionImpl id(String id) {
     this.id = id;
@@ -67,6 +72,11 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
 
   public TransitionDefinitionImpl to(String toId) {
     this.toId = toId;
+    return this;
+  }
+  
+  public TransitionDefinitionImpl condition(String condition) {
+    this.condition = condition;
     return this;
   }
   
@@ -124,4 +134,17 @@ public class TransitionDefinitionImpl implements TransitionBuilder, TransitionDe
     this.processDefinition = processDefinition;
   }
 
+  
+  public Script getConditionScript() {
+    return conditionScript;
+  }
+
+  
+  public void setConditionScript(Script conditionScript) {
+    this.conditionScript = conditionScript;
+  }
+  
+  public String getId() {
+    return id;
+  }
 }

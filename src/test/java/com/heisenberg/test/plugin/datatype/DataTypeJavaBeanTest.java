@@ -59,7 +59,7 @@ public class DataTypeJavaBeanTest {
     Money startProcessMoney = new Money(5, "USD");
   
     // start a process instance supplying a java bean object as the variable value
-    ProcessInstance processInstance = processEngine.newTrigger()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", startProcessMoney)
       .startProcessInstance();

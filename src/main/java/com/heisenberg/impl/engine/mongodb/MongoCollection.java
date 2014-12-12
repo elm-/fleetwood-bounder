@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
@@ -173,6 +174,11 @@ public class MongoCollection {
     BasicDBObject dbObject = (BasicDBObject) dbCollection.findOne(query);
     if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+toString(dbObject));
     return dbObject;
+  }
+
+  protected DBCursor find(DBObject query) {
+    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> find q="+toString(query));
+    return new LoggingCursor(this, dbCollection.find(query));
   }
 
   protected String toString(Object o) {

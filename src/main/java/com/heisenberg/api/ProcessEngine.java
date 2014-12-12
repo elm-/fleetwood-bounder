@@ -17,7 +17,7 @@ package com.heisenberg.api;
 import com.heisenberg.api.builder.ActivityInstanceQuery;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.plugin.ActivityTypes;
 import com.heisenberg.api.plugin.DataSources;
 import com.heisenberg.api.plugin.DataTypes;
@@ -40,13 +40,15 @@ public interface ProcessEngine {
   /** Start building a new process, see  */
   ProcessDefinitionBuilder newProcessDefinition();
 
-  /** Use a {@link TriggerBuilder trigger} to start a new process instance for a process definition. */
-  TriggerBuilder newTrigger();
+  /** Use a {@link StartBuilder trigger} to start a new process instance for a process definition. */
+  StartBuilder newStart();
 
   /** Use a {@link MessageBuilder message} to end a waiting activity instance in a process instance. */
   MessageBuilder newMessage();
 
   ActivityInstanceQuery newActivityInstanceQuery();
+  
+  ProcessDefinitionQuery newProcessDefinitionQuery();
   
   /** sends the process engine configuration (ie the activity types, data sources, data types 
    * and triggers) to the process editor.  Once this is done, the process builder will allow you 

@@ -5,7 +5,8 @@
 - [ ] Move initializeBindings from ActivityDefinitionImpl into the ProcessDefinitionValidator.
       Easier and I should not worry about the performance
 - [ ] Move activity types to implementation and replace it with builder 
-      methods in the ProcessDefintionBuilder similar to the ProcessDefinitionBuilder.newDataTypeXxx methods 
+      methods in the ProcessDefintionBuilder similar to the ProcessDefinitionBuilder.newDataTypeXxx methods
+- [ ] Consider removing 'Definition' from all definition entities. So that the process builder code looks nicer. 
 
 # In progress
 

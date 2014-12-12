@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.NumberType;
 import com.heisenberg.impl.type.TextType;
 
 
@@ -27,6 +28,7 @@ import com.heisenberg.impl.type.TextType;
 public interface DataTypes {
 
   TextType TEXT = new TextType();
+  NumberType NUMBER = new NumberType();
 
   List<TypeDescriptor> getDescriptors();
 

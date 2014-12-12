@@ -95,7 +95,7 @@ public class ActivityTypeBindingConfigurationTest {
     
     executedConfigurations.clear();
 
-    processEngine.newTrigger()
+    processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", "Hello World")
       .startProcessInstance();

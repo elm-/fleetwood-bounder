@@ -25,7 +25,8 @@ import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.Page;
 import com.heisenberg.impl.ActivityInstanceQueryImpl;
-import com.heisenberg.impl.ProcessDefinitionQuery;
+import com.heisenberg.impl.ProcessDefinitionQueryImpl;
+import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQuery;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -37,6 +38,7 @@ import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
@@ -94,12 +96,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
     processDefinitions.insertProcessDefinition(processDefinition);
   }
-
-  @Override
-  public ProcessDefinitionImpl loadProcessDefinitionById(String processDefinitionId) {
-    return processDefinitions.findProcessDefinitionById(processDefinitionId);
-  }
-
+  
   @Override
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
     processInstances.insertProcessInstance(processInstance);
@@ -171,12 +168,12 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQuery processDefinitionQuery) {
+  public Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl) {
     return null;
   }
 
   @Override
-  public Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl) {
-    return null;
+  public List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl query) {
+    return processDefinitions.findProcessDefinitions(query);
   }
 }

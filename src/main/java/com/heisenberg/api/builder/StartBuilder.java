@@ -20,18 +20,20 @@ import com.heisenberg.impl.type.DataType;
 /**
  * @author Walter White
  */
-public interface TriggerBuilder {
+public interface StartBuilder {
 
-  TriggerBuilder processDefinitionId(String processDefinitionId);
+  StartBuilder processDefinitionId(String processDefinitionId);
 
-  TriggerBuilder variableValue(String variableDefinitionId, Object internalValue);
+  StartBuilder processDefinitionName(String processDefinitionName);
 
-  /** ONLY use this method with the ClientProcessEngine! it converts the internal value to json and sets that as the value in the trigger message so that the message is serializable */
-  TriggerBuilder variableValue(String variableDefinitionId, Object internalValue, DataType dataType);
-  /** ONLY use this method with the ClientProcessEngine! it converts the internal value to json and sets that as the value in the trigger message so that the message is serializable */
-  TriggerBuilder variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass);
+  StartBuilder variableValue(String variableDefinitionId, Object internalValue);
+
+  /** Set the variable and provide the dataType, the dataType is required when using the ClientProcessEngine! */
+  StartBuilder variableValue(String variableDefinitionId, Object internalValue, DataType dataType);
+  /** Set the variable and provide the dataType as a java bean type, the dataType is required when using the ClientProcessEngine! */
+  StartBuilder variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass);
   
-  TriggerBuilder transientContext(String key, Object value);
+  StartBuilder transientContext(String key, Object value);
 
   ProcessInstance startProcessInstance();
 

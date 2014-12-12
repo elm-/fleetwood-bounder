@@ -18,13 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ClientProcessEngineConfiguration;
+import com.heisenberg.api.ProcessDefinitionQuery;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.plugin.ProcessProfileBuilder;
 import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.MessageImpl;
-import com.heisenberg.impl.TriggerBuilderImpl;
+import com.heisenberg.impl.StartBuilderImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 
 
@@ -50,10 +51,15 @@ public class ClientProcessEngine extends AbstractProcessEngine /* implements Ser
   }
 
   @Override
-  public ProcessInstance startProcessInstance(TriggerBuilderImpl processInstance) {
+  public ProcessInstance startProcessInstance(StartBuilderImpl processInstance) {
     log.debug("HTTP POST /start");
     log.debug("HTTP "+jsonService.objectToJsonStringPretty(processInstance));
     return null;
+  }
+
+  @Override
+  public boolean requiresValuesInJson() {
+    return true;
   }
 
   @Override
@@ -64,6 +70,11 @@ public class ClientProcessEngine extends AbstractProcessEngine /* implements Ser
   @Override
   public ProcessProfileBuilder newProcessProfile() {
     throw new RuntimeException("Client process engine doesn't support this method");
+  }
+
+  @Override
+  public ProcessDefinitionQuery newProcessDefinitionQuery() {
+    throw new RuntimeException("TODO");
   }
   
 //  @Override

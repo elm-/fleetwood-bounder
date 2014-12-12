@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
-import com.heisenberg.api.builder.TriggerBuilder;
+import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.MessageImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.TriggerBuilderImpl;
+import com.heisenberg.impl.StartBuilderImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
@@ -148,7 +148,7 @@ public class LoadTest extends JerseyTest {
 
   void runProcessInstance(String... processDefinitionIds) {
     for (String processDefinitionId: processDefinitionIds) {
-      TriggerBuilder startProcessInstanceRequest = new TriggerBuilderImpl()
+      StartBuilder startProcessInstanceRequest = new StartBuilderImpl()
         .processDefinitionId(processDefinitionId);
       
       ProcessInstanceImpl processInstance = target("start").request()

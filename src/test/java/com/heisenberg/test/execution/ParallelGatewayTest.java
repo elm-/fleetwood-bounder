@@ -32,7 +32,7 @@ import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 /**
  * @author Walter White
  */
-public class ParallelExecutionTest {
+public class ParallelGatewayTest {
   
   @Test
   public void testParallelGateway() {
@@ -76,7 +76,7 @@ public class ParallelExecutionTest {
       .checkNoErrorsAndNoWarnings()
       .getProcessDefinitionId();
     
-    ProcessInstance processInstance = processEngine.newTrigger()
+    ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
 
