@@ -12,22 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.engine.updates;
-
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.impl.instance.ActivityInstanceImpl;
+package com.heisenberg.impl;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeName("operationAddStart")
-public class OperationAddStartUpdate extends OperationAddUpdate {
+public enum OrderByDirection {
 
-  public OperationAddStartUpdate() {
-  }
-
-  public OperationAddStartUpdate(ActivityInstanceImpl activityInstance) {
-    super(activityInstance);
-  }
+  ASCENDING,
+  DESCENDING
 }

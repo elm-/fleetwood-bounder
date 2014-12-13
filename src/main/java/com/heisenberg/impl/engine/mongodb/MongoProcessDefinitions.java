@@ -23,13 +23,16 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.api.ProcessDefinitionQuery;
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.OrderBy;
+import com.heisenberg.impl.OrderByDirection;
+import com.heisenberg.impl.OrderByElement;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionValidator;
 import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
@@ -37,6 +40,7 @@ import com.heisenberg.impl.type.DataType;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 
 
@@ -233,8 +237,8 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     if (query.maxResults!=null) {
       cursor.maxScan(query.maxResults);
     }
-    if (query.name!=null) {
-      cursor.sort(new BasicDBObject(fields.deployedTime, -1));
+    if (query.orderBy!=null) {
+      cursor.sort(writeOrderBy(query.orderBy));
     }
     while (cursor.hasNext()) {
       BasicDBObject dbProcess = (BasicDBObject) cursor.next();
@@ -242,5 +246,22 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
       processes.add(processDefinition);
     }
     return processes;
+  }
+
+  public DBObject writeOrderBy(OrderBy orderBy) {
+    BasicDBObject dbOrderBy = new BasicDBObject();
+    for (OrderByElement element: orderBy.orderByElements) {
+      String dbField = getDbField(element.field);
+      int dbDirection = (element.direction==OrderByDirection.ASCENDING ? 1 : -1);
+      dbOrderBy.append(dbField, dbDirection);
+    }
+    return dbOrderBy;
+  }
+
+  private String getDbField(String field) {
+    if (ProcessDefinitionQuery.FIELD_DEPLOY_TIME.equals(field)) {
+      return fields.deployedTime;
+    }
+    throw new RuntimeException("Unknown field "+field);
   }
 }

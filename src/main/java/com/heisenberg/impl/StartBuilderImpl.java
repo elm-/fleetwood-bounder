@@ -28,6 +28,8 @@ public class StartBuilderImpl extends VariableRequestImpl implements StartBuilde
 
   public String processDefinitionId;
   public String processDefinitionName;
+  public String callerProcessInstanceId;
+  public String callerActivityInstanceId;
 
   public StartBuilderImpl() {
   }

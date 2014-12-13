@@ -28,9 +28,13 @@ import com.heisenberg.api.util.TypedValue;
  */
 public interface ControllableActivityInstance extends ActivityInstance {
 
-  TypedValue getVariableValueRecursive(Object variableDefinitionId);
+  Object getVariableValue(String variableDefinitionId);
+  void setVariableValue(String callerVariableId, Object value);
+
+  TypedValue getVariableTypedValue(Object variableDefinitionId);
+  
   <T> T getValue(Binding<T> binding);
-  <T> List<T> getValueList(List<Binding<T>> bindings);
+  <T> List<T> getValue(List<Binding<T>> bindings);
   
   Object getTransientContextObject(String key);
 
@@ -47,8 +51,6 @@ public interface ControllableActivityInstance extends ActivityInstance {
   void start(ActivityDefinition activityDefinition);
 
   void takeTransition(TransitionDefinition transitionDefinition);
-  
-  ServiceLocator getServiceLocator();
 
-  void setJoining();
+  ServiceLocator getServiceLocator();
 }

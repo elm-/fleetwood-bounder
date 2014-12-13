@@ -30,6 +30,7 @@ import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ConfigurationField;
 import com.heisenberg.api.activities.Label;
+import com.heisenberg.api.activities.bpmn.CallMapping;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.plugin.DataTypes;
 import com.heisenberg.api.plugin.TypeDescriptor;
@@ -79,6 +80,7 @@ public class DataTypeService implements DataTypes {
 
   public void registerDefaultDataTypes() {
     registerSingletonDataType(new TextType(), String.class);
+    registerJavaBeanType(CallMapping.class);
   }
 
   public TypeDescriptor registerConfigurableDataType(DataType dataType) {

@@ -24,11 +24,11 @@ import com.heisenberg.impl.type.DataType;
  */
 public interface ActivityBuilder {
 
+  ActivityBuilder id(String id);
   ActivityBuilder activityType(ActivityType activityType);
 
-  ActivityBuilder id(String activityDefinitionId);
-
   ActivityBuilder newActivity();
+  ActivityBuilder newActivity(String id, ActivityType activityType);
 
   TransitionBuilder newTransition();
 

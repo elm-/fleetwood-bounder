@@ -23,11 +23,13 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.activities.bpmn.CallActivity;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.activities.bpmn.EmptyServiceTask;
 import com.heisenberg.api.activities.bpmn.EndEvent;
 import com.heisenberg.api.activities.bpmn.HttpServiceTask;
 import com.heisenberg.api.activities.bpmn.JavaServiceTask;
+import com.heisenberg.api.activities.bpmn.ParallelGateway;
 import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
@@ -61,7 +63,9 @@ public class ActivityTypeService implements ActivityTypes {
     registerSingletonActivityType(new EndEvent());
     registerSingletonActivityType(new EmptyServiceTask());
     registerSingletonActivityType(new EmbeddedSubprocess());
+    registerSingletonActivityType(new ParallelGateway());
     
+    registerConfigurableActivityType(new CallActivity());
     registerConfigurableActivityType(new ScriptTask());
     registerConfigurableActivityType(new UserTask());
     registerConfigurableActivityType(new JavaServiceTask());

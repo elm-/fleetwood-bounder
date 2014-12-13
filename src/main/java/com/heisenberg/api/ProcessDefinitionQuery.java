@@ -23,6 +23,8 @@ import com.heisenberg.api.definition.ProcessDefinition;
  */
 public interface ProcessDefinitionQuery {
 
+  public static final String FIELD_DEPLOY_TIME = "deployTime";
+
   ProcessDefinitionQuery id(String id);
 
   ProcessDefinitionQuery name(String name);

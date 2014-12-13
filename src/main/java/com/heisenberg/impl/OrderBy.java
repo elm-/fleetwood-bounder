@@ -12,22 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.engine.updates;
+package com.heisenberg.impl;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.impl.instance.ActivityInstanceImpl;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeName("operationAddStart")
-public class OperationAddStartUpdate extends OperationAddUpdate {
+public class OrderBy {
 
-  public OperationAddStartUpdate() {
-  }
-
-  public OperationAddStartUpdate(ActivityInstanceImpl activityInstance) {
-    super(activityInstance);
+  public List<OrderByElement> orderByElements = new ArrayList<>();
+  
+  public OrderBy add(String field, OrderByDirection direction) {
+    orderByElements.add(new OrderByElement(field, direction));
+    return this;
   }
 }

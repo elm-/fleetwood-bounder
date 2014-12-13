@@ -19,8 +19,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.configuration.Script;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
@@ -49,14 +49,8 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   @JsonIgnore
   public TransitionDefinitionImpl defaultTransition;
   
-  public String forEach;
-  public String forEachExpression;
-  public String forEachElementVariableId;
-  
-  @JsonIgnore 
-  public Script forEachExpressionScript;
-
-  
+  public Binding<List<Object>> forEach;
+  public VariableDefinitionImpl forEachElement;
 
   /// Activity Definition Builder methods ////////////////////////////////////////////////
 
@@ -93,26 +87,34 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   
   @Override
   public ActivityBuilder forEach(String elementVariableId, DataType elementDataType, String collectionVariableId) {
-    newVariable()
-      .id(elementVariableId)
-      .dataType(elementDataType);
-    this.forEach = collectionVariableId;
-    this.forEachElementVariableId = elementVariableId; 
+    forEach(elementVariableId, elementDataType, new Binding<List<Object>>().variableDefinitionId(collectionVariableId));
     return this;
   }
   
   @Override
   public ActivityBuilder forEachExpression(String elementVariableId, DataType elementDataType, String collectionExpression) {
-    newVariable()
-      .id(elementVariableId)
-      .dataType(elementDataType);
-    this.forEachExpression = collectionExpression;
+    forEach(elementVariableId, elementDataType, new Binding<List<Object>>().expression(collectionExpression));
     return this;
+  }
+
+  protected void forEach(String elementVariableId, DataType elementDataType, Binding<List<Object>> collectionBinding) {
+    this.forEachElement = new VariableDefinitionImpl()
+      .id(elementVariableId)
+      .dataType(elementDataType)
+      .processEngine(processEngine)
+      .processDefinition(processDefinition)
+      .parent(this);
+    this.forEach = collectionBinding;
   }
 
   @Override
   public ActivityDefinitionImpl newActivity() {
     return super.newActivity();
+  }
+  
+  @Override
+  public ActivityDefinitionImpl newActivity(String id, ActivityType activityType) {
+    return super.newActivity(id, activityType);
   }
 
   @Override

@@ -27,10 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.activities.bpmn.CallActivity;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
+import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.operation.Operation;
 import com.heisenberg.impl.engine.updates.LockAcquireUpdate;
@@ -45,27 +48,30 @@ import com.heisenberg.impl.engine.updates.Update;
 /**
  * @author Walter White
  */
+@JsonPropertyOrder({"id", "processDefinitionId", "start", "end", "duration", "activityInstances", "variableInstances"})
 public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
-  public String organizationId;
+  public String processDefinitionId;
   public LockImpl lock;
   public Queue<Operation> operations;
   public Queue<Operation> asyncOperations;
+  public String organizationId;
+  public String callerProcessInstanceId;
+  public String callerActivityInstanceId;
   
   // As long as the process instance is not saved, the updates collection is null.
   // That means it's not yet necessary to collect the updates. 
   public List<Update> updates;
   
+  @JsonIgnore
   public Boolean isAsync;
   
-  public String processDefinitionId;
-
   @JsonIgnore
   public Map<String, Object> transientContext;
-  
+
   public ProcessInstanceImpl() {
   }
   
@@ -74,6 +80,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     setProcessEngine(processEngine);
     setOrganizationId(processDefinition.organizationId);
     setProcessDefinition(processDefinition);
+    setProcessDefinitionId(processDefinition.id);
     setScopeDefinition(processDefinition);
     setProcessInstance(this);
     setStart(Time.now());
@@ -163,6 +170,19 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       }
       setEnd(Time.now());
       
+      if (callerProcessInstanceId!=null) {
+        ProcessInstanceImpl callerProcessInstance = processEngine.lockProcessInstanceByActivityInstanceId(callerProcessInstanceId, callerActivityInstanceId);
+        ActivityInstanceImpl callerActivityInstance = callerProcessInstance.findActivityInstance(callerActivityInstanceId);
+        if (callerActivityInstance.isEnded()) {
+          throw new RuntimeException("Call activity instance "+callerActivityInstance+" is already ended");
+        }
+        log.debug("Call activity "+callerActivityInstance+" ends");
+        ActivityDefinitionImpl activityDefinition = callerActivityInstance.getActivityDefinition();
+        CallActivity callActivity = (CallActivity) activityDefinition.activityType;
+        callActivity.calledProcessInstanceEnded(callerActivityInstance, this);
+        callerActivityInstance.onwards();
+        callerProcessInstance.executeOperations();
+      }
       // Each operation is an extra flush.  So this if limits the number of flushes
       // if (thisProcessInstanceCouldTriggerNotifications) {
       //   processInstance.addOperation(new NotifyProcessInstanceEnded(this));
@@ -232,6 +252,10 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     this.asyncOperations = asyncOperations;
   }
   
+  public void setProcessDefinitionId(String processDefinitionId) {
+    this.processDefinitionId = processDefinitionId;
+  }
+
   public void setEnd(LocalDateTime end) {
     this.end = end;
     if (start!=null && end!=null) {

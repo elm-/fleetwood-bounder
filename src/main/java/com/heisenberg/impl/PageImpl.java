@@ -27,7 +27,7 @@ public class PageImpl<T> implements Page<T> {
   
   List<T> results = new ArrayList<T>();
 
-  public PageImpl(ActivityInstanceQueryImpl activityInstanceQuery) {
+  public PageImpl(ProcessInstanceQueryImpl activityInstanceQuery) {
   }
 
   @Override
@@ -39,5 +39,15 @@ public class PageImpl<T> implements Page<T> {
     if (result!=null) {
       results.add(result);
     }
+  }
+
+  @Override
+  public List<T> getNextPage() {
+    return null;
+  }
+
+  @Override
+  public List<T> getPreviousPage() {
+    return null;
   }
 }

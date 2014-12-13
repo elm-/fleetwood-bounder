@@ -33,5 +33,7 @@ public interface Page<T> {
   // limit and then return each subsequent page as an offset from the beginning: s n do not use: slow for large skips
 
   List<T> getResults();
+  List<T> getNextPage();
+  List<T> getPreviousPage();
 
 }

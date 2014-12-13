@@ -51,7 +51,7 @@ public class UserTask extends AbstractActivityType {
     if (taskName==null) {
       taskName = activityInstance.getActivityDefinition().getId().toString();
     }
-    List<String> taskCandidateIds = activityInstance.getValueList(candidates);
+    List<String> taskCandidateIds = activityInstance.getValue(candidates);
     String assigneeId = (taskCandidateIds!=null && taskCandidateIds.size()==1 ? taskCandidateIds.get(0) : null);
     
     Task task = taskService.newTask()
@@ -68,7 +68,7 @@ public class UserTask extends AbstractActivityType {
     return this;
   }
 
-  public UserTask nameVariable(Object nameVariableDefinitionId) {
+  public UserTask nameVariable(String nameVariableDefinitionId) {
     this.name = new Binding<String>().variableDefinitionId(nameVariableDefinitionId);
     return this;
   }

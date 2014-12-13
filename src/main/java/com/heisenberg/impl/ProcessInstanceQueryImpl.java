@@ -16,6 +16,7 @@ package com.heisenberg.impl;
 
 import java.util.List;
 
+import com.heisenberg.api.builder.ProcessInstanceQuery;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
@@ -24,17 +25,33 @@ import com.heisenberg.impl.instance.ScopeInstanceImpl;
 /**
  * @author Walter White
  */
-public class ProcessInstanceQuery {
+public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
 
-  protected ProcessEngineImpl processEngine;
-  protected Object processInstanceId;
-  protected Object activityInstanceId;
-  protected Integer maxResults;
+  public String id;
+  public ProcessEngineImpl processEngine;
+  public Object processInstanceId;
+  public Object activityInstanceId;
+  public Integer maxResults;
   
-  public ProcessInstanceQuery(ProcessEngineImpl processEngine) {
+  public ProcessInstanceQueryImpl(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
+  public ProcessInstanceQueryImpl id(String id) {
+    this.id = id;
+    return this;
+  }
+  
+  public ProcessInstanceQueryImpl processInstanceId(Object id) {
+    setProcessInstanceId(id);
+    return this;
+  }
+  
+  public ProcessInstanceQueryImpl activityInstanceId(Object id) {
+    setActivityInstanceId(id);
+    return this;
+  }
+  
   public Object getActivityInstanceId() {
     return activityInstanceId;
   }
@@ -59,41 +76,6 @@ public class ProcessInstanceQuery {
     this.maxResults = maxResults;
   }
 
-  public boolean meetsConditions(ProcessInstanceImpl processInstance) {
-    if (activityInstanceId!=null && !containsCompositeInstance(processInstance, activityInstanceId)) {
-      return false;
-    }
-    return true;
-  }
-
-  boolean containsCompositeInstance(ScopeInstanceImpl scopeInstance, Object activityInstanceId) {
-    if (scopeInstance.hasActivityInstances()) {
-      for (ActivityInstanceImpl activityInstance : scopeInstance.getActivityInstances()) {
-        if (containsActivityInstance(activityInstance, activityInstanceId)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  boolean containsActivityInstance(ActivityInstanceImpl activityInstance, Object activityInstanceId) {
-    if (activityInstanceId.equals(activityInstance.getId())) {
-      return true;
-    }
-    return containsCompositeInstance(activityInstance, activityInstanceId);
-  }
-  
-  public ProcessInstanceQuery processInstanceId(Object id) {
-    setProcessInstanceId(id);
-    return this;
-  }
-  
-  public ProcessInstanceQuery activityInstanceId(Object id) {
-    setActivityInstanceId(id);
-    return this;
-  }
-  
   public ProcessInstanceImpl get() {
     setMaxResults(1);
     List<ProcessInstanceImpl> processInstances = asList();

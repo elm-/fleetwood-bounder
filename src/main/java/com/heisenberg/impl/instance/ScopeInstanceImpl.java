@@ -25,8 +25,11 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.activities.Binding;
+import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ScopeInstance;
+import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.api.util.TypedValue;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
@@ -36,6 +39,7 @@ import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
+import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -111,6 +115,11 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     log.debug("Created "+activityInstance);
     return activityInstance;
   }
+  
+  public void initializeForEachElement(VariableDefinitionImpl elementVariableDefinition, Object value) {
+    VariableInstanceImpl elementVariableInstance = createVariableInstance(elementVariableDefinition);
+    elementVariableInstance.setValue(value);
+  }
 
   public void addActivityInstance(ActivityInstanceImpl activityInstance) {
     if (activityInstances==null) {
@@ -120,20 +129,25 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     activityInstances.add(activityInstance);
   }
   
-  protected void initializeVariableInstances() {
+  public void initializeVariableInstances() {
     List<VariableDefinitionImpl> variableDefinitions = scopeDefinition.getVariableDefinitions();
     if (variableDefinitions!=null) {
       for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
-        VariableInstanceImpl variableInstance = processEngine.createVariableInstance(this, variableDefinition);
-        variableInstance.processEngine = processEngine;
-        variableInstance.processInstance = processInstance;
-        variableInstance.dataType = variableDefinition.dataType;
-        variableInstance.value = variableDefinition.initialValue;
-        variableInstance.variableDefinition = variableDefinition;
-        variableInstance.variableDefinitionId = variableDefinition.id;
-        addVariableInstance(variableInstance);
+        createVariableInstance(variableDefinition);
       }
     }
+  }
+
+  public VariableInstanceImpl createVariableInstance(VariableDefinitionImpl variableDefinition) {
+    VariableInstanceImpl variableInstance = processEngine.createVariableInstance(this, variableDefinition);
+    variableInstance.processEngine = processEngine;
+    variableInstance.processInstance = processInstance;
+    variableInstance.dataType = variableDefinition.dataType;
+    variableInstance.value = variableDefinition.initialValue;
+    variableInstance.variableDefinition = variableDefinition;
+    variableInstance.variableDefinitionId = variableDefinition.id;
+    addVariableInstance(variableInstance);
+    return variableInstance;
   }
 
   public void addVariableInstance(VariableInstanceImpl variableInstance) {
@@ -144,16 +158,54 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     variableInstances.add(variableInstance);
   }
   
-  public void setVariableValuesRecursive(Map<String, Object> variableValues) {
+  @SuppressWarnings("unchecked")
+  public <T> T getValue(Binding<T> binding) {
+    if (binding==null) {
+      return null;
+    }
+    if (!binding.isInitialized) {
+      throw new RuntimeException("Binding "+binding+" in "+scopeDefinition+" is not initialized");
+    }
+    if (binding.value!=null) {
+      return (T) binding.value;
+    }
+    if (binding.variableDefinitionId!=null) {
+      return (T) getVariableValue(binding.variableDefinitionId);
+    }
+    if (binding.expressionScript!=null) {
+      ScriptService scriptService = getServiceLocator().getScriptService();
+      ScriptResult scriptResult = scriptService.evaluateScript(this, binding.expressionScript);
+      Object result = scriptResult.getResult();
+      return (T) binding.dataType.convertScriptValueToInternal(result, binding.expressionScript.language);
+    }
+    return null;
+  }
+
+  public <T> List<T> getValue(List<Binding<T>> bindings) {
+    List<T> list = new ArrayList<>();
+    if (bindings!=null) {
+      for (Binding<T> binding: bindings) {
+        list.add(getValue(binding));
+      }
+    }
+    return list;
+  }
+
+  public Object getVariableValue(String variableDefinitionId) {
+    TypedValue typedValue = getVariableTypedValue(variableDefinitionId);
+    return typedValue!=null ? typedValue.getValue() : null;
+  }
+
+  public void setVariableValues(Map<String, Object> variableValues) {
     if (variableValues!=null) {
       for (String variableDefinitionId: variableValues.keySet()) {
         Object value = variableValues.get(variableDefinitionId);
-        setVariableValueRecursive(variableDefinitionId, value);
+        setVariableValue(variableDefinitionId, value);
       }
     }
   }
 
-  public void setVariableValueRecursive(String variableDefinitionId, Object value) {
+  public void setVariableValue(String variableDefinitionId, Object value) {
     if (variableInstances!=null) {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
@@ -161,11 +213,11 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
       }
     }
     if (parent!=null) {
-      parent.setVariableValueRecursive(variableDefinitionId, value);
+      parent.setVariableValue(variableDefinitionId, value);
     }
   }
   
-  public TypedValue getVariableValueRecursive(Object variableDefinitionId) {
+  public TypedValue getVariableTypedValue(Object variableDefinitionId) {
     if (variableInstances!=null) {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
@@ -175,7 +227,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
       }
     }
     if (parent!=null) {
-      return parent.getVariableValueRecursive(variableDefinitionId);
+      return parent.getVariableTypedValue(variableDefinitionId);
     }
     throw new RuntimeException("Variable "+variableDefinitionId+" is not defined in "+getClass().getSimpleName()+" "+toString());
   }
@@ -341,4 +393,8 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   public abstract void ended(ActivityInstanceImpl activityInstance);
 
   public abstract boolean isProcessInstance();
+
+  public ServiceLocator getServiceLocator() {
+    return processEngine;
+  }
 }

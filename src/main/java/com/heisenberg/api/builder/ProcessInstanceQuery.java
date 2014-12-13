@@ -12,22 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.engine.updates;
+package com.heisenberg.api.builder;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.impl.instance.ActivityInstanceImpl;
+import java.util.List;
+
+import com.heisenberg.api.instance.ProcessInstance;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeName("operationAddStart")
-public class OperationAddStartUpdate extends OperationAddUpdate {
+public interface ProcessInstanceQuery {
 
-  public OperationAddStartUpdate() {
-  }
+  ProcessInstanceQuery id(String processInstanceId);
+  
+  ProcessInstance get();
 
-  public OperationAddStartUpdate(ActivityInstanceImpl activityInstance) {
-    super(activityInstance);
-  }
+  List<? extends ProcessInstance> asList();
 }

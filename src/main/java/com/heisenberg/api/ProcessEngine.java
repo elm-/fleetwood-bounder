@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.api.builder.ActivityInstanceQuery;
+import com.heisenberg.api.builder.ProcessInstanceQuery;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.builder.StartBuilder;
@@ -46,7 +46,7 @@ public interface ProcessEngine {
   /** Use a {@link MessageBuilder message} to end a waiting activity instance in a process instance. */
   MessageBuilder newMessage();
 
-  ActivityInstanceQuery newActivityInstanceQuery();
+  ProcessInstanceQuery newProcessInstanceQuery();
   
   ProcessDefinitionQuery newProcessDefinitionQuery();
   

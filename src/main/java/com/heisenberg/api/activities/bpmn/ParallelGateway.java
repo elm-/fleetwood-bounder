@@ -25,6 +25,7 @@ import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
 /**
@@ -88,7 +89,8 @@ public class ParallelGateway extends AbstractActivityType {
       }
       activityInstance.onwards();
     } else {
-      activityInstance.setJoining();
+      ActivityInstanceImpl activityInstanceImpl = (ActivityInstanceImpl) activityInstance;
+      activityInstanceImpl.setJoining();
     }
   }
 

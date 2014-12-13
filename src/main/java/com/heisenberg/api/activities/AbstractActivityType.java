@@ -50,13 +50,9 @@ public abstract class AbstractActivityType implements ActivityType {
     }
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    validateConfigurationFields(activityDefinition, validator);
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  protected void validateConfigurationFields(ActivityDefinition activityDefinition, Validator validator) {
     ActivityTypeService activityTypeService = (ActivityTypeService) validator.getServiceLocator().getActivityTypes();
     List<TypeField> configurationFields = activityTypeService.getConfigurationFields(this);
     if (configurationFields!=null) {
@@ -101,8 +97,8 @@ public abstract class AbstractActivityType implements ActivityType {
     return false;
   }
 
-  protected void validateBinding(ActivityDefinition activityDefinition, Validator validator, TypeField typeField, Binding< ? > binding) {
+  private void validateBinding(ActivityDefinition activityDefinition, Validator validator, TypeField typeField, Binding< ? > binding) {
     binding.dataType = typeField.dataType;
-    binding.validate(activityDefinition, this, typeField, validator);
+    binding.validate(activityDefinition, validator, this.getClass().getName()+"."+typeField.name);
   }
 }

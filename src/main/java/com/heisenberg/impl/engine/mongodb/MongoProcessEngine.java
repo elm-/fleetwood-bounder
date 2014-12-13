@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.util.Page;
-import com.heisenberg.impl.ActivityInstanceQueryImpl;
+import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.ProcessInstanceQuery;
+import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.Operation;
@@ -163,12 +163,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery) {
-    return null;
-  }
-
-  @Override
-  public Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl) {
+  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQueryImpl) {
     return null;
   }
 

@@ -14,12 +14,14 @@
  */
 package com.heisenberg.impl.engine.updates;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
 
 /**
  * @author Walter White
  */
+@JsonTypeName("operationAddNotifyEnd")
 public class OperationAddNotifyEndUpdate extends OperationAddUpdate {
 
   public OperationAddNotifyEndUpdate() {

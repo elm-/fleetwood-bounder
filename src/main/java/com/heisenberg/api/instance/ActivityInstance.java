@@ -38,4 +38,6 @@ public interface ActivityInstance extends ScopeInstance {
   boolean isJoining();
 
   ProcessInstance getProcessInstance();
+
+  String getCalledProcessInstanceId();
 }

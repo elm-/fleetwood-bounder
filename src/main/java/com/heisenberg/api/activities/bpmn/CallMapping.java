@@ -12,18 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.builder;
+package com.heisenberg.api.activities.bpmn;
 
-import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.Page;
+import com.heisenberg.api.activities.Binding;
 
 
 /**
  * @author Walter White
  */
-public interface ActivityInstanceQuery {
-
-  ActivityInstanceQuery activityType(Class<?> activityTypeClass);
+public class CallMapping {
   
-  Page<ActivityInstance> loadPage();
+  protected Binding<Object> sourceBinding;
+  protected String destinationVariableId;
+
+  public CallMapping sourceBinding(Binding<Object> sourceBinding) {
+    this.sourceBinding = sourceBinding;
+    return this;
+  }
+
+  public CallMapping destinationVariableId(String destinationVariableId) {
+    this.destinationVariableId = destinationVariableId;
+    return this;
+  }
 }

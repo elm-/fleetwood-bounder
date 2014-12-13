@@ -16,7 +16,7 @@ package com.heisenberg.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.builder.ActivityInstanceQuery;
+import com.heisenberg.api.builder.ProcessInstanceQuery;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
@@ -81,7 +81,7 @@ public abstract class AbstractProcessEngine implements ProcessEngine {
   }
 
   @Override
-  public ActivityInstanceQuery newActivityInstanceQuery() {
+  public ProcessInstanceQuery newProcessInstanceQuery() {
     throw new RuntimeException("TODO");
   }
 

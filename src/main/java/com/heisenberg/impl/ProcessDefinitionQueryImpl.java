@@ -17,7 +17,6 @@ package com.heisenberg.impl;
 import java.util.List;
 
 import com.heisenberg.api.ProcessDefinitionQuery;
-import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 
 
@@ -37,6 +36,7 @@ public class ProcessDefinitionQueryImpl implements ProcessDefinitionQuery {
   public String name;
   public Representation representation;
   public Integer maxResults;
+  public OrderBy orderBy;
   // when adding new fields, don't forget to update method onlyIdIsSpecified
 
   public ProcessDefinitionQueryImpl(ProcessEngineImpl processEngine) {
@@ -67,6 +67,23 @@ public class ProcessDefinitionQueryImpl implements ProcessDefinitionQuery {
     return this;
   }
   
+  public ProcessDefinitionQueryImpl orderByDeployTimeDescending() {
+    orderBy(FIELD_DEPLOY_TIME, OrderByDirection.DESCENDING);
+    return this;
+  }
+  
+  public ProcessDefinitionQueryImpl orderByDeployTimeAscending() {
+    orderBy(FIELD_DEPLOY_TIME, OrderByDirection.ASCENDING);
+    return this;
+  }
+  
+  protected void orderBy(String field, OrderByDirection direction) {
+    if (orderBy==null) {
+      orderBy = new OrderBy();
+    }
+    orderBy.add(field, direction);
+  }
+
   public ProcessDefinitionImpl get() {
     maxResults(1);
     List<ProcessDefinitionImpl> processDefinitions = asList();

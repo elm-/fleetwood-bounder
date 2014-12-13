@@ -166,7 +166,7 @@ public class MongoProcessEngineTest {
     @SuppressWarnings("unchecked")
     @Override
     public void start(ControllableActivityInstance activityInstance) {
-      String place = (placeBinding!=null ? placeBinding.getValue(activityInstance) : null);
+      String place = (placeBinding!=null ? activityInstance.getValue(placeBinding) : null);
       List<String> places = (List<String>) activityInstance.getTransientContextObject("places");
       places.add(place);
       activityInstance.onwards();

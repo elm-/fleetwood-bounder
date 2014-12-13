@@ -14,21 +14,19 @@
  */
 package com.heisenberg.impl.instance;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.ServiceLocator;
+import com.heisenberg.impl.StartBuilderImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
@@ -40,6 +38,7 @@ import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 /**
  * @author Walter White
  */
+@JsonPropertyOrder({"id", "activityDefinitionId", "start", "end", "duration", "activityInstances", "variableInstances"})
 public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityInstance, ControllableActivityInstance {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
@@ -47,26 +46,10 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   @JsonIgnore
   public ActivityDefinitionImpl activityDefinition;
   
-  public Object activityDefinitionId;
+  public String activityDefinitionId;
   public Boolean joining;
+  public String calledProcessInstanceId;
 
-  public <T> T getValue(Binding<T> binding) {
-    if (binding==null) {
-      return null;
-    }
-    return binding.getValue(this);
-  }
-
-  public <T> List<T> getValueList(List<Binding<T>> bindings) {
-    List<T> list = new ArrayList<>();
-    if (bindings!=null) {
-      for (Binding<T> binding: bindings) {
-        list.add(binding.getValue(this));
-      }
-    }
-    return list;
-  }
-  
   public void onwards() {
     log.debug("Onwards "+this);
     // Default BPMN logic when an activity ends
@@ -167,7 +150,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     visitor.endActivityInstance(this, index);
   }
 
-  public void setActivityDefinitionId(Object activityDefinitionId) {
+  public void setActivityDefinitionId(String activityDefinitionId) {
     this.activityDefinitionId = activityDefinitionId;
   }
 
@@ -196,8 +179,19 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return false;
   }
 
-  @Override
-  public ServiceLocator getServiceLocator() {
-    return processEngine;
+  public StartBuilder newSubprocessStart(String subprocessId) {
+    StartBuilderImpl start = new StartBuilderImpl(processEngine);
+    start.processDefinitionId = subprocessId;
+    start.callerProcessInstanceId = processInstance.id;
+    start.callerActivityInstanceId = id;
+    return start;
+  }
+
+  public void setCalledProcessInstanceId(String calledProcessInstanceId) {
+    this.calledProcessInstanceId = calledProcessInstanceId;
+  }
+  
+  public String getCalledProcessInstanceId() {
+    return calledProcessInstanceId;
   }
 }

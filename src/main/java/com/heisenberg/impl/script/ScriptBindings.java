@@ -102,7 +102,7 @@ public class ScriptBindings implements Bindings {
 
   public TypedValue getTypedValue(String scriptVariableName) {
     Object variableDefinitionId = getVariableDefinitionId(scriptVariableName);
-    return scopeInstance.getVariableValueRecursive(variableDefinitionId);
+    return scopeInstance.getVariableTypedValue(variableDefinitionId);
   }
 
   static final Map<String, List<String>> NAME_TO_IGNORE = new HashMap<>();
@@ -128,7 +128,7 @@ public class ScriptBindings implements Bindings {
       String variableDefinitionId = getVariableDefinitionId(scriptVariableName);
       DataType dataType = typedValue.getType();
       Object value = dataType.convertScriptValueToInternal(scriptValue, language);
-      scopeInstance.setVariableValueRecursive(variableDefinitionId, value);
+      scopeInstance.setVariableValue(variableDefinitionId, value);
     }
     return null;
   }

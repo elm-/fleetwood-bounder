@@ -14,7 +14,6 @@
  */
 package com.heisenberg.impl;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,19 +24,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.builder.ActivityInstanceQuery;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.ProcessInstanceQuery;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.plugin.ProcessProfileBuilder;
-import com.heisenberg.api.util.Page;
 import com.heisenberg.api.util.ServiceLocator;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -124,19 +121,22 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return null;
   }
 
-  public ProcessInstance startProcessInstance(StartBuilderImpl processInstanceBuilder) {
+  public ProcessInstance startProcessInstance(StartBuilderImpl start) {
     ProcessDefinitionImpl processDefinition = newProcessDefinitionQuery()
       .representation(Representation.EXECUTABLE)
-      .id(processInstanceBuilder.processDefinitionId)
-      .name(processInstanceBuilder.processDefinitionName)
+      .id(start.processDefinitionId)
+      .name(start.processDefinitionName)
+      .orderByDeployTimeDescending()
       .get();
     
     if (processDefinition==null) {
-      throw new RuntimeException("Could not find process definition "+processInstanceBuilder.processDefinitionId+" "+processInstanceBuilder.processDefinitionName);
+      throw new RuntimeException("Could not find process definition "+start.processDefinitionId+" "+start.processDefinitionName);
     }
     ProcessInstanceImpl processInstance = createProcessInstance(processDefinition);
-    processInstance.transientContext = processInstanceBuilder.transientContext;
-    setVariableApiValues(processInstance, processInstanceBuilder);
+    processInstance.callerProcessInstanceId = start.callerProcessInstanceId;
+    processInstance.callerActivityInstanceId = start.callerActivityInstanceId;
+    processInstance.transientContext = start.transientContext;
+    setVariableApiValues(processInstance, start);
     log.debug("Starting "+processInstance);
     processInstance.setStart(Time.now());
     List<ActivityDefinition> startActivityDefinitions = processDefinition.getStartActivities();
@@ -159,9 +159,9 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return new MessageImpl(this);
   }
   
-  public ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl notifyActivityInstanceBuilder) {
-    String activityInstanceId = notifyActivityInstanceBuilder.activityInstanceId;
-    String processInstanceId = notifyActivityInstanceBuilder.processInstanceId;
+  public ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl message) {
+    String activityInstanceId = message.activityInstanceId;
+    String processInstanceId = message.processInstanceId;
     ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(processInstanceId, activityInstanceId);
     // TODO set variables and context
     ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
@@ -190,7 +190,7 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
         variableDefinition.dataType.validateInternalValue(internalValue);
       }
       if (variableValues!=null) {
-        scopeInstance.setVariableValuesRecursive(variableValues);
+        scopeInstance.setVariableValues(variableValues);
       }
     }
   }
@@ -254,8 +254,8 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   }
 
   @Override
-  public ActivityInstanceQuery newActivityInstanceQuery() {
-    return new ActivityInstanceQueryImpl(this);
+  public ProcessInstanceQuery newProcessInstanceQuery() {
+    return new ProcessInstanceQueryImpl(this);
   }
 
   public String getId() {
@@ -281,11 +281,9 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
   public abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 
-  public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQuery processInstanceQuery);
-
   public abstract List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl processDefinitionQuery);
 
-  public abstract Page<ActivityInstance> findActivityInstances(ActivityInstanceQueryImpl activityInstanceQueryImpl);
+  public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQuery);
 
   public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId);
 

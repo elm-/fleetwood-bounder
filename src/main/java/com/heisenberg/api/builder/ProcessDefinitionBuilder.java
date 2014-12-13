@@ -14,6 +14,8 @@
  */
 package com.heisenberg.api.builder;
 
+import com.heisenberg.api.activities.ActivityType;
+
 
 
 /**
@@ -38,6 +40,7 @@ public interface ProcessDefinitionBuilder {
   ProcessDefinitionBuilder column(Long columnNumber);
 
   ActivityBuilder newActivity();
+  ActivityBuilder newActivity(String id, ActivityType activityType);
 
   TransitionBuilder newTransition();
 

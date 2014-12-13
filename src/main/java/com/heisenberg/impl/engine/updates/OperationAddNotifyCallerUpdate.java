@@ -21,13 +21,13 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
 /**
  * @author Walter White
  */
-@JsonTypeName("operationAddStart")
-public class OperationAddStartUpdate extends OperationAddUpdate {
+@JsonTypeName("operationAddNotifyCaller")
+public class OperationAddNotifyCallerUpdate extends OperationAddUpdate {
 
-  public OperationAddStartUpdate() {
+  public OperationAddNotifyCallerUpdate() {
   }
 
-  public OperationAddStartUpdate(ActivityInstanceImpl activityInstance) {
+  public OperationAddNotifyCallerUpdate(ActivityInstanceImpl activityInstance) {
     super(activityInstance);
   }
 }

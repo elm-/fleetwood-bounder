@@ -136,6 +136,9 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
         if (activity.activityType!=null) {
           activity.activityType.validate(activity, this);
         }
+        if (activity.forEach!=null) {
+          activity.forEach.validate(activity, this, activity.activityType.getClass().getName()+".forEach");
+        }
         if (activity.defaultTransitionId!=null) {
           activity.defaultTransition = findTransitionById(activity.outgoingTransitionDefinitions, activity.defaultTransitionId);
           if (activity.defaultTransition==null) {

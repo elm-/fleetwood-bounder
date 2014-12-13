@@ -136,7 +136,6 @@ public class MongoProcessInstances extends MongoCollection {
     writeObjectOpt(dbProcess, fields.lock, writeLock(process.lock));
     writeActivities(dbProcess, process);
     writeVariables(dbProcess, process);
-    
     return dbProcess;
   }
   

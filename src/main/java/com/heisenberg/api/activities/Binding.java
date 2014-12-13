@@ -16,12 +16,8 @@ package com.heisenberg.api.activities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.configuration.Script;
-import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.plugin.TypeField;
 import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.InvalidValueException;
 
@@ -38,33 +34,12 @@ public class Binding<T> {
   
   public Object value;
   public Object valueJson;
-  public Object variableDefinitionId;
+  public String variableDefinitionId;
   public String expression;
   public String expressionLanguage; // optional. can be null. default is JavaScript
   @JsonIgnore
   public Script expressionScript;
   
-  @SuppressWarnings("unchecked")
-  public T getValue(ControllableActivityInstance activityInstance) {
-    if (!isInitialized) {
-      String typeName = ((ActivityInstanceImpl)activityInstance).activityDefinition.activityType.getClass().getName();
-      throw new RuntimeException("Please ensure that in the "+typeName+".validate, you call activityDefinition.initializeBindings(Validator)");
-    }
-    if (this.value!=null) {
-      return (T) this.value;
-    }
-    if (this.variableDefinitionId!=null) {
-      return (T) activityInstance.getVariableValueRecursive(this.variableDefinitionId).getValue();
-    }
-    if (this.expressionScript!=null) {
-      ScriptService scriptService = activityInstance.getServiceLocator().getScriptService();
-      ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, this.expressionScript);
-      Object result = scriptResult.getResult();
-      return (T) this.dataType.convertScriptValueToInternal(result, this.expressionScript.language);
-    }
-    return null;
-  }
-
   public Binding<T> value(T value) {
     this.value = value;
     return this;
@@ -75,7 +50,7 @@ public class Binding<T> {
     return this;
   }
   
-  public Binding<T> variableDefinitionId(Object variableDefinitionId) {
+  public Binding<T> variableDefinitionId(String variableDefinitionId) {
     this.variableDefinitionId = variableDefinitionId;
     return this;
   }
@@ -86,19 +61,19 @@ public class Binding<T> {
   }
 
   // processEngine and dataType are already initialized when this is called
-  public void validate(ActivityDefinition activityDefinition, ActivityType activityType, TypeField descriptorField, Validator validator) {
+  public void validate(ActivityDefinition activityDefinition, Validator validator, String bindingFieldName) {
     isInitialized = true;
     if (value!=null) {
       try {
         dataType.validateInternalValue(value);
       } catch (InvalidValueException e) {
-        validator.addError("Invalid value '%s' for %s.%s", value, activityType.getClass().getName(), descriptorField.field.getName());
+        validator.addError("Invalid value '%s' for %s", value, bindingFieldName);
       }
     } else if (valueJson!=null) {
       try {
         value = dataType.convertJsonToInternalValue(valueJson);
       } catch (InvalidValueException e) {
-        validator.addError("Invalid json value '%s' for %s.%s", valueJson, activityType.getClass().getName(), descriptorField.field.getName());
+        validator.addError("Invalid json value '%s' for %s", valueJson, bindingFieldName);
       }
     } else if (expression!=null) {
       try {
@@ -108,7 +83,7 @@ public class Binding<T> {
         if (cause==null) {
           cause = e;
         }
-        validator.addError("Invalid expression '%s' for %s.%s: %s", valueJson, activityType.getClass().getName(), descriptorField.field.getName(), e.getMessage());
+        validator.addError("Invalid expression '%s' for %s: %s", valueJson, bindingFieldName, e.getMessage());
       }
     }
   }

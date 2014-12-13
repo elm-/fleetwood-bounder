@@ -14,21 +14,17 @@
  */
 package com.heisenberg.impl.engine.operation;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.configuration.Script;
-import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.api.util.TypedValue;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.impl.script.ScriptResult;
 
 
 /**
@@ -38,7 +34,7 @@ public class StartActivityInstanceOperation extends Operation {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
   
-  boolean isForEachElement;
+  Boolean isForEachElement;
 
   public StartActivityInstanceOperation() {
   }
@@ -57,28 +53,14 @@ public class StartActivityInstanceOperation extends Operation {
     return activityInstance.getActivityDefinition().isAsync(activityInstance);
   }
 
-  @SuppressWarnings("unchecked")
   public void execute(ProcessEngineImpl processEngine) {
     ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
-    String forEach = activityDefinition.forEach;
-    Script forEachScript = activityDefinition.forEachExpressionScript;
-    if ( !isForEachElement
-         && (forEach!=null || forEachScript!=null) ) {
-      Collection<Object> values = null;
-      if (forEach!=null) {
-        TypedValue typedValue = activityInstance.getVariableValueRecursive(forEach);
-        if (typedValue!=null) {
-          values = (Collection<Object>) typedValue.getValue();
-        }
-      } else if (forEachScript!=null) {
-        ScriptService scriptService = processEngine.getScriptService();
-        ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, forEachScript);
-        values = (Collection<Object>) scriptResult.getResult();
-      }
+    if (activityDefinition.forEach!=null && !Boolean.TRUE.equals(isForEachElement)) {
+      List<Object> values = activityInstance.getValue(activityDefinition.forEach);
       if (values!=null && !values.isEmpty()) {
         for (Object value: values) {
           ActivityInstanceImpl elementActivityInstance = activityInstance.createActivityInstance(activityDefinition);
-          elementActivityInstance.setVariableValueRecursive(activityDefinition.forEachElementVariableId, value);
+          elementActivityInstance.initializeForEachElement(activityDefinition.forEachElement, value);
           activityInstance.processInstance.addOperation(new StartActivityInstanceOperation(elementActivityInstance, true));
         }
       } else {

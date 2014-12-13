@@ -66,7 +66,7 @@ public class ActivityTypeBindingConfigurationTest {
     }
     @Override
     public void start(ControllableActivityInstance activityInstance) {
-      executedConfigurations.add(place.getValue(activityInstance));
+      executedConfigurations.add(activityInstance.getValue(place));
     }
   }
   

@@ -1,12 +1,17 @@
+# Topics
+
+- [ ] Rename process to workflow. Consider removing 'Definition' from all definition entities. So that the process builder code looks nicer.
+- [ ] Is the API nicely split from the impl.  SPIs make it hard.  Where should it be improved? 
+- [ ] Is script engine thread safe?
+- [ ] In the data types, InvalidValueException vs ParseContext
+
 # Tasks
 
+- [ ] Move dataType and id as parameters into newActivity.  Move all required parameters in the constructor.
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
 - [ ] Test if the script engine is thread safe. CompiledScript seems to be tied to a ScriptEngine. It should be investigated if concurrent script execution can overwrite each other's context.
-- [ ] Move initializeBindings from ActivityDefinitionImpl into the ProcessDefinitionValidator.
-      Easier and I should not worry about the performance
 - [ ] Move activity types to implementation and replace it with builder 
       methods in the ProcessDefintionBuilder similar to the ProcessDefinitionBuilder.newDataTypeXxx methods
-- [ ] Consider removing 'Definition' from all definition entities. So that the process builder code looks nicer. 
 
 # In progress
 
@@ -42,6 +47,7 @@
   - [x] easy to understand activity instance model
   - [x] support for BPMN default semantics
   - [x] synchonous and asynchronoux execution of activities
+  - [ ] activity worker pattern
 - [x] pluggable persistence architecture 
 - [x] transient execution context variables
 - [x] mongodb persistence
@@ -63,23 +69,14 @@
 - [ ] change ProcessEngine.startProcessInstance return value into StartProcessInstanceResponse
   - [ ] include process instance full state (as is returned now)
   - [ ] add all (or some) process events as a kind of logs
-- [ ] Change response into ProcessEngine.startProcessInstance StartProcessInstanceResponse.  this way we can include the events/logs of all things that happened during execution.
-- [ ] Change response of ProcessEngine.notifyActivityInstance into NotifyActivityInstanceResponse this way we can include the events/logs of all things that happened during execution.
 - [ ] Activity types
   - [ ] HTTP invocation
   - [ ] Send email
   - [ ] Remote implemented activity (http)
-  - [ ] Script (through ScriptEngine)
-- [ ] split up into multiple modules
-  - [ ] one for the api
-  - [ ] one for impl + spi
-  - [ ] one for each integration
-  - [ ] maybe an mvn command (on the parent project?) to bundle them in a single jar
-  - [ ] this way we get the minimal classpaths tested
-  - [ ] ensure jackson lib is not required if json is not used
+  - [x] Script (through ScriptEngine)
 - [ ] Data flow (only start an activity when the input data becomes available)
-- [ ] Derived variables
 - [ ] Static persistable process variables
+- [ ] Derived variables
 - [ ] Allow for easy collection of process instance logs to track what has happened
 - [ ] Process debugger service (separate top level interface required)
   - [ ] based on the in memory process engine

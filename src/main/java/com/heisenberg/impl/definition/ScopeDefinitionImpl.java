@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.ScopeDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
@@ -67,7 +68,14 @@ public abstract class ScopeDefinitionImpl implements ScopeDefinition {
     this.name = name;
     return this;
   }
-  
+
+  public ActivityDefinitionImpl newActivity(String id, ActivityType activityType) {
+    ActivityDefinitionImpl activity = newActivity();
+    activity.id(id);
+    activity.activityType(activityType);
+    return activity;
+  }
+
   public ActivityDefinitionImpl newActivity() {
     ActivityDefinitionImpl activityDefinition = new ActivityDefinitionImpl();
     activityDefinition.processEngine = this.processEngine;

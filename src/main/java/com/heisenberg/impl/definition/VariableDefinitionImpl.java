@@ -74,6 +74,21 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     return this;
   }
   
+  public VariableDefinitionImpl processEngine(AbstractProcessEngine processEngine) {
+    this.processEngine = processEngine;
+    return this;
+  }
+  
+  public VariableDefinitionImpl processDefinition(ProcessDefinitionImpl processDefinition) {
+    this.processDefinition = processDefinition;
+    return this;
+  }
+  
+  public VariableDefinitionImpl parent(ScopeDefinitionImpl parent) {
+    this.parent = parent;
+    return this;
+  }
+  
   public void prepare() {
   }
   
