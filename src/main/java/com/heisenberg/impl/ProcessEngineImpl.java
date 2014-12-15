@@ -17,7 +17,6 @@ package com.heisenberg.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -27,7 +26,6 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.builder.ProcessInstanceQuery;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
@@ -46,8 +44,10 @@ import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
+import com.heisenberg.impl.job.JobService;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Lists;
+import com.mongodb.BasicDBObject;
 
 /**
  * @author Walter White
@@ -60,7 +60,8 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   public ProcessDefinitionCache processDefinitionCache;
   public ScriptService scriptService;
   public TaskService taskService;
-  public Executor executorService;
+  public ExecutorService executorService;
+  public JobService jobService;
   public String builderUrl;
   
   public ProcessEngineImpl() {
@@ -73,6 +74,13 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     this.processDefinitionCache = configuration.getProcessDefinitionCache();
     this.scriptService = configuration.getScriptService();
     this.taskService = configuration.getTaskService();
+  }
+  
+  public void startup() {
+  }
+
+  public void shutdown() {
+    executorService.shutdown();
   }
 
   /// Process Definition Builder 
@@ -160,11 +168,12 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   }
   
   public ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl message) {
-    String activityInstanceId = message.activityInstanceId;
-    String processInstanceId = message.processInstanceId;
-    ProcessInstanceImpl processInstance = lockProcessInstanceByActivityInstanceId(processInstanceId, activityInstanceId);
+    ProcessInstanceQueryImpl query = newProcessInstanceQuery()
+      .id(message.processInstanceId)
+      .activityInstanceId(message.activityInstanceId);
+    ProcessInstanceImpl processInstance = lockProcessInstanceWithRetry(query);
     // TODO set variables and context
-    ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(activityInstanceId);
+    ActivityInstanceImpl activityInstance = processInstance.findActivityInstance(message.activityInstanceId);
     if (activityInstance.isEnded()) {
       throw new RuntimeException("Activity instance "+activityInstance+" is already ended");
     }
@@ -174,6 +183,31 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     processInstance.executeOperations();
     return processInstance;
   }
+  
+  public ProcessInstanceImpl lockProcessInstanceWithRetry(ProcessInstanceQueryImpl query) {
+    long wait = 50l;
+    long attempts = 0;
+    long maxAttempts = 4;
+    long backofFactor = 5;
+    ProcessInstanceImpl processInstance = lockProcessInstance(query);
+    while ( processInstance==null 
+            && attempts <= maxAttempts ) {
+      try {
+        log.debug("Locking failed... retrying");
+        Thread.sleep(wait);
+      } catch (InterruptedException e) {
+        log.debug("Waiting for lock to be released was interrupted");
+      }
+      wait = wait * backofFactor;
+      attempts++;
+      processInstance = lockProcessInstance(query);
+    }
+    if (processInstance==null) {
+      throw new RuntimeException("Couldn't lock process instance with "+query);
+    }
+    return processInstance;
+  }
+
   
   /** ensures that every element in this process definition has an id */
   protected String createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
@@ -254,7 +288,7 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   }
 
   @Override
-  public ProcessInstanceQuery newProcessInstanceQuery() {
+  public ProcessInstanceQueryImpl newProcessInstanceQuery() {
     return new ProcessInstanceQueryImpl(this);
   }
 
@@ -262,7 +296,7 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return id;
   }
   
-  public Executor getExecutorService() {
+  public ExecutorService getExecutorService() {
     return executorService;
   }
   
@@ -285,7 +319,7 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
 
   public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQuery);
 
-  public abstract ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId);
+  public abstract ProcessInstanceImpl lockProcessInstance(ProcessInstanceQueryImpl processInstance);
 
   public abstract void insertProcessInstance(ProcessInstanceImpl processInstance);
 
@@ -294,4 +328,5 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
   public abstract void flush(ProcessInstanceImpl processInstance);
 
   public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
+
 }

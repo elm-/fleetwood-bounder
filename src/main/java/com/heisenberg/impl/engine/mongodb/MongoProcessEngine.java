@@ -158,8 +158,8 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   }
 
   @Override
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId) {
-    return processInstances.lockProcessInstanceByActivityInstanceId(processInstanceId, activityInstanceId);
+  public ProcessInstanceImpl lockProcessInstance(ProcessInstanceQueryImpl processInstanceQuery) {
+    return processInstances.lockProcessInstance(processInstanceQuery);
   }
 
   @Override
@@ -171,4 +171,5 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   public List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl query) {
     return processDefinitions.findProcessDefinitions(query);
   }
+
 }

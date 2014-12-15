@@ -17,9 +17,7 @@ package com.heisenberg.impl;
 import java.util.List;
 
 import com.heisenberg.api.builder.ProcessInstanceQuery;
-import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.heisenberg.impl.instance.ScopeInstanceImpl;
 
 
 /**
@@ -29,8 +27,8 @@ public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
 
   public String id;
   public ProcessEngineImpl processEngine;
-  public Object processInstanceId;
-  public Object activityInstanceId;
+  public String processInstanceId;
+  public String activityInstanceId;
   public Integer maxResults;
   
   public ProcessInstanceQueryImpl(ProcessEngineImpl processEngine) {
@@ -42,12 +40,12 @@ public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
     return this;
   }
   
-  public ProcessInstanceQueryImpl processInstanceId(Object id) {
+  public ProcessInstanceQueryImpl processInstanceId(String id) {
     setProcessInstanceId(id);
     return this;
   }
   
-  public ProcessInstanceQueryImpl activityInstanceId(Object id) {
+  public ProcessInstanceQueryImpl activityInstanceId(String id) {
     setActivityInstanceId(id);
     return this;
   }
@@ -56,15 +54,15 @@ public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
     return activityInstanceId;
   }
   
-  public void setActivityInstanceId(Object activityInstanceId) {
+  public void setActivityInstanceId(String activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
   }
   
-  public Object getProcessInstanceId() {
+  public Object String() {
     return processInstanceId;
   }
   
-  public void setProcessInstanceId(Object processInstanceId) {
+  public void setProcessInstanceId(String processInstanceId) {
     this.processInstanceId = processInstanceId;
   }
   

@@ -23,12 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.heisenberg.api.MemoryProcessEngineConfiguration;
-import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.impl.PageImpl;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -138,53 +134,38 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     return true;
   }
 
-  public ProcessInstanceImpl findProcessInstance(ProcessInstanceQueryImpl processInstanceQuery) {
-    if (processInstanceQuery.getProcessInstanceId()!=null) {
-      ProcessInstanceImpl processInstance = processInstances.get(processInstanceQuery.getProcessInstanceId());
-      return processInstance;
-    }
-    for (ProcessInstanceImpl processInstance: processInstances.values()) {
-      if (meetsConditions(processInstance, processInstanceQuery)) {
-        return processInstance;
-      }
-    }
-    return null;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
-  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl activityInstanceQuery) {
-    if (activityInstanceQuery.id!=null) {
-      return Lists.of(processInstances.get(activityInstanceQuery.id));
+  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQuery) {
+    if (processInstanceQuery.id!=null) {
+      ProcessInstanceImpl processInstance = processInstances.get(processInstanceQuery.id);
+      if (meetsConditions(processInstance, processInstanceQuery)) {
+        return Lists.of(processInstance);
+      }
+      return Collections.EMPTY_LIST;
     }
-    return Collections.EMPTY_LIST;
+    List<ProcessInstanceImpl> processInstances = new ArrayList<>();
+    for (ProcessInstanceImpl processInstance: this.processInstances.values()) {
+      if (meetsConditions(processInstance, processInstanceQuery)) {
+        processInstances.add(processInstance);
+      }
+    }
+    return processInstances;
   }
 
-//  void scanActivityInstances(ScopeInstanceImpl scopeInstance, ProcessInstanceQueryImpl activityInstanceQuery, List<ActivityInstance> activityInstan) {
-//    if (scopeInstance.hasActivityInstances()) {
-//      for (ActivityInstanceImpl activityInstance: scopeInstance.activityInstances) {
-//        if (activityInstanceQuery.meetsConditions(activityInstance)) {
-//          page.add(activityInstance);
-//        }
-//        scanActivityInstances(activityInstance, activityInstanceQuery, page);
-//      }
-//    }
-//  }
-
   @Override
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId) {
-    ProcessInstanceQueryImpl processInstanceQueryImpl = new ProcessInstanceQueryImpl(this)
-      .activityInstanceId(activityInstanceId);
-    processInstanceQueryImpl.setMaxResults(1);
-    ProcessInstanceImpl processInstance = findProcessInstance(processInstanceQueryImpl);
-    if (processInstance==null) { 
-      throw new RuntimeException("Process instance "+id+" doesn't exist");
+  public ProcessInstanceImpl lockProcessInstance(ProcessInstanceQueryImpl processInstanceQuery) {
+    processInstanceQuery.setMaxResults(1);
+    List<ProcessInstanceImpl> processInstances = findProcessInstances(processInstanceQuery);
+    if (processInstances==null || processInstances.isEmpty()) { 
+      throw new RuntimeException("Process instance doesn't exist");
     }
-    Object id = processInstance.getId();
-    if (lockedProcessInstances.contains(id)) {
-      throw new RuntimeException("Process instance "+id+" is already locked");
+    ProcessInstanceImpl processInstance = processInstances.get(0);
+    String processInstanceId = processInstance.getId();
+    if (lockedProcessInstances.contains(processInstanceId)) {
+      throw new RuntimeException("Process instance "+processInstanceId+" is already locked");
     }
-    lockedProcessInstances.add(id);
+    lockedProcessInstances.add(processInstanceId);
     LockImpl lock = new LockImpl();
     lock.setTime(Time.now());
     lock.setOwner(getId());
@@ -192,7 +173,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     log.debug("Locked process instance: "+jsonService.objectToJsonStringPretty(processInstance));
     return processInstance;
   }
-
+  
   @Override
   public ProcessInstanceImpl findProcessInstanceById(String processInstanceId) {
     return processInstances.get(processInstanceId);

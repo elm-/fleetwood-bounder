@@ -12,23 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.builder;
+package com.heisenberg.impl.job;
 
-import java.util.List;
+import org.joda.time.LocalDateTime;
+import org.joda.time.ReadablePeriod;
 
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.impl.instance.ProcessInstanceImpl;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessInstanceQuery {
-
-  ProcessInstanceQuery id(String processInstanceId);
+public interface JobController {
   
-  ProcessInstanceQuery activityInstanceId(String activityInstanceId);
-  
-  ProcessInstance get();
+  /** allows process jobs to get the locked process instance */
+  ProcessInstanceImpl getProcessInstance();
 
-  List<? extends ProcessInstance> asList();
+  void rescheduleFromNow(ReadablePeriod period);
+  
+  void rescheduleFor(LocalDateTime duedate);
+  
+  void log(String msg);
 }

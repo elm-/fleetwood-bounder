@@ -17,12 +17,12 @@ package com.heisenberg.api;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
+import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.engine.mongodb.MongoProcessEngine;
 import com.mongodb.MongoClientOptions;
@@ -178,7 +178,7 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
   }
 
   @Override
-  public MongoProcessEngineConfiguration executorService(Executor executorService) {
+  public MongoProcessEngineConfiguration executorService(ExecutorService executorService) {
     super.executorService(executorService);
     return this;
   }

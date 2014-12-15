@@ -12,23 +12,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.builder;
+package com.heisenberg.impl.engine.memory;
 
-import java.util.List;
+import java.util.Iterator;
 
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.impl.job.Job;
+import com.heisenberg.impl.job.JobServiceImpl;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessInstanceQuery {
+public class MemoryJobServiceImpl extends JobServiceImpl {
 
-  ProcessInstanceQuery id(String processInstanceId);
-  
-  ProcessInstanceQuery activityInstanceId(String activityInstanceId);
-  
-  ProcessInstance get();
+  @Override
+  public Iterator<String> getProcessInstanceIdsToLockForJobs() {
+    return null;
+  }
 
-  List<? extends ProcessInstance> asList();
+  @Override
+  public void ensureJob(Job job) {
+  }
+
+  @Override
+  public Job lockNextProcessJob(String processInstanceId) {
+    return null;
+  }
+
+  @Override
+  public Job lockNextOtherJob() {
+    return null;
+  }
+
+  @Override
+  public void insertJob(Job job) {
+  }
+
+  @Override
+  public void updateJob(Job job) {
+  }
+
 }

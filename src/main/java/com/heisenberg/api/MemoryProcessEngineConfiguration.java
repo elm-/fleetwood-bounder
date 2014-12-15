@@ -14,13 +14,12 @@
  */
 package com.heisenberg.api;
 
-import java.util.concurrent.Executor;
-
 import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
+import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.type.DataType;
@@ -67,7 +66,7 @@ public class MemoryProcessEngineConfiguration extends ProcessEngineConfiguration
   }
 
   @Override
-  public MemoryProcessEngineConfiguration executorService(Executor executorService) {
+  public MemoryProcessEngineConfiguration executorService(ExecutorService executorService) {
     super.executorService(executorService);
     return this;
   }

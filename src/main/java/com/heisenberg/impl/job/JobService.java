@@ -12,23 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.builder;
-
-import java.util.List;
-
-import com.heisenberg.api.instance.ProcessInstance;
+package com.heisenberg.impl.job;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessInstanceQuery {
+public interface JobService {
 
-  ProcessInstanceQuery id(String processInstanceId);
-  
-  ProcessInstanceQuery activityInstanceId(String activityInstanceId);
-  
-  ProcessInstance get();
-
-  List<? extends ProcessInstance> asList();
 }

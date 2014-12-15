@@ -12,23 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.builder;
-
-import java.util.List;
-
-import com.heisenberg.api.instance.ProcessInstance;
+package com.heisenberg.impl.job;
 
 
 /**
  * @author Walter White
  */
-public interface ProcessInstanceQuery {
+public interface JobType {
 
-  ProcessInstanceQuery id(String processInstanceId);
+  /** one less then the total number of attempts before giving up.
+   * So returning 0 means only 1 attempt is done and no retries.  */
+  Long getMaxRetries();
   
-  ProcessInstanceQuery activityInstanceId(String activityInstanceId);
   
-  ProcessInstance get();
+  /** @param retry indicates the sequence number for the retry to be 
+   * scheduled for the job to implement incremental backoff, so it 
+   * will be 1 the first time. */
+  int getRetryDelayInSeconds(long retry);
 
-  List<? extends ProcessInstance> asList();
+  void execute(JobExecution jobExecution);
+
 }
