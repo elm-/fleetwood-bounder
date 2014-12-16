@@ -17,7 +17,9 @@ package com.heisenberg.api.configuration;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.UUID;
 
@@ -46,6 +48,8 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
   public ScriptService scriptService;
   public ExecutorService executorService;
   public JobService jobService;
+  public List<Class<?>> jobTypeRegistrations = new ArrayList<>();
+  public boolean registerDefaultJobTypes = true;
 
   protected ProcessEngineConfiguration() {
   }
@@ -92,6 +96,16 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
   
   public ProcessEngineConfiguration jobService(JobService jobService) {
     this.jobService = jobService;
+    return this;
+  }
+
+  public ProcessEngineConfiguration registerJobType(Class<?> jobTypeClass) {
+    jobTypeRegistrations.add(jobTypeClass);
+    return this;
+  }
+  
+  public ProcessEngineConfiguration registerDefaultJobTypes() {
+    registerDefaultJobTypes = true;
     return this;
   }
   

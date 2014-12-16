@@ -14,15 +14,16 @@
  */
 package com.heisenberg.api;
 
-import com.heisenberg.api.builder.ProcessInstanceQuery;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.ProcessInstanceQuery;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.plugin.ActivityTypes;
 import com.heisenberg.api.plugin.DataSources;
 import com.heisenberg.api.plugin.DataTypes;
 import com.heisenberg.api.plugin.ProcessProfileBuilder;
 import com.heisenberg.api.plugin.Triggers;
+import com.heisenberg.impl.job.JobService;
 
 
 /** Start here.
@@ -60,4 +61,5 @@ public interface ProcessEngine {
   DataTypes getDataTypes();
   DataSources getDataSources();
   Triggers getTriggers();
+  JobService getJobService();
 }

@@ -14,8 +14,16 @@
  */
 package com.heisenberg.impl.engine.memory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import com.heisenberg.impl.Time;
 import com.heisenberg.impl.job.Job;
 import com.heisenberg.impl.job.JobServiceImpl;
 
@@ -24,32 +32,63 @@ import com.heisenberg.impl.job.JobServiceImpl;
  * @author Walter White
  */
 public class MemoryJobServiceImpl extends JobServiceImpl {
+  
+  Set<String> processInstanceIds = new HashSet<>();
+  LinkedList<Job> jobs = new LinkedList<>();
+  List<Job> jobsDone = new ArrayList<>();
+  Map<String,Job> jobsById = new HashMap<>();
 
   @Override
-  public Iterator<String> getProcessInstanceIdsToLockForJobs() {
+  public synchronized Iterator<String> getProcessInstanceIdsToLockForJobs() {
+    return processInstanceIds.iterator();
+  }
+
+  @Override
+  public synchronized Job lockNextProcessJob(String processInstanceId) {
+    return lockJob(true);
+  }
+
+  @Override
+  public synchronized Job lockNextOtherJob() {
+    return lockJob(false);
+  }
+
+  public synchronized Job lockJob(boolean mustHaveProcessInstance) {
+    Iterator<Job> jobIterator = jobs.iterator();
+    while (jobIterator.hasNext()) {
+      Job job = jobIterator.next();
+      if ( ( job.duedate==null || duedateHasPast(job) )
+           && ( (mustHaveProcessInstance && job.processInstanceId!=null)
+                || (!mustHaveProcessInstance && job.processInstanceId==null) )
+         ) {
+        jobIterator.remove();
+        return job;
+      }
+    }
     return null;
   }
 
-  @Override
-  public void ensureJob(Job job) {
+  public boolean duedateHasPast(Job job) {
+    long nowMillis = Time.now().toDate().getTime();
+    long duedateMillis = job.duedate.toDate().getTime();
+    return (duedateMillis - nowMillis)<=0;
   }
 
   @Override
-  public Job lockNextProcessJob(String processInstanceId) {
-    return null;
+  public synchronized void saveJob(Job job) {
+    if (job.done==null) {
+      jobs.add(job);
+      if (job.key!=null) {
+        Job oldJob = jobsById.put(job.key, job);
+        if (oldJob!=null) {
+          jobs.remove(oldJob);
+        }
+      }
+      if (job.processInstanceId != null) {
+        processInstanceIds.add(job.processInstanceId);
+      }
+    } else {
+      jobsDone.add(job);
+    }
   }
-
-  @Override
-  public Job lockNextOtherJob() {
-    return null;
-  }
-
-  @Override
-  public void insertJob(Job job) {
-  }
-
-  @Override
-  public void updateJob(Job job) {
-  }
-
 }

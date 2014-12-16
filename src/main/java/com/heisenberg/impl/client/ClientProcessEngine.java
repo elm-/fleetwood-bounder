@@ -27,6 +27,7 @@ import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.MessageImpl;
 import com.heisenberg.impl.StartBuilderImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.job.JobService;
 
 
 /**
@@ -73,10 +74,15 @@ public class ClientProcessEngine extends AbstractProcessEngine /* implements Ser
   }
 
   @Override
+  public JobService getJobService() {
+    throw new RuntimeException("Client process engine doesn't support this method");
+  }
+  
+  @Override
   public ProcessDefinitionQuery newProcessDefinitionQuery() {
     throw new RuntimeException("TODO");
   }
-  
+
 //  @Override
 //  public ServiceLocator getServiceLocator() {
 //    return this;

@@ -13,12 +13,15 @@ import org.joda.time.ReadablePeriod;
 /**
  * @author Tom Baeyens
  */
-public class Job {
+public class Job implements JobBuilder {
   
   // private static final Logger log = LoggerFactory.getLogger(Job.class);
 
+  public JobServiceImpl jobService;
   public JobType jobType;
   
+  public String id;
+  public String key;
   public LocalDateTime duedate;
   public Lock lock;
   public LinkedList<JobExecution> executions;
@@ -26,6 +29,7 @@ public class Job {
   public Long retries;
   public Long retryDelay;
   public LocalDateTime done;
+  public Boolean dead;
 
   public String organizationId;
   public String processId;
@@ -34,7 +38,26 @@ public class Job {
   public Boolean lockProcessInstance;
   public String activityInstanceId;
   public String taskId;
+  
+  public Job() {
+  }
 
+  public Job(JobServiceImpl jobService, JobType jobType) {
+    this.jobService = jobService;
+    this.jobType = jobType;
+  }
+
+  public void save() {
+    jobService.saveJob(this);
+  }
+
+  /** setting the id means the job service will ensure there is 
+   * exactly 1 such job in the system. */
+  public Job key(String key) {
+    this.key = key;
+    return this;
+  }
+  
   public Job activityInstanceId(String activityInstanceId) {
     this.activityInstanceId = activityInstanceId;
     return this;
@@ -83,6 +106,14 @@ public class Job {
   public Job jobType(JobType jobType) {
     this.jobType = jobType;
     return this;
+  }
+  
+  public Boolean getDead() {
+    return dead;
+  }
+  
+  public void setDead(Boolean dead) {
+    this.dead = dead;
   }
 
   public void rescheduleFromNow(ReadablePeriod period) {

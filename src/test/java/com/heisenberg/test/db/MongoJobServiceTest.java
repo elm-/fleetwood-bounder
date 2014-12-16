@@ -12,17 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.job;
+package com.heisenberg.test.db;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.test.other.JobServiceTest;
 
 
 /**
  * @author Walter White
  */
-public interface JobService {
+public class MongoJobServiceTest extends JobServiceTest {
 
-  Job newJob(JobType jobType);
+  @Override
+  public void initializeProcessEngine() {
+    this.processEngine = new MongoProcessEngineConfiguration()
+      .registerJobType(TestJob.class)
+      .buildProcessEngine();
+  }
 
-  void setProcessEngine(ProcessEngine processEngineImpl);
+  
 }

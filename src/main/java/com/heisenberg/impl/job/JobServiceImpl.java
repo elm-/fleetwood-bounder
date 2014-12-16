@@ -10,11 +10,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executor;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.Seconds;
 
+import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
@@ -35,17 +36,21 @@ public abstract class JobServiceImpl implements JobService {
 
   // runtime state
   public boolean isRunning = false;
-  public Executor executor = null;
+  public ExecutorService executor = null;
   public Timer timer = null;
   public Timer checkOtherJobsTimer = null;
   public JobServiceListener listener = null;
   
-  public void setExecutor(Executor executor) {
+  public Job newJob(JobType jobType) {
+    return new Job(this, jobType);
+  }
+
+  public void setExecutor(ExecutorService executor) {
     this.executor = executor;
   }
   
-  public void setProcessEngine(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
+  public void setProcessEngine(ProcessEngine processEngine) {
+    this.processEngine = (ProcessEngineImpl) processEngine;
   }
   
   public void setListener(JobServiceListener listener) {
@@ -104,7 +109,9 @@ public abstract class JobServiceImpl implements JobService {
 
   public void checkProcessJobs() {
     Iterator<String> processInstanceIds = getProcessInstanceIdsToLockForJobs();
-    while (isRunning && processInstanceIds.hasNext()) {
+    while (isRunning 
+           && processInstanceIds!=null 
+           && processInstanceIds.hasNext()) {
       String processInstanceId = processInstanceIds.next();
       ProcessInstanceQueryImpl query = processEngine.newProcessInstanceQuery()
         .id(processInstanceId);
@@ -152,7 +159,7 @@ public abstract class JobServiceImpl implements JobService {
   }
   
   public void executeJob(Job job, ProcessInstanceImpl processInstance) {
-    JobExecution jobExecution = new JobExecution(processInstance);
+    JobExecution jobExecution = new JobExecution(job, processInstance);
     job.duedate = null;
     job.lock = null;
     JobType jobType = job.jobType;
@@ -176,7 +183,7 @@ public abstract class JobServiceImpl implements JobService {
         jobExecution.log(stackTraceCollector.toString());
         jobExecution.error = true;
         if (job.retries==null) {
-          job.retries = jobType.getMaxRetries();
+          job.retries = (long) jobType.getMaxRetries();
         } 
         if (job.retries>0) {
           job.retries--;
@@ -189,6 +196,7 @@ public abstract class JobServiceImpl implements JobService {
         } else {
           // ALARM !  Manual intervention required
           job.done = new LocalDateTime();
+          job.dead = true;
           if (listener!=null) {
             listener.notifyJobFailure(jobExecution);
           }
@@ -202,43 +210,15 @@ public abstract class JobServiceImpl implements JobService {
       if (job.executions.size()>maxJobExecutions) {
         job.executions.remove(0);
       }
-      updateJob(job);
+      saveJob(job);
     }
   }
   
-  public void ensureJob(Class<? extends JobType> jobType) {
-    ensureJob(jobType, null);
-  }
-  
-  /** Ensures that one job with the given type exists in the database.<br> 
-   * If none exists it will be created and scheduled to the given time (firstStart).
-   * If the given time is null, the job will be scheduled to run shortly after the creation.
-   * 
-   * @param jobType - the job to be scheduled
-   * @param firstStart - (optional) the first time the job should be executed 
-   */
-  public void ensureJob(Class<? extends JobType> jobType, LocalDateTime firstStart) {
-    Job job = new Job();
-    try {
-      job.jobType = jobType.newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException("Couldn't instantiate job "+jobType);
-    }
-    if (firstStart != null) {
-      job.rescheduleFor(firstStart);
-    } else {
-      job.rescheduleFromNow(Seconds.seconds(10));
-    }
-    ensureJob(job);
-  }
-
   /** returns the ids of process instance that have jobs requiring
    * a process instance lock. When a job requires a process instance lock, 
-   * it has to specify {@link Job#processInstanceId} and set {@link Job#lockProcessInstance} to true. */
+   * it has to specify {@link Job#processInstanceId} and set {@link Job#lockProcessInstance} to true.
+   * This method is allowed to return null. */
   public abstract Iterator<String> getProcessInstanceIdsToLockForJobs();
-
-  /** inserts the job only if no job with the given job.jobType exists */
-  public abstract void ensureJob(Job job);
 
   /** locks a job having the given processInstanceId and retrieves it from the store */
   public abstract Job lockNextProcessJob(String processInstanceId);
@@ -247,7 +227,5 @@ public abstract class JobServiceImpl implements JobService {
    * and retrieves it from the store */
   public abstract Job lockNextOtherJob();
 
-  public abstract void insertJob(Job job);
-
-  public abstract void updateJob(Job job);
+  public abstract void saveJob(Job job);
 }

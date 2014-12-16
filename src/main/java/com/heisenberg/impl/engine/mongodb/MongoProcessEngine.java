@@ -56,6 +56,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
 
   protected MongoProcessDefinitions processDefinitions;
   protected MongoProcessInstances processInstances;
+  protected MongoJobService jobService;
   
   protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(jsonService);
   
@@ -70,6 +71,8 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     this.processDefinitions = new MongoProcessDefinitions(this, db, mongoDbConfiguration);
     this.processInstances = new MongoProcessInstances(this, db, mongoDbConfiguration);
     this.updateConverters = new MongoUpdateConverters(jsonService);
+    this.jobService = (MongoJobService) super.jobService;
+    this.jobService.initialize(this, db, mongoDbConfiguration);
   }
   
   @Override

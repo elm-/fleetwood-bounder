@@ -24,7 +24,10 @@ import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessDefinitionCache;
+import com.heisenberg.impl.engine.mongodb.MongoJobService;
 import com.heisenberg.impl.engine.mongodb.MongoProcessEngine;
+import com.heisenberg.impl.job.JobService;
+import com.heisenberg.impl.util.Lists;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -35,6 +38,8 @@ import com.mongodb.WriteConcern;
  * @author Walter White
  */
 public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration {
+  
+  public static List<ServerAddress> DEFAULT_SERVER_ADDRESSES = Lists.of(createServerAddress("localhost", null));
 
   public static class ProcessDefinitionFields {
     public String _id = "_id";
@@ -75,31 +80,79 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
     public String operations = "operations";
   }
 
-
-  protected List<ServerAddress> serverAddresses = new ArrayList<>();
+  public static class JobFields {
+    public String _id = "_id";
+    public String key = "key";
+    public String duedate = "duedate";
+    public String lock = "lock";
+    public String executions= "executions";
+    public String retries = "retries";
+    public String retryDelay = "retryDelay";
+    public String done = "done";
+    public String dead = "dead";
+    public String organizationId = "organizationId";
+    public String processId = "processId";
+    public String processDefinitionId = "processDefinitionId";
+    public String processInstanceId = "processInstanceId";
+    public String lockProcessInstance = "lockProcessInstance";
+    public String activityInstanceId = "activityInstanceId";
+    public String taskId = "taskId";
+    public String error = "error";
+    public String logs = "logs";
+    public String time = "time";
+    public String duration = "duration";
+    public String owner = "owner";
+    public String jobType = "jobType";
+  }
+  
+  protected List<ServerAddress> serverAddresses;
   protected String databaseName = "heisenberg";
   protected List<MongoCredential> credentials;
   protected MongoClientOptions.Builder optionBuilder = new MongoClientOptions.Builder();
   protected ProcessDefinitionFields processDefinitionFields;
-  protected MongoProcessEngineConfiguration.ProcessInstanceFields processInstanceFields;
+  protected ProcessInstanceFields processInstanceFields;
+  protected JobFields jobFields;
   protected WriteConcern writeConcernInsertProcessDefinition;
   protected WriteConcern writeConcernInsertProcessInstance;
   protected WriteConcern writeConcernFlushUpdates;
+  protected WriteConcern writeConcernJobs;
   protected String processInstancesCollectionName = "processInstances";
   protected String processDefinitionsCollectionName = "processDefinitions";
+  protected String jobsCollectionName = "jobs";
   protected boolean isPretty = true;
   
   public ProcessEngine buildProcessEngine() {
     return new MongoProcessEngine(this);
   }
   
+  public MongoProcessEngineConfiguration server(String host) {
+    serverAddresses.add(createServerAddress(host, null));
+    return this;
+  }
+
   public MongoProcessEngineConfiguration server(String host, int port) {
+    serverAddresses.add(createServerAddress(host, port));
+    return this;
+  }
+
+  protected static ServerAddress createServerAddress(String host, Integer port) {
     try {
-      serverAddresses.add(new ServerAddress(host, port));
+      if (port!=null) {
+        return new ServerAddress(host, port);
+      }
+      return new ServerAddress(host);
     } catch (UnknownHostException e) {
       throw new RuntimeException(e);
     }
-    return this;
+  }
+  
+  @Override
+  public JobService createDefaultJobService() {
+    return new MongoJobService();
+  }
+
+  public List<ServerAddress> getServerAddresses() {
+    return serverAddresses!=null ? serverAddresses : DEFAULT_SERVER_ADDRESSES;
   }
 
   public MongoProcessEngineConfiguration authentication(String userName, String database, char[] password) {
@@ -110,8 +163,16 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
     return this;
   }
   
-  public MongoClientOptions.Builder getOptionBuilder() {
-    return optionBuilder;
+  public ProcessDefinitionFields getProcessDefinitionFields() {
+    return processDefinitionFields!=null ? processDefinitionFields : new ProcessDefinitionFields();
+  }
+  
+  public ProcessInstanceFields getProcessInstanceFields() {
+    return processInstanceFields!=null ? processInstanceFields : new ProcessInstanceFields();
+  }
+
+  public JobFields getJobFields() {
+    return jobFields!=null ? jobFields : new JobFields();
   }
 
   /** optional, if not set, {@ MongoProcessDefinitionMapper.Fields defaults} will be used */
@@ -139,12 +200,21 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
     return this;
   }
   
+  public MongoProcessEngineConfiguration writeConcernJobs(WriteConcern writeConcernJobs) {
+    this.writeConcernJobs = writeConcernJobs;
+    return this;
+  }
+  
   public void processInstancesCollectionName(String processInstancesCollectionName) {
     this.processInstancesCollectionName = processInstancesCollectionName;
   }
 
   public void processDefinitionsCollectionName(String processDefinitionsCollectionName) {
     this.processDefinitionsCollectionName = processDefinitionsCollectionName;
+  }
+
+  public void jobsCollectionName(String jobsCollectionName) {
+    this.jobsCollectionName = jobsCollectionName;
   }
 
   @Override
@@ -189,11 +259,6 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
     return this;
   }
 
-  public List<ServerAddress> getServerAddresses() {
-    return serverAddresses;
-  }
-
-  
   public void setServerAddresses(List<ServerAddress> serverAddresses) {
     this.serverAddresses = serverAddresses;
   }
@@ -202,94 +267,88 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
   public String getDatabaseName() {
     return databaseName;
   }
-
   
   public void setDatabaseName(String databaseName) {
     this.databaseName = databaseName;
   }
-
   
   public List<MongoCredential> getCredentials() {
     return credentials;
   }
-
   
   public void setCredentials(List<MongoCredential> credentials) {
     this.credentials = credentials;
   }
 
-  
   public WriteConcern getWriteConcernInsertProcessDefinition() {
     return writeConcernInsertProcessDefinition;
   }
-
   
   public void setWriteConcernInsertProcessDefinition(WriteConcern writeConcernInsertProcessDefinition) {
     this.writeConcernInsertProcessDefinition = writeConcernInsertProcessDefinition;
   }
-
   
   public WriteConcern getWriteConcernInsertProcessInstance() {
     return writeConcernInsertProcessInstance;
   }
-
   
   public void setWriteConcernInsertProcessInstance(WriteConcern writeConcernInsertProcessInstance) {
     this.writeConcernInsertProcessInstance = writeConcernInsertProcessInstance;
   }
-
   
+  public WriteConcern getWriteConcernJobs() {
+    return writeConcernJobs;
+  }
+
+  public void setWriteConcernJobs(WriteConcern writeConcernJobs) {
+    this.writeConcernJobs = writeConcernJobs;
+  }
+
   public WriteConcern getWriteConcernFlushUpdates() {
     return writeConcernFlushUpdates;
   }
-
   
   public void setWriteConcernFlushUpdates(WriteConcern writeConcernFlushUpdates) {
     this.writeConcernFlushUpdates = writeConcernFlushUpdates;
   }
-
   
   public String getProcessInstancesCollectionName() {
     return processInstancesCollectionName;
   }
-
   
   public void setProcessInstancesCollectionName(String processInstancesCollectionName) {
     this.processInstancesCollectionName = processInstancesCollectionName;
   }
-
-  
+ 
   public String getProcessDefinitionsCollectionName() {
     return processDefinitionsCollectionName;
   }
 
-  
   public void setProcessDefinitionsCollectionName(String processDefinitionsCollectionName) {
     this.processDefinitionsCollectionName = processDefinitionsCollectionName;
   }
-
   
+  public String getJobsCollectionName() {
+    return jobsCollectionName;
+  }
+  
+  public void setJobsCollectionName(String jobsCollectionName) {
+    this.jobsCollectionName = jobsCollectionName;
+  }
+
   public boolean isPretty() {
     return isPretty;
   }
-
   
   public void setPretty(boolean isPretty) {
     this.isPretty = isPretty;
   }
-
-  
-  public MongoProcessEngineConfiguration.ProcessDefinitionFields getProcessDefinitionFields() {
-    return processDefinitionFields!=null ? processDefinitionFields : new ProcessDefinitionFields();
-  }
-
-  
-  public MongoProcessEngineConfiguration.ProcessInstanceFields getProcessInstanceFields() {
-    return processInstanceFields!=null ? processInstanceFields : new ProcessInstanceFields();
-  }
-
   
   public void setOptionBuilder(MongoClientOptions.Builder optionBuilder) {
     this.optionBuilder = optionBuilder;
+  }
+
+  public MongoClientOptions.Builder getOptionBuilder() {
+    return optionBuilder;
   }
 }

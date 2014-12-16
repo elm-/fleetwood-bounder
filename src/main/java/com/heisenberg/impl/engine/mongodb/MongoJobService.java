@@ -14,14 +14,54 @@
  */
 package com.heisenberg.impl.engine.mongodb;
 
+import java.util.Iterator;
+
+import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.impl.job.Job;
 import com.heisenberg.impl.job.JobService;
+import com.heisenberg.impl.job.JobServiceImpl;
+import com.heisenberg.impl.job.JobType;
+import com.mongodb.DB;
 
 
 
 /**
  * @author Walter White
  */
-public class MongoJobService implements JobService {
+public class MongoJobService extends JobServiceImpl implements JobService {
+  
+  protected MongoProcessEngine mongoProcessEngine; 
+  protected MongoJobs jobs;
+
+  public void initialize(MongoProcessEngine mongoProcessEngine, DB db, MongoProcessEngineConfiguration mongoDbConfiguration) {
+    this.mongoProcessEngine = mongoProcessEngine;
+    this.jobs = new MongoJobs(mongoProcessEngine, db, mongoDbConfiguration);
+  }
+
+  @Override
+  public Job newJob(JobType jobType) {
+    return new Job(this, jobType);
+  }
+
+  @Override
+  public Iterator<String> getProcessInstanceIdsToLockForJobs() {
+    return jobs.getProcessInstanceIdsToLockForJobs();
+  }
+
+  @Override
+  public Job lockNextProcessJob(String processInstanceId) {
+    return jobs.lockJob(true);
+  }
+
+  @Override
+  public Job lockNextOtherJob() {
+    return jobs.lockJob(false);
+  }
+
+  @Override
+  public void saveJob(Job job) {
+    jobs.saveJob(job);
+  }
 
 //  job fields
 //  public static final String DB_activityInstanceId = "ai";

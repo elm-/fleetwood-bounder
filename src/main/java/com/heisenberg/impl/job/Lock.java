@@ -10,17 +10,16 @@ import org.joda.time.LocalDateTime;
 /**
  * @author Tom Baeyens
  */
-// @Entity(value="locks", noClassnameStored=true)
 public class Lock {
+
+  public LocalDateTime time;
+  public String owner;
 
   public Lock() {
   }
 
-  public Lock(String name) {
+  public Lock(String owner) {
     this.time = new LocalDateTime();
-    this.name = name;
+    this.owner = owner;
   }
-  
-  public LocalDateTime time;
-  public String name;
 }

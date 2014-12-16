@@ -14,15 +14,31 @@
  */
 package com.heisenberg.impl.job;
 
-import com.heisenberg.api.ProcessEngine;
+import org.joda.time.LocalDateTime;
 
 
 /**
  * @author Walter White
  */
-public interface JobService {
+public interface JobBuilder {
 
-  Job newJob(JobType jobType);
+  /** setting the key means the job service will ensure there is 
+   * exactly 1 such job in the system when the job is saved. */
+  JobBuilder key(String key);
+  
+  JobBuilder activityInstanceId(String activityInstanceId);
+  
+  JobBuilder duedate(LocalDateTime duedate);
+  
+  JobBuilder organizationId(String organizationId);
+  
+  JobBuilder processId(String processId);
+  
+  JobBuilder processDefinitionId(String processDefinitionId);
+  
+  JobBuilder processInstanceId(String processInstanceId);
+  
+  JobBuilder taskId(String taskId);
 
-  void setProcessEngine(ProcessEngine processEngineImpl);
+  void save();
 }

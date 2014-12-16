@@ -22,6 +22,7 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ParseIssues;
@@ -45,9 +46,10 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.heisenberg.impl.job.JobService;
+import com.heisenberg.impl.json.JsonServiceImpl;
+import com.heisenberg.impl.plugin.ActivityTypeRegistration;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Lists;
-import com.mongodb.BasicDBObject;
 
 /**
  * @author Walter White
@@ -74,6 +76,18 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     this.processDefinitionCache = configuration.getProcessDefinitionCache();
     this.scriptService = configuration.getScriptService();
     this.taskService = configuration.getTaskService();
+    this.jobService = configuration.getJobService();
+
+    // TODO consider more elegant way to register these classes with the object mapper 
+    // and create a consistent approach with ActivityTypes and DataTypes
+    ObjectMapper objectMapper = ((JsonServiceImpl)jsonService).objectMapper;
+    this.jobService.setProcessEngine(this);
+    if (configuration.registerDefaultJobTypes) {
+      // objectMapper.registerSubtypes(classes);
+    }
+    for (Class<?> jobTypeClass: configuration.jobTypeRegistrations) {
+      objectMapper.registerSubtypes(jobTypeClass);
+    }
   }
   
   public void startup() {
@@ -312,6 +326,10 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return taskService;
   }
   
+  public JobService getJobService() {
+    return jobService;
+  }
+
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
   public abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 

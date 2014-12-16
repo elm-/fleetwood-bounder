@@ -203,12 +203,12 @@ public class MongoProcessInstances extends MongoCollection {
 
   protected void writeActivities(BasicDBObject dbProcess, ScopeInstanceImpl scopeInstance) {
     if (scopeInstance.activityInstances!=null) {
-      Object parentId = (scopeInstance.isProcessInstance() ? null : scopeInstance.getId());
+      String parentId = (scopeInstance.isProcessInstance() ? null : scopeInstance.getId());
       for (ActivityInstanceImpl activity: scopeInstance.activityInstances) {
         BasicDBObject dbActivity = new BasicDBObject();
         writeId(dbActivity, fields._id, activity.id);
         writeStringOpt(dbActivity, fields.activityDefinitionId, activity.activityDefinitionId);
-        writeStringOpt(dbActivity, fields.parent, parentId);
+        writeIdOpt(dbActivity, fields.parent, parentId);
         writeTimeOpt(dbActivity, fields.start, activity.start);
         writeTimeOpt(dbActivity, fields.end, activity.end);
         writeLongOpt(dbActivity, fields.duration, activity.duration);

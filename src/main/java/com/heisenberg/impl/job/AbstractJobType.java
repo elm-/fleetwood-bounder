@@ -14,15 +14,26 @@
  */
 package com.heisenberg.impl.job;
 
-import com.heisenberg.api.ProcessEngine;
 
-
-/**
+/** job type with default retry strategy: 3 retries in total, 
+ * one after 3 seconds one after an hour and one after 24 hours
+ * 
  * @author Walter White
  */
-public interface JobService {
+public abstract class AbstractJobType implements JobType {
 
-  Job newJob(JobType jobType);
+  @Override
+  public int getMaxRetries() {
+    return 3;
+  }
 
-  void setProcessEngine(ProcessEngine processEngineImpl);
+  @Override
+  public int getRetryDelayInSeconds(long retry) {
+    if (retry==1) {
+      return 3; // 3 seconds
+    } else if (retry==2) {
+      return 60*60; // 1 hour
+    } 
+    return 24*60*60; // 24 hours
+  }
 }

@@ -36,7 +36,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /** optional reference to the user that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
-  public Object deployedBy;
+  public String deployedBy;
 
   /** optional reference to the organization (aka tenant or workspace) that deployed the process definition.
    * This field just serves as a read/write property and is not used during process execution. */
@@ -44,7 +44,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
 
   /** optional reference to the the source process for which this process definition is one version.
    * This field just serves as a read/write property and is not used during process execution. */
-  public Object processId;
+  public String processId;
 
   /** optional version number of this process definition, related to @link {@link #processId}.
    * This combined with the @link {@link ScopeDefinitionImpl#id} should be unique. */
