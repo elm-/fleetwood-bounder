@@ -23,7 +23,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ import com.heisenberg.test.db.MongoProcessEngineTest;
 /**
  * @author Walter White
  */
-@Ignore
+// @Ignore
 public class LoadTest extends JerseyTest {
   
   static {
@@ -161,7 +160,7 @@ public class LoadTest extends JerseyTest {
         .processInstanceId(processInstance.id)
         .activityInstanceId(subTaskInstance.getId());
       
-      processInstance = target("notify").request()
+      processInstance = target("message").request()
               .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))
               .readEntity(ProcessInstanceImpl.class);
   
