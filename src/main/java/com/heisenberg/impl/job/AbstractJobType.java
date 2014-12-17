@@ -12,26 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.impl.job;
 
-import java.util.List;
 
-import com.heisenberg.api.definition.ProcessDefinition;
-
-/**
+/** job type with default retry strategy: 3 retries in total, 
+ * one after 3 seconds one after an hour and one after 24 hours
+ * 
  * @author Walter White
  */
-public interface ProcessDefinitionQuery {
+public abstract class AbstractJobType implements JobType {
 
-  public static final String FIELD_DEPLOY_TIME = "deployTime";
+  @Override
+  public int getMaxRetries() {
+    return 3;
+  }
 
-  ProcessDefinitionQuery id(String id);
-
-  ProcessDefinitionQuery name(String name);
-
-  ProcessDefinitionQuery limit(int maxResults);
-  
-  ProcessDefinition get();
-
-  List<? extends ProcessDefinition> asList();
+  @Override
+  public int getRetryDelayInSeconds(long retry) {
+    if (retry==1) {
+      return 3; // 3 seconds
+    } else if (retry==2) {
+      return 60*60; // 1 hour
+    } 
+    return 24*60*60; // 24 hours
+  }
 }

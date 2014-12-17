@@ -34,9 +34,9 @@ import com.heisenberg.impl.util.Lists;
 /**
  * @author Walter White
  */
-public class DbDataTypeListJavaBeanTest {
+public class MongoDataTypeListStringTest {
 
-  public static final Logger log = LoggerFactory.getLogger(DbDataTypeListJavaBeanTest.class);
+  public static final Logger log = LoggerFactory.getLogger(MongoDataTypeListStringTest.class);
   
   @SuppressWarnings("unchecked")
   @Test
@@ -46,30 +46,29 @@ public class DbDataTypeListJavaBeanTest {
       .server("localhost", 27017)
       .buildProcessEngine();
 
-    DataTypes types = processEngine.getDataTypes();
+    DataTypes dataTypes = processEngine.getDataTypes();
     
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     
     process.newVariable()
       .id("v")
-      .dataType(types.list(types.javaBean(Money.class)));
+      .dataType(dataTypes.list(dataTypes.javaBean(Money.class)));
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
       .getProcessDefinitionId();
 
-    List<Money> moneys = Lists.of(new Money(5, "USD"), new Money(6, "EUR"));
     ProcessInstance processInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
-      .variableValue("v", moneys, types.list(types.javaBean(Money.class)))
+      .variableValue("v", Lists.of(new Money(1,"EUR"), new Money(2,"USD")))
       .startProcessInstance();
   
     VariableInstance v = processInstance.getVariableInstances().get(0);
-    List<Money> values = (List<Money>) v.getValue();
-    assertEquals(5, values.get(0).amount);
-    assertEquals("USD", values.get(0).currency);
-    assertEquals(6, values.get(1).amount);
-    assertEquals("EUR", values.get(1).currency);
+    List<Money> moneyList = (List<Money>) v.getValue();
+    assertEquals(1, moneyList.get(0).amount);
+    assertEquals("EUR", moneyList.get(0).currency);
+    assertEquals(2, moneyList.get(1).amount);
+    assertEquals("USD", moneyList.get(1).currency);
   }
 
   static class Money {

@@ -60,7 +60,15 @@ public class MongoCollection {
     writeObject(o, fieldName, value);
   }
 
-  public void writeStringOpt(BasicDBObject o, String fieldName, Object value) {
+  public void writeStringOpt(BasicDBObject o, String fieldName, String value) {
+    writeObjectOpt(o, fieldName, value);
+  }
+
+  public void writeLongOpt(BasicDBObject o, String fieldName, Long value) {
+    writeObjectOpt(o, fieldName, value);
+  }
+
+  public void writeBooleanOpt(BasicDBObject o, String fieldName, Object value) {
     writeObjectOpt(o, fieldName, value);
   }
 
@@ -74,12 +82,6 @@ public class MongoCollection {
     }
   }
   
-  public void writeLongOpt(BasicDBObject o, String fieldName, Long value) {
-    if (value!=null) {
-      o.put(fieldName, value);
-    }
-  }
-
   public void writeTimeOpt(BasicDBObject o, String fieldName, LocalDateTime value) {
     if (value!=null) {
       o.put(fieldName, value.toDate());
@@ -105,6 +107,10 @@ public class MongoCollection {
 
   protected Object readObject(BasicDBObject dbObject, String fieldName) {
     return dbObject.get(fieldName);
+  }
+
+  protected BasicDBObject readBasicDBObject(BasicDBObject dbObject, String fieldName) {
+    return (BasicDBObject) dbObject.get(fieldName);
   }
 
   protected String readId(BasicDBObject dbObject, String fieldName) {
@@ -164,8 +170,8 @@ public class MongoCollection {
 
   protected BasicDBObject findAndModify(DBObject query, DBObject update) {
     if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> findAndModify q="+toString(query)+" u="+toString(update));
-    BasicDBObject dbObject = (BasicDBObject) dbCollection.findAndModify(query, update);
-    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+toString(dbObject));
+    BasicDBObject dbObject = (BasicDBObject) dbCollection.findAndModify( query, null, null, false, update, true, false );
+    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+(dbObject!=null ? toString(dbObject) : "null"));
     return dbObject;
   }
 
@@ -177,8 +183,12 @@ public class MongoCollection {
   }
 
   protected DBCursor find(DBObject query) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> find q="+toString(query));
-    return new LoggingCursor(this, dbCollection.find(query));
+    return find(query, null);
+  }
+
+  protected DBCursor find(DBObject query, DBObject fields) {
+    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> find q="+toString(query)+(fields!=null ? " f="+toString(fields) :""));
+    return new LoggingCursor(this, dbCollection.find(query, fields));
   }
 
   protected String toString(Object o) {
@@ -187,5 +197,9 @@ public class MongoCollection {
 
   protected WriteConcern getWriteConcern(WriteConcern writeConcern) {
     return writeConcern!=null ? writeConcern : dbCollection.getWriteConcern();
+  }
+
+  public DBCollection getDbCollection() {
+    return dbCollection;
   }
 }

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
+import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
@@ -83,13 +84,15 @@ public class MongoProcessInstances extends MongoCollection {
     save(dbProcessInstance, writeConcernStoreProcessInstance);
   }
   
-  public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId) {
+  public ProcessInstanceImpl lockProcessInstance(ProcessInstanceQueryImpl processInstanceQuery) {
     BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
-    if (processInstanceId!=null) {
-      builder.add(fields._id, new ObjectId(processInstanceId));
+    if (processInstanceQuery.processInstanceId!=null) {
+      builder.add(fields._id, new ObjectId(processInstanceQuery.processInstanceId));
+    }
+    if (processInstanceQuery.activityInstanceId!=null) {
+      builder.add(fields.activityInstances+"."+fields._id, new ObjectId(processInstanceQuery.activityInstanceId));
     }
     DBObject query = builder 
-            .add(fields.activityInstances+"."+fields._id, new ObjectId(activityInstanceId))
             .push(fields.lock)
               .add("$exists", false)
             .pop()
@@ -102,25 +105,9 @@ public class MongoProcessInstances extends MongoCollection {
             .pop()
           .pop()
           .get();
-    long wait = 50l;
-    long attempts = 0;
-    long maxAttempts = 4;
-    long backofFactor = 5;
     BasicDBObject dbProcessInstance = findAndModify(query, update);
-    while ( dbProcessInstance==null 
-            && attempts <= maxAttempts ) {
-      try {
-        log.debug("Locking failed... retrying");
-        Thread.sleep(wait);
-      } catch (InterruptedException e) {
-        log.debug("Waiting for lock to be released was interrupted");
-      }
-      wait = wait * backofFactor;
-      attempts++;
-      dbProcessInstance = findAndModify(query, update);
-    }
     if (dbProcessInstance==null) {
-      throw new RuntimeException("Couldn't lock process instance with "+query);
+      return null;
     }
     return readProcessInstance(dbProcessInstance);
   }
@@ -170,7 +157,7 @@ public class MongoProcessInstances extends MongoCollection {
     
     for (ActivityInstanceImpl activityInstance: allActivityInstances.values()) {
       Object parentId = parentIds.get(activityInstance.id);
-      activityInstance.parent = (parentId!=null ? allActivityInstances.get(parentId) : process);
+      activityInstance.parent = (parentId!=null ? allActivityInstances.get(parentId.toString()) : process);
       activityInstance.parent.addActivityInstance(activityInstance);
     }
     
@@ -216,12 +203,12 @@ public class MongoProcessInstances extends MongoCollection {
 
   protected void writeActivities(BasicDBObject dbProcess, ScopeInstanceImpl scopeInstance) {
     if (scopeInstance.activityInstances!=null) {
-      Object parentId = (scopeInstance.isProcessInstance() ? null : scopeInstance.getId());
+      String parentId = (scopeInstance.isProcessInstance() ? null : scopeInstance.getId());
       for (ActivityInstanceImpl activity: scopeInstance.activityInstances) {
         BasicDBObject dbActivity = new BasicDBObject();
         writeId(dbActivity, fields._id, activity.id);
         writeStringOpt(dbActivity, fields.activityDefinitionId, activity.activityDefinitionId);
-        writeStringOpt(dbActivity, fields.parent, parentId);
+        writeIdOpt(dbActivity, fields.parent, parentId);
         writeTimeOpt(dbActivity, fields.start, activity.start);
         writeTimeOpt(dbActivity, fields.end, activity.end);
         writeLongOpt(dbActivity, fields.duration, activity.duration);

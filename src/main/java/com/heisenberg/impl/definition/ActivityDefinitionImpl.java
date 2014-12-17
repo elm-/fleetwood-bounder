@@ -24,6 +24,7 @@ import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
+import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -128,8 +129,8 @@ public class ActivityDefinitionImpl extends ScopeDefinitionImpl implements Activ
   }
 
   @Override
-  public TimerDefinitionImpl newTimer() {
-    return super.newTimer();
+  public TimerDefinitionImpl newTimer(JobType jobType) {
+    return super.newTimer(jobType);
   }
   
   /// other methods ////////////////////////////

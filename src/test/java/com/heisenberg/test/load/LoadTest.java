@@ -66,9 +66,6 @@ public class LoadTest extends JerseyTest {
       return processEngine;
     }
     processEngine = new MeasuringMongoProcessEngine(new MongoProcessEngineConfiguration()
-//      .writeConcernInsertProcessDefinition(WriteConcern.UNACKNOWLEDGED)
-//      .writeConcernFlushUpdates(WriteConcern.UNACKNOWLEDGED)
-//      .writeConcernInsertProcessInstance(WriteConcern.UNACKNOWLEDGED)
       .server("localhost", 27017));
     return processEngine;
   }

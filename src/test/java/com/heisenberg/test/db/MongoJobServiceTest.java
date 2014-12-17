@@ -12,26 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.test.db;
 
-import java.util.List;
+import static com.heisenberg.test.TestHelper.mongoDeleteAllCollections;
 
-import com.heisenberg.api.definition.ProcessDefinition;
+import org.junit.Before;
+
+import com.heisenberg.api.MongoProcessEngineConfiguration;
+import com.heisenberg.test.other.JobServiceTest;
+
 
 /**
  * @author Walter White
  */
-public interface ProcessDefinitionQuery {
-
-  public static final String FIELD_DEPLOY_TIME = "deployTime";
-
-  ProcessDefinitionQuery id(String id);
-
-  ProcessDefinitionQuery name(String name);
-
-  ProcessDefinitionQuery limit(int maxResults);
+public class MongoJobServiceTest extends JobServiceTest {
   
-  ProcessDefinition get();
+  @Override
+  public void initializeProcessEngine() {
+    this.processEngine = new MongoProcessEngineConfiguration()
+      .registerJobType(TestJob.class)
+      .buildProcessEngine();
+  }
 
-  List<? extends ProcessDefinition> asList();
+  @Before
+  public void before() {
+    mongoDeleteAllCollections(processEngine);
+    super.before();
+  }
 }

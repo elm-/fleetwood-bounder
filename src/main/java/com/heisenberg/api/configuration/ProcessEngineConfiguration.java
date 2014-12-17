@@ -17,18 +17,21 @@ package com.heisenberg.api.configuration;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.util.PluginFactory;
+import com.heisenberg.impl.ExecutorService;
+import com.heisenberg.impl.ExecutorServiceImpl;
 import com.heisenberg.impl.ProcessDefinitionCache;
 import com.heisenberg.impl.SimpleProcessDefinitionCache;
+import com.heisenberg.impl.engine.memory.MemoryJobServiceImpl;
 import com.heisenberg.impl.engine.memory.MemoryTaskService;
+import com.heisenberg.impl.job.JobService;
 import com.heisenberg.impl.json.JsonServiceImpl;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 
@@ -43,8 +46,11 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
   public JsonService jsonService;
   public TaskService taskService;
   public ScriptService scriptService;
-  public Executor executorService;
-  
+  public ExecutorService executorService;
+  public JobService jobService;
+  public List<Class<?>> jobTypeRegistrations = new ArrayList<>();
+  public boolean registerDefaultJobTypes = true;
+
   protected ProcessEngineConfiguration() {
   }
   
@@ -83,8 +89,23 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
     return this;
   }
   
-  public ProcessEngineConfiguration executorService(Executor executorService) {
+  public ProcessEngineConfiguration executorService(ExecutorService executorService) {
     this.executorService = executorService;
+    return this;
+  }
+  
+  public ProcessEngineConfiguration jobService(JobService jobService) {
+    this.jobService = jobService;
+    return this;
+  }
+
+  public ProcessEngineConfiguration registerJobType(Class<?> jobTypeClass) {
+    jobTypeRegistrations.add(jobTypeClass);
+    return this;
+  }
+  
+  public ProcessEngineConfiguration registerDefaultJobTypes() {
+    registerDefaultJobTypes = true;
     return this;
   }
   
@@ -128,14 +149,22 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
     this.scriptService = scriptService;
   }
   
-  public Executor getExecutorService() {
+  public ExecutorService getExecutorService() {
     return executorService!=null ? executorService : createDefaultExecutorService();
   }
   
-  public void setExecutorService(Executor executorService) {
+  public void setExecutorService(ExecutorService executorService) {
     this.executorService = executorService;
   }
   
+  public JobService getJobService() {
+    return jobService!=null ? jobService : createDefaultJobService();
+  }
+  
+  public void setJobService(JobService jobService) {
+    this.jobService = jobService;
+  }
+
   public String createDefaultId() {
     try {
       String id = InetAddress.getLocalHost().getHostAddress();
@@ -154,11 +183,6 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
     return new SimpleProcessDefinitionCache();
   }
 
-  public Executor createDefaultExecutorService() {
-    // TODO apply these tips: http://java.dzone.com/articles/executorservice-10-tips-and
-    return new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
-  }
-
   public ScriptService createDefaultScriptService() {
     return new ScriptServiceImpl();
   }
@@ -166,4 +190,13 @@ public abstract class ProcessEngineConfiguration extends AbstractProcessEngineCo
   public TaskService createDefaultTaskService() {
     return new MemoryTaskService();
   }
+
+  public ExecutorService createDefaultExecutorService() {
+    return new ExecutorServiceImpl();
+  }
+
+  public JobService createDefaultJobService() {
+    return new MemoryJobServiceImpl();
+  }
+
 }

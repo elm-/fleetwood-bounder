@@ -43,7 +43,7 @@ public class StartResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public ProcessInstance deploy(StartBuilderImpl processInstanceBuilder) {
+  public ProcessInstance startProcessInstance(StartBuilderImpl processInstanceBuilder) {
     return processEngine.startProcessInstance(processInstanceBuilder);
   }
 }

@@ -68,9 +68,9 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     process.id = readId(dbProcess, fields._id);
     process.name = readString(dbProcess, fields.name);
     process.deployedTime = readTime(dbProcess, fields.deployedTime);
-    process.deployedBy = readObject(dbProcess, fields.deployedBy);
-    process.organizationId = readString(dbProcess, fields.organizationId);
-    process.processId = readObject(dbProcess, fields.processId);
+    process.deployedBy = readId(dbProcess, fields.deployedBy);
+    process.organizationId = readId(dbProcess, fields.organizationId);
+    process.processId = readId(dbProcess, fields.processId);
     process.version = readLong(dbProcess, fields.version);
     readActivities(process, dbProcess);
     readVariables(process, dbProcess);
@@ -86,9 +86,9 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     writeId(dbProcess, fields._id, process.id);
     writeString(dbProcess, fields.name, process.name);
     writeTimeOpt(dbProcess, fields.deployedTime, process.deployedTime);
-    writeObjectOpt(dbProcess, fields.deployedBy, process.deployedBy);
-    writeObjectOpt(dbProcess, fields.organizationId, process.organizationId);
-    writeObjectOpt(dbProcess, fields.processId, process.processId);
+    writeIdOpt(dbProcess, fields.deployedBy, process.deployedBy);
+    writeIdOpt(dbProcess, fields.organizationId, process.organizationId);
+    writeIdOpt(dbProcess, fields.processId, process.processId);
     writeObjectOpt(dbProcess, fields.version, process.version);
     writeActivities(process, dbObjectStack);
     writeTransitions(process, dbObjectStack);
@@ -234,8 +234,8 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     }
     List<ProcessDefinitionImpl> processes = new ArrayList<ProcessDefinitionImpl>();
     DBCursor cursor = find(q);
-    if (query.maxResults!=null) {
-      cursor.maxScan(query.maxResults);
+    if (query.limit!=null) {
+      cursor.limit(query.limit);
     }
     if (query.orderBy!=null) {
       cursor.sort(writeOrderBy(query.orderBy));
@@ -264,4 +264,6 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     }
     throw new RuntimeException("Unknown field "+field);
   }
+  
+  
 }

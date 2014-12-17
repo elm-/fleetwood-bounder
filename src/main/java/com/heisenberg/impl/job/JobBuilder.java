@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.builder;
+package com.heisenberg.impl.job;
 
 import org.joda.time.LocalDateTime;
 
@@ -20,10 +20,25 @@ import org.joda.time.LocalDateTime;
 /**
  * @author Walter White
  */
-public interface TimerBuilder {
+public interface JobBuilder {
 
-  TimerBuilder name(String name);
-  TimerBuilder duedateAfterCreation(long millis);
-  TimerBuilder repeatAfterExecution(long millis);
+  /** setting the key means the job service will ensure there is 
+   * exactly 1 such job in the system when the job is saved. */
+  JobBuilder key(String key);
   
+  JobBuilder activityInstanceId(String activityInstanceId);
+  
+  JobBuilder duedate(LocalDateTime duedate);
+  
+  JobBuilder organizationId(String organizationId);
+  
+  JobBuilder processId(String processId);
+  
+  JobBuilder processDefinitionId(String processDefinitionId);
+  
+  JobBuilder processInstanceId(String processInstanceId);
+  
+  JobBuilder taskId(String taskId);
+
+  void save();
 }

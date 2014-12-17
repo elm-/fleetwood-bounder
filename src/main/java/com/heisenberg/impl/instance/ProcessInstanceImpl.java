@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Executor;
 
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
@@ -31,7 +30,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.bpmn.CallActivity;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -131,7 +132,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
     }
     if (hasAsyncWork()) {
       processEngine.flush(processInstance);
-      Executor executor = processEngine.getExecutorService();
+      ExecutorService executor = processEngine.getExecutorService();
       executor.execute(new Runnable(){
         public void run() {
           operations = asyncOperations;
@@ -170,7 +171,10 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       setEnd(Time.now());
       
       if (callerProcessInstanceId!=null) {
-        ProcessInstanceImpl callerProcessInstance = processEngine.lockProcessInstanceByActivityInstanceId(callerProcessInstanceId, callerActivityInstanceId);
+        ProcessInstanceQueryImpl processInstanceQuery = processEngine.newProcessInstanceQuery()
+         .processInstanceId(callerProcessInstanceId)
+         .activityInstanceId(callerActivityInstanceId);
+        ProcessInstanceImpl callerProcessInstance = processEngine.lockProcessInstanceWithRetry(processInstanceQuery);
         ActivityInstanceImpl callerActivityInstance = callerProcessInstance.findActivityInstance(callerActivityInstanceId);
         if (callerActivityInstance.isEnded()) {
           throw new RuntimeException("Call activity instance "+callerActivityInstance+" is already ended");

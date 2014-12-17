@@ -12,26 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.impl.job;
 
-import java.util.List;
+import org.joda.time.LocalDateTime;
+import org.joda.time.ReadablePeriod;
 
-import com.heisenberg.api.definition.ProcessDefinition;
+import com.heisenberg.impl.instance.ProcessInstanceImpl;
+
 
 /**
  * @author Walter White
  */
-public interface ProcessDefinitionQuery {
-
-  public static final String FIELD_DEPLOY_TIME = "deployTime";
-
-  ProcessDefinitionQuery id(String id);
-
-  ProcessDefinitionQuery name(String name);
-
-  ProcessDefinitionQuery limit(int maxResults);
+public interface JobController {
   
-  ProcessDefinition get();
+  /** allows process jobs to get the locked process instance */
+  ProcessInstanceImpl getProcessInstance();
 
-  List<? extends ProcessDefinition> asList();
+  void rescheduleFromNow(ReadablePeriod period);
+  
+  void rescheduleFor(LocalDateTime duedate);
+  
+  void log(String msg);
 }

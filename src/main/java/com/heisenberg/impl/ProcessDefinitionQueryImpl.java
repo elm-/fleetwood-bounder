@@ -35,7 +35,7 @@ public class ProcessDefinitionQueryImpl implements ProcessDefinitionQuery {
   public String id;
   public String name;
   public Representation representation;
-  public Integer maxResults;
+  public Integer limit;
   public OrderBy orderBy;
   // when adding new fields, don't forget to update method onlyIdIsSpecified
 
@@ -62,8 +62,8 @@ public class ProcessDefinitionQueryImpl implements ProcessDefinitionQuery {
     return this;
   }
 
-  public ProcessDefinitionQueryImpl maxResults(int maxResults) {
-    this.maxResults = maxResults;
+  public ProcessDefinitionQueryImpl limit(int maxResults) {
+    this.limit = maxResults;
     return this;
   }
   
@@ -85,7 +85,7 @@ public class ProcessDefinitionQueryImpl implements ProcessDefinitionQuery {
   }
 
   public ProcessDefinitionImpl get() {
-    maxResults(1);
+    limit(1);
     List<ProcessDefinitionImpl> processDefinitions = asList();
     if (processDefinitions!=null && !processDefinitions.isEmpty()) {
       return processDefinitions.get(0);

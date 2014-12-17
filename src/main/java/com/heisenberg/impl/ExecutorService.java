@@ -12,26 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api;
+package com.heisenberg.impl;
 
-import java.util.List;
-
-import com.heisenberg.api.definition.ProcessDefinition;
 
 /**
  * @author Walter White
  */
-public interface ProcessDefinitionQuery {
+public interface ExecutorService {
 
-  public static final String FIELD_DEPLOY_TIME = "deployTime";
+  void startup();
 
-  ProcessDefinitionQuery id(String id);
+  void shutdown();
 
-  ProcessDefinitionQuery name(String name);
-
-  ProcessDefinitionQuery limit(int maxResults);
+  int getQueueDepth();
   
-  ProcessDefinition get();
-
-  List<? extends ProcessDefinition> asList();
+  void execute(Runnable command);
 }

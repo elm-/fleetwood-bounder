@@ -15,6 +15,7 @@
 package com.heisenberg.impl.engine.mongodb;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -108,6 +109,8 @@ public class PrettyPrinter {
       jsonText.append("{ \"$date\" : \""+dateFormat.format(jsonObject)+"\" }");
     } else if (jsonObject instanceof Number || jsonObject instanceof Boolean) {
       jsonText.append(jsonObject.toString());
+    } else if (jsonObject.getClass().isArray()) {
+      jsonObjectToTextFormatted(Arrays.asList((Object[])jsonObject), indent, jsonText);
     } else {
       throw new RuntimeException("couldn't pretty print "+jsonObject.getClass().getName());
     }

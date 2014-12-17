@@ -14,7 +14,6 @@
  */
 package com.heisenberg.test;
 
-import static com.heisenberg.test.TestHelper.getActivityInstanceId;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
@@ -27,6 +26,9 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.ScopeInstance;
+import com.heisenberg.impl.engine.mongodb.MongoProcessEngine;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 
 /**
  * @author Walter White
@@ -99,5 +101,19 @@ public class TestHelper {
     return processEngine.newMessage()
       .activityInstanceId(getActivityInstanceId(processInstance, activityDefinitionId))
       .send();
+  }
+  
+  public static void mongoDeleteAllCollections(ProcessEngine processEngine) {
+    MongoProcessEngine mongoProcessEngine = (MongoProcessEngine) processEngine;
+    mongoDeleteAllDocumentsInCollection(mongoProcessEngine.getProcessDefinitions().getDbCollection());
+    mongoDeleteAllDocumentsInCollection(mongoProcessEngine.getProcessInstances().getDbCollection());
+    mongoDeleteAllDocumentsInCollection(mongoProcessEngine.getJobService().getJobs().getDbCollection());
+  }
+
+  public static void mongoDeleteAllDocumentsInCollection(DBCollection dbCollection) {
+    DBCursor documents = dbCollection.find();
+    while (documents.hasNext()) {
+      dbCollection.remove(documents.next());
+    }
   }
 }
