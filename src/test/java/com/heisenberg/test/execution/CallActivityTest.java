@@ -52,7 +52,7 @@ public class CallActivityTest {
     assertNotNull(callActivityInstance.getCalledProcessInstanceId());
     
     ProcessInstance subInstance = processEngine.newProcessInstanceQuery()
-      .id(callActivityInstance.getCalledProcessInstanceId())
+      .processInstanceId(callActivityInstance.getCalledProcessInstanceId())
       .get();
     
     assertNotNull(subInstance);
@@ -66,7 +66,7 @@ public class CallActivityTest {
     assertTrue(subInstance.isEnded());
 
     superInstance = processEngine.newProcessInstanceQuery()
-            .id(superInstance.getId())
+            .processInstanceId(superInstance.getId())
             .get();
     assertTrue(superInstance.isEnded());
   }

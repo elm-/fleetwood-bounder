@@ -53,7 +53,6 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
-  public String id;
   public String processDefinitionId;
   public LockImpl lock;
   public Queue<Operation> operations;
@@ -188,14 +187,6 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       //   processInstance.addOperation(new NotifyProcessInstanceEnded(this));
       // }
     }
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
   }
 
   public String toString() {

@@ -24,7 +24,9 @@ import com.heisenberg.api.instance.ProcessInstance;
  */
 public interface ProcessInstanceQuery {
 
-  ProcessInstanceQuery id(String processInstanceId);
+  ProcessInstanceQuery processInstanceId(String processInstanceId);
+  
+  ProcessInstanceQuery activityInstanceId(String activityInstanceId);
   
   ProcessInstance get();
 

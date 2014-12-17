@@ -42,7 +42,7 @@ import com.heisenberg.impl.script.ScriptResult;
 public class ScriptTest {
   
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
-  
+
   @Test
   public void testScript() {
     ProcessEngine processEngine = new MemoryProcessEngineConfiguration()

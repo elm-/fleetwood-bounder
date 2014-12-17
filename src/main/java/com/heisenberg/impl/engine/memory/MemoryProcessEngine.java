@@ -76,29 +76,29 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   @Override
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
     processInstances.put(processInstance.getId(), processInstance);
-    log.debug("Saving: "+jsonService.objectToJsonStringPretty(processInstance));
+//    log.debug("Saving: "+jsonService.objectToJsonStringPretty(processInstance));
   }
 
   @Override
   public void flush(ProcessInstanceImpl processInstance) {
-    List<Update> updates = processInstance.getUpdates();
-    if (updates!=null) {
-      log.debug("Flushing updates: ");
-      for (Update update : updates) {
-        log.debug("  " + jsonService.objectToJsonString(update));
-      }
-    } else {
-      log.debug("No updates to flush");
-    }
-    processInstance.setUpdates(new ArrayList<Update>());
+//    List<Update> updates = processInstance.getUpdates();
+//    if (updates!=null) {
+//      log.debug("Flushing updates: ");
+//      for (Update update : updates) {
+//        log.debug("  " + jsonService.objectToJsonString(update));
+//      }
+//    } else {
+//      log.debug("No updates to flush");
+//    }
+//    processInstance.setUpdates(new ArrayList<Update>());
   }
 
   @Override
   public void flushAndUnlock(ProcessInstanceImpl processInstance) {
     lockedProcessInstances.remove(processInstance.getId());
     processInstance.removeLock();
-    flush(processInstance);
-    log.debug("Process instance should be: "+jsonService.objectToJsonStringPretty(processInstance));
+//    flush(processInstance);
+//    log.debug("Process instance should be: "+jsonService.objectToJsonStringPretty(processInstance));
   }
   
   public List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl query) {
@@ -154,8 +154,8 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   @SuppressWarnings("unchecked")
   @Override
   public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl activityInstanceQuery) {
-    if (activityInstanceQuery.id!=null) {
-      return Lists.of(processInstances.get(activityInstanceQuery.id));
+    if (activityInstanceQuery.processInstanceId!=null) {
+      return Lists.of(processInstances.get(activityInstanceQuery.processInstanceId));
     }
     return Collections.EMPTY_LIST;
   }
@@ -174,6 +174,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
   @Override
   public ProcessInstanceImpl lockProcessInstanceByActivityInstanceId(String processInstanceId, String activityInstanceId) {
     ProcessInstanceQueryImpl processInstanceQueryImpl = new ProcessInstanceQueryImpl(this)
+      .processInstanceId(processInstanceId)
       .activityInstanceId(activityInstanceId);
     processInstanceQueryImpl.setMaxResults(1);
     ProcessInstanceImpl processInstance = findProcessInstance(processInstanceQueryImpl);
@@ -189,7 +190,7 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     lock.setTime(Time.now());
     lock.setOwner(getId());
     processInstance.setLock(lock);
-    log.debug("Locked process instance: "+jsonService.objectToJsonStringPretty(processInstance));
+    // log.debug("Locked process instance: "+jsonService.objectToJsonStringPretty(processInstance));
     return processInstance;
   }
 

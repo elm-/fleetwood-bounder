@@ -27,7 +27,6 @@ import com.heisenberg.impl.instance.ScopeInstanceImpl;
  */
 public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
 
-  public String id;
   public ProcessEngineImpl processEngine;
   public Object processInstanceId;
   public Object activityInstanceId;
@@ -37,18 +36,13 @@ public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
     this.processEngine = processEngine;
   }
 
-  public ProcessInstanceQueryImpl id(String id) {
-    this.id = id;
+  public ProcessInstanceQueryImpl processInstanceId(String processInstanceId) {
+    setProcessInstanceId(processInstanceId);
     return this;
   }
   
-  public ProcessInstanceQueryImpl processInstanceId(Object id) {
-    setProcessInstanceId(id);
-    return this;
-  }
-  
-  public ProcessInstanceQueryImpl activityInstanceId(Object id) {
-    setActivityInstanceId(id);
+  public ProcessInstanceQueryImpl activityInstanceId(String activityInstanceId) {
+    setActivityInstanceId(activityInstanceId);
     return this;
   }
   
