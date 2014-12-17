@@ -34,14 +34,13 @@ import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.StartBuilder;
-import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.load.LoadHelper;
 import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
-import com.heisenberg.test.TestHelper;
 import com.heisenberg.test.db.MongoProcessEngineTest;
 
 /**
@@ -115,11 +114,16 @@ public class RestTest extends JerseyTest {
             .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
             .readEntity(ProcessInstanceImpl.class);
 
-    ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
+    String processInstanceJson = processEngine.jsonService.objectToJsonString(processInstance);
+    
+    log.debug("response json: " + processInstanceJson);
+    processInstance = LoadHelper.parseJson(processInstanceJson);
+    String processInstanceId = processInstance.getId();
+    String subTaskInstanceId = processInstance.findActivityInstanceByActivityDefinitionId("subTask").getId();
 
     MessageBuilder message = processEngine.newMessage()
-      .processInstanceId(processInstance.getId())
-      .activityInstanceId(subTaskInstance.getId());
+      .processInstanceId(processInstanceId)
+      .activityInstanceId(subTaskInstanceId);
     
     processInstance = target("message").request()
             .post(Entity.entity(message, MediaType.APPLICATION_JSON))

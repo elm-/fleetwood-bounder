@@ -162,7 +162,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       end();
     }
   }
-
+  
   public void end() {
     if (this.end==null) {
       if (hasOpenActivityInstances()) {

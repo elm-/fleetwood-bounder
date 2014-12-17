@@ -23,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,6 @@ import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.StartBuilder;
-import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.MessageImpl;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.StartBuilderImpl;
@@ -40,13 +40,12 @@ import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
-import com.heisenberg.test.TestHelper;
 import com.heisenberg.test.db.MongoProcessEngineTest;
 
 /**
  * @author Walter White
  */
-// @Ignore
+@Ignore
 public class LoadTest extends JerseyTest {
   
   static {
@@ -154,11 +153,13 @@ public class LoadTest extends JerseyTest {
               .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
               .readEntity(ProcessInstanceImpl.class);
   
-      ActivityInstance subTaskInstance = TestHelper.findActivityInstanceOpen(processInstance, "subTask");
+      String subTaskInstanceId = processInstance
+              .findActivityInstanceByActivityDefinitionId("subTask")
+              .getId();
   
       MessageBuilder notifyActivityInstanceRequest = new MessageImpl()
         .processInstanceId(processInstance.id)
-        .activityInstanceId(subTaskInstance.getId());
+        .activityInstanceId(subTaskInstanceId);
       
       processInstance = target("message").request()
               .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))

@@ -266,7 +266,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
 
   /** scans this activity and the nested activities */
-  public ActivityInstanceImpl findActivityInstance(Object activityInstanceId) {
+  public ActivityInstanceImpl findActivityInstance(String activityInstanceId) {
     if (activityInstances!=null) {
       for (ActivityInstanceImpl activityInstance: activityInstances) {
         ActivityInstanceImpl theOne = activityInstance.findActivityInstance(activityInstanceId);

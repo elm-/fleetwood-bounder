@@ -116,7 +116,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
 
   
   @Override
-  public ActivityInstanceImpl findActivityInstance(Object activityInstanceId) {
+  public ActivityInstanceImpl findActivityInstance(String activityInstanceId) {
     if (activityInstanceId.equals(this.id)) {
       return this;
     }
