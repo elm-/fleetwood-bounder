@@ -27,8 +27,8 @@ import javax.ws.rs.core.MediaType;
 public class PingResource {
   
   @GET
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.TEXT_PLAIN)
   public String ping() {
-    return ":ok_hand:";
+    return "{\"ok\" : true}";
   }
 }
