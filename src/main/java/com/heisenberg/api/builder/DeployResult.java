@@ -46,6 +46,4 @@ public class DeployResult extends ParseIssues {
     super.checkNoErrorsAndNoWarnings();
     return this;
   }
-
-
 }
