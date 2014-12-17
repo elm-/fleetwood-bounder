@@ -78,8 +78,10 @@ public class HeisenbergServer {
             new DeployResource(processEngine),
             new StartResource(processEngine),
             new MessageResource(processEngine),
+            new PingResource(),
             new ObjectMapperProvider(processEngine),
-            new RequestLogger()
+            new RequestLogger(),
+            new DefaultExceptionMapper()
             );
     return config;
   }
