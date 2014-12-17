@@ -35,7 +35,6 @@ public class Job implements JobBuilder {
   public String processId;
   public String processDefinitionId;
   public String processInstanceId;
-  public Boolean lockProcessInstance;
   public String activityInstanceId;
   public String taskId;
   

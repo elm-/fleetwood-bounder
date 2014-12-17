@@ -23,6 +23,7 @@ import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.definition.ProcessDefinition;
 import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.job.JobType;
 
 
 /**
@@ -136,8 +137,8 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   }
 
   @Override
-  public TimerDefinitionImpl newTimer() {
-    return super.newTimer();
+  public TimerDefinitionImpl newTimer(JobType jobType) {
+    return super.newTimer(jobType);
   }
   
   // other methods ////////////////////////////////////////////////////////////////////

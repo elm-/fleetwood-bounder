@@ -22,11 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.Page;
-import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl;
-import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -38,7 +34,6 @@ import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
@@ -57,8 +52,7 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   protected MongoProcessDefinitions processDefinitions;
   protected MongoProcessInstances processInstances;
   protected MongoJobService jobService;
-  
-  protected MongoUpdateConverters updateConverters = new MongoUpdateConverters(jsonService);
+  protected MongoUpdateConverters updateConverters;
   
   public MongoProcessEngine(MongoProcessEngineConfiguration mongoDbConfiguration) {
     super(mongoDbConfiguration);
@@ -175,4 +169,28 @@ public class MongoProcessEngine extends ProcessEngineImpl {
     return processDefinitions.findProcessDefinitions(query);
   }
 
+  
+  public static Logger getDblog() {
+    return dbLog;
+  }
+
+  
+  public DB getDb() {
+    return db;
+  }
+
+  
+  public MongoProcessDefinitions getProcessDefinitions() {
+    return processDefinitions;
+  }
+
+  
+  public MongoProcessInstances getProcessInstances() {
+    return processInstances;
+  }
+
+  
+  public MongoJobService getJobService() {
+    return jobService;
+  }
 }

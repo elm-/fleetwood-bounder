@@ -111,8 +111,8 @@ public class MemoryProcessEngine extends ProcessEngineImpl {
     if (query.name!=null && !result.isEmpty()) {
       filterByName(result, query.name);
     }
-    if (query.maxResults!=null) {
-      while (result.size()>query.maxResults) {
+    if (query.limit!=null) {
+      while (result.size()>query.limit) {
         result.remove(result.size()-1);
       }
     }

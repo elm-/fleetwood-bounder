@@ -14,6 +14,10 @@
  */
 package com.heisenberg.test.db;
 
+import static com.heisenberg.test.TestHelper.mongoDeleteAllCollections;
+
+import org.junit.Before;
+
 import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.test.other.JobServiceTest;
 
@@ -22,7 +26,7 @@ import com.heisenberg.test.other.JobServiceTest;
  * @author Walter White
  */
 public class MongoJobServiceTest extends JobServiceTest {
-
+  
   @Override
   public void initializeProcessEngine() {
     this.processEngine = new MongoProcessEngineConfiguration()
@@ -30,5 +34,9 @@ public class MongoJobServiceTest extends JobServiceTest {
       .buildProcessEngine();
   }
 
-  
+  @Before
+  public void before() {
+    mongoDeleteAllCollections(processEngine);
+    super.before();
+  }
 }

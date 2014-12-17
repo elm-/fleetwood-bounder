@@ -198,4 +198,8 @@ public class MongoCollection {
   protected WriteConcern getWriteConcern(WriteConcern writeConcern) {
     return writeConcern!=null ? writeConcern : dbCollection.getWriteConcern();
   }
+
+  public DBCollection getDbCollection() {
+    return dbCollection;
+  }
 }

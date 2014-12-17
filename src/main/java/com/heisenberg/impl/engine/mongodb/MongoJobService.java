@@ -63,6 +63,10 @@ public class MongoJobService extends JobServiceImpl implements JobService {
     jobs.saveJob(job);
   }
 
+  public MongoCollection getJobs() {
+    return jobs;
+  }
+
 //  job fields
 //  public static final String DB_activityInstanceId = "ai";
 //  public static final String DB_done = "d";

@@ -15,6 +15,7 @@
 package com.heisenberg.api.builder;
 
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -34,7 +35,7 @@ public interface ActivityBuilder {
 
   VariableBuilder newVariable();
 
-  TimerBuilder newTimer();
+  TimerBuilder newTimer(JobType jobType);
 
   ActivityBuilder line(Long lineNumber);
   

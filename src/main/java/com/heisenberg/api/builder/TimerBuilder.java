@@ -14,10 +14,16 @@
  */
 package com.heisenberg.api.builder;
 
+import org.joda.time.LocalDateTime;
+
 
 /**
  * @author Walter White
  */
 public interface TimerBuilder {
 
+  TimerBuilder name(String name);
+  TimerBuilder duedateAfterCreation(long millis);
+  TimerBuilder repeatAfterExecution(long millis);
+  
 }

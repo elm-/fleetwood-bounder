@@ -157,7 +157,7 @@ public class MongoProcessInstances extends MongoCollection {
     
     for (ActivityInstanceImpl activityInstance: allActivityInstances.values()) {
       Object parentId = parentIds.get(activityInstance.id);
-      activityInstance.parent = (parentId!=null ? allActivityInstances.get(parentId) : process);
+      activityInstance.parent = (parentId!=null ? allActivityInstances.get(parentId.toString()) : process);
       activityInstance.parent.addActivityInstance(activityInstance);
     }
     

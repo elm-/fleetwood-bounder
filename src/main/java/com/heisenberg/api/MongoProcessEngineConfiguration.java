@@ -126,11 +126,17 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
   }
   
   public MongoProcessEngineConfiguration server(String host) {
+    if (serverAddresses==null) {
+      serverAddresses = new ArrayList<>();
+    }
     serverAddresses.add(createServerAddress(host, null));
     return this;
   }
 
   public MongoProcessEngineConfiguration server(String host, int port) {
+    if (serverAddresses==null) {
+      serverAddresses = new ArrayList<>();
+    }
     serverAddresses.add(createServerAddress(host, port));
     return this;
   }

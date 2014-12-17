@@ -41,17 +41,18 @@ import com.mongodb.WriteConcern;
  */
 public class MongoJobs extends MongoCollection {
 
-  MongoProcessEngineConfiguration.JobFields fields;
-  WriteConcern writeConcernJobs;
-  String lockOwner;
-  JsonService jsonService;
+    protected MongoProcessEngineConfiguration.JobFields fields;
+    protected WriteConcern writeConcernJobs;
+    protected String lockOwner;
+    protected JsonService jsonService;
   
   public MongoJobs(MongoProcessEngine mongoProcessEngine, DB db, MongoProcessEngineConfiguration configuration) {
     super(db, configuration.getJobsCollectionName());
     this.fields = configuration.getJobFields();
-    this.writeConcernJobs = configuration.getWriteConcernJobs();
+    this.writeConcernJobs = getWriteConcern(configuration.getWriteConcernJobs());
     this.lockOwner = configuration.getId();
     this.jsonService = mongoProcessEngine.jsonService;
+    this.isPretty = configuration.isPretty();
   }
 
   public void saveJob(Job job) {
@@ -85,8 +86,7 @@ public class MongoJobs extends MongoCollection {
         new BasicDBObject(fields.duedate, new BasicDBObject("$lte", now))
       })
       .push(fields.done).append("$exists", false).pop()
-      .push(fields.processInstanceId).append("$exists", mustHaveProcessInstance).pop()
-      .append(fields.lockProcessInstance, (mustHaveProcessInstance ? true : new BasicDBObject("$exists", false)));
+      .push(fields.processInstanceId).append("$exists", mustHaveProcessInstance).pop();
   }
 
   public Job lockJob(boolean mustHaveProcessInstance) {

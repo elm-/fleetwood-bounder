@@ -16,6 +16,7 @@ package com.heisenberg.impl.definition;
 
 import com.heisenberg.api.builder.TimerBuilder;
 import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.job.JobType;
 
 
 /**
@@ -27,8 +28,24 @@ public class TimerDefinitionImpl implements TimerBuilder {
   public AbstractProcessEngine processEngine;
   public ProcessDefinitionImpl processDefinition;
   public ScopeDefinitionImpl parent;
+  public JobType jobType;
   
   public void validate(ProcessDefinitionValidator validateProcessDefinitionAfterDeserialization) {
+  }
+
+  @Override
+  public TimerBuilder name(String name) {
+    return null;
+  }
+
+  @Override
+  public TimerBuilder duedateAfterCreation(long millis) {
+    return null;
+  }
+
+  @Override
+  public TimerBuilder repeatAfterExecution(long millis) {
+    return null;
   }
 
 }

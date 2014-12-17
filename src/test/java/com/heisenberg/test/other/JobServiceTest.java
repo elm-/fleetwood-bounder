@@ -131,6 +131,39 @@ public class JobServiceTest {
   }
 
   @Test
+  public void testRealProcessJobOK() throws Exception {
+    // quickest way to get a processInstanceId
+    ProcessDefinitionBuilder p = processEngine.newProcessDefinition();
+    p.newActivity("t", new UserTask())
+     .newTimer(new TestJob())
+     ;
+    String processDefinitionId = p.deploy().getProcessDefinitionId();
+    String processInstanceId = processEngine.newStart()
+      .processDefinitionId(processDefinitionId)
+      .startProcessInstance()
+      .getId();
+    
+    jobService.newJob(new TestJob())
+      .duedate(Time.now())
+      .processInstanceId(processInstanceId)
+      .save();
+    
+    assertEquals(0, TestJob.jobExecutions.size());
+    checkOtherJobs(); 
+    assertEquals(0, TestJob.jobExecutions.size());
+    checkProcessJobs(); // only this one should execute the job
+    assertEquals(1, TestJob.jobExecutions.size());
+    checkOtherJobs();
+    assertEquals(1, TestJob.jobExecutions.size());
+    checkProcessJobs();
+    assertEquals(1, TestJob.jobExecutions.size());
+    
+    JobExecution jobExecution = TestJob.jobExecutions.get(0);
+    assertNull(jobExecution.error);
+  }
+
+
+  @Test
   public void testOtherJobOK() throws Exception {
     jobService.newJob(new TestJob())
       .duedate(Time.now())

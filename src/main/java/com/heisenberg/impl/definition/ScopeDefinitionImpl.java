@@ -24,6 +24,7 @@ import com.heisenberg.api.definition.ScopeDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.util.Exceptions;
 
 
@@ -112,7 +113,7 @@ public abstract class ScopeDefinitionImpl implements ScopeDefinition {
     return transitionDefinition;
   }
 
-  public TimerDefinitionImpl newTimer() {
+  public TimerDefinitionImpl newTimer(JobType jobType) {
     TimerDefinitionImpl timerDefinition = new TimerDefinitionImpl();
     timerDefinition.processEngine = this.processEngine;
     timerDefinition.processDefinition = this.processDefinition;

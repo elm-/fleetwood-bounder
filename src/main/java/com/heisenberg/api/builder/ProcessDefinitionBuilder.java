@@ -15,6 +15,7 @@
 package com.heisenberg.api.builder;
 
 import com.heisenberg.api.activities.ActivityType;
+import com.heisenberg.impl.job.JobType;
 
 
 
@@ -46,7 +47,7 @@ public interface ProcessDefinitionBuilder {
 
   VariableBuilder newVariable();
 
-  TimerBuilder newTimer();
+  TimerBuilder newTimer(JobType jobType);
   
   DeployResult deploy();
 

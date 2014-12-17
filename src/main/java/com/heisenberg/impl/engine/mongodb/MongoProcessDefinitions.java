@@ -234,8 +234,8 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     }
     List<ProcessDefinitionImpl> processes = new ArrayList<ProcessDefinitionImpl>();
     DBCursor cursor = find(q);
-    if (query.maxResults!=null) {
-      cursor.maxScan(query.maxResults);
+    if (query.limit!=null) {
+      cursor.limit(query.limit);
     }
     if (query.orderBy!=null) {
       cursor.sort(writeOrderBy(query.orderBy));
@@ -264,4 +264,6 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     }
     throw new RuntimeException("Unknown field "+field);
   }
+  
+  
 }
