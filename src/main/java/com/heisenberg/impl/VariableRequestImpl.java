@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.JavaBeanType;
 
@@ -33,9 +33,10 @@ import com.heisenberg.impl.type.JavaBeanType;
 public abstract class VariableRequestImpl {
 
   @JsonIgnore
-  public AbstractProcessEngine processEngine;
+  public ProcessEngineImpl processEngine;
   
   public Map<String,Object> variableValues;
+  public Map<String,DataType> variableDataTypes;
 
   /** extra user defined information only accessible in the process as long as this request is executed synchronous. */
   public Map<String,Object> transientContext;
@@ -43,7 +44,7 @@ public abstract class VariableRequestImpl {
   public VariableRequestImpl() {
   }
 
-  public VariableRequestImpl(AbstractProcessEngine processEngine) {
+  public VariableRequestImpl(ProcessEngineImpl processEngine) {
     super();
     this.processEngine = processEngine;
   }
@@ -75,11 +76,10 @@ public abstract class VariableRequestImpl {
   public VariableRequestImpl variableValue(String variableDefinitionId, Object value, DataType dataType) {
     if (variableValues==null) {
       variableValues = new LinkedHashMap<>();
-    }
-    if (processEngine.requiresValuesInJson()) {
-      value = dataType.convertInternalToJsonValue(value);
+      variableDataTypes = new HashMap<>();
     }
     variableValues.put(variableDefinitionId, value);
+    variableDataTypes.put(variableDefinitionId, dataType);
     return this;
   }
 

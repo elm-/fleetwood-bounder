@@ -16,8 +16,8 @@ package com.heisenberg.impl.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.util.Exceptions;
+import com.heisenberg.plugin.Validator;
 
 
 /**

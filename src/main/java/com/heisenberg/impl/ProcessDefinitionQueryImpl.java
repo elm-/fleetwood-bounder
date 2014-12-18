@@ -16,7 +16,7 @@ package com.heisenberg.impl;
 
 import java.util.List;
 
-import com.heisenberg.api.ProcessDefinitionQuery;
+import com.heisenberg.api.builder.ProcessDefinitionQuery;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 
 

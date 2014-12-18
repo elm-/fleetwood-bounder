@@ -17,8 +17,8 @@ package com.heisenberg.impl.type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.heisenberg.api.util.Plugin;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.plugin.Plugin;
+import com.heisenberg.plugin.Validator;
 
 
 /**

@@ -24,8 +24,8 @@ import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.plugin.DataTypes;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.plugin.DataTypes;
 
 /**
  * @author Walter White

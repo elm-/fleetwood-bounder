@@ -18,15 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.api.activities.Binding;
-import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.activities.Label;
-import com.heisenberg.api.configuration.TaskService;
-import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.task.Task;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.api.task.TaskService;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.Binding;
+import com.heisenberg.plugin.activities.ConfigurationField;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.plugin.activities.Label;
 
 
 /**
@@ -45,7 +43,7 @@ public class UserTask extends AbstractActivityType {
   
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    TaskService taskService = activityInstance.getServiceLocator().getTaskService();
+    TaskService taskService = activityInstance.getTaskService();
     
     String taskName = activityInstance.getValue(name);
     if (taskName==null) {

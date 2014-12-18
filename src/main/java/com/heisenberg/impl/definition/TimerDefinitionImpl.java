@@ -15,7 +15,7 @@
 package com.heisenberg.impl.definition;
 
 import com.heisenberg.api.builder.TimerBuilder;
-import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.job.JobType;
 
 
@@ -25,7 +25,7 @@ import com.heisenberg.impl.job.JobType;
 public class TimerDefinitionImpl implements TimerBuilder {
 
   public String name;
-  public AbstractProcessEngine processEngine;
+  public ProcessEngineImpl processEngine;
   public ProcessDefinitionImpl processDefinition;
   public ScopeDefinitionImpl parent;
   public JobType jobType;

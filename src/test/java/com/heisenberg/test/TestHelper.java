@@ -26,7 +26,7 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.impl.engine.mongodb.MongoProcessEngine;
+import com.heisenberg.mongo.MongoProcessEngine;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 

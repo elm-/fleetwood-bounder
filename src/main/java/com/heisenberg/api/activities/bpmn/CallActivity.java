@@ -17,18 +17,18 @@ package com.heisenberg.api.activities.bpmn;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.api.activities.Binding;
-import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.util.Validator;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.plugin.Validator;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.Binding;
+import com.heisenberg.plugin.activities.ConfigurationField;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.plugin.activities.Label;
 
 
 /**

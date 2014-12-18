@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.definition;
 
-import com.heisenberg.api.configuration.Script;
+import com.heisenberg.impl.script.Script;
 
 
 

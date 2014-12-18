@@ -34,7 +34,7 @@ public class StartBuilderImpl extends VariableRequestImpl implements StartBuilde
   public StartBuilderImpl() {
   }
 
-  public StartBuilderImpl(AbstractProcessEngine processEngine) {
+  public StartBuilderImpl(ProcessEngineImpl processEngine) {
     super(processEngine);
   }
 

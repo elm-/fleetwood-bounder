@@ -15,7 +15,7 @@
 package com.heisenberg.api.activities.bpmn;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.activities.ControllableActivityInstance;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 

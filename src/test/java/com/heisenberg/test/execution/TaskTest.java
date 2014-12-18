@@ -20,8 +20,8 @@ import org.junit.Test;
 
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.impl.engine.memory.MemoryTaskService;
+import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.memory.MemoryTaskService;
 
 
 /**

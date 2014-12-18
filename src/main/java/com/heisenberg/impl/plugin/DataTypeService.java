@@ -26,17 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.activities.Binding;
-import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.activities.Label;
 import com.heisenberg.api.activities.bpmn.CallMapping;
-import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.plugin.DataTypes;
-import com.heisenberg.api.plugin.TypeDescriptor;
-import com.heisenberg.api.plugin.TypeField;
-import com.heisenberg.api.util.Plugin;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.BindingType;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.DataTypeReference;
@@ -45,6 +37,14 @@ import com.heisenberg.impl.type.ListType;
 import com.heisenberg.impl.type.TextType;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Reflection;
+import com.heisenberg.plugin.DataTypes;
+import com.heisenberg.plugin.Plugin;
+import com.heisenberg.plugin.TypeDescriptor;
+import com.heisenberg.plugin.TypeField;
+import com.heisenberg.plugin.activities.ActivityType;
+import com.heisenberg.plugin.activities.Binding;
+import com.heisenberg.plugin.activities.ConfigurationField;
+import com.heisenberg.plugin.activities.Label;
 
 
 /**

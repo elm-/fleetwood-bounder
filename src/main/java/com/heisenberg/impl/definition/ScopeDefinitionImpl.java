@@ -18,14 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.ScopeDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
-import com.heisenberg.api.util.Validator;
-import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.util.Exceptions;
+import com.heisenberg.plugin.Validator;
+import com.heisenberg.plugin.activities.ActivityType;
 
 
 /**
@@ -47,7 +47,7 @@ public abstract class ScopeDefinitionImpl implements ScopeDefinition {
   // derived fields that are initialized in the prepare() method
 
   @JsonIgnore
-  public AbstractProcessEngine processEngine;
+  public ProcessEngineImpl processEngine;
   @JsonIgnore
   public ProcessDefinitionImpl processDefinition;
   @JsonIgnore
@@ -160,11 +160,11 @@ public abstract class ScopeDefinitionImpl implements ScopeDefinition {
     this.processDefinition = processDefinition;
   }
   
-  public AbstractProcessEngine getProcessEngine() {
+  public ProcessEngineImpl getProcessEngine() {
     return processEngine;
   }
   
-  public void setProcessEngine(AbstractProcessEngine processEngine) {
+  public void setProcessEngine(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 

@@ -20,20 +20,19 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.builder.StartBuilder;
-import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.plugin.DataTypes;
-import com.heisenberg.impl.AbstractProcessEngine;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.StartBuilderImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.DataTypeReference;
 import com.heisenberg.impl.type.JavaBeanType;
+import com.heisenberg.plugin.DataTypes;
 
 
 /**
@@ -45,7 +44,7 @@ public class DataTypeJavaBeanSerializationTest {
   
   @Test
   public void testProcessEngineCustomMoneyType() {
-    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
+    ProcessEngine processEngine = new ProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .buildProcessEngine();
     
@@ -75,7 +74,7 @@ public class DataTypeJavaBeanSerializationTest {
     log.debug(triggerJson);
 
     StartBuilderImpl triggerImpl = jsonService.jsonToObject(triggerJson, StartBuilderImpl.class);
-    triggerImpl.processEngine = (AbstractProcessEngine) processEngine;
+    triggerImpl.processEngine = (ProcessEngineImpl) processEngine;
     triggerImpl.deserialize((ProcessDefinitionImpl)process);
     
     ProcessInstance processInstance = triggerImpl

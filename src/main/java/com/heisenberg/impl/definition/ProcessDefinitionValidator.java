@@ -28,10 +28,15 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.builder.ParseIssue.IssueType;
 import com.heisenberg.api.builder.ParseIssues;
-import com.heisenberg.api.util.ServiceLocator;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.impl.plugin.ActivityTypeService;
+import com.heisenberg.impl.plugin.DataTypeService;
+import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
+import com.heisenberg.plugin.ServiceRegistry;
+import com.heisenberg.plugin.Validator;
 
 
 /** Validates and wires process definition after it's been built by either the builder api or json deserialization.
@@ -274,7 +279,32 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   }
 
   @Override
-  public ServiceLocator getServiceLocator() {
-    return processEngine;
+  public JsonService getJsonService() {
+    return processEngine.getJsonService();
+  }
+
+  @Override
+  public ScriptService getScriptService() {
+    return processEngine.getScriptService();
+  }
+
+  @Override
+  public TaskService getTaskService() {
+    return processEngine.getTaskService();
+  }
+
+  @Override
+  public ActivityTypeService getActivityTypes() {
+    return processEngine.getActivityTypes();
+  }
+
+  @Override
+  public DataTypeService getDataTypes() {
+    return processEngine.getDataTypes();
+  }
+
+  @Override
+  public <T> T getService(Class<T> serviceClass) {
+    return processEngine.getService(serviceClass);
   }
 }

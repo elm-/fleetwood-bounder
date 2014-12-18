@@ -15,7 +15,8 @@
 package com.heisenberg.test.execution;
 
 import static com.heisenberg.test.TestHelper.findActivityInstanceOpen;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
+import com.heisenberg.memory.MemoryProcessEngine;
 
 /**
  * @author Walter White

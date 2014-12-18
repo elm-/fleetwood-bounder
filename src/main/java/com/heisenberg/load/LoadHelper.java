@@ -15,8 +15,8 @@
 package com.heisenberg.load;
 
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.memory.MemoryProcessEngine;
 
 
 /**

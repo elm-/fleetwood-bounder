@@ -14,7 +14,6 @@
  */
 package com.heisenberg.load;
 
-import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.activities.bpmn.EndEvent;
@@ -24,6 +23,7 @@ import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.mongo.MongoProcessEngineConfiguration;
 
 
 /**

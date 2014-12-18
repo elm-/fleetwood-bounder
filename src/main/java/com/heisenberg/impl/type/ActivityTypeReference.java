@@ -16,11 +16,11 @@ package com.heisenberg.impl.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.plugin.Validator;
+import com.heisenberg.plugin.activities.ActivityType;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 /**

@@ -21,14 +21,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.api.plugin.DataTypes;
 import com.heisenberg.impl.type.DataTypeReference;
 import com.heisenberg.impl.type.JavaBeanType;
+import com.heisenberg.plugin.DataTypes;
 
 
 /**
@@ -40,7 +40,7 @@ public class DataTypeJavaBeanTest {
   
   @Test
   public void testProcessEngineCustomMoneyType() {
-    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
+    ProcessEngine processEngine = new ProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .buildProcessEngine();
 

@@ -14,7 +14,6 @@
  */
 package com.heisenberg.api.instance;
 
-import com.heisenberg.api.configuration.ProcessEngineConfiguration;
 import com.heisenberg.api.definition.ActivityDefinition;
 
 

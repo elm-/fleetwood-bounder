@@ -19,10 +19,10 @@ import org.junit.Test;
 import com.heisenberg.api.activities.bpmn.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.plugin.DataTypes;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.plugin.DataTypeService;
 import com.heisenberg.impl.util.Lists;
+import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.plugin.DataTypes;
 import com.heisenberg.test.TestHelper;
 
 

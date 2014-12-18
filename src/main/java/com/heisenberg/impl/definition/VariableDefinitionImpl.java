@@ -17,7 +17,7 @@ package com.heisenberg.impl.definition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.VariableBuilder;
 import com.heisenberg.api.definition.VariableDefinition;
-import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -40,7 +40,7 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
 //  public Object initialValueJson;
 
   @JsonIgnore
-  public AbstractProcessEngine processEngine;
+  public ProcessEngineImpl processEngine;
   @JsonIgnore
   public ProcessDefinitionImpl processDefinition;  
   @JsonIgnore
@@ -74,7 +74,7 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     return this;
   }
   
-  public VariableDefinitionImpl processEngine(AbstractProcessEngine processEngine) {
+  public VariableDefinitionImpl processEngine(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
     return this;
   }
@@ -117,11 +117,11 @@ public class VariableDefinitionImpl implements VariableBuilder, VariableDefiniti
     this.processDefinition = processDefinition;
   }
 
-  public AbstractProcessEngine getProcessEngine() {
+  public ProcessEngineImpl getProcessEngine() {
     return processEngine;
   }
   
-  public void setProcessEngine(AbstractProcessEngine processEngine) {
+  public void setProcessEngine(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
   

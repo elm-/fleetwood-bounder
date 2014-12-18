@@ -19,13 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.MemoryProcessEngineConfiguration;
-import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.activities.Label;
-import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.AbstractDataType;
 import com.heisenberg.impl.type.InvalidValueException;
+import com.heisenberg.plugin.activities.ConfigurationField;
+import com.heisenberg.plugin.activities.Label;
 import com.heisenberg.test.plugin.activitytype.ActivityTypeDescriptorTest;
 
 
@@ -38,7 +38,7 @@ public class DataTypeDescriptorTest {
 
   @Test 
   public void testDataTypeDescriptors() {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new MemoryProcessEngineConfiguration()
+    ProcessEngineImpl processEngine = (ProcessEngineImpl) new ProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .registerConfigurableDataType(new InvoiceType())
       .buildProcessEngine();

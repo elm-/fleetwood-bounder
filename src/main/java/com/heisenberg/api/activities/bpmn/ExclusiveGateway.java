@@ -19,14 +19,13 @@ import java.util.Map;
 
 import javax.script.CompiledScript;
 
-import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.configuration.Script;
-import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
+import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 /**
@@ -74,7 +73,7 @@ public class ExclusiveGateway extends AbstractActivityType {
   protected boolean meetsCondition(TransitionDefinition outgoingTransition, ControllableActivityInstance activityInstance) {
     Script script = outgoingTransition.getConditionScript();
     if (script!=null) {
-      ScriptService scriptService = activityInstance.getServiceLocator().getScriptService();
+      ScriptService scriptService = activityInstance.getScriptService();
       ScriptResult scriptResult = evaluateCondition(activityInstance, outgoingTransition, script, scriptService);
       if (Boolean.TRUE.equals(scriptResult.getResult())) {
         return true;

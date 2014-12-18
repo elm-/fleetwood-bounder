@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.activities.bpmn;
 
-import com.heisenberg.api.activities.Binding;
+import com.heisenberg.plugin.activities.Binding;
 
 
 /**

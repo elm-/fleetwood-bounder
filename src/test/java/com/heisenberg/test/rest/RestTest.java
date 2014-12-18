@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.StartBuilder;
@@ -39,9 +38,10 @@ import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.load.LoadHelper;
+import com.heisenberg.mongo.MongoProcessEngineConfiguration;
 import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
-import com.heisenberg.test.db.MongoProcessEngineTest;
+import com.heisenberg.test.mongo.MongoProcessEngineTest;
 
 /**
  * @author Walter White

@@ -24,16 +24,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.activities.Label;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.configuration.Script;
-import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.api.plugin.DataTypes;
+import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
+import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.plugin.DataTypes;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.plugin.activities.Label;
 
 
 /**
@@ -45,7 +45,7 @@ public class ScriptTest {
 
   @Test
   public void testScript() {
-    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
+    ProcessEngine processEngine = new ProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .registerSingletonActivityType(new ScriptActivity())
       .buildProcessEngine();

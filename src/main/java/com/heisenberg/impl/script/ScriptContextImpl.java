@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.configuration.Script;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 
 

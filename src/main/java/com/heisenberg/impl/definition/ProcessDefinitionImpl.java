@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.definition.ProcessDefinition;
-import com.heisenberg.impl.AbstractProcessEngine;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.job.JobType;
 
 
@@ -61,7 +61,7 @@ public class ProcessDefinitionImpl extends ScopeDefinitionImpl implements Proces
   public ProcessDefinitionImpl() {
   }
 
-  public ProcessDefinitionImpl(AbstractProcessEngine processEngine) {
+  public ProcessDefinitionImpl(ProcessEngineImpl processEngine) {
     this.processEngine = processEngine;
     this.processDefinition = this;
   }

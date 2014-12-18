@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.plugin.Validator;
 
 
 /**

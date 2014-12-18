@@ -24,21 +24,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.MemoryProcessEngineConfiguration;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.api.activities.Binding;
-import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.activities.Description;
-import com.heisenberg.api.activities.Label;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.configuration.JsonService;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionValidator;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.TextType;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.Binding;
+import com.heisenberg.plugin.activities.ConfigurationField;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.plugin.activities.Description;
+import com.heisenberg.plugin.activities.Label;
 
 
 /**
@@ -72,7 +72,7 @@ public class ActivityTypeBindingConfigurationTest {
   
   @Test 
   public void testConfigurableActivityTypeExecution() {
-    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
+    ProcessEngine processEngine = new ProcessEngineConfiguration()
       .registerConfigurableActivityType(new MyBindingActivityType())
       .buildProcessEngine();
 
@@ -108,7 +108,7 @@ public class ActivityTypeBindingConfigurationTest {
 
   @Test 
   public void testConfigurableActivityTypeSerialization() {
-    ProcessEngine processEngine = new MemoryProcessEngineConfiguration()
+    ProcessEngine processEngine = new ProcessEngineConfiguration()
     .registerConfigurableActivityType(new MyBindingActivityType())
     .buildProcessEngine();
 

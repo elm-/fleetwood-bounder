@@ -24,8 +24,8 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
 import com.heisenberg.impl.type.TextType;
+import com.heisenberg.memory.MemoryProcessEngine;
 
 
 /**

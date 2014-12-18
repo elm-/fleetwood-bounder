@@ -17,8 +17,8 @@ package com.heisenberg.impl.plugin;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.api.plugin.Triggers;
-import com.heisenberg.api.plugin.TypeDescriptor;
+import com.heisenberg.plugin.Triggers;
+import com.heisenberg.plugin.TypeDescriptor;
 
 
 /**

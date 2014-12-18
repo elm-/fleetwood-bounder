@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.ControllableActivityInstance;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
@@ -33,6 +32,9 @@ import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
+import com.heisenberg.impl.plugin.DataTypeService;
+import com.heisenberg.plugin.ActivityTypes;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 /**

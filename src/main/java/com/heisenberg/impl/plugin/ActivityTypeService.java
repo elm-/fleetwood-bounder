@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.heisenberg.api.activities.ActivityType;
 import com.heisenberg.api.activities.bpmn.CallActivity;
 import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
 import com.heisenberg.api.activities.bpmn.EmptyServiceTask;
@@ -33,11 +32,12 @@ import com.heisenberg.api.activities.bpmn.ParallelGateway;
 import com.heisenberg.api.activities.bpmn.ScriptTask;
 import com.heisenberg.api.activities.bpmn.StartEvent;
 import com.heisenberg.api.activities.bpmn.UserTask;
-import com.heisenberg.api.plugin.ActivityTypes;
-import com.heisenberg.api.plugin.TypeDescriptor;
-import com.heisenberg.api.plugin.TypeField;
 import com.heisenberg.impl.type.ActivityTypeReference;
 import com.heisenberg.impl.util.Exceptions;
+import com.heisenberg.plugin.ActivityTypes;
+import com.heisenberg.plugin.TypeDescriptor;
+import com.heisenberg.plugin.TypeField;
+import com.heisenberg.plugin.activities.ActivityType;
 
 
 /**

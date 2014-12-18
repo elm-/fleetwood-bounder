@@ -23,8 +23,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.MongoProcessEngineConfiguration;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.mongo.MongoProcessEngineConfiguration;
 
 
 /**

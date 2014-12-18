@@ -19,15 +19,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.MemoryProcessEngineConfiguration;
-import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.api.activities.Binding;
-import com.heisenberg.api.activities.ConfigurationField;
-import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.activities.Description;
-import com.heisenberg.api.activities.Label;
-import com.heisenberg.api.configuration.JsonService;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.plugin.ProcessEngineProfileSender;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.Binding;
+import com.heisenberg.plugin.activities.ConfigurationField;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.plugin.activities.Description;
+import com.heisenberg.plugin.activities.Label;
 
 
 /**
@@ -39,12 +39,14 @@ public class ActivityTypeDescriptorTest {
 
   @Test 
   public void testConfigurableActivityTypeDescriptor() {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new MemoryProcessEngineConfiguration()
+    ProcessEngineImpl processEngine = (ProcessEngineImpl) new ProcessEngineConfiguration()
       .registerConfigurableActivityType(new MyConfigurableActivityType())
       .registerConfigurableActivityType(new MyBindingActivityType())
       .buildProcessEngine();
     
-    processEngine.newProcessProfile()
+    processEngine.getProfile();
+    
+    new ProcessEngineProfileSender(processEngine)
       .organizationKey("myorg")
       .update();
 //

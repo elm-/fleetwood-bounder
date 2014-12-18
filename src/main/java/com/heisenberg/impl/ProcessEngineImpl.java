@@ -14,6 +14,7 @@
  */
 package com.heisenberg.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,17 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.configuration.JsonService;
-import com.heisenberg.api.configuration.ProcessEngineConfiguration;
-import com.heisenberg.api.configuration.ScriptService;
-import com.heisenberg.api.configuration.TaskService;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.plugin.ProcessProfileBuilder;
-import com.heisenberg.api.util.ServiceLocator;
+import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -46,31 +44,57 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.heisenberg.impl.job.JobService;
-import com.heisenberg.impl.json.JsonServiceImpl;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.plugin.ActivityTypeRegistration;
+import com.heisenberg.impl.plugin.ActivityTypeService;
+import com.heisenberg.impl.plugin.DataTypeRegistration;
+import com.heisenberg.impl.plugin.DataTypeService;
+import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Lists;
+import com.heisenberg.plugin.ProcessEngineProfile;
+import com.heisenberg.plugin.ServiceRegistry;
 
 /**
  * @author Walter White
  */
-public abstract class ProcessEngineImpl extends AbstractProcessEngine implements ProcessEngine, ServiceLocator {
+public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistry {
 
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
-  public ProcessDefinitionCache processDefinitionCache;
-  public ScriptService scriptService;
-  public TaskService taskService;
-  public ExecutorService executorService;
-  public JobService jobService;
-  public String builderUrl;
-  
+  public ServiceRegistry serviceRegistry;
+
   public ProcessEngineImpl() {
   }
-  
+
   public ProcessEngineImpl(ProcessEngineConfiguration configuration) {
-    super(configuration);
+    
+    serviceRegistry = new HashMap<>();
+    ObjectMapper objectMapper = configuration.getObjectMapper();
+    serviceRegistry.put(ObjectMapper.class.getName(), objectMapper);
+
+    JsonService jsonService = new JsonService(objectMapper); 
+    serviceRegistry.put(JsonService.class.getName(), jsonService);
+
+    DataTypeService dataTypeService = new DataTypeService(objectMapper, jsonService);
+    if (configuration.registerDefaultDataTypes) {
+      dataTypeService.registerDefaultDataTypes();
+    }
+    for (DataTypeRegistration dataTypeRegistration: configuration.getDataTypeRegistrations()) {
+      dataTypeRegistration.register(this, dataTypeService);
+    }
+    serviceRegistry.put(DataTypeService.class.getName(), dataTypeService);
+    
+    ActivityTypeService activityTypeService = new ActivityTypeService(objectMapper, dataTypeService);
+    if (configuration.registerDefaultActivityTypes) {
+      activityTypeService.registerDefaultActivityTypes();
+    }
+    for (ActivityTypeRegistration activityTypeRegistration: configuration.getActivityTypeRegistrations()) {
+      activityTypeRegistration.register(this, activityTypeService);
+    }
+    serviceRegistry.put(ActivityTypeService.class.getName(), activityTypeService);
+
     this.id = configuration.getId();
     this.executorService = configuration.getExecutorService();
     this.processDefinitionCache = configuration.getProcessDefinitionCache();
@@ -80,7 +104,6 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
 
     // TODO consider more elegant way to register these classes with the object mapper 
     // and create a consistent approach with ActivityTypes and DataTypes
-    ObjectMapper objectMapper = ((JsonServiceImpl)jsonService).objectMapper;
     this.jobService.setProcessEngine(this);
     if (configuration.registerDefaultJobTypes) {
       // objectMapper.registerSubtypes(classes);
@@ -95,6 +118,26 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
 
   public void shutdown() {
     executorService.shutdown();
+  }
+  
+  @Override
+  public ProcessDefinitionBuilder newProcessDefinition() {
+    return new ProcessDefinitionImpl(this);
+  }
+
+  @Override
+  public StartBuilderImpl newStart() {
+    return new StartBuilderImpl(this);
+  }
+
+  @Override
+  public MessageBuilder newMessage() {
+    return new MessageImpl(this);
+  }
+
+  @Override
+  public ProcessInstanceQueryImpl newProcessInstanceQuery() {
+    throw new RuntimeException("TODO");
   }
 
   /// Process Definition Builder 
@@ -123,24 +166,11 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return response;
   }
   
-  @Override
-  public ProcessProfileBuilder newProcessProfile() {
-    return new ProcessProfileImpl(this);
-  }
-  
-  public String updateProcessProfile(ProcessProfileImpl profile) {
-    log.debug("Sending process profile over HTTP to the process builder:");
-    log.debug(">>> PUT "+profile.getUrl());
-    // TODO send over HTTP to the server
-    ProcessProfileRequestBody processProfileBody = new ProcessProfileRequestBody();
-    processProfileBody.key = profile.profileKey;
-    processProfileBody.name = profile.profileName;
-    processProfileBody.activityDescriptors = activityTypeService.descriptors;
-    processProfileBody.dataTypeDescriptors = dataTypeService.descriptors;
-    processProfileBody.dataSourceDescriptors = dataSourceService.descriptors;
-    processProfileBody.triggerDescriptors = triggerService.descriptors;
-    log.debug(">>> "+jsonService.objectToJsonStringPretty(processProfileBody));
-    return null;
+  public ProcessEngineProfile getProcessEngineProfile() {
+    ProcessEngineProfile processEngineProfile = new ProcessEngineProfile();
+    processEngineProfile.activityDescriptors = getService(ActivityTypeService.class).descriptors;
+    processEngineProfile.dataTypeDescriptors = getService(DataTypeService.class).descriptors;
+    return processEngineProfile;
   }
 
   public ProcessInstance startProcessInstance(StartBuilderImpl start) {
@@ -174,11 +204,6 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     insertProcessInstance(processInstance);
     processInstance.executeOperations();
     return processInstance;
-  }
-  
-  @Override
-  public MessageImpl newMessage() {
-    return new MessageImpl(this);
   }
   
   public ProcessInstanceImpl sendActivityInstanceMessage(MessageImpl message) {
@@ -301,35 +326,10 @@ public abstract class ProcessEngineImpl extends AbstractProcessEngine implements
     return UUID.randomUUID().toString();
   }
 
-  @Override
-  public ProcessInstanceQueryImpl newProcessInstanceQuery() {
-    return new ProcessInstanceQueryImpl(this);
-  }
-
   public String getId() {
     return id;
   }
   
-  public ExecutorService getExecutorService() {
-    return executorService;
-  }
-  
-  public JsonService getJsonService() {
-    return jsonService;
-  }
-  
-  public ScriptService getScriptService() {
-    return scriptService;
-  }
-  
-  public TaskService getTaskService() {
-    return taskService;
-  }
-  
-  public JobService getJobService() {
-    return jobService;
-  }
-
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
   public abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 

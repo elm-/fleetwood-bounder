@@ -18,14 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.activities.Binding;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.type.DataType;
+import com.heisenberg.plugin.activities.ActivityType;
+import com.heisenberg.plugin.activities.Binding;
 
 
 /**

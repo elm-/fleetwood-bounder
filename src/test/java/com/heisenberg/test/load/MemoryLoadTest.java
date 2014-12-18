@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.impl.engine.memory.MemoryProcessEngine;
-import com.heisenberg.test.db.MongoProcessEngineTest;
+import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.test.mongo.MongoProcessEngineTest;
 
 /**
  * @author Walter White

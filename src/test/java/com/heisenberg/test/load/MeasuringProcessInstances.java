@@ -14,9 +14,9 @@
  */
 package com.heisenberg.test.load;
 
-import com.heisenberg.api.MongoProcessEngineConfiguration;
-import com.heisenberg.impl.engine.mongodb.MongoProcessEngine;
-import com.heisenberg.impl.engine.mongodb.MongoProcessInstances;
+import com.heisenberg.mongo.MongoProcessEngine;
+import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.mongo.MongoProcessInstances;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;

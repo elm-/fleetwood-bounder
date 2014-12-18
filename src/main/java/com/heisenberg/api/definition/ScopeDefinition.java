@@ -16,8 +16,8 @@ package com.heisenberg.api.definition;
 
 import java.util.List;
 
-import com.heisenberg.api.activities.ActivityType;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.plugin.Validator;
+import com.heisenberg.plugin.activities.ActivityType;
 
 
 /**
@@ -30,7 +30,7 @@ public interface ScopeDefinition {
   /** the transitions defined in this scope. */
   List<TransitionDefinition> getTransitionDefinitions();
 
-  /** If you use this, you must call the @link {@link #initializeStartActivities()} in the @link {@link ActivityType#validate(ActivityDefinition, com.heisenberg.api.util.Validator)} */
+  /** If you use this, you must call the @link {@link #initializeStartActivities()} in the @link {@link ActivityType#validate(ActivityDefinition, com.heisenberg.plugin.Validator)} */
   List<ActivityDefinition> getStartActivities();
 
   void initializeStartActivities(Validator validator);

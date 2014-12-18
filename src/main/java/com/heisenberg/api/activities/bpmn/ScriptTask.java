@@ -18,13 +18,13 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.activities.AbstractActivityType;
-import com.heisenberg.api.activities.ControllableActivityInstance;
-import com.heisenberg.api.configuration.Script;
-import com.heisenberg.api.configuration.ScriptService;
 import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.util.Validator;
+import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
+import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.plugin.Validator;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 /**
@@ -43,7 +43,7 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
     if (script!=null) {
-      ScriptService scriptService = validator.getServiceLocator().getScriptService();
+      ScriptService scriptService = validator.getScriptService();
       compiledScript = scriptService.compile(script);
       compiledScript.scriptToProcessMappings = scriptToProcessMappings;
     }
@@ -53,7 +53,7 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void start(ControllableActivityInstance activityInstance) {
     if (script!=null) {
-      ScriptService scriptService = activityInstance.getServiceLocator().getScriptService();
+      ScriptService scriptService = activityInstance.getScriptService();
       ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, compiledScript);
       scriptResult.getResult();
       /* Object result = 
