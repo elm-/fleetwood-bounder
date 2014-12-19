@@ -18,14 +18,14 @@ import static com.heisenberg.test.TestHelper.assertOpen;
 
 import org.junit.Test;
 
+import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.bpmn.ExclusiveGateway;
-import com.heisenberg.api.activities.bpmn.StartEvent;
-import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.activitytypes.ExclusiveGateway;
+import com.heisenberg.api.activitytypes.StartEvent;
+import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.memory.MemoryProcessEngine;
-import com.heisenberg.plugin.DataTypes;
 
 /**
  * @author Walter White

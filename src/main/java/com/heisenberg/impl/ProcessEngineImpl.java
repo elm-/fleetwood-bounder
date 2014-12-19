@@ -14,7 +14,9 @@
  */
 package com.heisenberg.impl;
 
-import java.util.HashMap;
+import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,7 +25,7 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.DeployResult;
@@ -32,7 +34,6 @@ import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
@@ -43,83 +44,87 @@ import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
-import com.heisenberg.impl.job.JobService;
 import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.impl.plugin.ActivityTypeRegistration;
-import com.heisenberg.impl.plugin.ActivityTypeService;
-import com.heisenberg.impl.plugin.DataTypeRegistration;
-import com.heisenberg.impl.plugin.DataTypeService;
-import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Lists;
-import com.heisenberg.plugin.ProcessEngineProfile;
+import com.heisenberg.memory.MemoryJobServiceImpl;
+import com.heisenberg.memory.MemoryTaskService;
+import com.heisenberg.memory.MemoryWorkflowInstanceStore;
+import com.heisenberg.memory.MemoryWorkflowStore;
 import com.heisenberg.plugin.ServiceRegistry;
 
 /**
  * @author Walter White
  */
-public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistry {
+public abstract class ProcessEngineImpl implements ProcessEngine {
 
   public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
 
   public String id;
   public ServiceRegistry serviceRegistry;
+  
+  public DataTypes dataTypes;
+  public JsonService jsonService;
+  public ExecutorService executorService;
+  public ProcessDefinitionCache processDefinitionCache;
+  public WorkflowStore workflowStore;
+  public WorkflowInstanceStore workflowInstanceStore;
 
-  public ProcessEngineImpl() {
+  protected ProcessEngineImpl() {
   }
 
-  public ProcessEngineImpl(ProcessEngineConfiguration configuration) {
-    
-    serviceRegistry = new HashMap<>();
-    ObjectMapper objectMapper = configuration.getObjectMapper();
-    serviceRegistry.put(ObjectMapper.class.getName(), objectMapper);
-
-    JsonService jsonService = new JsonService(objectMapper); 
-    serviceRegistry.put(JsonService.class.getName(), jsonService);
-
-    DataTypeService dataTypeService = new DataTypeService(objectMapper, jsonService);
-    if (configuration.registerDefaultDataTypes) {
-      dataTypeService.registerDefaultDataTypes();
-    }
-    for (DataTypeRegistration dataTypeRegistration: configuration.getDataTypeRegistrations()) {
-      dataTypeRegistration.register(this, dataTypeService);
-    }
-    serviceRegistry.put(DataTypeService.class.getName(), dataTypeService);
-    
-    ActivityTypeService activityTypeService = new ActivityTypeService(objectMapper, dataTypeService);
-    if (configuration.registerDefaultActivityTypes) {
-      activityTypeService.registerDefaultActivityTypes();
-    }
-    for (ActivityTypeRegistration activityTypeRegistration: configuration.getActivityTypeRegistrations()) {
-      activityTypeRegistration.register(this, activityTypeService);
-    }
-    serviceRegistry.put(ActivityTypeService.class.getName(), activityTypeService);
-
-    this.id = configuration.getId();
-    this.executorService = configuration.getExecutorService();
-    this.processDefinitionCache = configuration.getProcessDefinitionCache();
-    this.scriptService = configuration.getScriptService();
-    this.taskService = configuration.getTaskService();
-    this.jobService = configuration.getJobService();
-
-    // TODO consider more elegant way to register these classes with the object mapper 
-    // and create a consistent approach with ActivityTypes and DataTypes
-    this.jobService.setProcessEngine(this);
-    if (configuration.registerDefaultJobTypes) {
-      // objectMapper.registerSubtypes(classes);
-    }
-    for (Class<?> jobTypeClass: configuration.jobTypeRegistrations) {
-      objectMapper.registerSubtypes(jobTypeClass);
-    }
+  protected ProcessEngineImpl(ProcessEngineConfiguration configuration) {
+    this.serviceRegistry = configuration.getServiceRegistry();
+    this.serviceRegistry.registerService(this);
+    initializeId(configuration);
+    initializeStorageServices(configuration);
+    this.dataTypes = serviceRegistry.getService(DataTypes.class);
+    this.jsonService = serviceRegistry.getService(JsonService.class);
+    this.executorService = serviceRegistry.getService(ExecutorService.class);
+    this.processDefinitionCache = serviceRegistry.getService(ProcessDefinitionCache.class);
+    this.workflowStore = serviceRegistry.getService(WorkflowStore.class);
+    this.workflowInstanceStore = serviceRegistry.getService(WorkflowInstanceStore.class);
   }
   
+  protected void initializeStorageServices(ProcessEngineConfiguration configuration) {
+    configuration.registerService(new MemoryWorkflowStore(serviceRegistry));
+    configuration.registerService(new MemoryWorkflowInstanceStore(serviceRegistry));
+    configuration.registerService(new MemoryTaskService(serviceRegistry));
+    configuration.registerService(new MemoryJobServiceImpl(serviceRegistry));
+  }
+
+  protected void initializeId(ProcessEngineConfiguration configuration) {
+    this.id = configuration.getId();
+    if (id==null) {
+      try {
+        id = InetAddress.getLocalHost().getHostAddress();
+        try {
+          String processName = ManagementFactory.getRuntimeMXBean().getName();
+          int atIndex = processName.indexOf('@');
+          if (atIndex > 0) {
+            id += ":" + processName.substring(0, atIndex);
+          }
+        } catch (Exception e) {
+          id += ":?";
+        }
+      } catch (UnknownHostException e1) {
+        id = UUID.randomUUID().toString();
+      }
+    }
+  }
+
   public void startup() {
   }
 
   public void shutdown() {
     executorService.shutdown();
   }
-  
+
+  @Override
+  public DataTypes getDataTypes() {
+    return dataTypes;
+  }
+
   @Override
   public ProcessDefinitionBuilder newProcessDefinition() {
     return new ProcessDefinitionImpl(this);
@@ -127,17 +132,17 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
 
   @Override
   public StartBuilderImpl newStart() {
-    return new StartBuilderImpl(this);
+    return new StartBuilderImpl(this, jsonService);
   }
 
   @Override
   public MessageBuilder newMessage() {
-    return new MessageImpl(this);
+    return new MessageImpl(this, jsonService);
   }
 
   @Override
   public ProcessInstanceQueryImpl newProcessInstanceQuery() {
-    throw new RuntimeException("TODO");
+    return new ProcessInstanceQueryImpl(workflowInstanceStore);
   }
 
   /// Process Definition Builder 
@@ -157,22 +162,15 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
     response.setIssues(issues);
     
     if (!issues.hasErrors()) {
-      processDefinition.id = createProcessDefinitionId(processDefinition);
+      processDefinition.id = workflowStore.createProcessDefinitionId(processDefinition);
       response.setProcessDefinitionId(processDefinition.id); 
-      insertProcessDefinition(processDefinition);
+      workflowStore.insertProcessDefinition(processDefinition);
       processDefinitionCache.put(processDefinition);
     }
     
     return response;
   }
   
-  public ProcessEngineProfile getProcessEngineProfile() {
-    ProcessEngineProfile processEngineProfile = new ProcessEngineProfile();
-    processEngineProfile.activityDescriptors = getService(ActivityTypeService.class).descriptors;
-    processEngineProfile.dataTypeDescriptors = getService(DataTypeService.class).descriptors;
-    return processEngineProfile;
-  }
-
   public ProcessInstance startProcessInstance(StartBuilderImpl start) {
     ProcessDefinitionImpl processDefinition = newProcessDefinitionQuery()
       .representation(Representation.EXECUTABLE)
@@ -201,7 +199,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
     lock.setTime(Time.now());
     lock.setOwner(getId());
     processInstance.setLock(lock);
-    insertProcessInstance(processInstance);
+    workflowInstanceStore.insertProcessInstance(processInstance);
     processInstance.executeOperations();
     return processInstance;
   }
@@ -228,7 +226,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
     long attempts = 0;
     long maxAttempts = 4;
     long backofFactor = 5;
-    ProcessInstanceImpl processInstance = lockProcessInstance(query);
+    ProcessInstanceImpl processInstance = workflowInstanceStore.lockProcessInstance(query);
     while ( processInstance==null 
             && attempts <= maxAttempts ) {
       try {
@@ -239,7 +237,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
       }
       wait = wait * backofFactor;
       attempts++;
-      processInstance = lockProcessInstance(query);
+      processInstance = workflowInstanceStore.lockProcessInstance(query);
     }
     if (processInstance==null) {
       throw new RuntimeException("Couldn't lock process instance with "+query);
@@ -247,11 +245,6 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
     return processInstance;
   }
 
-  
-  /** ensures that every element in this process definition has an id */
-  protected String createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
-    return UUID.randomUUID().toString();
-  }
   
   private void setVariableApiValues(ScopeInstanceImpl scopeInstance, VariableRequestImpl variableRequest) {
     ProcessDefinitionImpl processDefinition = scopeInstance.processDefinition;
@@ -279,7 +272,7 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
         return Lists.of(cachedProcessDefinition);
       }
     }
-    List<ProcessDefinitionImpl> result = loadProcessDefinitions(query);
+    List<ProcessDefinitionImpl> result = workflowStore.loadProcessDefinitions(query);
     if (Representation.EXECUTABLE==query.representation) {
       for (ProcessDefinitionImpl processDefinition: result) {
         ProcessDefinitionValidator validator = new ProcessDefinitionValidator(this);
@@ -291,25 +284,18 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
   }
 
   protected ProcessInstanceImpl createProcessInstance(ProcessDefinitionImpl processDefinition) {
-    return new ProcessInstanceImpl(this, processDefinition, createProcessInstanceId(processDefinition));
+    String processInstanceId = workflowInstanceStore.createProcessInstanceId(processDefinition);
+    return new ProcessInstanceImpl(this, processDefinition, processInstanceId);
   }
 
-  protected String createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
-    return UUID.randomUUID().toString();
-  }
-  
   /** instantiates and assign an id.
    * parent and activityDefinition are only passed for reference.  
    * Apart from choosing the activity instance class to instantiate and assigning the id,
    * this method does not need to link the parent or the activityDefinition. */
   public ActivityInstanceImpl createActivityInstance(ScopeInstanceImpl parent, ActivityDefinitionImpl activityDefinition) {
     ActivityInstanceImpl activityInstance = new ActivityInstanceImpl();
-    activityInstance.id = createActivityInstanceId();
+    activityInstance.id = workflowInstanceStore.createActivityInstanceId();
     return activityInstance;
-  }
-
-  protected String createActivityInstanceId() {
-    return UUID.randomUUID().toString();
   }
 
   /** instantiates and assign an id.
@@ -318,33 +304,35 @@ public abstract class ProcessEngineImpl implements ProcessEngine, ServiceRegistr
    * this method does not need to link the parent or variableDefinition. */
   public VariableInstanceImpl createVariableInstance(ScopeInstanceImpl parent, VariableDefinitionImpl variableDefinition) {
     VariableInstanceImpl variableInstance = new VariableInstanceImpl();
-    variableInstance.id = createVariableInstanceId();
+    variableInstance.id = workflowInstanceStore.createVariableInstanceId();
     return variableInstance;
-  }
-
-  protected String createVariableInstanceId() {
-    return UUID.randomUUID().toString();
   }
 
   public String getId() {
     return id;
   }
+
+  public ServiceRegistry getServiceRegistry() {
+    return serviceRegistry;
+  }
   
-  /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
-  public abstract void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
+  public JsonService getJsonService() {
+    return jsonService;
+  }
+  
+  public ExecutorService getExecutorService() {
+    return executorService;
+  }
 
-  public abstract List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl processDefinitionQuery);
+  public ProcessDefinitionCache getProcessDefinitionCache() {
+    return processDefinitionCache;
+  }
 
-  public abstract List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQuery);
-
-  public abstract ProcessInstanceImpl lockProcessInstance(ProcessInstanceQueryImpl processInstance);
-
-  public abstract void insertProcessInstance(ProcessInstanceImpl processInstance);
-
-  public abstract ProcessInstanceImpl findProcessInstanceById(String processInstanceId);
-
-  public abstract void flush(ProcessInstanceImpl processInstance);
-
-  public abstract void flushAndUnlock(ProcessInstanceImpl processInstance);
-
+  public WorkflowStore getWorkflowStore() {
+    return workflowStore;
+  }
+  
+  public WorkflowInstanceStore getWorkflowInstanceStore() {
+    return workflowInstanceStore;
+  }
 }

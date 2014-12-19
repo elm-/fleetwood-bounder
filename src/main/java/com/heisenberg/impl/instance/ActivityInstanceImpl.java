@@ -32,8 +32,8 @@ import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.impl.plugin.DataTypeService;
-import com.heisenberg.plugin.ActivityTypes;
+import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.plugin.ServiceRegistry;
 import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
@@ -182,7 +182,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
 
   public StartBuilder newSubprocessStart(String subprocessId) {
-    StartBuilderImpl start = new StartBuilderImpl(processEngine);
+    JsonService jsonService = processEngine.getServiceRegistry().getService(JsonService.class);
+    StartBuilderImpl start = new StartBuilderImpl(processEngine, jsonService);
     start.processDefinitionId = subprocessId;
     start.callerProcessInstanceId = processInstance.id;
     start.callerActivityInstanceId = id;
@@ -195,5 +196,10 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   
   public String getCalledProcessInstanceId() {
     return calledProcessInstanceId;
+  }
+
+  @Override
+  public ServiceRegistry getServiceRegistry() {
+    return processEngine.getServiceRegistry();
   }
 }

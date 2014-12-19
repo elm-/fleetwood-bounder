@@ -24,13 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
-import com.heisenberg.plugin.DataTypes;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.ControllableActivityInstance;
 import com.heisenberg.plugin.activities.Label;
@@ -47,7 +47,7 @@ public class ScriptTest {
   public void testScript() {
     ProcessEngine processEngine = new ProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
-      .registerSingletonActivityType(new ScriptActivity())
+      .registerActivityType(new ScriptActivity())
       .buildProcessEngine();
 
     DataTypes dataTypes = processEngine.getDataTypes();
@@ -86,7 +86,7 @@ public class ScriptTest {
   public static class ScriptActivity extends AbstractActivityType {
     @Override
     public void start(ControllableActivityInstance activityInstance) {
-      ScriptService scriptService = activityInstance.getServiceLocator().getScriptService();
+      ScriptService scriptService = activityInstance.getServiceRegistry().getService(ScriptService.class);
       Script script = scriptService.compile(
              // Each variable is automatically available with it's variableDefinitionName
              // Individual fields (and on Rhino also properties) can be dereferenced

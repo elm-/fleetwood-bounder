@@ -17,7 +17,6 @@ package com.heisenberg.plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.util.Exceptions;
 
@@ -25,11 +24,11 @@ import com.heisenberg.impl.util.Exceptions;
 /**
  * @author Walter White
  */
-public class ProcessEngineProfileSender {
+public class DescriptorSender {
   
-  public static final Logger log = LoggerFactory.getLogger(ProcessEngineProfileSender.class);
+  public static final Logger log = LoggerFactory.getLogger(DescriptorSender.class);
 
-  protected ProcessEngineProfile processEngineProfile;
+  protected Descriptors descriptors;
   protected JsonService jsonService;
   protected String authenticationToken;
   protected String authenticationUsername;
@@ -39,47 +38,50 @@ public class ProcessEngineProfileSender {
   protected Integer port;
   protected String organizationKey;
 
-  public ProcessEngineProfileSender(ProcessEngineImpl processEngine) {
-    this.processEngineProfile = processEngine.getProcessEngineProfile();
-    this.jsonService = processEngine.getService(JsonService.class);
+  public DescriptorSender() {
   }
-  
+
+  public DescriptorSender(Descriptors descriptors, JsonService jsonService) {
+    this.descriptors = descriptors;
+    this.jsonService = jsonService;
+  }
+
   public String send() {
     // TODO add HTTP
     log.debug("Sending process profile over HTTP to the process builder:");
     log.debug(">>> PUT "+getUrl());
     // TODO send over HTTP to the server
-    log.debug(">>> "+jsonService.objectToJsonStringPretty(processEngineProfile));
+    log.debug(">>> "+jsonService.objectToJsonStringPretty(descriptors));
     return "the http response, which is hopefully 200 OK";
   }
   
-  public ProcessEngineProfileSender authenticationToken(String authenticationToken) {
+  public DescriptorSender authenticationToken(String authenticationToken) {
     this.authenticationToken = authenticationToken;
     return this;
   }
   
-  public ProcessEngineProfileSender authentication(String username, String password) {
+  public DescriptorSender authentication(String username, String password) {
     this.authenticationUsername = username;
     this.authenticationPassword = password;
     return this;
   }
 
-  public ProcessEngineProfileSender scheme(String scheme) {
+  public DescriptorSender scheme(String scheme) {
     this.scheme = scheme;
     return this;
   }
   
-  public ProcessEngineProfileSender server(String server) {
+  public DescriptorSender server(String server) {
     this.server = server;
     return this;
   }
   
-  public ProcessEngineProfileSender port(Integer port) {
+  public DescriptorSender port(Integer port) {
     this.port = port;
     return this;
   }
   
-  public ProcessEngineProfileSender organizationKey(String organizationKey) {
+  public DescriptorSender organizationKey(String organizationKey) {
     this.organizationKey = organizationKey;
     return this;
   }

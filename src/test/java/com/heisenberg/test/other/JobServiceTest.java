@@ -29,10 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.impl.ExecutorService;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.job.AbstractJobType;
 import com.heisenberg.impl.job.JobController;
@@ -49,7 +49,7 @@ public class JobServiceTest {
   
   public static final Logger log = LoggerFactory.getLogger(JobServiceTest.class);
 
-  protected ProcessEngine processEngine;
+  protected ProcessEngineImpl processEngine;
   protected JobService jobService;
 
   public JobServiceTest() {
@@ -58,7 +58,7 @@ public class JobServiceTest {
 
   public void initialize() {
     initializeProcessEngine();
-    this.jobService = processEngine.getJobService();
+    this.jobService = processEngine.getServiceRegistry().getService(JobService.class);
     JobServiceImpl jobServiceImpl = (JobServiceImpl) jobService;
     // let's skip starting any threads
     jobServiceImpl.isRunning = true;

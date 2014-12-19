@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.mongo.MongoProcessEngine;
 import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.mongo.MongoProcessInstances;
 
 
 /**
@@ -28,16 +29,16 @@ public class MeasuringMongoProcessEngine extends MongoProcessEngine {
   
   public static final Logger log = LoggerFactory.getLogger(MeasuringMongoProcessEngine.class);
   
+  MeasuringProcessInstances measuringProcessInstances;
+  
   public MeasuringMongoProcessEngine(MongoProcessEngineConfiguration mongoConfiguration) {
     super(mongoConfiguration);
-    this.processInstances = new MeasuringProcessInstances(this, db, mongoConfiguration);
+    MongoProcessInstances mongoProcessInstances = serviceRegistry.getService(MongoProcessInstances.class);
+    this.measuringProcessInstances = new MeasuringProcessInstances(mongoProcessInstances);
+    serviceRegistry.registerService(measuringProcessInstances);
   }
 
   public void logReport(int i, long testStartMillis) {
-    ((MeasuringProcessInstances)this.processInstances).logReport(i, testStartMillis);
+    measuringProcessInstances.logReport(i, testStartMillis);
   }
-
-//  @Override
-//  public void flush(ProcessInstanceImpl processInstance) {
-//  }
 }

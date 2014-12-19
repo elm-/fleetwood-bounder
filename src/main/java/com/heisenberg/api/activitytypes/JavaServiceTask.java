@@ -12,22 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.api.activitytypes;
 
-import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
-/**
+
+/** Invokes another process.
+ * 
  * @author Walter White
  */
-public abstract class ServiceTask extends AbstractActivityType {
+@JsonTypeName("javaServiceTask")
+public class JavaServiceTask extends ServiceTask {
 
   @Override
-  public void start(ControllableActivityInstance activityInstance) {
-    invokeService(activityInstance);
-    activityInstance.onwards();
+  public void invokeService(ControllableActivityInstance activityInstance) {
   }
-  
-  public abstract void invokeService(ControllableActivityInstance activityInstance);
 }

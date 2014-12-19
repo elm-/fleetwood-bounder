@@ -25,13 +25,13 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
  */
 public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
 
-  public ProcessEngineImpl processEngine;
+  public WorkflowInstanceStore workflowInstanceStore;
   public String processInstanceId;
   public String activityInstanceId;
   public Integer maxResults;
   
-  public ProcessInstanceQueryImpl(ProcessEngineImpl processEngine) {
-    this.processEngine = processEngine;
+  public ProcessInstanceQueryImpl(WorkflowInstanceStore workflowInstanceStore) {
+    this.workflowInstanceStore = workflowInstanceStore;
   }
 
   public ProcessInstanceQueryImpl processInstanceId(String processInstanceId) {
@@ -78,6 +78,6 @@ public class ProcessInstanceQueryImpl implements ProcessInstanceQuery {
   }
 
   public List<ProcessInstanceImpl> asList() {
-    return processEngine.findProcessInstances(this);
+    return workflowInstanceStore.findProcessInstances(this);
   }
 }

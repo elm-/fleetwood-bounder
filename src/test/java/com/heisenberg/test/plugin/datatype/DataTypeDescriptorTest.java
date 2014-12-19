@@ -24,6 +24,7 @@ import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.AbstractDataType;
 import com.heisenberg.impl.type.InvalidValueException;
+import com.heisenberg.plugin.Descriptors;
 import com.heisenberg.plugin.activities.ConfigurationField;
 import com.heisenberg.plugin.activities.Label;
 import com.heisenberg.test.plugin.activitytype.ActivityTypeDescriptorTest;
@@ -40,12 +41,12 @@ public class DataTypeDescriptorTest {
   public void testDataTypeDescriptors() {
     ProcessEngineImpl processEngine = (ProcessEngineImpl) new ProcessEngineConfiguration()
       .registerJavaBeanType(Money.class)
-      .registerConfigurableDataType(new InvoiceType())
+      .registerDataType(new InvoiceType())
       .buildProcessEngine();
 
     JsonService jsonService = processEngine.getJsonService();
     log.debug("Data type descriptors:");
-    log.debug(jsonService.objectToJsonStringPretty(processEngine.dataTypeService.descriptors));
+    log.debug(jsonService.objectToJsonStringPretty(processEngine.getServiceRegistry().getService(Descriptors.class).activityTypeDescriptors));
   }
 
   static class Money {

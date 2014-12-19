@@ -18,7 +18,6 @@ import javax.ws.rs.ext.ContextResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.json.JsonService;
 
 
 /**
@@ -34,8 +33,7 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
   @Override
   public ObjectMapper getContext(Class< ? > type) {
-    JsonService jsonService = (JsonService) processEngine.jsonService;
-    return jsonService.objectMapper;
+    return processEngine.getServiceRegistry().getService(ObjectMapper.class);
   }
   
   

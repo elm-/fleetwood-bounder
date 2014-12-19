@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.bpmn.EndEvent;
-import com.heisenberg.api.activities.bpmn.StartEvent;
+import com.heisenberg.api.activitytypes.EndEvent;
+import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.memory.MemoryProcessEngine;
 

@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
-
-import java.util.List;
+package com.heisenberg.api.activitytypes;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.plugin.Validator;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
@@ -26,25 +22,13 @@ import com.heisenberg.plugin.activities.ControllableActivityInstance;
 /**
  * @author Walter White
  */
-@JsonTypeName("embeddedSubprocess")
-public class EmbeddedSubprocess extends AbstractActivityType {
+@JsonTypeName("startEvent")
+public class StartEvent extends AbstractActivityType {
 
-  public static final EmbeddedSubprocess INSTANCE = new EmbeddedSubprocess();
-  
-  @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    activityDefinition.initializeStartActivities(validator);
-  }
+  public static final StartEvent INSTANCE = new StartEvent();
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    List<ActivityDefinition> startActivities = activityInstance.getActivityDefinition().getStartActivities();
-    if (startActivities!=null && !startActivities.isEmpty()) {
-      for (ActivityDefinition startActivity: startActivities) {
-        activityInstance.start(startActivity);
-      }
-    } else {
-      activityInstance.onwards();
-    }
+    activityInstance.onwards();
   }
 }

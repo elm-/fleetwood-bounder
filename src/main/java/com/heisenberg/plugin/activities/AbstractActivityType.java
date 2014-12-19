@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.plugin.ActivityTypeService;
+import com.heisenberg.plugin.Descriptors;
 import com.heisenberg.plugin.TypeField;
 import com.heisenberg.plugin.Validator;
 
@@ -53,7 +53,7 @@ public abstract class AbstractActivityType implements ActivityType {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    ActivityTypeService activityTypeService = (ActivityTypeService) validator.getService(ActivityTypeService);
+    Descriptors activityTypeService = validator.getServiceRegistry().getService(Descriptors.class);
     List<TypeField> configurationFields = activityTypeService.getConfigurationFields(this);
     if (configurationFields!=null) {
       for (TypeField typeField : configurationFields) {

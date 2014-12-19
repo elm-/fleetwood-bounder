@@ -14,11 +14,8 @@
  */
 package com.heisenberg.test.load;
 
-import com.heisenberg.mongo.MongoProcessEngine;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
 import com.heisenberg.mongo.MongoProcessInstances;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
@@ -58,8 +55,14 @@ public class MeasuringProcessInstances extends MongoProcessInstances {
     findAndModifyMillis += millis;
   }
 
-  public MeasuringProcessInstances(MongoProcessEngine processEngine, DB db, MongoProcessEngineConfiguration mongoConfiguration) {
-    super(processEngine, db, mongoConfiguration);
+  public MeasuringProcessInstances(MongoProcessInstances mongoProcessInstances) {
+    this.dbCollection = mongoProcessInstances.getDbCollection();
+    this.isPretty = mongoProcessInstances.isPretty(); 
+    this.processEngine = mongoProcessInstances.getProcessEngine();
+    this.fields = mongoProcessInstances.getFields();
+    this.updateConverters = mongoProcessInstances.getUpdateConverters();
+    this.writeConcernStoreProcessInstance = mongoProcessInstances.getWriteConcernStoreProcessInstance();
+    this.writeConcernFlushUpdates = mongoProcessInstances.getWriteConcernFlushUpdates();
   }
 
   @Override

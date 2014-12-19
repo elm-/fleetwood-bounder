@@ -12,26 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.api.activitytypes;
 
-import com.heisenberg.plugin.activities.Binding;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
+
 
 
 /**
  * @author Walter White
  */
-public class CallMapping {
-  
-  protected Binding<Object> sourceBinding;
-  protected String destinationVariableId;
+@JsonTypeName("httpServiceTask")
+public class HttpServiceTask extends ServiceTask {
 
-  public CallMapping sourceBinding(Binding<Object> sourceBinding) {
-    this.sourceBinding = sourceBinding;
-    return this;
-  }
-
-  public CallMapping destinationVariableId(String destinationVariableId) {
-    this.destinationVariableId = destinationVariableId;
-    return this;
+  @Override
+  public void invokeService(ControllableActivityInstance activityInstance) {
   }
 }

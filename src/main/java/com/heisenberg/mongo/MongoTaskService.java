@@ -12,21 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.mongo;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.api.task.Task;
+import com.heisenberg.api.task.TaskService;
 
 
-
-/** Invokes another process.
- * 
+/**
  * @author Walter White
  */
-@JsonTypeName("javaServiceTask")
-public class JavaServiceTask extends ServiceTask {
+public class MongoTaskService implements TaskService {
+
 
   @Override
-  public void invokeService(ControllableActivityInstance activityInstance) {
+  public Task newTask() {
+    return null;
+  }
+
+  @Override
+  public void save(Task task) {
   }
 }

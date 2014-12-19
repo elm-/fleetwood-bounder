@@ -14,26 +14,15 @@
  */
 package com.heisenberg.mongo;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.impl.ProcessDefinitionQueryImpl;
+import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.ProcessInstanceQueryImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.engine.operation.NotifyEndOperation;
-import com.heisenberg.impl.engine.operation.Operation;
-import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
-import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
-import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
-import com.heisenberg.impl.engine.updates.Update;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.mongodb.BasicDBObject;
+import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.memory.MemoryTaskService;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 
 
@@ -48,148 +37,77 @@ public class MongoProcessEngine extends ProcessEngineImpl {
   
   protected DB db;
 
-  protected MongoProcessDefinitions processDefinitions;
-  protected MongoProcessInstances processInstances;
-  protected MongoJobService jobService;
-  protected MongoUpdateConverters updateConverters;
+  public MongoProcessEngine() {
+    this(new MongoProcessEngineConfiguration());
+  }
   
-  public MongoProcessEngine(MongoProcessEngineConfiguration mongoDbConfiguration) {
-    super(mongoDbConfiguration);
-    MongoClient mongoClient = new MongoClient(
-            mongoDbConfiguration.getServerAddresses(), 
-            mongoDbConfiguration.getCredentials(), 
-            mongoDbConfiguration.getOptionBuilder().build());
+  public MongoProcessEngine(MongoProcessEngineConfiguration configuration) {
+    super(configuration);
+  }
+  
+  @Override
+  protected void initializeStorageServices(ProcessEngineConfiguration cfg) {
+    MongoProcessEngineConfiguration configuration = (MongoProcessEngineConfiguration) cfg;
+    JsonService jsonService = serviceRegistry.getService(JsonService.class);
     
-    this.db = mongoClient.getDB(mongoDbConfiguration.getDatabaseName());
-    this.processDefinitions = new MongoProcessDefinitions(this, db, mongoDbConfiguration);
-    this.processInstances = new MongoProcessInstances(this, db, mongoDbConfiguration);
-    this.updateConverters = new MongoUpdateConverters(jsonService);
-    this.jobService = (MongoJobService) super.jobService;
-    this.jobService.initialize(this, db, mongoDbConfiguration);
-  }
-  
-  @Override
-  protected String createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
-    return new ObjectId().toString();
-  }
-  
-  @Override
-  protected String createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
-    return new ObjectId().toString();
-  }
+    MongoClient mongoClient = new MongoClient(
+            configuration.getServerAddresses(), 
+            configuration.getCredentials(), 
+            configuration.getOptionBuilder().build());
+    
+    this.db = mongoClient.getDB(configuration.getDatabaseName());
+    configuration.registerService(db);
 
-  @Override
-  protected String createActivityInstanceId() {
-    return new ObjectId().toString();
-  }
+    boolean isPretty = configuration.isPretty();
 
-  @Override
-  protected String createVariableInstanceId() {
-    return new ObjectId().toString();
-  }
+    MongoProcessDefinitions processDefinitions = new MongoProcessDefinitions(serviceRegistry);
+    DBCollection processDefinitionDbCollection = db.getCollection(configuration.getProcessDefinitionsCollectionName());
+    processDefinitions.dbCollection = processDefinitionDbCollection;
+    processDefinitions.isPretty = isPretty;
+    processDefinitions.fields = configuration.getProcessDefinitionFields();
+    processDefinitions.writeConcernInsertProcessDefinition = processDefinitions.getWriteConcern(configuration.getWriteConcernInsertProcessDefinition());
+    configuration.registerService(processDefinitions);
 
-  @Override
-  public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    processDefinitions.insertProcessDefinition(processDefinition);
-  }
-  
-  @Override
-  public void insertProcessInstance(ProcessInstanceImpl processInstance) {
-    processInstances.insertProcessInstance(processInstance);
-  }
+    MongoUpdateConverters mongoUpdateConverters = new MongoUpdateConverters(serviceRegistry);
+    mongoUpdateConverters.jsonService = jsonService;
+    configuration.registerService(mongoUpdateConverters);
 
+    MongoProcessInstances processInstances = new MongoProcessInstances(serviceRegistry);
+    DBCollection processInstancesDbCollection = db.getCollection(configuration.getProcessInstancesCollectionName());
+    processInstances.processEngine = this;
+    processInstances.dbCollection = processInstancesDbCollection;
+    processInstances.isPretty = isPretty;
+    processInstances.fields = configuration.getProcessInstanceFields();
+    processInstances.dbCollection = db.getCollection("processInstances");
+    processInstances.writeConcernStoreProcessInstance = processInstances.getWriteConcern(configuration.getWriteConcernInsertProcessInstance());
+    processInstances.writeConcernFlushUpdates = processInstances.getWriteConcern(configuration.getWriteConcernFlushUpdates());
+    processInstances.updateConverters = mongoUpdateConverters;
+    configuration.registerService(processInstances);
 
-  @Override
-  public ProcessInstanceImpl findProcessInstanceById(String processInstanceId) {
-    return processInstances.findProcessInstanceById(processInstanceId);
+    // TODO
+    // MongoTaskService mongoTaskService = new MongoTaskService();
+    configuration.registerService(new MemoryTaskService());
+    
+    MongoJobs mongoJobs = new MongoJobs(serviceRegistry);
+    DBCollection jobsDbCollection = db.getCollection(configuration.getJobsCollectionName());
+    mongoJobs.dbCollection = jobsDbCollection;
+    mongoJobs.isPretty = configuration.isPretty();
+    mongoJobs.fields = configuration.getJobFields();
+    mongoJobs.writeConcernJobs = mongoJobs.getWriteConcern(configuration.getWriteConcernJobs());
+    mongoJobs.lockOwner = configuration.getId();
+    mongoJobs.jsonService = jsonService;
+    configuration.registerService(mongoJobs);
+
+    MongoJobService mongoJobService = new MongoJobService(serviceRegistry);
+    mongoJobService.jobs = mongoJobs;
+    configuration.registerService(mongoJobService);
   }
-
-  @Override
-  public void flush(ProcessInstanceImpl processInstance) {
-    List<Update> updates = processInstance.getUpdates();
-    if (updates!=null) {
-      List<BasicDBObject> dbUpdates = new ArrayList<>(); 
-      for (Update update : updates) {
-        BasicDBObject dbUpdate = updateConverters.toDbUpdate(update);
-        if (dbUpdate!=null) {
-          dbUpdates.add(dbUpdate);
-        }
-      }
-      processInstances.flushUpdates(processInstance.id, processInstance.lock, dbUpdates);
-      // After the first and all subsequent flushes, we need to capture the updates so we initialize the collection
-      // @see ProcessInstanceImpl.updates
-      processInstance.setUpdates(new ArrayList<Update>());
-    } else {
-      // As long as the process instance is not saved, the updates collection is null.
-      // That means it's not yet necessary to collect the updates. 
-      // @see ProcessInstanceImpl.updates
-      log.debug("Just saved, no flush needed");
-      // The operations in the process instance will not be serialized.
-      // When the process instance starts, the first activity instance operations 
-      // will be not added to the updates because updates==null.  Therefore, we 
-      // convert them here to updates.  After this method, all further operations 
-      // will be recorded normally because updates!=null.
-      updates = new ArrayList<Update>();
-      if (processInstance.operations!=null) {
-        for (Operation operation: processInstance.operations) {
-          if (operation instanceof StartActivityInstanceOperation) {
-            updates.add(new OperationAddStartUpdate(operation.activityInstance));
-          } else if (operation instanceof NotifyEndOperation) {
-            updates.add(new OperationAddNotifyEndUpdate(operation.activityInstance));
-          } else {
-            throw new RuntimeException("Unsupported operation type: "+operation.getClass().getName());
-          }
-        }
-      }
-      processInstance.setUpdates(updates);
-    }
-  }
-
-  @Override
-  public void flushAndUnlock(ProcessInstanceImpl processInstance) {
-    processInstance.lock = null;
-    BasicDBObject dbProcessInstance = processInstances.writeProcessInstance(processInstance);
-    processInstances.saveProcessInstance(dbProcessInstance);
-    processInstance.setUpdates(new ArrayList<Update>());
-  }
-
-  @Override
-  public ProcessInstanceImpl lockProcessInstance(ProcessInstanceQueryImpl processInstanceQuery) {
-    return processInstances.lockProcessInstance(processInstanceQuery);
-  }
-
-  @Override
-  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQueryImpl) {
-    return null;
-  }
-
-  @Override
-  public List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl query) {
-    return processDefinitions.findProcessDefinitions(query);
-  }
-
-  
-  public static Logger getDblog() {
-    return dbLog;
-  }
-
   
   public DB getDb() {
     return db;
   }
-
   
-  public MongoProcessDefinitions getProcessDefinitions() {
-    return processDefinitions;
-  }
-
-  
-  public MongoProcessInstances getProcessInstances() {
-    return processInstances;
-  }
-
-  
-  public MongoJobService getJobService() {
-    return jobService;
+  public void setDb(DB db) {
+    this.db = db;
   }
 }

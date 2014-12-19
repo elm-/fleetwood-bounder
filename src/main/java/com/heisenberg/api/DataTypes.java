@@ -12,19 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.plugin;
+package com.heisenberg.api;
 
-import java.util.List;
+import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.NumberType;
+import com.heisenberg.impl.type.TextType;
 
 
 /**
  * @author Walter White
  */
-public class ProcessEngineProfile {
+public interface DataTypes {
 
-  protected List<TypeDescriptor> activityDescriptors;
-  protected List<TypeDescriptor> dataTypeDescriptors;
-  protected List<TypeDescriptor> dataSourceDescriptors;
-  protected List<TypeDescriptor> triggerDescriptors;
-  
+  TextType TEXT = new TextType();
+  NumberType NUMBER = new NumberType();
+
+  /** create a list data type from the element data type used to set in {@link #dataType(DataType)} */
+  DataType list(DataType elementDataType);
+  /** create a javabean data type used to set in {@link #dataType(DataType)} */
+  DataType javaBean(Class<?> javaBeanClass);
 }

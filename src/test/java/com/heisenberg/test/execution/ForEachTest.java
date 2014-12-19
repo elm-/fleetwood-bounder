@@ -16,13 +16,13 @@ package com.heisenberg.test.execution;
 
 import org.junit.Test;
 
-import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.DataTypes;
+import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.impl.plugin.DataTypeService;
 import com.heisenberg.impl.util.Lists;
 import com.heisenberg.memory.MemoryProcessEngine;
-import com.heisenberg.plugin.DataTypes;
+import com.heisenberg.plugin.Descriptors;
 import com.heisenberg.test.TestHelper;
 
 
@@ -35,7 +35,7 @@ public class ForEachTest {
   public void testTask() throws Exception {
     MemoryProcessEngine processEngine = new MemoryProcessEngine();
     
-    DataTypeService dataTypes = processEngine.getDataTypes();
+    DataTypes dataTypes = processEngine.getDataTypes();
     
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
     

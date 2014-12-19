@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.memory.MemoryProcessEngine;

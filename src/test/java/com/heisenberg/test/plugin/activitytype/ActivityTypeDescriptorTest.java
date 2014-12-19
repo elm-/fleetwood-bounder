@@ -21,7 +21,10 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.plugin.ProcessEngineProfileSender;
+import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.plugin.DescriptorSender;
+import com.heisenberg.plugin.Descriptors;
+import com.heisenberg.plugin.ServiceRegistry;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.Binding;
 import com.heisenberg.plugin.activities.ConfigurationField;
@@ -40,15 +43,16 @@ public class ActivityTypeDescriptorTest {
   @Test 
   public void testConfigurableActivityTypeDescriptor() {
     ProcessEngineImpl processEngine = (ProcessEngineImpl) new ProcessEngineConfiguration()
-      .registerConfigurableActivityType(new MyConfigurableActivityType())
-      .registerConfigurableActivityType(new MyBindingActivityType())
+      .registerActivityType(new MyConfigurableActivityType())
+      .registerActivityType(new MyBindingActivityType())
       .buildProcessEngine();
     
-    processEngine.getProfile();
-    
-    new ProcessEngineProfileSender(processEngine)
+    ServiceRegistry serviceRegistry = processEngine.getServiceRegistry();
+    Descriptors descriptors = serviceRegistry.getService(Descriptors.class);
+    JsonService jsonService = serviceRegistry.getService(JsonService.class);
+    new DescriptorSender(descriptors, jsonService)
       .organizationKey("myorg")
-      .update();
+      .send();
 //
 //    JsonService jsonService = processEngine.getJsonService();
 //    log.debug("Activity type descriptors:");

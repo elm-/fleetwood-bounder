@@ -24,7 +24,6 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -42,10 +41,6 @@ public class MongoCollection {
   protected DBCollection dbCollection;
   protected boolean isPretty; 
 
-  public MongoCollection(DB db, String collectionName) {
-    dbCollection = db.getCollection(collectionName);
-  }
-  
   public void writeId(BasicDBObject o, String fieldName, String value) {
     o.put(fieldName, new ObjectId(value));
   }
@@ -201,5 +196,10 @@ public class MongoCollection {
 
   public DBCollection getDbCollection() {
     return dbCollection;
+  }
+
+  
+  public boolean isPretty() {
+    return isPretty;
   }
 }

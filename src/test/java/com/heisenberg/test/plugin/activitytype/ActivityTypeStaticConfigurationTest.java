@@ -71,7 +71,7 @@ public class ActivityTypeStaticConfigurationTest {
   @Test 
   public void testConfigurableActivityTypeExecution() {
     ProcessEngine processEngine = new ProcessEngineConfiguration()
-      .registerConfigurableActivityType(new MyConfigurableActivityType())
+      .registerActivityType(new MyConfigurableActivityType())
       .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
@@ -104,7 +104,7 @@ public class ActivityTypeStaticConfigurationTest {
   @Test 
   public void testConfigurableActivityTypeSerialization() {
     ProcessEngine processEngine = new ProcessEngineConfiguration()
-    .registerConfigurableActivityType(new MyConfigurableActivityType())
+    .registerActivityType(new MyConfigurableActivityType())
     .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();

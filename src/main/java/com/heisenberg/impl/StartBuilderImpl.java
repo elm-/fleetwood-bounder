@@ -14,8 +14,10 @@
  */
 package com.heisenberg.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -26,6 +28,8 @@ import com.heisenberg.impl.type.DataType;
  */
 public class StartBuilderImpl extends VariableRequestImpl implements StartBuilder {
 
+  @JsonIgnore
+  public ProcessEngineImpl processEngine;
   public String processDefinitionId;
   public String processDefinitionName;
   public String callerProcessInstanceId;
@@ -34,8 +38,9 @@ public class StartBuilderImpl extends VariableRequestImpl implements StartBuilde
   public StartBuilderImpl() {
   }
 
-  public StartBuilderImpl(ProcessEngineImpl processEngine) {
-    super(processEngine);
+  public StartBuilderImpl(ProcessEngineImpl processEngine, JsonService jsonService) {
+    super(jsonService);
+    this.processEngine = processEngine;
   }
 
 

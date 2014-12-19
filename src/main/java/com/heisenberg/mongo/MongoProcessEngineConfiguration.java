@@ -18,15 +18,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.ProcessEngineConfiguration;
-import com.heisenberg.api.task.TaskService;
-import com.heisenberg.impl.ExecutorService;
-import com.heisenberg.impl.ProcessDefinitionCache;
-import com.heisenberg.impl.job.JobService;
-import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.impl.job.JobType;
+import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.util.Lists;
+import com.heisenberg.plugin.activities.ActivityType;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -120,7 +116,7 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
   protected String jobsCollectionName = "jobs";
   protected boolean isPretty = true;
   
-  public ProcessEngine buildProcessEngine() {
+  public MongoProcessEngine buildProcessEngine() {
     return new MongoProcessEngine(this);
   }
   
@@ -151,11 +147,6 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
     }
   }
   
-  @Override
-  public JobService createDefaultJobService() {
-    return new MongoJobService();
-  }
-
   public List<ServerAddress> getServerAddresses() {
     return serverAddresses!=null ? serverAddresses : DEFAULT_SERVER_ADDRESSES;
   }
@@ -227,47 +218,40 @@ public class MongoProcessEngineConfiguration extends ProcessEngineConfiguration 
     super.id(id);
     return this;
   }
-
+  
   @Override
-  public MongoProcessEngineConfiguration processDefinitionCache(ProcessDefinitionCache processDefinitionCache) {
-    super.processDefinitionCache(processDefinitionCache);
+  public MongoProcessEngineConfiguration registerService(Object service) {
+    super.registerService(service);
     return this;
   }
 
   @Override
-  public MongoProcessEngineConfiguration jsonService(JsonService jsonService) {
-    super.jsonService(jsonService);
+  public MongoProcessEngineConfiguration registerJavaBeanType(Class< ? > javaBeanType) {
+    super.registerJavaBeanType(javaBeanType);
     return this;
   }
 
   @Override
-  public MongoProcessEngineConfiguration taskService(TaskService taskService) {
-    super.taskService(taskService);
+  public MongoProcessEngineConfiguration registerActivityType(ActivityType activityType) {
+    super.registerActivityType(activityType);
     return this;
   }
 
   @Override
-  public MongoProcessEngineConfiguration scriptService(ScriptService scriptService) {
-    super.scriptService(scriptService);
+  public MongoProcessEngineConfiguration registerDataType(DataType dataType) {
+    super.registerDataType(dataType);
     return this;
   }
-
+  
   @Override
-  public MongoProcessEngineConfiguration executorService(ExecutorService executorService) {
-    super.executorService(executorService);
-    return this;
-  }
-
-  @Override
-  public MongoProcessEngineConfiguration registerJavaBeanType(Class< ? > javaBeanClass) {
-    super.registerJavaBeanType(javaBeanClass);
+  public MongoProcessEngineConfiguration registerJobType(Class< ? extends JobType> jobTypeClass) {
+    super.registerJobType(jobTypeClass);
     return this;
   }
 
   public void setServerAddresses(List<ServerAddress> serverAddresses) {
     this.serverAddresses = serverAddresses;
   }
-
   
   public String getDatabaseName() {
     return databaseName;

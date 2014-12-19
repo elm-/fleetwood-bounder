@@ -27,9 +27,9 @@ import com.heisenberg.impl.job.JobExecution;
 import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.job.Lock;
 import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.plugin.ServiceRegistry;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
@@ -40,18 +40,15 @@ import com.mongodb.WriteConcern;
  */
 public class MongoJobs extends MongoCollection {
 
-    protected MongoProcessEngineConfiguration.JobFields fields;
-    protected WriteConcern writeConcernJobs;
-    protected String lockOwner;
-    protected JsonService jsonService;
-  
-  public MongoJobs(MongoProcessEngine mongoProcessEngine, DB db, MongoProcessEngineConfiguration configuration) {
-    super(db, configuration.getJobsCollectionName());
-    this.fields = configuration.getJobFields();
-    this.writeConcernJobs = getWriteConcern(configuration.getWriteConcernJobs());
-    this.lockOwner = configuration.getId();
-    this.jsonService = mongoProcessEngine.jsonService;
-    this.isPretty = configuration.isPretty();
+  protected MongoProcessEngineConfiguration.JobFields fields;
+  protected WriteConcern writeConcernJobs;
+  protected String lockOwner;
+  protected JsonService jsonService;
+
+  public MongoJobs() {
+  }
+
+  public MongoJobs(ServiceRegistry serviceRegistry) {
   }
 
   public void saveJob(Job job) {

@@ -12,23 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.api.activitytypes;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
-
-/** Invokes another process.
- * 
+/**
  * @author Walter White
  */
-@JsonTypeName("emptyServiceTask")
-public class EmptyServiceTask extends ServiceTask {
-  
-  public static final EmptyServiceTask INSTANCE = new EmptyServiceTask();
+@JsonTypeName("endEvent")
+public class EndEvent extends AbstractActivityType {
+
+  public static final EndEvent INSTANCE = new EndEvent();
 
   @Override
-  public void invokeService(ControllableActivityInstance activityInstance) {
+  public void start(ControllableActivityInstance activityInstance) {
+    activityInstance.end();
   }
 }

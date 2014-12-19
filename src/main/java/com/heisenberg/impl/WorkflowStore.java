@@ -12,23 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.impl;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import java.util.List;
+
+import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 
 
 /**
  * @author Walter White
  */
-@JsonTypeName("endEvent")
-public class EndEvent extends AbstractActivityType {
+public interface WorkflowStore {
+  
+  String createProcessDefinitionId(ProcessDefinitionImpl processDefinition);
 
-  public static final EndEvent INSTANCE = new EndEvent();
+  /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
+  void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
 
-  @Override
-  public void start(ControllableActivityInstance activityInstance) {
-    activityInstance.end();
-  }
+  List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl processDefinitionQuery);
+
+
 }

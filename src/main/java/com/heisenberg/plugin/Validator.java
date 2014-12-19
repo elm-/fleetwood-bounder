@@ -22,10 +22,12 @@ package com.heisenberg.plugin;
 /**
  * @author Walter White
  */
-public interface Validator extends ServiceRegistry {
+public interface Validator {
 
   void addError(String message, Object... messageArgs);
 
   void addWarning(String message, Object... messageArgs);
-  
+
+  ServiceRegistry getServiceRegistry();
+
 }

@@ -14,11 +14,12 @@ import java.util.TimerTask;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Seconds;
 
-import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQueryImpl;
+import com.heisenberg.impl.WorkflowInstanceStore;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.plugin.ServiceRegistry;
 
 
 /**
@@ -29,6 +30,7 @@ public abstract class JobServiceImpl implements JobService {
   // private static final Logger log = LoggerFactory.getLogger(JobServiceImpl.class);
   
   public ProcessEngineImpl processEngine;
+  public ExecutorService executor = null;
 
   // configuration 
   public long checkInterval = 30 * 1000; // 30 seconds
@@ -36,23 +38,23 @@ public abstract class JobServiceImpl implements JobService {
 
   // runtime state
   public boolean isRunning = false;
-  public ExecutorService executor = null;
   public Timer timer = null;
   public Timer checkOtherJobsTimer = null;
   public JobServiceListener listener = null;
   
+  public JobServiceImpl() {
+  }
+
+  
+  public JobServiceImpl(ServiceRegistry serviceRegistry) {
+    this.processEngine = serviceRegistry.getService(ProcessEngineImpl.class);
+    this.executor = serviceRegistry.getService(ExecutorService.class);
+  }
+
   public Job newJob(JobType jobType) {
     return new Job(this, jobType);
   }
 
-  public void setExecutor(ExecutorService executor) {
-    this.executor = executor;
-  }
-  
-  public void setProcessEngine(ProcessEngine processEngine) {
-    this.processEngine = (ProcessEngineImpl) processEngine;
-  }
-  
   public void setListener(JobServiceListener listener) {
     this.listener = listener;
   }
@@ -108,6 +110,7 @@ public abstract class JobServiceImpl implements JobService {
   }
 
   public void checkProcessJobs() {
+    WorkflowInstanceStore workflowInstanceStore = processEngine.getWorkflowInstanceStore();
     Iterator<String> processInstanceIds = getProcessInstanceIdsToLockForJobs();
     while (isRunning 
            && processInstanceIds!=null 
@@ -115,7 +118,7 @@ public abstract class JobServiceImpl implements JobService {
       String processInstanceId = processInstanceIds.next();
       ProcessInstanceQueryImpl query = processEngine.newProcessInstanceQuery()
         .processInstanceId(processInstanceId);
-      ProcessInstanceImpl lockedProcessInstance = processEngine.lockProcessInstance(query);
+      ProcessInstanceImpl lockedProcessInstance = workflowInstanceStore.lockProcessInstance(query);
       boolean keepGoing = true;
       while (isRunning && keepGoing) {
         Job job = lockNextProcessJob(processInstanceId);
@@ -125,7 +128,7 @@ public abstract class JobServiceImpl implements JobService {
           keepGoing = false;
         }
       }
-      processEngine.flushAndUnlock(lockedProcessInstance);
+      workflowInstanceStore.flushAndUnlock(lockedProcessInstance);
     }
   }
   

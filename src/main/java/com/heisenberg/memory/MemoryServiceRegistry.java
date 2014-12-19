@@ -12,16 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.plugin;
+package com.heisenberg.memory;
 
+import com.heisenberg.impl.SimpleServiceRegistry;
 
 
 /**
  * @author Walter White
  */
-public interface ServiceRegistry {
+public class MemoryServiceRegistry extends SimpleServiceRegistry {
 
-  <T> T getService(Class<T> serviceClass);
-  
-  ServiceRegistry registerService(Object service);
 }

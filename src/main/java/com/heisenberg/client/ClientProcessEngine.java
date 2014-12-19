@@ -17,6 +17,7 @@ package com.heisenberg.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
@@ -75,6 +76,11 @@ public class ClientProcessEngine implements ProcessEngine /* implements ServiceL
 
   @Override
   public ProcessDefinitionQuery newProcessDefinitionQuery() {
+    return null;
+  }
+
+  @Override
+  public DataTypes getDataTypes() {
     return null;
   }
 }

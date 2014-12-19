@@ -12,18 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.api.activitytypes;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.script.CompiledScript;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.definition.TransitionDefinition;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.plugin.Validator;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
@@ -33,9 +35,17 @@ import com.heisenberg.plugin.activities.ControllableActivityInstance;
  */
 public class ExclusiveGateway extends AbstractActivityType {
 
+  @JsonIgnore
+  ScriptService scriptService;
   CompiledScript transitionIdExpression;
   Map<String,CompiledScript> transitionExpressions;
   
+  @Override
+  public void validate(ActivityDefinition activityDefinition, Validator validator) {
+    super.validate(activityDefinition, validator);
+    scriptService = validator.getServiceRegistry().getService(ScriptService.class);
+  }
+
   @Override
   public void start(ControllableActivityInstance activityInstance) {
     ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
@@ -73,7 +83,6 @@ public class ExclusiveGateway extends AbstractActivityType {
   protected boolean meetsCondition(TransitionDefinition outgoingTransition, ControllableActivityInstance activityInstance) {
     Script script = outgoingTransition.getConditionScript();
     if (script!=null) {
-      ScriptService scriptService = activityInstance.getScriptService();
       ScriptResult scriptResult = evaluateCondition(activityInstance, outgoingTransition, script, scriptService);
       if (Boolean.TRUE.equals(scriptResult.getResult())) {
         return true;

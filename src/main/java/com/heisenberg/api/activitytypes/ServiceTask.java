@@ -12,15 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.plugin;
+package com.heisenberg.api.activitytypes;
 
-import java.util.List;
+import com.heisenberg.plugin.activities.AbstractActivityType;
+import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 /**
  * @author Walter White
  */
-public interface ActivityTypes {
+public abstract class ServiceTask extends AbstractActivityType {
+
+  @Override
+  public void start(ControllableActivityInstance activityInstance) {
+    invokeService(activityInstance);
+    activityInstance.onwards();
+  }
   
-  List<TypeDescriptor> getDescriptors();
+  public abstract void invokeService(ControllableActivityInstance activityInstance);
 }

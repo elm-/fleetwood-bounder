@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import com.heisenberg.api.task.Task;
 import com.heisenberg.api.task.TaskService;
+import com.heisenberg.plugin.ServiceRegistry;
 
 
 /**
@@ -30,7 +31,14 @@ import com.heisenberg.api.task.TaskService;
  */
 public class MemoryTaskService implements TaskService {
   
-  Map<Object, TaskImpl> tasks = Collections.synchronizedMap(new LinkedHashMap<Object,TaskImpl>());
+  protected Map<Object, TaskImpl> tasks = Collections.synchronizedMap(new LinkedHashMap<Object,TaskImpl>());
+
+  public MemoryTaskService() {
+  }
+
+  public MemoryTaskService(ServiceRegistry serviceRegistry) {
+    this.tasks = Collections.synchronizedMap(new LinkedHashMap<Object,TaskImpl>());
+  }
 
   @Override
   public Task newTask() {

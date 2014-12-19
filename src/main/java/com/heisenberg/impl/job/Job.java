@@ -17,7 +17,7 @@ public class Job implements JobBuilder {
   
   // private static final Logger log = LoggerFactory.getLogger(Job.class);
 
-  public JobServiceImpl jobService;
+  public JobService jobService;
   public JobType jobType;
   
   public String id;
@@ -41,7 +41,7 @@ public class Job implements JobBuilder {
   public Job() {
   }
 
-  public Job(JobServiceImpl jobService, JobType jobType) {
+  public Job(JobService jobService, JobType jobType) {
     this.jobService = jobService;
     this.jobType = jobType;
   }

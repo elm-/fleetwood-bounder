@@ -23,25 +23,22 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 
 import com.heisenberg.api.builder.ProcessDefinitionQuery;
-import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.OrderBy;
 import com.heisenberg.impl.OrderByDirection;
 import com.heisenberg.impl.OrderByElement;
 import com.heisenberg.impl.ProcessDefinitionQueryImpl;
+import com.heisenberg.impl.WorkflowStore;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.TransitionDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.impl.plugin.ActivityTypeService;
-import com.heisenberg.impl.plugin.DataTypeService;
-import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
+import com.heisenberg.plugin.ServiceRegistry;
 import com.heisenberg.plugin.Validator;
 import com.heisenberg.plugin.activities.ActivityType;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
@@ -50,21 +47,61 @@ import com.mongodb.WriteConcern;
 /**
  * @author Walter White
  */
-public class MongoProcessDefinitions extends MongoCollection implements Validator {
+public class MongoProcessDefinitions extends MongoCollection implements WorkflowStore, Validator {
   
   public static final Logger log = MongoProcessEngine.log;
   
-  protected MongoProcessEngine processEngine;
+  protected ServiceRegistry serviceRegistry;
+  protected JsonService jsonService;
   protected MongoProcessEngineConfiguration.ProcessDefinitionFields fields;
   protected WriteConcern writeConcernInsertProcessDefinition;
-
-  public MongoProcessDefinitions(MongoProcessEngine processEngine, DB db, MongoProcessEngineConfiguration mongoConfiguration) {
-    super(db, mongoConfiguration.getProcessDefinitionsCollectionName());
-    this.processEngine = processEngine;
-    this.fields = mongoConfiguration.getProcessDefinitionFields();
-    this.writeConcernInsertProcessDefinition = getWriteConcern(mongoConfiguration.getWriteConcernInsertProcessDefinition());
-    this.isPretty = mongoConfiguration.isPretty();
+  
+  public MongoProcessDefinitions() {
   }
+
+  public MongoProcessDefinitions(ServiceRegistry serviceRegistry) {
+    this.serviceRegistry = serviceRegistry;
+    this.jsonService = serviceRegistry.getService(JsonService.class);
+  }
+
+  @Override
+  public String createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+    return new ObjectId().toString();
+  }
+  
+  @Override
+  public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
+    BasicDBObject dbProcessDefinition = writeProcessDefinition(processDefinition);
+    insert(dbProcessDefinition, writeConcernInsertProcessDefinition);
+  }
+  
+  @Override
+  public List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl query) {
+    BasicDBObject q = new BasicDBObject();
+    if (query.id!=null) {
+      q.append(fields._id, new ObjectId(query.id));
+    }
+    if (query.name!=null) {
+      q.append(fields.name, query.name);
+    }
+    List<ProcessDefinitionImpl> processes = new ArrayList<ProcessDefinitionImpl>();
+    DBCursor cursor = find(q);
+    if (query.limit!=null) {
+      cursor.limit(query.limit);
+    }
+    if (query.orderBy!=null) {
+      cursor.sort(writeOrderBy(query.orderBy));
+    }
+    while (cursor.hasNext()) {
+      BasicDBObject dbProcess = (BasicDBObject) cursor.next();
+      ProcessDefinitionImpl processDefinition = readProcessDefinition(dbProcess);
+      processes.add(processDefinition);
+    }
+    return processes;
+  }
+
+  
+
   
   public ProcessDefinitionImpl readProcessDefinition(BasicDBObject dbProcess) {
     ProcessDefinitionImpl process = new ProcessDefinitionImpl();
@@ -107,9 +144,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
         ActivityDefinitionImpl activity = new ActivityDefinitionImpl();
         activity.id = readString(dbActivity, fields._id);
         Map<String,Object> activityTypeJson = readObjectMap(dbActivity, fields.activityType);
-        activity.activityType = processEngine
-                .getJsonService()
-                .jsonMapToObject(activityTypeJson, ActivityType.class);
+        activity.activityType = jsonService.jsonMapToObject(activityTypeJson, ActivityType.class);
         readActivities(activity, dbActivity);
         readVariables(activity, dbActivity);
         readTransitions(activity, dbActivity);
@@ -126,9 +161,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
         dbObjectStack.push(dbActivity);
         writeString(dbActivity, fields._id, activity.id);
         
-        Map<String,Object> activityTypeJson = processEngine
-                .getJsonService()
-                .objectToJsonMap(activity.activityType);
+        Map<String,Object> activityTypeJson = jsonService.objectToJsonMap(activity.activityType);
         writeObjectOpt(dbActivity, fields.activityType, activityTypeJson);
         
         writeListElementOpt(dbParentScope, fields.activityDefinitions, dbActivity);
@@ -175,9 +208,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
         variable.id = readString(dbVariable, fields._id);
         
         Map<String,Object> dataTypeJson = readObjectMap(dbVariable, fields.dataType);
-        variable.dataType = processEngine
-                .getJsonService()
-                .jsonMapToObject(dataTypeJson, DataType.class);
+        variable.dataType = jsonService.jsonMapToObject(dataTypeJson, DataType.class);
 
         Object dbInitialValue = dbVariable.get(fields.initialValue);
         variable.initialValue = variable.dataType
@@ -195,9 +226,7 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
         BasicDBObject dbVariable = new BasicDBObject();
         writeString(dbVariable, fields._id, variable.id);
         
-        Map<String,Object> dataTypeJson = processEngine
-                .getJsonService()
-                .objectToJsonMap(variable.dataType);
+        Map<String,Object> dataTypeJson = jsonService.objectToJsonMap(variable.dataType);
         writeObjectOpt(dbVariable, fields.dataType, dataTypeJson);
 
         if (variable.initialValue!=null) {
@@ -221,65 +250,6 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     // warnings should be ignored during reading of process definition from db.
   }
   
-  public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
-    BasicDBObject dbProcessDefinition = writeProcessDefinition(processDefinition);
-    insert(dbProcessDefinition, writeConcernInsertProcessDefinition);
-  }
-
-  @Override
-  public JsonService getJsonService() {
-    return processEngine.getJsonService();
-  }
-
-  @Override
-  public ScriptService getScriptService() {
-    return processEngine.getScriptService();
-  }
-
-  @Override
-  public TaskService getTaskService() {
-    return processEngine.getTaskService();
-  }
-
-  @Override
-  public ActivityTypeService getActivityTypes() {
-    return processEngine.getActivityTypes();
-  }
-
-  @Override
-  public DataTypeService getDataTypes() {
-    return processEngine.getDataTypes();
-  }
-
-  @Override
-  public <T> T getService(Class<T> serviceClass) {
-    return processEngine.getService(serviceClass);
-  }
-
-  public List<ProcessDefinitionImpl> findProcessDefinitions(ProcessDefinitionQueryImpl query) {
-    BasicDBObject q = new BasicDBObject();
-    if (query.id!=null) {
-      q.append(fields._id, new ObjectId(query.id));
-    }
-    if (query.name!=null) {
-      q.append(fields.name, query.name);
-    }
-    List<ProcessDefinitionImpl> processes = new ArrayList<ProcessDefinitionImpl>();
-    DBCursor cursor = find(q);
-    if (query.limit!=null) {
-      cursor.limit(query.limit);
-    }
-    if (query.orderBy!=null) {
-      cursor.sort(writeOrderBy(query.orderBy));
-    }
-    while (cursor.hasNext()) {
-      BasicDBObject dbProcess = (BasicDBObject) cursor.next();
-      ProcessDefinitionImpl processDefinition = readProcessDefinition(dbProcess);
-      processes.add(processDefinition);
-    }
-    return processes;
-  }
-
   public DBObject writeOrderBy(OrderBy orderBy) {
     BasicDBObject dbOrderBy = new BasicDBObject();
     for (OrderByElement element: orderBy.orderByElements) {
@@ -296,6 +266,9 @@ public class MongoProcessDefinitions extends MongoCollection implements Validato
     }
     throw new RuntimeException("Unknown field "+field);
   }
-  
-  
+
+  @Override
+  public ServiceRegistry getServiceRegistry() {
+    return serviceRegistry;
+  }
 }

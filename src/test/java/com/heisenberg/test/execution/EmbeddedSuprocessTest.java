@@ -21,10 +21,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
-import com.heisenberg.api.activities.bpmn.EndEvent;
-import com.heisenberg.api.activities.bpmn.ScriptTask;
-import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
+import com.heisenberg.api.activitytypes.EndEvent;
+import com.heisenberg.api.activitytypes.ScriptTask;
+import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;

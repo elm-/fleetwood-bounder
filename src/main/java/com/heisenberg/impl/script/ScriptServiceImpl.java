@@ -23,6 +23,7 @@ import javax.script.ScriptException;
 
 import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
+import com.heisenberg.plugin.ServiceRegistry;
 
 
 /**
@@ -32,7 +33,14 @@ public class ScriptServiceImpl implements ScriptService {
 
   public static final String JAVASCRIPT = "JavaScript";
 
-  protected ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+  protected ScriptEngineManager scriptEngineManager;
+  
+  public ScriptServiceImpl() {
+  }
+
+  public ScriptServiceImpl(ServiceRegistry serviceRegistry) {
+    this.scriptEngineManager = serviceRegistry.getService(ScriptEngineManager.class);
+  }
 
   public Script compile(String script) {
     return compile(script, null);

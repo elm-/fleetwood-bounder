@@ -14,6 +14,7 @@
  */
 package com.heisenberg.mongo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,18 +24,25 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 
 import com.heisenberg.impl.ProcessDefinitionQueryImpl.Representation;
+import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.Time;
+import com.heisenberg.impl.WorkflowInstanceStore;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.engine.operation.NotifyEndOperation;
+import com.heisenberg.impl.engine.operation.Operation;
+import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
+import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
+import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
+import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
 import com.heisenberg.impl.instance.ProcessInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
+import com.heisenberg.plugin.ServiceRegistry;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 
@@ -42,32 +50,101 @@ import com.mongodb.WriteConcern;
 /**
  * @author Walter White
  */
-public class MongoProcessInstances extends MongoCollection {
+public class MongoProcessInstances extends MongoCollection implements WorkflowInstanceStore {
   
   public static final Logger log = MongoProcessEngine.log;
-  
-  protected MongoProcessEngine processEngine;
+
+  protected ProcessEngineImpl processEngine;
   protected MongoProcessEngineConfiguration.ProcessInstanceFields fields;
-  protected DBCollection dbCollection;
-  
+  protected MongoUpdateConverters updateConverters;
   protected WriteConcern writeConcernStoreProcessInstance;
   protected WriteConcern writeConcernFlushUpdates;
-
-  public MongoProcessInstances(MongoProcessEngine processEngine, DB db, MongoProcessEngineConfiguration mongoConfiguration) {
-    super(db, mongoConfiguration.getProcessInstancesCollectionName());
-    this.processEngine = processEngine;
-    this.fields = mongoConfiguration.getProcessInstanceFields();
-    this.dbCollection = db.getCollection("processInstances");
-    this.writeConcernStoreProcessInstance = getWriteConcern(mongoConfiguration.getWriteConcernInsertProcessInstance());
-    this.writeConcernFlushUpdates = getWriteConcern(mongoConfiguration.getWriteConcernFlushUpdates());
-    this.isPretty = mongoConfiguration.isPretty();
-    // For the load testing, this is counter productive :)
-    // this.dbCollection.createIndex(new BasicDBObject(fields.activityInstances+"."+fields._id, 1));
-  }
   
+  public MongoProcessInstances() {
+  }
+
+  public MongoProcessInstances(ServiceRegistry serviceRegistry) {
+  }
+
+  @Override
+  public String createProcessInstanceId(ProcessDefinitionImpl processDefinition) {
+    return new ObjectId().toString();
+  }
+
+  @Override
+  public String createActivityInstanceId() {
+    return new ObjectId().toString();
+  }
+
+  @Override
+  public String createVariableInstanceId() {
+    return new ObjectId().toString();
+  }
+
+  @Override
   public void insertProcessInstance(ProcessInstanceImpl processInstance) {
     BasicDBObject dbProcessInstance = writeProcessInstance(processInstance);
     insert(dbProcessInstance, writeConcernStoreProcessInstance);
+  }
+  
+  @Override
+  public ProcessInstanceImpl findProcessInstanceById(String processInstanceId) {
+    BasicDBObject dbProcess = findOne(new BasicDBObject(fields._id, new ObjectId(processInstanceId)));
+    return readProcessInstance(dbProcess);
+  }
+
+  @Override
+  public void flush(ProcessInstanceImpl processInstance) {
+    List<Update> updates = processInstance.getUpdates();
+    if (updates!=null) {
+      List<BasicDBObject> dbUpdates = new ArrayList<>(); 
+      for (Update update : updates) {
+        BasicDBObject dbUpdate = updateConverters.toDbUpdate(update);
+        if (dbUpdate!=null) {
+          dbUpdates.add(dbUpdate);
+        }
+      }
+      flushUpdates(processInstance.id, processInstance.lock, dbUpdates);
+      // After the first and all subsequent flushes, we need to capture the updates so we initialize the collection
+      // @see ProcessInstanceImpl.updates
+      processInstance.setUpdates(new ArrayList<Update>());
+    } else {
+      // As long as the process instance is not saved, the updates collection is null.
+      // That means it's not yet necessary to collect the updates. 
+      // @see ProcessInstanceImpl.updates
+      log.debug("Just saved, no flush needed");
+      // The operations in the process instance will not be serialized.
+      // When the process instance starts, the first activity instance operations 
+      // will be not added to the updates because updates==null.  Therefore, we 
+      // convert them here to updates.  After this method, all further operations 
+      // will be recorded normally because updates!=null.
+      updates = new ArrayList<Update>();
+      if (processInstance.operations!=null) {
+        for (Operation operation: processInstance.operations) {
+          if (operation instanceof StartActivityInstanceOperation) {
+            updates.add(new OperationAddStartUpdate(operation.activityInstance));
+          } else if (operation instanceof NotifyEndOperation) {
+            updates.add(new OperationAddNotifyEndUpdate(operation.activityInstance));
+          } else {
+            throw new RuntimeException("Unsupported operation type: "+operation.getClass().getName());
+          }
+        }
+      }
+      processInstance.setUpdates(updates);
+    }
+  }
+
+  @Override
+  public void flushAndUnlock(ProcessInstanceImpl processInstance) {
+    processInstance.lock = null;
+    BasicDBObject dbProcessInstance = writeProcessInstance(processInstance);
+    saveProcessInstance(dbProcessInstance);
+    processInstance.setUpdates(new ArrayList<Update>());
+  }
+
+  @Override
+  public List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQueryImpl) {
+    return null;
   }
   
   public void flushUpdates(String processInstanceId, LockImpl lock, List<BasicDBObject> dbUpdates) {
@@ -100,7 +177,7 @@ public class MongoProcessInstances extends MongoCollection {
             .push("$set")
             .push(fields.lock)
               .add(fields.time, Time.now().toDate())
-              .add(fields.owner, processEngine.id)
+              .add(fields.owner, processEngine.getId())
             .pop()
           .pop()
           .get();
@@ -265,8 +342,28 @@ public class MongoProcessInstances extends MongoCollection {
     return variableInstance;
   }
 
-  public ProcessInstanceImpl findProcessInstanceById(String processInstanceId) {
-    BasicDBObject dbProcess = findOne(new BasicDBObject(fields._id, new ObjectId(processInstanceId)));
-    return readProcessInstance(dbProcess);
+  
+  public ProcessEngineImpl getProcessEngine() {
+    return processEngine;
+  }
+
+  
+  public MongoProcessEngineConfiguration.ProcessInstanceFields getFields() {
+    return fields;
+  }
+
+  
+  public MongoUpdateConverters getUpdateConverters() {
+    return updateConverters;
+  }
+
+  
+  public WriteConcern getWriteConcernStoreProcessInstance() {
+    return writeConcernStoreProcessInstance;
+  }
+
+  
+  public WriteConcern getWriteConcernFlushUpdates() {
+    return writeConcernFlushUpdates;
   }
 }

@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.bpmn.EmbeddedSubprocess;
-import com.heisenberg.api.activities.bpmn.EndEvent;
-import com.heisenberg.api.activities.bpmn.ScriptTask;
-import com.heisenberg.api.activities.bpmn.StartEvent;
-import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
+import com.heisenberg.api.activitytypes.EndEvent;
+import com.heisenberg.api.activitytypes.ScriptTask;
+import com.heisenberg.api.activitytypes.StartEvent;
+import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
@@ -74,20 +74,6 @@ public class MongoProcessEngineTest {
       .activityInstanceId(subTaskInstance.getId())
       .send();
   }
-
-  @Test
-  public void testPrintProcessDefinitionJson() {
-    ProcessEngine processEngine = new MongoProcessEngineConfiguration()
-      .server("localhost", 27017)
-      .buildProcessEngine();
-    
-    ProcessDefinitionBuilder process = createProcess(processEngine);
-    
-    String processJsonPretty = ((ProcessEngineImpl)processEngine).jsonService.objectToJsonStringPretty(process);
-
-    log.debug(processJsonPretty);
-  }
-
 
   public static ProcessDefinitionBuilder createProcess(ProcessEngine processEngine) {
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition()

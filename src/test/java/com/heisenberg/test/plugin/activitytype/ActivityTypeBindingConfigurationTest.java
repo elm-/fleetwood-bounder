@@ -73,7 +73,7 @@ public class ActivityTypeBindingConfigurationTest {
   @Test 
   public void testConfigurableActivityTypeExecution() {
     ProcessEngine processEngine = new ProcessEngineConfiguration()
-      .registerConfigurableActivityType(new MyBindingActivityType())
+      .registerActivityType(new MyBindingActivityType())
       .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
@@ -109,7 +109,7 @@ public class ActivityTypeBindingConfigurationTest {
   @Test 
   public void testConfigurableActivityTypeSerialization() {
     ProcessEngine processEngine = new ProcessEngineConfiguration()
-    .registerConfigurableActivityType(new MyBindingActivityType())
+    .registerActivityType(new MyBindingActivityType())
     .buildProcessEngine();
 
     ProcessDefinitionBuilder process = processEngine.newProcessDefinition();

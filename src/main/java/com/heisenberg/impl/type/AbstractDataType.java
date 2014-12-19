@@ -44,4 +44,9 @@ public abstract class AbstractDataType implements DataType {
   public Object convertScriptValueToInternal(Object scriptValue, String language) {
     return scriptValue;
   }
+  
+  @Override
+  public Class< ? > getValueType() {
+    return null;
+  }
 }

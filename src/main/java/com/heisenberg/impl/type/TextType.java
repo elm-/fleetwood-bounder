@@ -37,4 +37,9 @@ public class TextType extends AbstractDataType {
     }
     throw new InvalidValueException("Expected string, but was "+apiValue.getClass().getSimpleName());
   }
+
+  @Override
+  public Class< ? > getValueType() {
+    return String.class;
+  }
 }

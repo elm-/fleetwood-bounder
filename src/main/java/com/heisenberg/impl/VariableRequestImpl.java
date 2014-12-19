@@ -33,7 +33,7 @@ import com.heisenberg.impl.type.JavaBeanType;
 public abstract class VariableRequestImpl {
 
   @JsonIgnore
-  public ProcessEngineImpl processEngine;
+  public JsonService jsonService;
   
   public Map<String,Object> variableValues;
   public Map<String,DataType> variableDataTypes;
@@ -44,9 +44,9 @@ public abstract class VariableRequestImpl {
   public VariableRequestImpl() {
   }
 
-  public VariableRequestImpl(ProcessEngineImpl processEngine) {
+  public VariableRequestImpl(JsonService jsonService) {
     super();
-    this.processEngine = processEngine;
+    this.jsonService = jsonService;
   }
   
   public void deserialize(ProcessDefinitionImpl processDefinition) {
@@ -84,7 +84,6 @@ public abstract class VariableRequestImpl {
   }
 
   public VariableRequestImpl variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass) {
-    JsonService jsonService = processEngine.getJsonService();
     JavaBeanType javaBeanType = new JavaBeanType(javaBeanClass);
     javaBeanType.setJsonService(jsonService);
     variableValue(variableDefinitionId, value, javaBeanType);

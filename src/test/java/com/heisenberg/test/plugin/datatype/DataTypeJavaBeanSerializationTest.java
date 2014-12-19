@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.ProcessEngineConfiguration;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
@@ -30,9 +31,7 @@ import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.StartBuilderImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.impl.type.DataTypeReference;
 import com.heisenberg.impl.type.JavaBeanType;
-import com.heisenberg.plugin.DataTypes;
 
 
 /**
@@ -86,8 +85,7 @@ public class DataTypeJavaBeanSerializationTest {
     assertEquals(startProcessMoney.currency, variableInstanceMoney.currency);
     assertEquals(5d, variableInstanceMoney.amount, 0.000001d);
     assertEquals("USD", variableInstanceMoney.currency);
-    DataTypeReference dataTypeReference = (DataTypeReference) m.getDataType();
-    JavaBeanType javaBeanType = (JavaBeanType) dataTypeReference.delegate;
+    JavaBeanType javaBeanType = (JavaBeanType) m.getDataType();
     assertEquals(Money.class, javaBeanType.javaClass);
   }
 

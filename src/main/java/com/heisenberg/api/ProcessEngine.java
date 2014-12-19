@@ -33,6 +33,8 @@ import com.heisenberg.api.builder.StartBuilder;
  */
 public interface ProcessEngine {
   
+  DataTypes getDataTypes();
+  
   /** Start building a new process, when done, call {@link ProcessDefinitionBuilder#deploy()} */
   ProcessDefinitionBuilder newProcessDefinition();
 

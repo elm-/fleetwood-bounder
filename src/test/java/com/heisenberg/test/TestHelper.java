@@ -26,7 +26,11 @@ import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.ScopeInstance;
+import com.heisenberg.mongo.MongoCollection;
+import com.heisenberg.mongo.MongoJobs;
+import com.heisenberg.mongo.MongoProcessDefinitions;
 import com.heisenberg.mongo.MongoProcessEngine;
+import com.heisenberg.mongo.MongoProcessInstances;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
@@ -105,12 +109,14 @@ public class TestHelper {
   
   public static void mongoDeleteAllCollections(ProcessEngine processEngine) {
     MongoProcessEngine mongoProcessEngine = (MongoProcessEngine) processEngine;
-    mongoDeleteAllDocumentsInCollection(mongoProcessEngine.getProcessDefinitions().getDbCollection());
-    mongoDeleteAllDocumentsInCollection(mongoProcessEngine.getProcessInstances().getDbCollection());
-    mongoDeleteAllDocumentsInCollection(mongoProcessEngine.getJobService().getJobs().getDbCollection());
+    mongoDeleteAllDocumentsInCollection(mongoProcessEngine, MongoProcessDefinitions.class);
+    mongoDeleteAllDocumentsInCollection(mongoProcessEngine, MongoProcessInstances.class);
+    mongoDeleteAllDocumentsInCollection(mongoProcessEngine, MongoJobs.class);
   }
 
-  public static void mongoDeleteAllDocumentsInCollection(DBCollection dbCollection) {
+  public static void mongoDeleteAllDocumentsInCollection(MongoProcessEngine processEngine, Class<? extends MongoCollection> mongoCollectionClass) {
+    MongoCollection mongoCollection = processEngine.getServiceRegistry().getService(mongoCollectionClass);
+    DBCollection dbCollection = mongoCollection.getDbCollection();
     DBCursor documents = dbCollection.find();
     while (documents.hasNext()) {
       dbCollection.remove(documents.next());

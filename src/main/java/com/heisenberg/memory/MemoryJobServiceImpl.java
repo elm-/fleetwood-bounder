@@ -26,6 +26,7 @@ import java.util.Set;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.job.Job;
 import com.heisenberg.impl.job.JobServiceImpl;
+import com.heisenberg.plugin.ServiceRegistry;
 
 
 /**
@@ -33,10 +34,21 @@ import com.heisenberg.impl.job.JobServiceImpl;
  */
 public class MemoryJobServiceImpl extends JobServiceImpl {
   
-  Set<String> processInstanceIds = new HashSet<>();
-  LinkedList<Job> jobs = new LinkedList<>();
-  List<Job> jobsDone = new ArrayList<>();
-  Map<String,Job> jobsById = new HashMap<>();
+  protected Set<String> processInstanceIds;
+  protected LinkedList<Job> jobs;
+  protected List<Job> jobsDone;
+  protected Map<String,Job> jobsById;
+
+  public MemoryJobServiceImpl() {
+  }
+
+  public MemoryJobServiceImpl(ServiceRegistry serviceRegistry) {
+    super(serviceRegistry);
+    this.processInstanceIds = new HashSet<>();
+    this.jobs = new LinkedList<>();
+    this.jobsDone = new ArrayList<>();
+    this.jobsById = new HashMap<>();
+  }
 
   @Override
   public synchronized Iterator<String> getProcessInstanceIdsToLockForJobs() {

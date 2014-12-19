@@ -17,10 +17,7 @@ package com.heisenberg.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.heisenberg.api.task.TaskService;
-import com.heisenberg.impl.job.JobService;
-import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.plugin.ServiceRegistry;
 
 
@@ -28,36 +25,38 @@ import com.heisenberg.plugin.ServiceRegistry;
  * @author Walter White
  */
 public class SimpleServiceRegistry implements ServiceRegistry {
-  
+
   Map<String,Object> services = new HashMap<>();
-  Map<String, Class<?>> defaultServiceTypes = new HashMap<>();
 
   @SuppressWarnings("unchecked")
-  public synchronized <T> T getService(Class<T> serviceInterface) {
-    T service = (T) services.get(serviceInterface.getName());
+  public <T> T getService(Class<T> serviceInterface) {
+    Exceptions.checkNotNullParameter(serviceInterface, "serviceInterface");
+    return (T) getService(serviceInterface.getName());
+  }
+
+  public synchronized Object getService(String serviceTypeName) {
+    Object service = (Object) services.get(serviceTypeName);
     if (service==null) {
-      service = defaultServiceTypes.get(serviceInterface.getName());
+      throw new RuntimeException("Service "+serviceTypeName+" is not registered");
     }
     return service;
   }
-  
-  public JsonService getJsonService() {
-    return getService(JsonService.class);
+
+  public SimpleServiceRegistry registerService(Object service) {
+    registerService(service, service.getClass());
+    return this;
   }
-  
-  public ExecutorService getExecutorService() {
-    return getService(ExecutorService.class);
-  }
-  
-  public ScriptService getScriptService() {
-    return getService(ScriptService.class);
-  }
-  
-  public TaskService getTaskService() {
-    return getService(TaskService.class);
-  }
-  
-  public JobService getJobService() {
-    return getService(JobService.class);
+
+  protected void registerService(Object service, Class<?>... serviceTypes) {
+    if (serviceTypes!=null) {
+      for (Class<?> serviceType: serviceTypes) {
+        services.put(serviceType.getName(), service);
+        Class< ? > superclass = serviceType.getSuperclass();
+        if (superclass!=null && superclass!=Object.class) {
+          registerService(service, superclass);
+        }
+        registerService(service, serviceType.getInterfaces());
+      }
+    }
   }
 }

@@ -22,13 +22,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.impl.util.Lists;
 import com.heisenberg.mongo.MongoProcessEngineConfiguration;
-import com.heisenberg.plugin.DataTypes;
 
 
 /**

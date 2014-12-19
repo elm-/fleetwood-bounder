@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.api.activitytypes;
 
 import java.util.Map;
 
@@ -33,6 +33,8 @@ import com.heisenberg.plugin.activities.ControllableActivityInstance;
 @JsonTypeName("serviceTask")
 public class ScriptTask extends AbstractActivityType {
 
+  @JsonIgnore
+  protected ScriptService scriptService;
   public String script;
   public Map<String, String> scriptToProcessMappings;
   public Object resultVariableDefinitionId;
@@ -43,9 +45,9 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void validate(ActivityDefinition activityDefinition, Validator validator) {
     if (script!=null) {
-      ScriptService scriptService = validator.getScriptService();
-      compiledScript = scriptService.compile(script);
-      compiledScript.scriptToProcessMappings = scriptToProcessMappings;
+      this.scriptService = validator.getServiceRegistry().getService(ScriptService.class);
+      this.compiledScript = scriptService.compile(script);
+      this.compiledScript.scriptToProcessMappings = scriptToProcessMappings;
     }
     // TODO if specified, check if the resultVariableDefinitionId exists
   }
@@ -53,7 +55,6 @@ public class ScriptTask extends AbstractActivityType {
   @Override
   public void start(ControllableActivityInstance activityInstance) {
     if (script!=null) {
-      ScriptService scriptService = activityInstance.getScriptService();
       ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, compiledScript);
       scriptResult.getResult();
       /* Object result = 

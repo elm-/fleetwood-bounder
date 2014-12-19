@@ -26,7 +26,7 @@ import com.heisenberg.plugin.TypedValue;
 /**
  * @author Walter White
  */
-public interface ControllableActivityInstance extends ActivityInstance, ServiceRegistry {
+public interface ControllableActivityInstance extends ActivityInstance {
 
   Object getVariableValue(String variableDefinitionId);
   void setVariableValue(String callerVariableId, Object value);
@@ -51,5 +51,7 @@ public interface ControllableActivityInstance extends ActivityInstance, ServiceR
   void start(ActivityDefinition activityDefinition);
 
   void takeTransition(TransitionDefinition transitionDefinition);
+  
+  ServiceRegistry getServiceRegistry();
 
 }

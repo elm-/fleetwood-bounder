@@ -29,6 +29,7 @@ import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.plugin.ServiceRegistry;
 import com.mongodb.BasicDBObject;
 
 
@@ -56,8 +57,11 @@ public class MongoUpdateConverters {
   Map<String, UpdateConverter<? extends Update>> updateConvertersByType = new HashMap<>();
   JsonService jsonService;
   
-  public MongoUpdateConverters(JsonService jsonService) {
-    this.jsonService = jsonService;
+  public MongoUpdateConverters() {
+  }
+
+  public MongoUpdateConverters(ServiceRegistry serviceRegistry) {
+    this.jsonService = serviceRegistry.getService(JsonService.class);
     registerConverter(new ActivityInstanceCreateConverter(), ActivityInstanceCreateUpdate.class, TYPE_ACTIVITY_INSTANCE_CREATE);
     registerConverter(new ActivityInstanceEndConverter(), ActivityInstanceEndUpdate.class, TYPE_ACTIVITY_INSTANCE_END);
     registerConverter(new OperationAddStartConverter(), OperationAddStartUpdate.class, TYPE_OPERATION_ADD_START);

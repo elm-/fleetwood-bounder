@@ -40,4 +40,6 @@ public interface DataType extends Plugin {
   Object convertScriptValueToInternal(Object scriptValue, String language);
 
   void validate(Validator validator);
+
+  Class< ? > getValueType();
 }

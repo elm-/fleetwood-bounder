@@ -14,7 +14,6 @@
  */
 package com.heisenberg.impl.job;
 
-import com.heisenberg.api.ProcessEngine;
 
 
 /**
@@ -24,5 +23,5 @@ public interface JobService {
 
   Job newJob(JobType jobType);
 
-  void setProcessEngine(ProcessEngine processEngineImpl);
+  void saveJob(Job job);
 }

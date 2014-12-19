@@ -28,12 +28,13 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.activities.bpmn.CallActivity;
+import com.heisenberg.api.activitytypes.CallActivity;
 import com.heisenberg.api.instance.ProcessInstance;
 import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.ProcessInstanceQueryImpl;
 import com.heisenberg.impl.Time;
+import com.heisenberg.impl.WorkflowInstanceStore;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
 import com.heisenberg.impl.engine.operation.Operation;
@@ -124,6 +125,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
 
   // to be called from the process engine
   public void executeOperations() {
+    WorkflowInstanceStore workflowInstanceStore = processEngine.getWorkflowInstanceStore();
     while (hasOperations()) {
       // in the first iteration, the updates will be empty and hence no updates will be flushed
       flushUpdates(); // first time round, the 
@@ -131,7 +133,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
       operation.execute(processEngine);
     }
     if (hasAsyncWork()) {
-      processEngine.flush(processInstance);
+      workflowInstanceStore.flush(processInstance);
       ExecutorService executor = processEngine.getExecutorService();
       executor.execute(new Runnable(){
         public void run() {
@@ -140,7 +142,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
           executeOperations();
         }});
     } else {
-      processEngine.flushAndUnlock(processInstance);
+      workflowInstanceStore.flushAndUnlock(processInstance);
     }
   }
   
@@ -153,7 +155,7 @@ public class ProcessInstanceImpl extends ScopeInstanceImpl implements ProcessIns
   }
 
   void flushUpdates() {
-    processEngine.flush(this);
+    processEngine.getWorkflowInstanceStore().flush(this);
   }
   
   @Override

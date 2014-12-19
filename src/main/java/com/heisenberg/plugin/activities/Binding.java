@@ -17,6 +17,7 @@ package com.heisenberg.plugin.activities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.impl.script.Script;
+import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.InvalidValueException;
 import com.heisenberg.plugin.Validator;
@@ -77,7 +78,8 @@ public class Binding<T> {
       }
     } else if (expression!=null) {
       try {
-        expressionScript = validator.getServiceLocator().getScriptService().compile(expression, expressionLanguage);
+        ScriptService scriptService = validator.getServiceRegistry().getService(ScriptService.class);
+        expressionScript = scriptService.compile(expression, expressionLanguage);
       } catch (RuntimeException e) {
         Throwable cause = e.getCause();
         if (cause==null) {

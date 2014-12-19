@@ -28,11 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.builder.ParseIssue.IssueType;
 import com.heisenberg.api.builder.ParseIssues;
-import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.impl.plugin.ActivityTypeService;
-import com.heisenberg.impl.plugin.DataTypeService;
 import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.plugin.ServiceRegistry;
@@ -213,9 +209,10 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
     }
     if (transition.condition!=null) {
       try {
-        transition.conditionScript = processEngine
-          .getScriptService()
-          .compile(transition.condition);
+          transition.conditionScript = processEngine
+            .getServiceRegistry()
+            .getService(ScriptService.class)
+            .compile(transition.condition);
       } catch (Exception e) {
         addError("Transition (%s)--%s>(%s) has an invalid condition expression '%s' : %s", 
                 transition.fromId, (transition.id!=null ? transition.id+"--" : ""),
@@ -279,32 +276,7 @@ public class ProcessDefinitionValidator implements ProcessDefinitionVisitor, Val
   }
 
   @Override
-  public JsonService getJsonService() {
-    return processEngine.getJsonService();
-  }
-
-  @Override
-  public ScriptService getScriptService() {
-    return processEngine.getScriptService();
-  }
-
-  @Override
-  public TaskService getTaskService() {
-    return processEngine.getTaskService();
-  }
-
-  @Override
-  public ActivityTypeService getActivityTypes() {
-    return processEngine.getActivityTypes();
-  }
-
-  @Override
-  public DataTypeService getDataTypes() {
-    return processEngine.getDataTypes();
-  }
-
-  @Override
-  public <T> T getService(Class<T> serviceClass) {
-    return processEngine.getService(serviceClass);
+  public ServiceRegistry getServiceRegistry() {
+    return processEngine.getServiceRegistry();
   }
 }

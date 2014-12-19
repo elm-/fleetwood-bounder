@@ -14,11 +14,11 @@
  */
 package com.heisenberg.impl;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.plugin.ServiceRegistry;
 
 
 /**
@@ -26,7 +26,14 @@ import com.heisenberg.impl.definition.ProcessDefinitionImpl;
  */
 public class SimpleProcessDefinitionCache implements ProcessDefinitionCache {
   
-  protected Map<String, ProcessDefinitionImpl> processDefinitions = Collections.synchronizedMap(new HashMap<String, ProcessDefinitionImpl>());
+  protected Map<String, ProcessDefinitionImpl> processDefinitions;
+
+  public SimpleProcessDefinitionCache() {
+  }
+
+  public SimpleProcessDefinitionCache(ServiceRegistry serviceRegistry) {
+    processDefinitions = new ConcurrentHashMap<String, ProcessDefinitionImpl>();
+  }
 
   @Override
   public ProcessDefinitionImpl get(String processDefinitionId) {
@@ -37,5 +44,4 @@ public class SimpleProcessDefinitionCache implements ProcessDefinitionCache {
   public void put(ProcessDefinitionImpl processDefinition) {
     processDefinitions.put(processDefinition.id, processDefinition);
   }
-
 }

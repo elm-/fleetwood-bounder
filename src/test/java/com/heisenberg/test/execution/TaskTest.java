@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.heisenberg.api.activities.bpmn.UserTask;
+import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ProcessDefinitionBuilder;
 import com.heisenberg.memory.MemoryProcessEngine;
 import com.heisenberg.memory.MemoryTaskService;
@@ -48,7 +48,7 @@ public class TaskTest {
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
-    MemoryTaskService taskService = processEngine.getTaskService();
+    MemoryTaskService taskService = processEngine.getServiceRegistry().getService(MemoryTaskService.class);
     assertEquals("Task one", taskService.getTasks().get(0).getName());
   }
 }

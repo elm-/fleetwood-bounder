@@ -27,8 +27,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.ProcessEngine;
 import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.api.task.TaskService;
-import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.ProcessEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityDefinitionImpl;
@@ -37,8 +35,6 @@ import com.heisenberg.impl.definition.ScopeDefinitionImpl;
 import com.heisenberg.impl.definition.VariableDefinitionImpl;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
-import com.heisenberg.impl.job.JobService;
-import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
@@ -177,7 +173,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
       return (T) getVariableValue(binding.variableDefinitionId);
     }
     if (binding.expressionScript!=null) {
-      ScriptService scriptService = getScriptService();
+      ScriptService scriptService = getServiceRegistry().getService(ScriptService.class);
       ScriptResult scriptResult = scriptService.evaluateScript(this, binding.expressionScript);
       Object result = scriptResult.getResult();
       return (T) binding.dataType.convertScriptValueToInternal(result, binding.expressionScript.language);
@@ -398,28 +394,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
 
   public abstract boolean isProcessInstance();
 
-  public <T> T getService(Class<T> serviceInterface) {
-    return processEngine.getService(serviceInterface);
+  public ServiceRegistry getServiceRegistry() {
+    return processEngine.getServiceRegistry();
   }
-  
-  public JsonService getJsonService() {
-    return processEngine.getJsonService();
-  }
-  
-  public ExecutorService getExecutorService() {
-    return processEngine.getExecutorService();
-  }
-  
-  public ScriptService getScriptService() {
-    return processEngine.getScriptService();
-  }
-  
-  public TaskService getTaskService() {
-    return processEngine.getTaskService();
-  }
-  
-  public JobService getJobService() {
-    return processEngine.getJobService();
-  }
-
 }

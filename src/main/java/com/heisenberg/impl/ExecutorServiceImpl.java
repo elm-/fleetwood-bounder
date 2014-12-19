@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.heisenberg.plugin.ServiceRegistry;
+
 
 /**
  * @author Walter White
@@ -38,8 +40,11 @@ public class ExecutorServiceImpl implements ExecutorService {
   public BlockingQueue<Runnable> queue;
   public long shutdownTimeout = 30;                    // TODO make configurable
   public TimeUnit shutdownTimeUnit = TimeUnit.SECONDS; // TODO make configurable
-  
+
   public ExecutorServiceImpl() {
+  }
+
+  public ExecutorServiceImpl(ServiceRegistry serviceRegistry) {
     ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(4, new ThreadPoolExecutor.CallerRunsPolicy());
     this.queue = scheduledThreadPoolExecutor.getQueue();
     this.executor = scheduledThreadPoolExecutor;

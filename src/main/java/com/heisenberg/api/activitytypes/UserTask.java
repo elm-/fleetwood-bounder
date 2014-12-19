@@ -12,14 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.activities.bpmn;
+package com.heisenberg.api.activitytypes;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.heisenberg.api.definition.ActivityDefinition;
 import com.heisenberg.api.task.Task;
 import com.heisenberg.api.task.TaskService;
+import com.heisenberg.plugin.Validator;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.Binding;
 import com.heisenberg.plugin.activities.ConfigurationField;
@@ -33,6 +36,9 @@ import com.heisenberg.plugin.activities.Label;
 @JsonTypeName("userTask")
 public class UserTask extends AbstractActivityType {
   
+  @JsonIgnore
+  TaskService taskService;
+  
   @ConfigurationField
   @Label("Name")
   Binding<String> name;
@@ -42,9 +48,13 @@ public class UserTask extends AbstractActivityType {
   List<Binding<String>> candidates;
   
   @Override
+  public void validate(ActivityDefinition activityDefinition, Validator validator) {
+    super.validate(activityDefinition, validator);
+    this.taskService = validator.getServiceRegistry().getService(TaskService.class);
+  }
+
+  @Override
   public void start(ControllableActivityInstance activityInstance) {
-    TaskService taskService = activityInstance.getTaskService();
-    
     String taskName = activityInstance.getValue(name);
     if (taskName==null) {
       taskName = activityInstance.getActivityDefinition().getId().toString();
