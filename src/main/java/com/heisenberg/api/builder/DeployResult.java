@@ -24,7 +24,7 @@ public class DeployResult extends ParseIssues {
 
   protected String processDefinitionId;
   
-  public String getProcessDefinitionId() {
+  public String getWorkflowId() {
     return processDefinitionId;
   }
   

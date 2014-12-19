@@ -20,13 +20,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.CallActivity;
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -35,24 +35,24 @@ public class CallActivityTest {
   
   @Test
   public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    ProcessDefinitionBuilder subprocess = processEngine.newProcessDefinition();
+    WorkflowBuilder subprocess = workflowEngine.newWorkflow();
     subprocess.newActivity("subtask", new UserTask());
-    String subprocessId = subprocess.deploy().getProcessDefinitionId();
+    String subprocessId = subprocess.deploy().getWorkflowId();
     
-    ProcessDefinitionBuilder superprocess = processEngine.newProcessDefinition();
+    WorkflowBuilder superprocess = workflowEngine.newWorkflow();
     superprocess.newActivity("call", new CallActivity().subProcessId(subprocessId));
-    String superprocessId = superprocess.deploy().getProcessDefinitionId();
+    String superprocessId = superprocess.deploy().getWorkflowId();
     
-    ProcessInstance superInstance = processEngine.newStart()
+    WorkflowInstance superInstance = workflowEngine.newStart()
       .processDefinitionId(superprocessId)
       .startProcessInstance();
     
     ActivityInstance callActivityInstance = findActivityInstanceOpen(superInstance, "call");
     assertNotNull(callActivityInstance.getCalledProcessInstanceId());
     
-    ProcessInstance subInstance = processEngine.newProcessInstanceQuery()
+    WorkflowInstance subInstance = workflowEngine.newProcessInstanceQuery()
       .processInstanceId(callActivityInstance.getCalledProcessInstanceId())
       .get();
     
@@ -60,13 +60,13 @@ public class CallActivityTest {
     
     ActivityInstance subtaskInstance = findActivityInstanceOpen(subInstance, "subtask");
     
-    subInstance = processEngine.newMessage()
+    subInstance = workflowEngine.newMessage()
       .processInstanceId(subInstance.getId())
       .activityInstanceId(subtaskInstance.getId())
       .send();
     assertTrue(subInstance.isEnded());
 
-    superInstance = processEngine.newProcessInstanceQuery()
+    superInstance = workflowEngine.newProcessInstanceQuery()
             .processInstanceId(superInstance.getId())
             .get();
     assertTrue(superInstance.isEnded());

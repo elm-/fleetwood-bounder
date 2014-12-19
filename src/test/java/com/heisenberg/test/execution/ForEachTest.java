@@ -18,10 +18,10 @@ import org.junit.Test;
 
 import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.impl.util.Lists;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 import com.heisenberg.plugin.Descriptors;
 import com.heisenberg.test.TestHelper;
 
@@ -33,11 +33,11 @@ public class ForEachTest {
   
   @Test
   public void testTask() throws Exception {
-    MemoryProcessEngine processEngine = new MemoryProcessEngine();
+    MemoryWorkflowEngine processEngine = new MemoryWorkflowEngine();
     
     DataTypes dataTypes = processEngine.getDataTypes();
     
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = processEngine.newWorkflow();
     
     process.newVariable()
       .id("reviewers")
@@ -53,15 +53,15 @@ public class ForEachTest {
     String processDefinitionId = process
       .deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("reviewers", Lists.of("John", "Jack", "Mary"))
       .startProcessInstance();
 
     // TODO make it so that the parent activity 
     // instance doesn't have a name and doesn't have the empty variable declaration
-    TestHelper.assertOpen(processInstance, "Review", "Review", "Review", "Review");
+    TestHelper.assertOpen(workflowInstance, "Review", "Review", "Review", "Review");
   }
 }

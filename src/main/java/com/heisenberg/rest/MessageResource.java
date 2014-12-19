@@ -22,9 +22,9 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.impl.MessageImpl;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
 
 
 /**
@@ -35,15 +35,15 @@ public class MessageResource {
   
   public static final Logger log = LoggerFactory.getLogger(MessageResource.class);
   
-  ProcessEngineImpl processEngine;
+  WorkflowEngineImpl processEngine;
   
-  public MessageResource(ProcessEngineImpl processEngine) {
+  public MessageResource(WorkflowEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public ProcessInstance notifyActivityInstance(MessageImpl activityInstanceMessage) {
+  public WorkflowInstance notifyActivityInstance(MessageImpl activityInstanceMessage) {
     return processEngine.sendActivityInstanceMessage(activityInstanceMessage);
   }
 }

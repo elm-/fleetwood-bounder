@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.builder.DeployResult;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
 
 
 /**
@@ -35,15 +35,15 @@ public class DeployResource {
   
   public static final Logger log = LoggerFactory.getLogger(DeployResource.class);
   
-  ProcessEngineImpl processEngine;
+  WorkflowEngineImpl processEngine;
   
-  public DeployResource(ProcessEngineImpl processEngine) {
+  public DeployResource(WorkflowEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public DeployResult deploy(ProcessDefinitionImpl processDefinition) {
+  public DeployResult deploy(WorkflowImpl processDefinition) {
     return processEngine.deployProcessDefinition(processDefinition);
   }
 }

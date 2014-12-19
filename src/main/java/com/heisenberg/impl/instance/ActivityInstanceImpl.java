@@ -21,14 +21,14 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.builder.StartBuilder;
-import com.heisenberg.api.definition.TransitionDefinition;
+import com.heisenberg.api.definition.Transition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.impl.StartBuilderImpl;
+import com.heisenberg.impl.StartImpl;
 import com.heisenberg.impl.Time;
-import com.heisenberg.impl.definition.ActivityDefinitionImpl;
-import com.heisenberg.impl.definition.TransitionDefinitionImpl;
+import com.heisenberg.impl.definition.ActivityImpl;
+import com.heisenberg.impl.definition.TransitionImpl;
 import com.heisenberg.impl.engine.operation.NotifyEndOperation;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
@@ -43,10 +43,10 @@ import com.heisenberg.plugin.activities.ControllableActivityInstance;
 @JsonPropertyOrder({"id", "activityDefinitionId", "start", "end", "duration", "activityInstances", "variableInstances"})
 public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityInstance, ControllableActivityInstance {
   
-  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+  public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
 
   @JsonIgnore
-  public ActivityDefinitionImpl activityDefinition;
+  public ActivityImpl activityDefinition;
   
   public String activityDefinitionId;
   public Boolean joining;
@@ -59,7 +59,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     if (activityDefinition.hasOutgoingTransitionDefinitions()) {
       // Ensure that each transition is taken
       // Note that process concurrency does not require java concurrency
-      for (TransitionDefinitionImpl transitionDefinition: activityDefinition.outgoingTransitionDefinitions) {
+      for (TransitionImpl transitionDefinition: activityDefinition.outgoingDefinitions) {
         takeTransition(transitionDefinition);  
       }
     }
@@ -89,8 +89,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   /** Starts the to (destination) activity in the current (parent) scope.
    * This methods will also end the current activity instance.
    * This method can be called multiple times in one start() */
-  public void takeTransition(TransitionDefinition transitionDefinition) {
-    ActivityDefinitionImpl to = (ActivityDefinitionImpl) transitionDefinition.getTo();
+  public void takeTransition(Transition transition) {
+    ActivityImpl to = (ActivityImpl) transition.getTo();
     end(to!=null);
     if (to!=null) {
       log.debug("Taking transition to "+to);
@@ -125,11 +125,11 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return super.findActivityInstance(activityInstanceId);
   }
 
-  public ActivityDefinitionImpl getActivityDefinition() {
+  public ActivityImpl getActivityDefinition() {
     return activityDefinition;
   }
   
-  public void setActivityDefinition(ActivityDefinitionImpl activityDefinition) {
+  public void setActivityDefinition(ActivityImpl activityDefinition) {
     this.activityDefinition = activityDefinition;
   }
   
@@ -146,7 +146,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
   }
 
-  public void visit(ProcessInstanceVisitor visitor, int index) {
+  public void visit(WorkflowInstanceVisitor visitor, int index) {
     visitor.startActivityInstance(this, index);
     visitCompositeInstance(visitor);
     visitor.endActivityInstance(this, index);
@@ -183,7 +183,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
 
   public StartBuilder newSubprocessStart(String subprocessId) {
     JsonService jsonService = processEngine.getServiceRegistry().getService(JsonService.class);
-    StartBuilderImpl start = new StartBuilderImpl(processEngine, jsonService);
+    StartImpl start = new StartImpl(processEngine, jsonService);
     start.processDefinitionId = subprocessId;
     start.callerProcessInstanceId = processInstance.id;
     start.callerActivityInstanceId = id;

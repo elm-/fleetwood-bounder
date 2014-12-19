@@ -19,8 +19,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.definition.TransitionDefinition;
+import com.heisenberg.api.definition.Activity;
+import com.heisenberg.api.definition.Transition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.plugin.Validator;
@@ -41,18 +41,18 @@ public class ParallelGateway extends AbstractActivityType {
   
   
   @Override
-  public void validate(ActivityDefinition activity, Validator validator) {
+  public void validate(Activity activity, Validator validator) {
     log.debug("validating "+activity.getId());
     
     // at least one in, at least one out
-    List<TransitionDefinition> incomingTransitions = activity.getIncomingTransitionDefinitions();
+    List<Transition> incomingTransitions = activity.getIncomingTransitions();
     log.debug("  incoming "+incomingTransitions.size());
     if (incomingTransitions==null || incomingTransitions.isEmpty()) {
       validator.addWarning("Parallel gateway '%s' does not have incoming transitions", activity.getId());
     } else {
       nbrOfIncomingTransitions = incomingTransitions.size();
     }
-    List<TransitionDefinition> outgoingTransitions = activity.getOutgoingTransitionDefinitions();
+    List<Transition> outgoingTransitions = activity.getOutgoingTransitions();
     log.debug("  outgoing "+outgoingTransitions.size());
     if (outgoingTransitions==null || outgoingTransitions.isEmpty()) {
       validator.addWarning("Parallel gateway '%s' does not have outgoing transitions", activity.getId());

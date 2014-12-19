@@ -8,7 +8,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 
 
 /**
@@ -19,7 +19,7 @@ public class JobExecution implements JobController {
   @JsonIgnore
   public Job job;
   @JsonIgnore
-  public ProcessInstanceImpl processInstance;
+  public WorkflowInstanceImpl processInstance;
   public Boolean error;
   public String logs;
   public LocalDateTime time;
@@ -28,7 +28,7 @@ public class JobExecution implements JobController {
   public JobExecution() {
   }
 
-  public JobExecution(Job job, ProcessInstanceImpl processInstance) {
+  public JobExecution(Job job, WorkflowInstanceImpl processInstance) {
     this.job = job;
     this.processInstance = processInstance;
     this.time = new LocalDateTime();
@@ -46,7 +46,7 @@ public class JobExecution implements JobController {
     logs = (logs!=null ? logs : "") + msg + "\n";
   }
 
-  public ProcessInstanceImpl getProcessInstance() {
+  public WorkflowInstanceImpl getProcessInstance() {
     return processInstance;
   }
 }

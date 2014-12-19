@@ -20,15 +20,15 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ScriptTask;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 
 /**
@@ -45,9 +45,9 @@ public class EmbeddedSuprocessTest {
    */ 
   @Test 
   public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
   
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
   
     process.newActivity()
       .activityType(new ScriptTask())
@@ -80,21 +80,21 @@ public class EmbeddedSuprocessTest {
     String processDefinitionId = process
       .deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
-    ProcessInstance processInstance = processEngine
+    WorkflowInstance workflowInstance = workflowEngine
       .newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
 
-    assertOpen(processInstance, "sub", "w1", "w2");
+    assertOpen(workflowInstance, "sub", "w1", "w2");
     
-    processInstance = endTask(processEngine, processInstance, "w1");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "w1");
 
-    assertOpen(processInstance, "sub", "w2");
+    assertOpen(workflowInstance, "sub", "w2");
 
-    processInstance = endTask(processEngine, processInstance, "w2");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "w2");
     
-    assertTrue(processInstance.isEnded());
+    assertTrue(workflowInstance.isEnded());
   }
 }

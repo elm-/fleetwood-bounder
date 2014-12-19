@@ -32,12 +32,11 @@ import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.impl.MessageImpl;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.StartBuilderImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.impl.StartImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
 import com.heisenberg.test.mongo.MongoProcessEngineTest;
@@ -61,12 +60,12 @@ public class LoadTest extends JerseyTest {
     return HeisenbergServer.buildRestApplication(getProcessEngine());
   }
 
-  protected ProcessEngineImpl getProcessEngine() {
+  protected WorkflowEngineImpl getProcessEngine() {
     if (processEngine!=null) {
       return processEngine;
     }
-    processEngine = new MeasuringMongoProcessEngine(new MongoProcessEngineConfiguration()
-      .server("localhost", 27017));
+    processEngine = new MeasuringMongoProcessEngine(new MongoWorkflowEngineConfiguration()
+    .server("localhost", 27017));
     return processEngine;
   }
   
@@ -79,7 +78,7 @@ public class LoadTest extends JerseyTest {
   public void test() {
     String processDefinitionId = deployProcessDefinition();
     
-    long processExecutionsPerThread = 2000;
+    long processExecutionsPerThread = 200;
     long processExecutions = 4*processExecutionsPerThread;
     
     for (int i=0; i<20; i++) {
@@ -132,23 +131,22 @@ public class LoadTest extends JerseyTest {
   }
 
   protected String deployProcessDefinition() {
-    ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) MongoProcessEngineTest.createProcess(processEngine);
-    processDefinition.visit(new ProcessDefinitionSerializer());
+    WorkflowImpl processDefinition = (WorkflowImpl) MongoProcessEngineTest.createProcess(processEngine);
     DeployResult deployResponse = target("deploy").request()
             .post(Entity.entity(processDefinition, MediaType.APPLICATION_JSON))
             .readEntity(DeployResult.class);
     assertFalse(deployResponse.getIssueReport(), deployResponse.hasIssues());
-    return deployResponse.getProcessDefinitionId();
+    return deployResponse.getWorkflowId();
   }
 
   void runProcessInstance(String... processDefinitionIds) {
     for (String processDefinitionId: processDefinitionIds) {
-      StartBuilder startProcessInstanceRequest = new StartBuilderImpl()
+      StartBuilder startProcessInstanceRequest = new StartImpl()
         .processDefinitionId(processDefinitionId);
       
-      ProcessInstanceImpl processInstance = target("start").request()
+      WorkflowInstanceImpl processInstance = target("start").request()
               .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
-              .readEntity(ProcessInstanceImpl.class);
+              .readEntity(WorkflowInstanceImpl.class);
   
       String subTaskInstanceId = processInstance
               .findActivityInstanceByActivityDefinitionId("subTask")
@@ -160,7 +158,7 @@ public class LoadTest extends JerseyTest {
       
       processInstance = target("message").request()
               .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))
-              .readEntity(ProcessInstanceImpl.class);
+              .readEntity(WorkflowInstanceImpl.class);
   
       log.debug("response: " + processEngine.jsonService.objectToJsonStringPretty(processInstance));
       assertTrue(processInstance.isEnded());

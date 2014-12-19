@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.DataTypes;
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.ProcessEngineConfiguration;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
@@ -41,18 +41,18 @@ import com.heisenberg.plugin.activities.Label;
  */
 public class ScriptTest {
   
-  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+  public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
 
   @Test
   public void testScript() {
-    ProcessEngine processEngine = new ProcessEngineConfiguration()
+    WorkflowEngine workflowEngine = new WorkflowEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .registerActivityType(new ScriptActivity())
       .buildProcessEngine();
 
-    DataTypes dataTypes = processEngine.getDataTypes();
+    DataTypes dataTypes = workflowEngine.getDataTypes();
     
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newVariable()
       .id("m")
@@ -65,13 +65,13 @@ public class ScriptTest {
     String processDefinitionId = process
       .deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
     Map<String,Object> fiveDollars = new HashMap<>();
     fiveDollars.put("amount", 5d);
     fiveDollars.put("currency", "USD");
     
-    processEngine.newStart()
+    workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", new Money(5, "USD"))
       .startProcessInstance();

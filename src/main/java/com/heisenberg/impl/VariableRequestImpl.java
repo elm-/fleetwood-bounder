@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
+import com.heisenberg.impl.definition.VariableImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.JavaBeanType;
@@ -49,12 +49,12 @@ public abstract class VariableRequestImpl {
     this.jsonService = jsonService;
   }
   
-  public void deserialize(ProcessDefinitionImpl processDefinition) {
+  public void deserialize(WorkflowImpl processDefinition) {
     if (variableValues!=null && !variableValues.isEmpty()) {
       Map<String,Object> internalValues = new HashMap<>();
-      List<VariableDefinitionImpl> variableDefinitions = processDefinition.getVariableDefinitions();
+      List<VariableImpl> variableDefinitions = processDefinition.getVariableDefinitions();
       if (variableDefinitions!=null) {
-        for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
+        for (VariableImpl variableDefinition: variableDefinitions) {
           String variableId = variableDefinition.id;
           Object jsonValue = variableValues.get(variableId);
           Object internalValue = variableDefinition.dataType.convertJsonToInternalValue(jsonValue);

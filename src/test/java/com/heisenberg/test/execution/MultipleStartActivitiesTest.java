@@ -20,11 +20,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -33,9 +33,9 @@ public class MultipleStartActivitiesTest {
   
   @Test
   public void testDefaultStartActivitiesParallelExecution() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
 
     process.newActivity()
       .activityType(new UserTask())
@@ -53,23 +53,23 @@ public class MultipleStartActivitiesTest {
     
     String processDefinitionId = process.deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
-    assertOpen(processInstance, "one", "two");
+    assertOpen(workflowInstance, "one", "two");
     
-    processInstance = endTask(processEngine, processInstance, "two");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "two");
 
-    assertOpen(processInstance, "one", "three");
+    assertOpen(workflowInstance, "one", "three");
 
-    processInstance = endTask(processEngine, processInstance, "one");
-    processInstance = endTask(processEngine, processInstance, "three");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "one");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "three");
 
-    assertOpen(processInstance);
+    assertOpen(workflowInstance);
 
-    assertTrue(processInstance.isEnded());
+    assertTrue(workflowInstance.isEnded());
   }
 }

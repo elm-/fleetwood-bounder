@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.task.Task;
 import com.heisenberg.api.task.TaskService;
 import com.heisenberg.plugin.Validator;
@@ -48,8 +48,8 @@ public class UserTask extends AbstractActivityType {
   List<Binding<String>> candidates;
   
   @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    super.validate(activityDefinition, validator);
+  public void validate(Activity activity, Validator validator) {
+    super.validate(activity, validator);
     this.taskService = validator.getServiceRegistry().getService(TaskService.class);
   }
 

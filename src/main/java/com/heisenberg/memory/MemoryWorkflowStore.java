@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.heisenberg.impl.ProcessDefinitionQueryImpl;
+import com.heisenberg.impl.WorkflowQueryImpl;
 import com.heisenberg.impl.WorkflowStore;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.plugin.ServiceRegistry;
 
 
@@ -31,37 +31,37 @@ import com.heisenberg.plugin.ServiceRegistry;
  */
 public class MemoryWorkflowStore implements WorkflowStore {
 
-  protected Map<Object, ProcessDefinitionImpl> processDefinitions;
+  protected Map<Object, WorkflowImpl> processDefinitions;
 
   public MemoryWorkflowStore() {
   }
 
   public MemoryWorkflowStore(ServiceRegistry serviceRegistry) {
-    this.processDefinitions = new ConcurrentHashMap<Object, ProcessDefinitionImpl>();
+    this.processDefinitions = new ConcurrentHashMap<Object, WorkflowImpl>();
   }
 
   /** ensures that every element in this process definition has an id */
   @Override
-  public String createProcessDefinitionId(ProcessDefinitionImpl processDefinition) {
+  public String createWorkflowId(WorkflowImpl processDefinition) {
     return UUID.randomUUID().toString();
   }
 
   @Override
-  public void insertProcessDefinition(ProcessDefinitionImpl processDefinition) {
+  public void insertWorkflow(WorkflowImpl processDefinition) {
     processDefinitions.put(processDefinition.id, processDefinition);
   }
 
   @Override
-  public List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl query) {
-    List<ProcessDefinitionImpl> result = null;
+  public List<WorkflowImpl> loadWorkflows(WorkflowQueryImpl query) {
+    List<WorkflowImpl> result = null;
     if (query.id!=null) {
-      result = new ArrayList<ProcessDefinitionImpl>();
-      ProcessDefinitionImpl processDefinition = processDefinitions.get(query.id);
+      result = new ArrayList<WorkflowImpl>();
+      WorkflowImpl processDefinition = processDefinitions.get(query.id);
       if (processDefinition!=null) {
         result.add(processDefinition);
       }
     } else if (result==null) {
-      result = new ArrayList<ProcessDefinitionImpl>(processDefinitions.values());
+      result = new ArrayList<WorkflowImpl>(processDefinitions.values());
     }
     if (query.name!=null && !result.isEmpty()) {
       filterByName(result, query.name);
@@ -74,7 +74,7 @@ public class MemoryWorkflowStore implements WorkflowStore {
     return result;
   }
   
-  protected void filterByName(List<ProcessDefinitionImpl> result, String name) {
+  protected void filterByName(List<WorkflowImpl> result, String name) {
     for (int i=result.size()-1; i<=0; i--) {
       if (!name.equals(result.get(i).name)) {
         result.remove(i);
@@ -82,7 +82,7 @@ public class MemoryWorkflowStore implements WorkflowStore {
     }
   }
 
-  protected boolean matchesProcessDefinitionCriteria(ProcessDefinitionImpl process, ProcessDefinitionQueryImpl query) {
+  protected boolean matchesProcessDefinitionCriteria(WorkflowImpl process, WorkflowQueryImpl query) {
     if (query.name!=null && !query.name.equals(process.name)) {
       return false;
     }

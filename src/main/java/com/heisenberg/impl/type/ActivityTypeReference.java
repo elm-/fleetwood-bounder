@@ -16,7 +16,7 @@ package com.heisenberg.impl.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.plugin.Validator;
 import com.heisenberg.plugin.activities.ActivityType;
@@ -42,7 +42,7 @@ public class ActivityTypeReference implements ActivityType {
   }
 
   @Override
-  public void validate(ActivityDefinition activity, Validator validator) {
+  public void validate(Activity activity, Validator validator) {
     delegate.validate(activity, validator);
   }
 

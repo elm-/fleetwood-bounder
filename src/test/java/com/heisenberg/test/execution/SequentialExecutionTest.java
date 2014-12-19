@@ -20,11 +20,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -33,9 +33,9 @@ public class SequentialExecutionTest {
   
   @Test
   public void testOne() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
 
     process.newActivity()
       .activityType(new UserTask())
@@ -54,37 +54,37 @@ public class SequentialExecutionTest {
     
     String processDefinitionId = process.deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
-    assertOpen(processInstance, "one");
+    assertOpen(workflowInstance, "one");
     
-    String oneId = getActivityInstanceId(processInstance, "one");
+    String oneId = getActivityInstanceId(workflowInstance, "one");
     
-    processInstance = processEngine.newMessage()
+    workflowInstance = workflowEngine.newMessage()
       .activityInstanceId(oneId)
       .send();
 
-    assertOpen(processInstance, "two");
+    assertOpen(workflowInstance, "two");
     
-    String twoId = getActivityInstanceId(processInstance, "two");
+    String twoId = getActivityInstanceId(workflowInstance, "two");
     
-    processEngine.newMessage()
+    workflowEngine.newMessage()
       .activityInstanceId(twoId)
       .send();
 
 
-    assertOpen(processInstance, "three");
+    assertOpen(workflowInstance, "three");
     
-    String threeId = getActivityInstanceId(processInstance, "three");
+    String threeId = getActivityInstanceId(workflowInstance, "three");
     
-    processEngine.newMessage()
+    workflowEngine.newMessage()
       .activityInstanceId(threeId)
       .send();
 
-    assertTrue(processInstance.isEnded());
+    assertTrue(workflowInstance.isEnded());
   }
 }

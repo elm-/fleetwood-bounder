@@ -17,7 +17,7 @@ package com.heisenberg.api.activitytypes;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.plugin.Validator;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.ControllableActivityInstance;
@@ -32,15 +32,15 @@ public class EmbeddedSubprocess extends AbstractActivityType {
   public static final EmbeddedSubprocess INSTANCE = new EmbeddedSubprocess();
   
   @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    activityDefinition.initializeStartActivities(validator);
+  public void validate(Activity activity, Validator validator) {
+    activity.initializeStartActivities(validator);
   }
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    List<ActivityDefinition> startActivities = activityInstance.getActivityDefinition().getStartActivities();
+    List<Activity> startActivities = activityInstance.getActivityDefinition().getStartActivities();
     if (startActivities!=null && !startActivities.isEmpty()) {
-      for (ActivityDefinition startActivity: startActivities) {
+      for (Activity startActivity: startActivities) {
         activityInstance.start(startActivity);
       }
     } else {

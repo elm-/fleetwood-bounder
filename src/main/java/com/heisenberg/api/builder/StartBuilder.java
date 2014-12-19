@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.builder;
 
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.impl.type.DataType;
 
 /**
@@ -35,6 +35,6 @@ public interface StartBuilder {
   
   StartBuilder transientContext(String key, Object value);
 
-  ProcessInstance startProcessInstance();
+  WorkflowInstance startProcessInstance();
 
 }

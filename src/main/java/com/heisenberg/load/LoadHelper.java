@@ -14,9 +14,9 @@
  */
 package com.heisenberg.load;
 
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 
 /**
@@ -24,10 +24,10 @@ import com.heisenberg.memory.MemoryProcessEngine;
  */
 public class LoadHelper {
   
-  static ProcessEngineImpl processEngine = new MemoryProcessEngine();
+  static WorkflowEngineImpl processEngine = new MemoryWorkflowEngine();
   
-  public static ProcessInstanceImpl parseJson(String json) {
-    return processEngine.getJsonService().jsonToObject(json, ProcessInstanceImpl.class);
+  public static WorkflowInstanceImpl parseJson(String json) {
+    return processEngine.getJsonService().jsonToObject(json, WorkflowInstanceImpl.class);
   }
 
 }

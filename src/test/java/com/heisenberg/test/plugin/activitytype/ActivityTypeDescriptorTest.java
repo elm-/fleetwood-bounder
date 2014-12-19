@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.ProcessEngineConfiguration;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.plugin.DescriptorSender;
 import com.heisenberg.plugin.Descriptors;
@@ -42,7 +42,7 @@ public class ActivityTypeDescriptorTest {
 
   @Test 
   public void testConfigurableActivityTypeDescriptor() {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new ProcessEngineConfiguration()
+    WorkflowEngineImpl processEngine = (WorkflowEngineImpl) new WorkflowEngineConfiguration()
       .registerActivityType(new MyConfigurableActivityType())
       .registerActivityType(new MyBindingActivityType())
       .buildProcessEngine();

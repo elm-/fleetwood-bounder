@@ -18,19 +18,19 @@ import com.heisenberg.impl.engine.operation.Operation;
 import com.heisenberg.impl.engine.updates.Update;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
-import com.heisenberg.impl.instance.ProcessInstanceVisitor;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceVisitor;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 
 
-/** a {@link ProcessInstanceVisitor} that prepares a process instance for json serialization.
+/** a {@link WorkflowInstanceVisitor} that prepares a process instance for json serialization.
  * 
  * @author Walter White
  */
-public class ProcessInstanceSerializer implements ProcessInstanceVisitor {
+public class ProcessInstanceSerializer implements WorkflowInstanceVisitor {
 
   @Override
-  public void startProcessInstance(ProcessInstanceImpl processInstance) {
+  public void startProcessInstance(WorkflowInstanceImpl processInstance) {
     if (processInstance.processDefinitionId==null 
             && processInstance.processDefinition!=null) {
       processInstance.processDefinitionId = processInstance.processDefinition.id;
@@ -38,7 +38,7 @@ public class ProcessInstanceSerializer implements ProcessInstanceVisitor {
   }
 
   @Override
-  public void endProcessInstance(ProcessInstanceImpl processInstance) {
+  public void endProcessInstance(WorkflowInstanceImpl processInstance) {
   }
 
   @Override

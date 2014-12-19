@@ -24,18 +24,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ScriptTask;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.Binding;
 import com.heisenberg.plugin.activities.ConfigurationField;
@@ -52,31 +52,31 @@ public class MongoProcessEngineTest {
   
   @Test
   public void testMongoProcessEngine() {
-    ProcessEngine processEngine = new MongoProcessEngineConfiguration()
+    WorkflowEngine workflowEngine = new MongoWorkflowEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     
-    ProcessDefinitionBuilder process = createProcess(processEngine);
+    WorkflowBuilder process = createProcess(workflowEngine);
 
     String processDefinitionId = process.deploy()
         .checkNoErrorsAndNoWarnings()
-        .getProcessDefinitionId();
+        .getWorkflowId();
       
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
-    assertOpen(processInstance, "sub", "subTask");
+    assertOpen(workflowInstance, "sub", "subTask");
 
-    ActivityInstance subTaskInstance = findActivityInstanceOpen(processInstance, "subTask");
+    ActivityInstance subTaskInstance = findActivityInstanceOpen(workflowInstance, "subTask");
     
-    processEngine.newMessage()
+    workflowEngine.newMessage()
       .activityInstanceId(subTaskInstance.getId())
       .send();
   }
 
-  public static ProcessDefinitionBuilder createProcess(ProcessEngine processEngine) {
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition()
+  public static WorkflowBuilder createProcess(WorkflowEngine workflowEngine) {
+    WorkflowBuilder process = workflowEngine.newWorkflow()
       .name("load");
   
     process.newActivity()

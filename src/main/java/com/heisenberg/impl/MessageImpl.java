@@ -16,7 +16,7 @@ package com.heisenberg.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.MessageBuilder;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.DataType;
 
@@ -28,14 +28,14 @@ import com.heisenberg.impl.type.DataType;
 public class MessageImpl extends VariableRequestImpl implements MessageBuilder {
 
   @JsonIgnore
-  protected ProcessEngineImpl processEngine;
+  protected WorkflowEngineImpl processEngine;
   public String activityInstanceId;
   public String processInstanceId;
 
   public MessageImpl() {
   }
 
-  public MessageImpl(ProcessEngineImpl processEngine, JsonService jsonService) {
+  public MessageImpl(WorkflowEngineImpl processEngine, JsonService jsonService) {
     super(jsonService);
     this.processEngine = processEngine;
   }
@@ -84,7 +84,7 @@ public class MessageImpl extends VariableRequestImpl implements MessageBuilder {
   }
   
   @Override
-  public ProcessInstanceImpl send() {
+  public WorkflowInstanceImpl send() {
     return processEngine.sendActivityInstanceMessage(this);
   }
 }

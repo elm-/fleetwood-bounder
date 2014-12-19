@@ -17,7 +17,7 @@ package com.heisenberg.rest;
 import javax.ws.rs.ext.ContextResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
 
 
 /**
@@ -25,9 +25,9 @@ import com.heisenberg.impl.ProcessEngineImpl;
  */
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
   
-  ProcessEngineImpl processEngine;
+  WorkflowEngineImpl processEngine;
 
-  public ObjectMapperProvider(ProcessEngineImpl processEngine) {
+  public ObjectMapperProvider(WorkflowEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 

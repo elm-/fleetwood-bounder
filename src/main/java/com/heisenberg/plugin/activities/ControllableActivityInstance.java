@@ -16,8 +16,8 @@ package com.heisenberg.plugin.activities;
 
 import java.util.List;
 
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.definition.TransitionDefinition;
+import com.heisenberg.api.definition.Activity;
+import com.heisenberg.api.definition.Transition;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.plugin.ServiceRegistry;
 import com.heisenberg.plugin.TypedValue;
@@ -48,9 +48,9 @@ public interface ControllableActivityInstance extends ActivityInstance {
   void end(boolean notifyParent);
 
   /** starts a nested activity instance for the given activity definition */
-  void start(ActivityDefinition activityDefinition);
+  void start(Activity activity);
 
-  void takeTransition(TransitionDefinition transitionDefinition);
+  void takeTransition(Transition transition);
   
   ServiceRegistry getServiceRegistry();
 

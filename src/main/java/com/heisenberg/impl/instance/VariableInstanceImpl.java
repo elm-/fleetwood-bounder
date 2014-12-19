@@ -16,8 +16,8 @@ package com.heisenberg.impl.instance;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.definition.VariableImpl;
 import com.heisenberg.impl.type.DataType;
 
 
@@ -28,25 +28,25 @@ public class VariableInstanceImpl implements VariableInstance {
 
   public String id;
   @JsonIgnore
-  public ProcessEngineImpl processEngine;
+  public WorkflowEngineImpl processEngine;
   @JsonIgnore
   public ScopeInstanceImpl parent;
   @JsonIgnore
-  public ProcessInstanceImpl processInstance;
+  public WorkflowInstanceImpl processInstance;
   
   @JsonIgnore
-  public VariableDefinitionImpl variableDefinition;
+  public VariableImpl variableDefinition;
   @JsonIgnore
   public DataType dataType;
 
   public Object value;
   public String variableDefinitionId;
 
-  public ProcessEngineImpl getProcessEngine() {
+  public WorkflowEngineImpl getProcessEngine() {
     return processEngine;
   }
   
-  public void setProcessEngine(ProcessEngineImpl processEngine) {
+  public void setProcessEngine(WorkflowEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
   
@@ -58,11 +58,11 @@ public class VariableInstanceImpl implements VariableInstance {
     this.parent = parent;
   }
   
-  public ProcessInstanceImpl getProcessInstance() {
+  public WorkflowInstanceImpl getProcessInstance() {
     return processInstance;
   }
   
-  public void setProcessInstance(ProcessInstanceImpl processInstance) {
+  public void setProcessInstance(WorkflowInstanceImpl processInstance) {
     this.processInstance = processInstance;
   }
 
@@ -82,11 +82,11 @@ public class VariableInstanceImpl implements VariableInstance {
     this.value = value;
   }
   
-  public VariableDefinitionImpl getVariableDefinition() {
+  public VariableImpl getVariableDefinition() {
     return variableDefinition;
   }
   
-  public void setVariableDefinition(VariableDefinitionImpl variableDefinition) {
+  public void setVariableDefinition(VariableImpl variableDefinition) {
     this.variableDefinition = variableDefinition;
   }
 

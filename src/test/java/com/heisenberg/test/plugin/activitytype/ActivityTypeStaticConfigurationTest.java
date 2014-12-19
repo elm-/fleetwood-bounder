@@ -24,13 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.ProcessEngineConfiguration;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.definition.ActivityDefinitionImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionValidator;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.definition.ActivityImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
+import com.heisenberg.impl.definition.WorkflowValidator;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.ConfigurationField;
@@ -70,11 +70,11 @@ public class ActivityTypeStaticConfigurationTest {
   
   @Test 
   public void testConfigurableActivityTypeExecution() {
-    ProcessEngine processEngine = new ProcessEngineConfiguration()
+    WorkflowEngine workflowEngine = new WorkflowEngineConfiguration()
       .registerActivityType(new MyConfigurableActivityType())
       .buildProcessEngine();
 
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newActivity()
       .activityType(new MyConfigurableActivityType("one"))
@@ -86,11 +86,11 @@ public class ActivityTypeStaticConfigurationTest {
     
     String processDefinitionId = process.deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
     executedConfigurations.clear();
 
-    processEngine.newStart()
+    workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
@@ -103,11 +103,11 @@ public class ActivityTypeStaticConfigurationTest {
 
   @Test 
   public void testConfigurableActivityTypeSerialization() {
-    ProcessEngine processEngine = new ProcessEngineConfiguration()
+    WorkflowEngine workflowEngine = new WorkflowEngineConfiguration()
     .registerActivityType(new MyConfigurableActivityType())
     .buildProcessEngine();
 
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newActivity()
       .activityType(new MyConfigurableActivityType("one"))
@@ -118,17 +118,17 @@ public class ActivityTypeStaticConfigurationTest {
       .id("b");
 
     // serialize the process to json text string and deserialize back to java object
-    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
+    JsonService jsonService = ((WorkflowEngineImpl)workflowEngine).getJsonService();
     String processDefinitionJsonText = jsonService.objectToJsonStringPretty(process);
     log.debug(processDefinitionJsonText);
-    ProcessDefinitionImpl processDefinition = jsonService.jsonToObject(processDefinitionJsonText, ProcessDefinitionImpl.class);
-    processDefinition.visit(new ProcessDefinitionValidator((ProcessEngineImpl) processEngine));
+    WorkflowImpl processDefinition = jsonService.jsonToObject(processDefinitionJsonText, WorkflowImpl.class);
+    processDefinition.visit(new WorkflowValidator((WorkflowEngineImpl) workflowEngine));
     
-    ActivityDefinitionImpl a = processDefinition.getActivityDefinition("a");
+    ActivityImpl a = processDefinition.getActivity("a");
     MyConfigurableActivityType myConfigurableA = (MyConfigurableActivityType) a.activityType;
     assertEquals("one", myConfigurableA.configuration);
 
-    ActivityDefinitionImpl b = processDefinition.getActivityDefinition("b");
+    ActivityImpl b = processDefinition.getActivity("b");
     MyConfigurableActivityType myConfigurableB = (MyConfigurableActivityType) b.activityType;
     assertEquals("two", myConfigurableB.configuration);
   }

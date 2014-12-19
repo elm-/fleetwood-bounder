@@ -14,19 +14,19 @@
  */
 package com.heisenberg.plugin;
 
-import com.heisenberg.api.ProcessEngineConfiguration;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.impl.WorkflowEngineImpl;
 
 
 /** super interface for all service provider interfaces.
  * 
  * By using this marker interface, 
  * we only have to do 1 scan to find all pluggable implementations.
- * @see ProcessEngineImpl#initializeDefaultPluggableImplementations()  
+ * @see WorkflowEngineImpl#initializeDefaultPluggableImplementations()  
  * 
  * @author Walter White
  */
 public interface PluginFactory {
 
-  void registerPlugins(ProcessEngineConfiguration processEngineConfiguration);
+  void registerPlugins(WorkflowEngineConfiguration workflowEngineConfiguration);
 }

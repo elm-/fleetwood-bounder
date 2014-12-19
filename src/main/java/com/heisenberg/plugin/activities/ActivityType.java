@@ -17,7 +17,7 @@ package com.heisenberg.plugin.activities;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.plugin.Plugin;
 import com.heisenberg.plugin.Validator;
@@ -31,7 +31,7 @@ public interface ActivityType extends Plugin {
   
   /** called when the process is being deployed. 
    * @param activity */
-  void validate(ActivityDefinition activity, Validator validator);
+  void validate(Activity activity, Validator validator);
 
   /** called when the activity instance is started */
   void start(ControllableActivityInstance activityInstance);

@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.instance;
 
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 
 
 
@@ -27,7 +27,7 @@ public interface ActivityInstance extends ScopeInstance {
   
   String getId();
 
-  ActivityDefinition getActivityDefinition();
+  Activity getActivityDefinition();
 
   Object getActivityDefinitionId();
 
@@ -36,7 +36,7 @@ public interface ActivityInstance extends ScopeInstance {
   void removeJoining();
   boolean isJoining();
 
-  ProcessInstance getProcessInstance();
+  WorkflowInstance getProcessInstance();
 
   String getCalledProcessInstanceId();
 }

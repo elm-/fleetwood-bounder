@@ -21,15 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.DataTypes;
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.ProcessEngineConfiguration;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.builder.StartBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.api.instance.VariableInstance;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.StartBuilderImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.StartImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.JavaBeanType;
 
@@ -43,13 +43,13 @@ public class DataTypeJavaBeanSerializationTest {
   
   @Test
   public void testProcessEngineCustomMoneyType() {
-    ProcessEngine processEngine = new ProcessEngineConfiguration()
+    WorkflowEngine workflowEngine = new WorkflowEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .buildProcessEngine();
     
-    DataTypes dataTypes = processEngine.getDataTypes();
+    DataTypes dataTypes = workflowEngine.getDataTypes();
     
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newVariable()
       .id("m")
@@ -57,14 +57,14 @@ public class DataTypeJavaBeanSerializationTest {
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
     Money startProcessMoney = new Money(5, "USD");
 
-    JsonService jsonService = ((ProcessEngineImpl)processEngine).getJsonService();
+    JsonService jsonService = ((WorkflowEngineImpl)workflowEngine).getJsonService();
 
     // start a process instance supplying a java bean object as the variable value
-    StartBuilder trigger = processEngine.newStart()
+    StartBuilder trigger = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("m", startProcessMoney, Money.class);
 
@@ -72,14 +72,14 @@ public class DataTypeJavaBeanSerializationTest {
     log.debug("Serialized trigger message that can be sent to remote REST API:");
     log.debug(triggerJson);
 
-    StartBuilderImpl triggerImpl = jsonService.jsonToObject(triggerJson, StartBuilderImpl.class);
-    triggerImpl.processEngine = (ProcessEngineImpl) processEngine;
-    triggerImpl.deserialize((ProcessDefinitionImpl)process);
+    StartImpl triggerImpl = jsonService.jsonToObject(triggerJson, StartImpl.class);
+    triggerImpl.processEngine = (WorkflowEngineImpl) workflowEngine;
+    triggerImpl.deserialize((WorkflowImpl)process);
     
-    ProcessInstance processInstance = triggerImpl
+    WorkflowInstance workflowInstance = triggerImpl
       .startProcessInstance();
   
-    VariableInstance m = processInstance.getVariableInstances().get(0);
+    VariableInstance m = workflowInstance.getVariableInstances().get(0);
     Money variableInstanceMoney = (Money) m.getValue();
     assertEquals(startProcessMoney.amount, variableInstanceMoney.amount, 0.0001);
     assertEquals(startProcessMoney.currency, variableInstanceMoney.currency);

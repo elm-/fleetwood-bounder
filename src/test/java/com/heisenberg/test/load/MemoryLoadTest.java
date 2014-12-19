@@ -19,20 +19,23 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.memory.MemoryProcessEngine;
-import com.heisenberg.test.mongo.MongoProcessEngineTest;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.activitytypes.EndEvent;
+import com.heisenberg.api.activitytypes.ScriptTask;
+import com.heisenberg.api.activitytypes.StartEvent;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.definition.Workflow;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
  */
-@Ignore
+// @Ignore
 public class MemoryLoadTest  {
   
   static {
@@ -43,10 +46,12 @@ public class MemoryLoadTest  {
   
   @Test
   public void test() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
-    String processDefinitionId = MongoProcessEngineTest.createProcess(processEngine)
-            .deploy()
-            .getProcessDefinitionId();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
+//    String processDefinitionId = MongoProcessEngineTest.createProcess(workflowEngine)
+//            .deploy()
+//            .getProcessDefinitionId();
+    
+    String workflowId = createWorkflow(workflowEngine);
     
     long nbrOfThreads = 4;
     long processExecutionsPerThread = 50000;
@@ -54,7 +59,7 @@ public class MemoryLoadTest  {
     
     // warm up
     for (int i=0; i<500; i++) {
-      runProcessInstance(processEngine, processDefinitionId);
+      runProcessInstance(workflowEngine, workflowId);
     }
 
     // start measuring
@@ -62,7 +67,7 @@ public class MemoryLoadTest  {
 
     List<Thread> threads = new ArrayList<>();
     for (int i=0; i<nbrOfThreads; i++) {
-      ProcessInstanceRunner thread = new ProcessInstanceRunner(processEngine, processDefinitionId, processExecutionsPerThread);
+      ProcessInstanceRunner thread = new ProcessInstanceRunner(workflowEngine, workflowId, processExecutionsPerThread);
       threads.add(thread);
     }
     
@@ -83,12 +88,37 @@ public class MemoryLoadTest  {
     log.info(processExecutions+" process executions at "+((processExecutions*1000f)/(float)(end-start))+ " per second");
   }
 
+  public String createWorkflow(WorkflowEngine workflowEngine) {
+    WorkflowBuilder w = workflowEngine.newWorkflow()
+      .name("load");
+  
+    w.newActivity()
+      .activityType(StartEvent.INSTANCE)
+      .id("start");
+
+    w.newTransition()
+      .from("start").to("s");
+
+    w.newActivity()
+      .activityType(new ScriptTask())
+      .id("s");
+
+    w.newTransition()
+      .from("s").to("end");
+
+    w.newActivity()
+      .activityType(EndEvent.INSTANCE)
+      .id("end");
+    
+    return w.deploy().getWorkflowId();
+  }
+
   class ProcessInstanceRunner extends Thread {
-    ProcessEngine processEngine;
+    WorkflowEngine workflowEngine;
     String processDefinitionId;
     long processExecutions;
-    public ProcessInstanceRunner(ProcessEngine processEngine, String processDefinitionId, long processExecutions) {
-      this.processEngine = processEngine;
+    public ProcessInstanceRunner(WorkflowEngine workflowEngine, String processDefinitionId, long processExecutions) {
+      this.workflowEngine = workflowEngine;
       this.processDefinitionId = processDefinitionId;
       this.processExecutions = processExecutions;
     }
@@ -96,25 +126,25 @@ public class MemoryLoadTest  {
     @Override
     public void run() {
       for (int i=0; i<processExecutions; i++) {
-        runProcessInstance(processEngine, processDefinitionId);
+        runProcessInstance(workflowEngine, processDefinitionId);
       }
     }
   }
 
-  void runProcessInstance(ProcessEngine processEngine, String processDefinitionId) {
-    ProcessInstance processInstance = processEngine.newStart()
+  void runProcessInstance(WorkflowEngine workflowEngine, String processDefinitionId) {
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
-    String subTaskInstanceId = processInstance
-            .findActivityInstanceByActivityDefinitionId("subTask")
-            .getId();
-  
-    processInstance = processEngine.newMessage()
-      .processInstanceId(processInstance.getId())
-      .activityInstanceId(subTaskInstanceId)
-      .send();
+//    String subTaskInstanceId = workflowInstance
+//            .findActivityInstanceByActivityDefinitionId("s")
+//            .getId();
+//  
+//    workflowInstance = workflowEngine.newMessage()
+//      .processInstanceId(workflowInstance.getId())
+//      .activityInstanceId(subTaskInstanceId)
+//      .send();
     
-    assertTrue(processInstance.isEnded());
+    assertTrue(workflowInstance.isEnded());
   }
 }

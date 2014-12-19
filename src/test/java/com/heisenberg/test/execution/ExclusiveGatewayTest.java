@@ -19,13 +19,13 @@ import static com.heisenberg.test.TestHelper.assertOpen;
 import org.junit.Test;
 
 import com.heisenberg.api.DataTypes;
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.ExclusiveGateway;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -34,9 +34,9 @@ public class ExclusiveGatewayTest {
   
   @Test
   public void testExclusiveGateway() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    ProcessDefinitionBuilder p = processEngine.newProcessDefinition();
+    WorkflowBuilder p = workflowEngine.newWorkflow();
     
     p.newVariable()
      .id("v")
@@ -58,27 +58,27 @@ public class ExclusiveGatewayTest {
 
     String processDefinitionId = p.deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", 5)
       .startProcessInstance();
 
-    assertOpen(processInstance, "t1");
+    assertOpen(workflowInstance, "t1");
 
-    processInstance = processEngine.newStart()
+    workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", 50)
       .startProcessInstance();
 
-    assertOpen(processInstance, "t2");
+    assertOpen(workflowInstance, "t2");
 
-    processInstance = processEngine.newStart()
+    workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", 500)
       .startProcessInstance();
 
-    assertOpen(processInstance, "t3");
+    assertOpen(workflowInstance, "t3");
   }
 }

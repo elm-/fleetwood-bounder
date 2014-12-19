@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.ProcessEngineConfiguration;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.type.AbstractDataType;
 import com.heisenberg.impl.type.InvalidValueException;
@@ -39,7 +39,7 @@ public class DataTypeDescriptorTest {
 
   @Test 
   public void testDataTypeDescriptors() {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new ProcessEngineConfiguration()
+    WorkflowEngineImpl processEngine = (WorkflowEngineImpl) new WorkflowEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .registerDataType(new InvoiceType())
       .buildProcessEngine();

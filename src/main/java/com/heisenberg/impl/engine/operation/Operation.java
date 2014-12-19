@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 
@@ -43,7 +43,7 @@ public abstract class Operation {
 
   public abstract boolean isAsync();
 
-  public abstract void execute(ProcessEngineImpl processEngine);
+  public abstract void execute(WorkflowEngineImpl processEngine);
 
   public abstract OperationAddUpdate createUpdate();
 

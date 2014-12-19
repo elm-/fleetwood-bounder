@@ -16,7 +16,7 @@ package com.heisenberg.impl;
 
 import java.util.List;
 
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
 
 
 /**
@@ -24,12 +24,12 @@ import com.heisenberg.impl.definition.ProcessDefinitionImpl;
  */
 public interface WorkflowStore {
   
-  String createProcessDefinitionId(ProcessDefinitionImpl processDefinition);
+  String createWorkflowId(WorkflowImpl workflow);
 
   /** @param processDefinition is a validated process definition that has no errors.  It might have warnings. */
-  void insertProcessDefinition(ProcessDefinitionImpl processDefinition);
+  void insertWorkflow(WorkflowImpl workflow);
 
-  List<ProcessDefinitionImpl> loadProcessDefinitions(ProcessDefinitionQueryImpl processDefinitionQuery);
+  List<WorkflowImpl> loadWorkflows(WorkflowQueryImpl workflowQuery);
 
 
 }

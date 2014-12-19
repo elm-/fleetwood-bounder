@@ -33,12 +33,11 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.StartBuilder;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionSerializer;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.load.LoadHelper;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 import com.heisenberg.rest.HeisenbergServer;
 import com.heisenberg.rest.ObjectMapperProvider;
 import com.heisenberg.test.mongo.MongoProcessEngineTest;
@@ -59,18 +58,18 @@ public class RestTest extends JerseyTest {
 
   public static final Logger log = LoggerFactory.getLogger(RestTest.class);
   
-  static ProcessEngineImpl processEngine = null;
+  static WorkflowEngineImpl processEngine = null;
   
   @Override
   protected Application configure() {
     return HeisenbergServer.buildRestApplication(getProcessEngine());
   }
 
-  protected ProcessEngineImpl getProcessEngine() {
+  protected WorkflowEngineImpl getProcessEngine() {
     if (processEngine!=null) {
       return processEngine;
     }
-    processEngine = (ProcessEngineImpl) new MongoProcessEngineConfiguration()
+    processEngine = (WorkflowEngineImpl) new MongoWorkflowEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     return processEngine;
@@ -83,9 +82,7 @@ public class RestTest extends JerseyTest {
 
   @Test
   public void test() {
-    ProcessDefinitionImpl processDefinition = (ProcessDefinitionImpl) MongoProcessEngineTest.createProcess(processEngine);
-    processDefinition.visit(new ProcessDefinitionSerializer());
-    
+    WorkflowImpl processDefinition = (WorkflowImpl) MongoProcessEngineTest.createProcess(processEngine);
     DeployResult deployResponse = target("deploy").request()
             .post(Entity.entity(processDefinition, MediaType.APPLICATION_JSON))
             .readEntity(DeployResult.class);
@@ -110,9 +107,9 @@ public class RestTest extends JerseyTest {
     StartBuilder startProcessInstanceRequest = processEngine.newStart()
       .processDefinitionName("load");
     
-    ProcessInstanceImpl processInstance = target("start").request()
+    WorkflowInstanceImpl processInstance = target("start").request()
             .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
-            .readEntity(ProcessInstanceImpl.class);
+            .readEntity(WorkflowInstanceImpl.class);
 
     String processInstanceJson = processEngine.jsonService.objectToJsonString(processInstance);
     
@@ -127,7 +124,7 @@ public class RestTest extends JerseyTest {
     
     processInstance = target("message").request()
             .post(Entity.entity(message, MediaType.APPLICATION_JSON))
-            .readEntity(ProcessInstanceImpl.class);
+            .readEntity(WorkflowInstanceImpl.class);
 
     log.debug("response: " + processEngine.jsonService.objectToJsonStringPretty(processInstance));
     assertTrue(processInstance.isEnded());

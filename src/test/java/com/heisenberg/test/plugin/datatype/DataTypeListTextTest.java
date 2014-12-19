@@ -20,14 +20,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.impl.type.ListType;
 import com.heisenberg.impl.type.TextType;
 import com.heisenberg.impl.util.Lists;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 
 /**
@@ -39,9 +39,9 @@ public class DataTypeListTextTest {
   
   @Test
   public void testVariableStoringListOfTexts() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newVariable()
       .id("v")
@@ -49,14 +49,14 @@ public class DataTypeListTextTest {
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
-      .getProcessDefinitionId();
+      .getWorkflowId();
 
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", Lists.of("Hello", "World"))
       .startProcessInstance();
   
-    VariableInstance v = processInstance.getVariableInstances().get(0);
+    VariableInstance v = workflowInstance.getVariableInstances().get(0);
     assertEquals(Lists.of("Hello", "World"), v.getValue());
   }
 }

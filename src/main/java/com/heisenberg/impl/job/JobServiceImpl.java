@@ -15,10 +15,10 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Seconds;
 
 import com.heisenberg.impl.ExecutorService;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.ProcessInstanceQueryImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.WorkflowInstanceQueryImpl;
 import com.heisenberg.impl.WorkflowInstanceStore;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.plugin.ServiceRegistry;
 
 
@@ -29,7 +29,7 @@ public abstract class JobServiceImpl implements JobService {
   
   // private static final Logger log = LoggerFactory.getLogger(JobServiceImpl.class);
   
-  public ProcessEngineImpl processEngine;
+  public WorkflowEngineImpl processEngine;
   public ExecutorService executor = null;
 
   // configuration 
@@ -47,7 +47,7 @@ public abstract class JobServiceImpl implements JobService {
 
   
   public JobServiceImpl(ServiceRegistry serviceRegistry) {
-    this.processEngine = serviceRegistry.getService(ProcessEngineImpl.class);
+    this.processEngine = serviceRegistry.getService(WorkflowEngineImpl.class);
     this.executor = serviceRegistry.getService(ExecutorService.class);
   }
 
@@ -116,9 +116,9 @@ public abstract class JobServiceImpl implements JobService {
            && processInstanceIds!=null 
            && processInstanceIds.hasNext()) {
       String processInstanceId = processInstanceIds.next();
-      ProcessInstanceQueryImpl query = processEngine.newProcessInstanceQuery()
+      WorkflowInstanceQueryImpl query = processEngine.newProcessInstanceQuery()
         .processInstanceId(processInstanceId);
-      ProcessInstanceImpl lockedProcessInstance = workflowInstanceStore.lockProcessInstance(query);
+      WorkflowInstanceImpl lockedProcessInstance = workflowInstanceStore.lockWorkflowInstance(query);
       boolean keepGoing = true;
       while (isRunning && keepGoing) {
         Job job = lockNextProcessJob(processInstanceId);
@@ -147,11 +147,11 @@ public abstract class JobServiceImpl implements JobService {
   class ExecuteJob implements Runnable {
     JobServiceImpl jobService;
     Job job;
-    ProcessInstanceImpl processInstance;
+    WorkflowInstanceImpl processInstance;
     public ExecuteJob(Job job) {
       this.job = job;
     }
-    public ExecuteJob(Job job, ProcessInstanceImpl processInstance) {
+    public ExecuteJob(Job job, WorkflowInstanceImpl processInstance) {
       this.job = job;
       this.processInstance = processInstance;
     }
@@ -161,7 +161,7 @@ public abstract class JobServiceImpl implements JobService {
     }
   }
   
-  public void executeJob(Job job, ProcessInstanceImpl processInstance) {
+  public void executeJob(Job job, WorkflowInstanceImpl processInstance) {
     JobExecution jobExecution = new JobExecution(job, processInstance);
     job.duedate = null;
     job.lock = null;
@@ -219,14 +219,14 @@ public abstract class JobServiceImpl implements JobService {
   
   /** returns the ids of process instance that have jobs requiring
    * a process instance lock. When a job requires a process instance lock, 
-   * it has to specify {@link Job#processInstanceId} and set {@link Job#lockProcessInstance} to true.
+   * it has to specify {@link Job#processInstanceId} and set {@link Job#lockWorkflowInstance} to true.
    * This method is allowed to return null. */
   public abstract Iterator<String> getProcessInstanceIdsToLockForJobs();
 
   /** locks a job having the given processInstanceId and retrieves it from the store */
   public abstract Job lockNextProcessJob(String processInstanceId);
 
-  /** locks a job not having a {@link Job#lockProcessInstance} specified  
+  /** locks a job not having a {@link Job#lockWorkflowInstance} specified  
    * and retrieves it from the store */
   public abstract Job lockNextOtherJob();
 

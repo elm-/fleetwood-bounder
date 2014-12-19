@@ -14,7 +14,7 @@
  */
 package com.heisenberg.impl.engine.operation;
 
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.engine.updates.OperationAddNotifyEndUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
@@ -33,7 +33,7 @@ public class NotifyEndOperation extends Operation {
   }
 
   @Override
-  public void execute(ProcessEngineImpl processEngine) {
+  public void execute(WorkflowEngineImpl processEngine) {
     activityInstance.parent.ended(activityInstance);
   }
   

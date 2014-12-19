@@ -19,9 +19,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.impl.definition.ActivityDefinitionImpl;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.definition.ActivityImpl;
 import com.heisenberg.impl.engine.updates.OperationAddStartUpdate;
 import com.heisenberg.impl.engine.updates.OperationAddUpdate;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
@@ -32,7 +32,7 @@ import com.heisenberg.impl.instance.ActivityInstanceImpl;
  */
 public class StartActivityInstanceOperation extends Operation {
   
-  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+  public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
   
   Boolean isForEachElement;
 
@@ -53,8 +53,8 @@ public class StartActivityInstanceOperation extends Operation {
     return activityInstance.getActivityDefinition().isAsync(activityInstance);
   }
 
-  public void execute(ProcessEngineImpl processEngine) {
-    ActivityDefinitionImpl activityDefinition = activityInstance.getActivityDefinition();
+  public void execute(WorkflowEngineImpl processEngine) {
+    ActivityImpl activityDefinition = activityInstance.getActivityDefinition();
     if (activityDefinition.forEach!=null && !Boolean.TRUE.equals(isForEachElement)) {
       List<Object> values = activityInstance.getValue(activityDefinition.forEach);
       if (values!=null && !values.isEmpty()) {

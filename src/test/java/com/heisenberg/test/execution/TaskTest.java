@@ -19,8 +19,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 import com.heisenberg.memory.MemoryTaskService;
 
 
@@ -31,9 +31,9 @@ public class TaskTest {
 
   @Test
   public void testTask() throws Exception {
-    MemoryProcessEngine processEngine = new MemoryProcessEngine();
+    MemoryWorkflowEngine processEngine = new MemoryWorkflowEngine();
     
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = processEngine.newWorkflow();
     
     process.newActivity()
       .id("Task one")
@@ -42,7 +42,7 @@ public class TaskTest {
     String processDefinitionId = process
       .deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
     processEngine.newStart()
       .processDefinitionId(processDefinitionId)

@@ -20,11 +20,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.StartEvent;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 
 /**
@@ -36,10 +36,10 @@ public class ProcessDefinitionValidationExample {
 
   @Test
   public void testActivityDefinitionWithoutName() {
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
     
     // cook the process
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newActivity()
       .activityType(StartEvent.INSTANCE);

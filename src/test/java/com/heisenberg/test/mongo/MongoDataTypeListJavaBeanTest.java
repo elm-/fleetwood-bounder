@@ -23,12 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.DataTypes;
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.api.instance.VariableInstance;
 import com.heisenberg.impl.util.Lists;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 
 
 /**
@@ -41,14 +41,14 @@ public class MongoDataTypeListJavaBeanTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testVariableStoringListOfBeans() {
-    ProcessEngine processEngine = new MongoProcessEngineConfiguration()
+    WorkflowEngine workflowEngine = new MongoWorkflowEngineConfiguration()
       .registerJavaBeanType(Money.class)
       .server("localhost", 27017)
       .buildProcessEngine();
 
-    DataTypes types = processEngine.getDataTypes();
+    DataTypes types = workflowEngine.getDataTypes();
     
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newVariable()
       .id("v")
@@ -56,15 +56,15 @@ public class MongoDataTypeListJavaBeanTest {
     
     String processDefinitionId = process.deploy()
       .checkNoErrors()
-      .getProcessDefinitionId();
+      .getWorkflowId();
 
     List<Money> moneys = Lists.of(new Money(5, "USD"), new Money(6, "EUR"));
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("v", moneys, types.list(types.javaBean(Money.class)))
       .startProcessInstance();
   
-    VariableInstance v = processInstance.getVariableInstances().get(0);
+    VariableInstance v = workflowInstance.getVariableInstances().get(0);
     List<Money> values = (List<Money>) v.getValue();
     assertEquals(5, values.get(0).amount);
     assertEquals("USD", values.get(0).currency);

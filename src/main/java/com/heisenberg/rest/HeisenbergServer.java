@@ -23,8 +23,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 
 
 /**
@@ -38,9 +38,9 @@ public class HeisenbergServer {
   public static final Logger log = LoggerFactory.getLogger(HeisenbergServer.class+".HTTP");
   
   String baseUrl = "http://localhost:9999/";
-  ProcessEngineImpl processEngine;
+  WorkflowEngineImpl processEngine;
   
-  public HeisenbergServer(ProcessEngineImpl processEngine) {
+  public HeisenbergServer(WorkflowEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
@@ -50,7 +50,7 @@ public class HeisenbergServer {
   }
 
   public static void main(String[] args) {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new MongoProcessEngineConfiguration()
+    WorkflowEngineImpl processEngine = (WorkflowEngineImpl) new MongoWorkflowEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     HeisenbergServer heisenbergServer = new HeisenbergServer(processEngine);
@@ -70,7 +70,7 @@ public class HeisenbergServer {
     }
   }
 
-  public static ResourceConfig buildRestApplication(ProcessEngineImpl processEngine) {
+  public static ResourceConfig buildRestApplication(WorkflowEngineImpl processEngine) {
     ResourceConfig config = new ResourceConfig();
     
     config.registerInstances(

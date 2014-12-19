@@ -22,15 +22,15 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.api.instance.ProcessInstance;
+import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.mongo.MongoCollection;
 import com.heisenberg.mongo.MongoJobs;
-import com.heisenberg.mongo.MongoProcessDefinitions;
-import com.heisenberg.mongo.MongoProcessEngine;
-import com.heisenberg.mongo.MongoProcessInstances;
+import com.heisenberg.mongo.MongoWorkflowStore;
+import com.heisenberg.mongo.MongoWorkflowEngine;
+import com.heisenberg.mongo.MongoWorkflowInstanceStore;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
@@ -45,8 +45,8 @@ public class TestHelper {
     }
   }
 
-  public static ActivityInstance findActivityInstanceOpen(ProcessInstance processInstance, Object activityDefinitionId) {
-    return findActivityInstanceOpen(processInstance.getActivityInstances(), activityDefinitionId); 
+  public static ActivityInstance findActivityInstanceOpen(WorkflowInstance workflowInstance, Object activityDefinitionId) {
+    return findActivityInstanceOpen(workflowInstance.getActivityInstances(), activityDefinitionId); 
   }
 
   static ActivityInstance findActivityInstanceOpen(List<? extends ActivityInstance> activityInstances, Object activityDefinitionId) {
@@ -68,7 +68,7 @@ public class TestHelper {
     return findActivityInstanceOpen(activityInstance.getActivityInstances(), activityDefinitionId);
   }
 
-  public static void assertOpen(ProcessInstance processInstance, String... expectedActivityNames) {
+  public static void assertOpen(WorkflowInstance workflowInstance, String... expectedActivityNames) {
     Map<String,Integer> expectedActivityCounts = new HashMap<String, Integer>();
     if (expectedActivityNames!=null) {
       for (String expectedActivityName: expectedActivityNames) {
@@ -77,7 +77,7 @@ public class TestHelper {
       }
     }
     Map<String,Integer> activityCounts = new HashMap<String, Integer>();
-    scanActivityCounts(processInstance, activityCounts);
+    scanActivityCounts(workflowInstance, activityCounts);
     assertEquals(expectedActivityCounts, activityCounts);
   }
   
@@ -95,26 +95,26 @@ public class TestHelper {
     }
   }
 
-  public static String getActivityInstanceId(ProcessInstance processInstance, String activityDefinitionId) {
-    ActivityInstance activityInstance = processInstance.findActivityInstanceByActivityDefinitionId(activityDefinitionId);
+  public static String getActivityInstanceId(WorkflowInstance workflowInstance, String activityDefinitionId) {
+    ActivityInstance activityInstance = workflowInstance.findActivityInstanceByActivityDefinitionId(activityDefinitionId);
     Assert.assertNotNull("No open activity instance found "+activityDefinitionId+" not found", activityInstance);
     return activityInstance.getId();
   }
 
-  public static ProcessInstance endTask(ProcessEngine processEngine, ProcessInstance processInstance, String activityDefinitionId) {
-    return processEngine.newMessage()
-      .activityInstanceId(getActivityInstanceId(processInstance, activityDefinitionId))
+  public static WorkflowInstance endTask(WorkflowEngine workflowEngine, WorkflowInstance workflowInstance, String activityDefinitionId) {
+    return workflowEngine.newMessage()
+      .activityInstanceId(getActivityInstanceId(workflowInstance, activityDefinitionId))
       .send();
   }
   
-  public static void mongoDeleteAllCollections(ProcessEngine processEngine) {
-    MongoProcessEngine mongoProcessEngine = (MongoProcessEngine) processEngine;
-    mongoDeleteAllDocumentsInCollection(mongoProcessEngine, MongoProcessDefinitions.class);
-    mongoDeleteAllDocumentsInCollection(mongoProcessEngine, MongoProcessInstances.class);
-    mongoDeleteAllDocumentsInCollection(mongoProcessEngine, MongoJobs.class);
+  public static void mongoDeleteAllCollections(WorkflowEngine workflowEngine) {
+    MongoWorkflowEngine mongoWorkflowEngine = (MongoWorkflowEngine) workflowEngine;
+    mongoDeleteAllDocumentsInCollection(mongoWorkflowEngine, MongoWorkflowStore.class);
+    mongoDeleteAllDocumentsInCollection(mongoWorkflowEngine, MongoWorkflowInstanceStore.class);
+    mongoDeleteAllDocumentsInCollection(mongoWorkflowEngine, MongoJobs.class);
   }
 
-  public static void mongoDeleteAllDocumentsInCollection(MongoProcessEngine processEngine, Class<? extends MongoCollection> mongoCollectionClass) {
+  public static void mongoDeleteAllDocumentsInCollection(MongoWorkflowEngine processEngine, Class<? extends MongoCollection> mongoCollectionClass) {
     MongoCollection mongoCollection = processEngine.getServiceRegistry().getService(mongoCollectionClass);
     DBCollection dbCollection = mongoCollection.getDbCollection();
     DBCursor documents = dbCollection.find();

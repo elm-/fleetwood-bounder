@@ -24,15 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.ProcessEngine;
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.Time;
-import com.heisenberg.impl.definition.ActivityDefinitionImpl;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.definition.ScopeDefinitionImpl;
-import com.heisenberg.impl.definition.VariableDefinitionImpl;
+import com.heisenberg.impl.definition.ActivityImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
+import com.heisenberg.impl.definition.ScopeImpl;
+import com.heisenberg.impl.definition.VariableImpl;
 import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
 import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
 import com.heisenberg.impl.script.ScriptResult;
@@ -48,7 +48,7 @@ import com.heisenberg.plugin.activities.Binding;
  */
 public abstract class ScopeInstanceImpl implements ScopeInstance {
   
-  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+  public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
 
   public String id;
   public LocalDateTime start;
@@ -61,22 +61,22 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   public Map<Object, VariableInstanceImpl> variableInstancesMap;
 
   @JsonIgnore
-  public ProcessEngineImpl processEngine;
+  public WorkflowEngineImpl processEngine;
   @JsonIgnore
-  public ProcessDefinitionImpl processDefinition;
+  public WorkflowImpl processDefinition;
   @JsonIgnore
-  public ScopeDefinitionImpl scopeDefinition;
+  public ScopeImpl scopeDefinition;
   @JsonIgnore
-  public ProcessInstanceImpl processInstance;
+  public WorkflowInstanceImpl processInstance;
   @JsonIgnore
   public ScopeInstanceImpl parent;
   
-  protected void visitCompositeInstance(ProcessInstanceVisitor visitor) {
+  protected void visitCompositeInstance(WorkflowInstanceVisitor visitor) {
     visitActivityInstances(visitor);
     visitVariableInstances(visitor);
   }
 
-  protected void visitActivityInstances(ProcessInstanceVisitor visitor) {
+  protected void visitActivityInstances(WorkflowInstanceVisitor visitor) {
     if (activityInstances!=null) {
       for (int i=0; i<activityInstances.size(); i++) {
         ActivityInstanceImpl activityInstance = activityInstances.get(i);
@@ -87,7 +87,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
   }
   
-  protected void visitVariableInstances(ProcessInstanceVisitor visitor) {
+  protected void visitVariableInstances(WorkflowInstanceVisitor visitor) {
     if (variableInstances!=null) {
       for (int i=0; i<variableInstances.size(); i++) {
         VariableInstanceImpl variableInstance = variableInstances.get(i);
@@ -96,12 +96,12 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
   }
   
-  public void start(ActivityDefinition activityDefinition) {
-    ActivityInstanceImpl activityInstance = createActivityInstance((ActivityDefinitionImpl) activityDefinition);
+  public void start(Activity activity) {
+    ActivityInstanceImpl activityInstance = createActivityInstance((ActivityImpl) activity);
     processInstance.addOperation(new StartActivityInstanceOperation(activityInstance));
   }
 
-  public ActivityInstanceImpl createActivityInstance(ActivityDefinitionImpl activityDefinition) {
+  public ActivityInstanceImpl createActivityInstance(ActivityImpl activityDefinition) {
     ActivityInstanceImpl activityInstance = processEngine.createActivityInstance(this, activityDefinition);
     activityInstance.processEngine = processEngine;
     activityInstance.scopeDefinition = activityDefinition;
@@ -116,7 +116,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     return activityInstance;
   }
   
-  public void initializeForEachElement(VariableDefinitionImpl elementVariableDefinition, Object value) {
+  public void initializeForEachElement(VariableImpl elementVariableDefinition, Object value) {
     VariableInstanceImpl elementVariableInstance = createVariableInstance(elementVariableDefinition);
     elementVariableInstance.setValue(value);
   }
@@ -130,15 +130,15 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
   
   public void initializeVariableInstances() {
-    List<VariableDefinitionImpl> variableDefinitions = scopeDefinition.getVariableDefinitions();
+    List<VariableImpl> variableDefinitions = scopeDefinition.getVariableDefinitions();
     if (variableDefinitions!=null) {
-      for (VariableDefinitionImpl variableDefinition: variableDefinitions) {
+      for (VariableImpl variableDefinition: variableDefinitions) {
         createVariableInstance(variableDefinition);
       }
     }
   }
 
-  public VariableInstanceImpl createVariableInstance(VariableDefinitionImpl variableDefinition) {
+  public VariableInstanceImpl createVariableInstance(VariableImpl variableDefinition) {
     VariableInstanceImpl variableInstance = processEngine.createVariableInstance(this, variableDefinition);
     variableInstance.processEngine = processEngine;
     variableInstance.processInstance = processInstance;
@@ -295,35 +295,35 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
 
 
-  public ProcessEngineImpl getProcessEngine() {
+  public WorkflowEngineImpl getProcessEngine() {
     return processEngine;
   }
 
-  public void setProcessEngine(ProcessEngineImpl processEngine) {
+  public void setProcessEngine(WorkflowEngineImpl processEngine) {
     this.processEngine = processEngine;
   }
 
-  public ProcessDefinitionImpl getProcessDefinition() {
+  public WorkflowImpl getProcessDefinition() {
     return processDefinition;
   }
 
-  public void setProcessDefinition(ProcessDefinitionImpl processDefinition) {
+  public void setProcessDefinition(WorkflowImpl processDefinition) {
     this.processDefinition = processDefinition;
   }
   
-  public ScopeDefinitionImpl getScopeDefinition() {
+  public ScopeImpl getScopeDefinition() {
     return scopeDefinition;
   }
 
-  public void setScopeDefinition(ScopeDefinitionImpl scopeDefinition) {
+  public void setScopeDefinition(ScopeImpl scopeDefinition) {
     this.scopeDefinition = scopeDefinition;
   }
   
-  public ProcessInstanceImpl getProcessInstance() {
+  public WorkflowInstanceImpl getProcessInstance() {
     return processInstance;
   }
   
-  public void setProcessInstance(ProcessInstanceImpl processInstance) {
+  public void setProcessInstance(WorkflowInstanceImpl processInstance) {
     this.processInstance = processInstance;
   }
   

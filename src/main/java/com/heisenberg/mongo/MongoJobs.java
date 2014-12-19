@@ -40,7 +40,7 @@ import com.mongodb.WriteConcern;
  */
 public class MongoJobs extends MongoCollection {
 
-  protected MongoProcessEngineConfiguration.JobFields fields;
+  protected MongoWorkflowEngineConfiguration.JobFields fields;
   protected WriteConcern writeConcernJobs;
   protected String lockOwner;
   protected JsonService jsonService;
@@ -63,12 +63,12 @@ public class MongoJobs extends MongoCollection {
   
   public Iterator<String> getProcessInstanceIdsToLockForJobs() {
     DBObject query = buildJobQuery(true).get();
-    DBObject retrieveFields = new BasicDBObject(fields.processInstanceId, true);
+    DBObject retrieveFields = new BasicDBObject(fields.workflowInstanceId, true);
     DBCursor jobsDueHavingProcessInstance = find(query, retrieveFields);
     List<String> processInstanceIds = new ArrayList<>();
     while (jobsDueHavingProcessInstance.hasNext()) {
       DBObject partialJob = jobsDueHavingProcessInstance.next();
-      Object processInstanceId = partialJob.get(fields.processInstanceId);
+      Object processInstanceId = partialJob.get(fields.workflowInstanceId);
       processInstanceIds.add(processInstanceId.toString());
     }
     return processInstanceIds.iterator();
@@ -82,7 +82,7 @@ public class MongoJobs extends MongoCollection {
         new BasicDBObject(fields.duedate, new BasicDBObject("$lte", now))
       })
       .push(fields.done).append("$exists", false).pop()
-      .push(fields.processInstanceId).append("$exists", mustHaveProcessInstance).pop();
+      .push(fields.workflowInstanceId).append("$exists", mustHaveProcessInstance).pop();
   }
 
   public Job lockJob(boolean mustHaveProcessInstance) {
@@ -115,8 +115,8 @@ public class MongoJobs extends MongoCollection {
     job.organizationId = readId(dbJob, fields.organizationId);
     job.processId = readId(dbJob, fields.processId);
     job.taskId = readId(dbJob, fields.taskId);
-    job.processDefinitionId = readId(dbJob, fields.processDefinitionId);
-    job.processInstanceId = readId(dbJob, fields.processInstanceId);
+    job.processDefinitionId = readId(dbJob, fields.workflowId);
+    job.processInstanceId = readId(dbJob, fields.workflowInstanceId);
     job.activityInstanceId = readId(dbJob, fields.activityInstanceId);
     readExecutions(job, readList(dbJob, fields.executions));
     readLock(job, readBasicDBObject(dbJob, fields.lock));
@@ -159,8 +159,8 @@ public class MongoJobs extends MongoCollection {
     writeIdOpt(dbJob, fields.organizationId, job.organizationId);
     writeIdOpt(dbJob, fields.processId, job.processId);
     writeIdOpt(dbJob, fields.activityInstanceId, job.activityInstanceId);
-    writeIdOpt(dbJob, fields.processInstanceId, job.processInstanceId);
-    writeIdOpt(dbJob, fields.processDefinitionId, job.processDefinitionId);
+    writeIdOpt(dbJob, fields.workflowInstanceId, job.processInstanceId);
+    writeIdOpt(dbJob, fields.workflowId, job.processDefinitionId);
     writeIdOpt(dbJob, fields.taskId, job.taskId);
     writeExecutions(dbJob, job.executions);
     writeLock(dbJob, job.lock);

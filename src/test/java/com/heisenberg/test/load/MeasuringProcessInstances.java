@@ -14,7 +14,7 @@
  */
 package com.heisenberg.test.load;
 
-import com.heisenberg.mongo.MongoProcessInstances;
+import com.heisenberg.mongo.MongoWorkflowInstanceStore;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
@@ -24,7 +24,7 @@ import com.mongodb.WriteResult;
 /**
  * @author Walter White
  */
-public class MeasuringProcessInstances extends MongoProcessInstances {
+public class MeasuringProcessInstances extends MongoWorkflowInstanceStore {
 
   public long inserts = 0;
   public long insertMillis = 0;
@@ -55,14 +55,14 @@ public class MeasuringProcessInstances extends MongoProcessInstances {
     findAndModifyMillis += millis;
   }
 
-  public MeasuringProcessInstances(MongoProcessInstances mongoProcessInstances) {
-    this.dbCollection = mongoProcessInstances.getDbCollection();
-    this.isPretty = mongoProcessInstances.isPretty(); 
-    this.processEngine = mongoProcessInstances.getProcessEngine();
-    this.fields = mongoProcessInstances.getFields();
-    this.updateConverters = mongoProcessInstances.getUpdateConverters();
-    this.writeConcernStoreProcessInstance = mongoProcessInstances.getWriteConcernStoreProcessInstance();
-    this.writeConcernFlushUpdates = mongoProcessInstances.getWriteConcernFlushUpdates();
+  public MeasuringProcessInstances(MongoWorkflowInstanceStore mongoWorkflowInstanceStore) {
+    this.dbCollection = mongoWorkflowInstanceStore.getDbCollection();
+    this.isPretty = mongoWorkflowInstanceStore.isPretty(); 
+    this.processEngine = mongoWorkflowInstanceStore.getProcessEngine();
+    this.fields = mongoWorkflowInstanceStore.getFields();
+    this.updateConverters = mongoWorkflowInstanceStore.getUpdateConverters();
+    this.writeConcernStoreProcessInstance = mongoWorkflowInstanceStore.getWriteConcernStoreProcessInstance();
+    this.writeConcernFlushUpdates = mongoWorkflowInstanceStore.getWriteConcernFlushUpdates();
   }
 
   @Override

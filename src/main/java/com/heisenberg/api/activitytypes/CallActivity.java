@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.heisenberg.api.builder.StartBuilder;
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.api.definition.Activity;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.plugin.Validator;
 import com.heisenberg.plugin.activities.AbstractActivityType;
 import com.heisenberg.plugin.activities.Binding;
@@ -64,7 +64,7 @@ public class CallActivity extends AbstractActivityType {
       subProcessId = activityInstance.getValue(subProcessIdBinding);
     } else if (subProcessNameBinding!=null) {
       String subProcessName = activityInstance.getValue(subProcessIdBinding);
-      ProcessDefinitionImpl subprocess = activityInstanceImpl.processEngine.newProcessDefinitionQuery()
+      WorkflowImpl subprocess = activityInstanceImpl.processEngine.newProcessDefinitionQuery()
         .name(subProcessName)
         .orderByDeployTimeDescending()
         .get();
@@ -84,11 +84,11 @@ public class CallActivity extends AbstractActivityType {
       }
     }
     
-    ProcessInstance calledProcessInstance = start.startProcessInstance();
+    WorkflowInstance calledProcessInstance = start.startProcessInstance();
     activityInstanceImpl.setCalledProcessInstanceId(calledProcessInstance.getId()); 
   }
   
-  public void calledProcessInstanceEnded(ControllableActivityInstance activityInstance, ProcessInstanceImpl calledProcessInstance) {
+  public void calledProcessInstanceEnded(ControllableActivityInstance activityInstance, WorkflowInstanceImpl calledProcessInstance) {
     if (outputMappings!=null) {
       for (CallMapping outputMapping: outputMappings) {
         Object value = calledProcessInstance.getValue(outputMapping.sourceBinding);
@@ -145,7 +145,7 @@ public class CallActivity extends AbstractActivityType {
   }
 
   @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    super.validate(activityDefinition, validator);
+  public void validate(Activity activity, Validator validator) {
+    super.validate(activity, validator);
   }
 }

@@ -30,16 +30,16 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
+import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.impl.ExecutorService;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.job.AbstractJobType;
 import com.heisenberg.impl.job.JobController;
 import com.heisenberg.impl.job.JobExecution;
 import com.heisenberg.impl.job.JobService;
 import com.heisenberg.impl.job.JobServiceImpl;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 
 /**
@@ -49,7 +49,7 @@ public class JobServiceTest {
   
   public static final Logger log = LoggerFactory.getLogger(JobServiceTest.class);
 
-  protected ProcessEngineImpl processEngine;
+  protected WorkflowEngineImpl processEngine;
   protected JobService jobService;
 
   public JobServiceTest() {
@@ -74,7 +74,7 @@ public class JobServiceTest {
   }
 
   public void initializeProcessEngine() {
-    this.processEngine = new MemoryProcessEngine();
+    this.processEngine = new MemoryWorkflowEngine();
   }
   
   @JsonTypeName("tst")
@@ -103,9 +103,9 @@ public class JobServiceTest {
   @Test
   public void testProcessJobOK() throws Exception {
     // quickest way to get a processInstanceId
-    ProcessDefinitionBuilder p = processEngine.newProcessDefinition();
+    WorkflowBuilder p = processEngine.newWorkflow();
     p.newActivity("t", new UserTask());
-    String processDefinitionId = p.deploy().getProcessDefinitionId();
+    String processDefinitionId = p.deploy().getWorkflowId();
     String processInstanceId = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance()
@@ -133,11 +133,11 @@ public class JobServiceTest {
   @Test
   public void testRealProcessJobOK() throws Exception {
     // quickest way to get a processInstanceId
-    ProcessDefinitionBuilder p = processEngine.newProcessDefinition();
+    WorkflowBuilder p = processEngine.newWorkflow();
     p.newActivity("t", new UserTask())
      .newTimer(new TestJob())
      ;
-    String processDefinitionId = p.deploy().getProcessDefinitionId();
+    String processDefinitionId = p.deploy().getWorkflowId();
     String processInstanceId = processEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance()

@@ -20,14 +20,14 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ParallelGateway;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.activitytypes.UserTask;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.api.instance.ProcessInstance;
-import com.heisenberg.memory.MemoryProcessEngine;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -47,9 +47,9 @@ public class ParallelGatewayTest {
                  +-->[t3]------+ 
     */
     
-    ProcessEngine processEngine = new MemoryProcessEngine();
+    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition();
+    WorkflowBuilder process = workflowEngine.newWorkflow();
 
     process.newActivity().activityType(new StartEvent()).id("start");
     process.newActivity().activityType(new ParallelGateway()).id("f1");
@@ -74,26 +74,26 @@ public class ParallelGatewayTest {
 
     String processDefinitionId = process.deploy()
       .checkNoErrorsAndNoWarnings()
-      .getProcessDefinitionId();
+      .getWorkflowId();
     
-    ProcessInstance processInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
 
-    assertOpen(processInstance, "t1", "t2", "t3");
+    assertOpen(workflowInstance, "t1", "t2", "t3");
 
-    processInstance = endTask(processEngine, processInstance, "t1");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "t1");
 
-    assertOpen(processInstance, "t2", "t3");
+    assertOpen(workflowInstance, "t2", "t3");
 
-    processInstance = endTask(processEngine, processInstance, "t2");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "t2");
 
-    assertOpen(processInstance, "t3");
+    assertOpen(workflowInstance, "t3");
 
-    processInstance = endTask(processEngine, processInstance, "t3");
+    workflowInstance = endTask(workflowEngine, workflowInstance, "t3");
 
-    assertOpen(processInstance);
+    assertOpen(workflowInstance);
 
-    assertTrue(processInstance.isEnded());
+    assertTrue(workflowInstance.isEnded());
   }
 }

@@ -21,7 +21,7 @@ import javax.script.SimpleScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 
 
@@ -30,7 +30,7 @@ import com.heisenberg.impl.instance.ScopeInstanceImpl;
  */
 public class ScriptContextImpl extends SimpleScriptContext {
   
-  public static final Logger log = LoggerFactory.getLogger(ProcessEngine.class);
+  public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
   
   public ScriptContextImpl(ScopeInstanceImpl scopeInstance, Script script, Writer logWriter) {
     setWriter(logWriter);

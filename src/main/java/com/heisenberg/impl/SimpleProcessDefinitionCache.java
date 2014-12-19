@@ -17,31 +17,31 @@ package com.heisenberg.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.plugin.ServiceRegistry;
 
 
 /**
  * @author Walter White
  */
-public class SimpleProcessDefinitionCache implements ProcessDefinitionCache {
+public class SimpleProcessDefinitionCache implements WorkflowCache {
   
-  protected Map<String, ProcessDefinitionImpl> processDefinitions;
+  protected Map<String, WorkflowImpl> processDefinitions;
 
   public SimpleProcessDefinitionCache() {
   }
 
   public SimpleProcessDefinitionCache(ServiceRegistry serviceRegistry) {
-    processDefinitions = new ConcurrentHashMap<String, ProcessDefinitionImpl>();
+    processDefinitions = new ConcurrentHashMap<String, WorkflowImpl>();
   }
 
   @Override
-  public ProcessDefinitionImpl get(String processDefinitionId) {
+  public WorkflowImpl get(String processDefinitionId) {
     return processDefinitions.get(processDefinitionId);
   }
 
   @Override
-  public void put(ProcessDefinitionImpl processDefinition) {
+  public void put(WorkflowImpl processDefinition) {
     processDefinitions.put(processDefinition.id, processDefinition);
   }
 }

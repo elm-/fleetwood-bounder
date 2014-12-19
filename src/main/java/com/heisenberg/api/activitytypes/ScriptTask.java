@@ -18,7 +18,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
@@ -43,7 +43,7 @@ public class ScriptTask extends AbstractActivityType {
   public Script compiledScript;
   
   @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
+  public void validate(Activity activity, Validator validator) {
     if (script!=null) {
       this.scriptService = validator.getServiceRegistry().getService(ScriptService.class);
       this.compiledScript = scriptService.compile(script);

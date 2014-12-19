@@ -14,16 +14,16 @@
  */
 package com.heisenberg.load;
 
-import com.heisenberg.api.ProcessEngine;
+import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ScriptTask;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
-import com.heisenberg.api.builder.ProcessDefinitionBuilder;
-import com.heisenberg.impl.ProcessEngineImpl;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 
 
 /**
@@ -32,7 +32,7 @@ import com.heisenberg.mongo.MongoProcessEngineConfiguration;
 public class DeployLoadProcess {
 
   public static void main(String[] args) {
-    ProcessEngineImpl processEngine = (ProcessEngineImpl) new MongoProcessEngineConfiguration()
+    WorkflowEngineImpl processEngine = (WorkflowEngineImpl) new MongoWorkflowEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
     
@@ -40,8 +40,8 @@ public class DeployLoadProcess {
       .deploy();
   }
 
-  public static ProcessDefinitionBuilder createProcess(ProcessEngine processEngine) {
-    ProcessDefinitionBuilder process = processEngine.newProcessDefinition()
+  public static WorkflowBuilder createProcess(WorkflowEngine workflowEngine) {
+    WorkflowBuilder process = workflowEngine.newWorkflow()
       .name("load");
   
     process.newActivity()

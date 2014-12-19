@@ -17,7 +17,7 @@ package com.heisenberg.impl.job;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
 
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 
 
 /**
@@ -26,7 +26,7 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
 public interface JobController {
   
   /** allows process jobs to get the locked process instance */
-  ProcessInstanceImpl getProcessInstance();
+  WorkflowInstanceImpl getProcessInstance();
 
   void rescheduleFromNow(ReadablePeriod period);
   

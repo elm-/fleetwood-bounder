@@ -15,7 +15,7 @@
 package com.heisenberg.plugin.activities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
@@ -62,7 +62,7 @@ public class Binding<T> {
   }
 
   // processEngine and dataType are already initialized when this is called
-  public void validate(ActivityDefinition activityDefinition, Validator validator, String bindingFieldName) {
+  public void validate(Activity activity, Validator validator, String bindingFieldName) {
     isInitialized = true;
     if (value!=null) {
       try {

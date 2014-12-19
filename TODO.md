@@ -77,6 +77,15 @@
 - [ ] Data flow (only start an activity when the input data becomes available)
 - [ ] Static persistable process variables
 - [ ] Derived variables
+- [ ] Paging
+  // TODO check this paging http://sammaye.wordpress.com/2012/05/25/mongodb-paging-using-ranged-queries-avoiding-skip/
+  // http://books.google.be/books?id=uGUKiNkKRJ0C&pg=PA70&lpg=PA70&dq=queries+without+skip&source=bl&ots=h8jzOjeRrh&sig=g-rfrn5aTofQ3VSv_cEbo6jaG58&hl=nl&sa=X&ei=cQVxVP-lD8nwaLj0gIgD&redir_esc=y#v=onepage&q=queries%20without%20skip&f=false
+  // Avoiding Large Skips Using skip for a small number of documents is fine. Fora large number of results, 
+  // skip can be slow, since it has to find and then discard all the skipped results. Most databases keep more 
+  // metadata in the index to help with skips, but MongoDB does not yet support this, so large skips should be 
+  // avoided. Often you can calculate the next query based on the result from the previous one. 
+  // Paginating results without skip The easiest way to do pagination is to return the first page of results using 
+  // limit and then return each subsequent page as an offset from the beginning: s n do not use: slow for large skips
 - [ ] Allow for easy collection of process instance logs to track what has happened
 - [ ] Process debugger service (separate top level interface required)
   - [ ] based on the in memory process engine

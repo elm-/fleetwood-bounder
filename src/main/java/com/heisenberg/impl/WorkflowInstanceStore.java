@@ -16,8 +16,8 @@ package com.heisenberg.impl;
 
 import java.util.List;
 
-import com.heisenberg.impl.definition.ProcessDefinitionImpl;
-import com.heisenberg.impl.instance.ProcessInstanceImpl;
+import com.heisenberg.impl.definition.WorkflowImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 
 
 /**
@@ -25,21 +25,21 @@ import com.heisenberg.impl.instance.ProcessInstanceImpl;
  */
 public interface WorkflowInstanceStore {
 
-  String createProcessInstanceId(ProcessDefinitionImpl processDefinition);
+  String createWorkflowInstanceId(WorkflowImpl workflow);
 
   String createActivityInstanceId();
 
   String createVariableInstanceId();
   
-  List<ProcessInstanceImpl> findProcessInstances(ProcessInstanceQueryImpl processInstanceQuery);
+  List<WorkflowInstanceImpl> findWorkflowInstances(WorkflowInstanceQueryImpl workflowInstanceQuery);
 
-  ProcessInstanceImpl lockProcessInstance(ProcessInstanceQueryImpl processInstance);
+  WorkflowInstanceImpl lockWorkflowInstance(WorkflowInstanceQueryImpl workflowInstance);
 
-  void insertProcessInstance(ProcessInstanceImpl processInstance);
+  void insertWorkflowInstance(WorkflowInstanceImpl worklflowInstance);
 
-  ProcessInstanceImpl findProcessInstanceById(String processInstanceId);
+  WorkflowInstanceImpl findWorkflowInstanceById(String workflowInstanceId);
 
-  void flush(ProcessInstanceImpl processInstance);
+  void flush(WorkflowInstanceImpl workflowInstance);
 
-  void flushAndUnlock(ProcessInstanceImpl processInstance);
+  void flushAndUnlock(WorkflowInstanceImpl workflowInstance);
 }

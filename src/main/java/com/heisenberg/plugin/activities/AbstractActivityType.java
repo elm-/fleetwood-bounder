@@ -21,9 +21,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
-import com.heisenberg.api.definition.ActivityDefinition;
+import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.impl.ProcessEngineImpl;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.plugin.Descriptors;
 import com.heisenberg.plugin.TypeField;
 import com.heisenberg.plugin.Validator;
@@ -36,7 +36,7 @@ import com.heisenberg.plugin.Validator;
  */
 public abstract class AbstractActivityType implements ActivityType {
   
-  public static final Logger log = ProcessEngineImpl.log;
+  public static final Logger log = WorkflowEngineImpl.log;
   
   public abstract void start(ControllableActivityInstance activityInstance);
 
@@ -52,7 +52,7 @@ public abstract class AbstractActivityType implements ActivityType {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
+  public void validate(Activity activity, Validator validator) {
     Descriptors activityTypeService = validator.getServiceRegistry().getService(Descriptors.class);
     List<TypeField> configurationFields = activityTypeService.getConfigurationFields(this);
     if (configurationFields!=null) {
@@ -66,12 +66,12 @@ public abstract class AbstractActivityType implements ActivityType {
             }
           }
           if (value instanceof Binding) {
-            validateBinding(activityDefinition, validator, typeField, (Binding< ? >) value);
+            validateBinding(activity, validator, typeField, (Binding< ? >) value);
           } else if (isListOfBindings(field)) {
             List<Binding> bindings = (List<Binding>) value;
             if (bindings!=null) {
               for (Binding binding: bindings) {
-                validateBinding(activityDefinition, validator, typeField, binding);
+                validateBinding(activity, validator, typeField, binding);
               }
             }
           }
@@ -97,8 +97,8 @@ public abstract class AbstractActivityType implements ActivityType {
     return false;
   }
 
-  private void validateBinding(ActivityDefinition activityDefinition, Validator validator, TypeField typeField, Binding< ? > binding) {
+  private void validateBinding(Activity activity, Validator validator, TypeField typeField, Binding< ? > binding) {
     binding.dataType = typeField.dataType;
-    binding.validate(activityDefinition, validator, this.getClass().getName()+"."+typeField.name);
+    binding.validate(activity, validator, this.getClass().getName()+"."+typeField.name);
   }
 }

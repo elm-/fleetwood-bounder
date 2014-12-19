@@ -20,8 +20,8 @@ import java.util.Map;
 import javax.script.CompiledScript;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.heisenberg.api.definition.ActivityDefinition;
-import com.heisenberg.api.definition.TransitionDefinition;
+import com.heisenberg.api.definition.Activity;
+import com.heisenberg.api.definition.Transition;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
@@ -41,19 +41,19 @@ public class ExclusiveGateway extends AbstractActivityType {
   Map<String,CompiledScript> transitionExpressions;
   
   @Override
-  public void validate(ActivityDefinition activityDefinition, Validator validator) {
-    super.validate(activityDefinition, validator);
+  public void validate(Activity activity, Validator validator) {
+    super.validate(activity, validator);
     scriptService = validator.getServiceRegistry().getService(ScriptService.class);
   }
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    ActivityDefinition activityDefinition = activityInstance.getActivityDefinition();
-    List<TransitionDefinition> outgoingTransitions = activityDefinition.getOutgoingTransitionDefinitions();
-    TransitionDefinition defaultTransition = activityDefinition.getDefaultTransition();
+    Activity activity = activityInstance.getActivityDefinition();
+    List<Transition> outgoingTransitions = activity.getOutgoingTransitions();
+    Transition defaultTransition = activity.getDefaultTransition();
     // if there are less than two edges, ignore the conditions
     if (outgoingTransitions != null && outgoingTransitions.size() > 1) {  
-      TransitionDefinition transition = findFirstTransitionThatMeetsCondition(activityInstance, outgoingTransitions);
+      Transition transition = findFirstTransitionThatMeetsCondition(activityInstance, outgoingTransitions);
       if (transition != null) {
         activityInstance.takeTransition(transition);
       } else if (defaultTransition != null) {
@@ -68,9 +68,9 @@ public class ExclusiveGateway extends AbstractActivityType {
     activityInstance.end();
   }
 
-  protected TransitionDefinition findFirstTransitionThatMeetsCondition(ControllableActivityInstance activityInstance, List<TransitionDefinition> outgoingTransitions) {
+  protected Transition findFirstTransitionThatMeetsCondition(ControllableActivityInstance activityInstance, List<Transition> outgoingTransitions) {
     if (outgoingTransitions != null) {
-      for (TransitionDefinition outgoingTransition: outgoingTransitions ) {
+      for (Transition outgoingTransition: outgoingTransitions ) {
         // condition must be true and the transition must have a target
         if (meetsCondition(outgoingTransition, activityInstance)) {
           return outgoingTransition;
@@ -80,7 +80,7 @@ public class ExclusiveGateway extends AbstractActivityType {
     return null;
   }
 
-  protected boolean meetsCondition(TransitionDefinition outgoingTransition, ControllableActivityInstance activityInstance) {
+  protected boolean meetsCondition(Transition outgoingTransition, ControllableActivityInstance activityInstance) {
     Script script = outgoingTransition.getConditionScript();
     if (script!=null) {
       ScriptResult scriptResult = evaluateCondition(activityInstance, outgoingTransition, script, scriptService);
@@ -91,7 +91,7 @@ public class ExclusiveGateway extends AbstractActivityType {
     return false;
   }
 
-  protected ScriptResult evaluateCondition(ControllableActivityInstance activityInstance, TransitionDefinition outgoingTransition, Script script, ScriptService scriptService) {
+  protected ScriptResult evaluateCondition(ControllableActivityInstance activityInstance, Transition outgoingTransition, Script script, ScriptService scriptService) {
     return scriptService.evaluateScript(activityInstance, script);
   }
 }

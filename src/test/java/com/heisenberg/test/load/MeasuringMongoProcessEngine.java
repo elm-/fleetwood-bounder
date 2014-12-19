@@ -17,25 +17,25 @@ package com.heisenberg.test.load;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.heisenberg.mongo.MongoProcessEngine;
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
-import com.heisenberg.mongo.MongoProcessInstances;
+import com.heisenberg.mongo.MongoWorkflowEngine;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
+import com.heisenberg.mongo.MongoWorkflowInstanceStore;
 
 
 /**
  * @author Walter White
  */
-public class MeasuringMongoProcessEngine extends MongoProcessEngine {
+public class MeasuringMongoProcessEngine extends MongoWorkflowEngine {
   
   public static final Logger log = LoggerFactory.getLogger(MeasuringMongoProcessEngine.class);
   
   MeasuringProcessInstances measuringProcessInstances;
   
-  public MeasuringMongoProcessEngine(MongoProcessEngineConfiguration mongoConfiguration) {
+  public MeasuringMongoProcessEngine(MongoWorkflowEngineConfiguration mongoConfiguration) {
     super(mongoConfiguration);
-    MongoProcessInstances mongoProcessInstances = serviceRegistry.getService(MongoProcessInstances.class);
-    this.measuringProcessInstances = new MeasuringProcessInstances(mongoProcessInstances);
-    serviceRegistry.registerService(measuringProcessInstances);
+    measuringProcessInstances = new MeasuringProcessInstances((MongoWorkflowInstanceStore) workflowInstanceStore); 
+    workflowInstanceStore = measuringProcessInstances; 
+    serviceRegistry.registerService(workflowInstanceStore);
   }
 
   public void logReport(int i, long testStartMillis) {

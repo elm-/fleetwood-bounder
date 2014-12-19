@@ -18,7 +18,7 @@ import static com.heisenberg.test.TestHelper.mongoDeleteAllCollections;
 
 import org.junit.Before;
 
-import com.heisenberg.mongo.MongoProcessEngineConfiguration;
+import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 import com.heisenberg.test.other.JobServiceTest;
 
 
@@ -29,7 +29,7 @@ public class MongoJobServiceTest extends JobServiceTest {
   
   @Override
   public void initializeProcessEngine() {
-    this.processEngine = new MongoProcessEngineConfiguration()
+    this.processEngine = new MongoWorkflowEngineConfiguration()
       .registerJobType(TestJob.class)
       .buildProcessEngine();
   }
