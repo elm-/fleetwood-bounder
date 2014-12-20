@@ -56,7 +56,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   public String processDefinitionId;
   public LockImpl lock;
   public Queue<ActivityInstanceImpl> work;
-  public Queue<ActivityInstanceImpl> asyncWork;
+  public Queue<ActivityInstanceImpl> workAsync;
   public String organizationId;
   public String callerProcessInstanceId;
   public String callerActivityInstanceId;
@@ -114,10 +114,10 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   }
 
   protected void addAsyncWork(ActivityInstanceImpl activityInstance) {
-    if (asyncWork==null) {
-      asyncWork = new LinkedList<>();
+    if (workAsync==null) {
+      workAsync = new LinkedList<>();
     }
-    asyncWork.add(activityInstance);
+    workAsync.add(activityInstance);
     if (updates!=null) {
       getUpdates().isAsyncWorkChanged = true;
     }
@@ -179,10 +179,16 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
       ExecutorService executor = workflowEngine.getExecutorService();
       executor.execute(new Runnable(){
         public void run() {
-          work = asyncWork;
-          asyncWork = null;
-          workflowInstance.isAsync = true;
-          executeWork();
+          try {
+            work = workAsync;
+            workAsync = null;
+            workflowInstance.isAsync = true;
+            getUpdates().isWorkChanged = true;
+            getUpdates().isAsyncWorkChanged = true;
+            executeWork();
+          } catch (Throwable e) {
+            e.printStackTrace();
+          }
         }});
     } else {
       workflowInstanceStore.flushAndUnlock(workflowInstance);
@@ -190,7 +196,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   }
   
   boolean hasAsyncWork() {
-    return asyncWork!=null && !asyncWork.isEmpty();
+    return workAsync!=null && !workAsync.isEmpty();
   }
 
   boolean hasWork() {

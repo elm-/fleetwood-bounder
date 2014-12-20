@@ -34,13 +34,13 @@ import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.plugin.AbstractActivityType;
 import com.heisenberg.impl.plugin.Binding;
 import com.heisenberg.impl.plugin.ConfigurationField;
 import com.heisenberg.impl.plugin.ControllableActivityInstance;
 import com.heisenberg.impl.plugin.Label;
 import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
+import com.heisenberg.test.TestExecutorService;
 
 
 /**
@@ -54,6 +54,7 @@ public class MongoWorkflowEngineTest {
   public void testMongoProcessEngine() {
     WorkflowEngine workflowEngine = new MongoWorkflowEngineConfiguration()
       .server("localhost", 27017)
+      .registerService(new TestExecutorService())
       .buildProcessEngine();
     
     WorkflowBuilder process = createProcess(workflowEngine);

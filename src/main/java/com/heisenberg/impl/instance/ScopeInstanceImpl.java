@@ -100,7 +100,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     workflowInstance.addWork(activityInstance);
     activityInstance.setStart(Time.now());
     if (updates!=null) {
-      activityInstance.updates = new ScopeInstanceUpdates();
+      activityInstance.updates = new ActivityInstanceUpdates();
       propagateActivityInstanceChange(this);
     }
     addActivityInstance(activityInstance);

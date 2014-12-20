@@ -136,7 +136,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
    * This method can be called multiple times in one start() */
   public void takeTransition(Transition transition) {
     ActivityImpl to = (ActivityImpl) transition.getTo();
-    end(to!=null);
+    end(to==null);
     if (to!=null) {
       log.debug("Taking transition to "+to);
       parent.createActivityInstance(to);

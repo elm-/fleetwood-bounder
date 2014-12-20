@@ -59,7 +59,7 @@ public class ExclusiveGateway extends AbstractActivityType {
       } else if (defaultTransition != null) {
         activityInstance.takeTransition(defaultTransition);
       } else {
-        activityInstance.end(false);
+        activityInstance.end(true);
       }
       return;
     }

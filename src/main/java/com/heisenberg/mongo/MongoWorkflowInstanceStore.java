@@ -101,13 +101,14 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
             .add(fields.lock,  writeLock(workflowInstance.lock))
             .get();
     
-    BasicDBObject fieldUpdates = new BasicDBObject();
+    BasicDBObject sets = new BasicDBObject();
+    BasicDBObject unsets = new BasicDBObject();
     BasicDBObject update = new BasicDBObject();
 
     if (updates.isEndChanged) {
       log.debug("  Workflow instance ended");
-      fieldUpdates.append(fields.end, workflowInstance.end);
-      fieldUpdates.append(fields.duration, workflowInstance.duration);
+      sets.append(fields.end, workflowInstance.end);
+      sets.append(fields.duration, workflowInstance.duration);
     }
     // MongoDB can't combine updates of array elements together with 
     // adding elements to that array.  That's why we overwrite the whole
@@ -119,7 +120,7 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
       List<BasicDBObject> activityInstances = new ArrayList<>();
       List<BasicDBObject> archivedActivityInstances = new ArrayList<>();
       collectActivities(workflowInstance, activityInstances, archivedActivityInstances);
-      fieldUpdates.append(fields.activityInstances, activityInstances);
+      sets.append(fields.activityInstances, activityInstances);
       if (!archivedActivityInstances.isEmpty()) {
         update.append("$push", new BasicDBObject(fields.archivedActivityInstances, archivedActivityInstances));
       }
@@ -129,29 +130,44 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     
     if (updates.isVariableInstancesChanged) {
       log.debug("  Variable instances changed");
-      writeVariables(fieldUpdates, workflowInstance);
+      writeVariables(sets, workflowInstance);
     } else {
       log.debug("  No variable instances changed");
     }
 
     if (updates.isWorkChanged) {
       log.debug("  Work changed");
-      writeWork(fieldUpdates, fields.work, workflowInstance.work);
+      List<ObjectId> work = writeWork(workflowInstance.work);
+      if (work!=null) {
+        sets.put(fields.work, work);
+      } else {
+        unsets.put(fields.work, 1);
+      }
     } else {
       log.debug("  No work changed");
     }
 
     if (updates.isAsyncWorkChanged) {
       log.debug("  Aync work changed");
-      writeWork(fieldUpdates, fields.asyncWork, workflowInstance.asyncWork);
+      List<ObjectId> workAsync = writeWork(workflowInstance.workAsync);
+      if (workAsync!=null) {
+        sets.put(fields.workAsync, workAsync);
+      } else {
+        unsets.put(fields.workAsync, 1);
+      }
     } else {
       log.debug("  No async work changed");
     }
 
-    if (!fieldUpdates.isEmpty()) {
-      update.append("$set", fieldUpdates);
+    if (!sets.isEmpty()) {
+      update.append("$set", sets);
     } else {
-      log.debug("  No workflow instance field updates");
+      log.debug("  No sets");
+    }
+    if (!unsets.isEmpty()) {
+      update.append("$unset", unsets);
+    } else {
+      log.debug("  No unsets");
     }
     
     if (!update.isEmpty()) {
@@ -225,19 +241,20 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     if (!archivedActivityInstances.isEmpty()) {
       writeObjectOpt(dbProcess, fields.archivedActivityInstances, archivedActivityInstances);
     }
-    writeWork(dbProcess, fields.work, workflowInstance.work);
-    writeWork(dbProcess, fields.asyncWork, workflowInstance.asyncWork);
+    writeObjectOpt(dbProcess, fields.work, writeWork(workflowInstance.work));
+    writeObjectOpt(dbProcess, fields.workAsync, writeWork(workflowInstance.workAsync));
     return dbProcess;
   }
   
-  protected void writeWork(BasicDBObject dbProcessInstance, String fieldName, Queue<ActivityInstanceImpl> workQueue) {
-    List<ObjectId> workActivityInstanceIds = new ArrayList<ObjectId>();
+  protected List<ObjectId> writeWork(Queue<ActivityInstanceImpl> workQueue) {
+    List<ObjectId> workActivityInstanceIds = null;
     if (workQueue!=null && !workQueue.isEmpty()) {
+      workActivityInstanceIds = new ArrayList<ObjectId>();
       for (ActivityInstanceImpl workActivityInstance: workQueue) {
         workActivityInstanceIds.add(new ObjectId(workActivityInstance.id));
       }
     }
-    dbProcessInstance.append(fieldName, workActivityInstanceIds);
+    return workActivityInstanceIds;
   }
 
   public WorkflowInstanceImpl readProcessInstance(BasicDBObject dbWorkflowInstance) {
@@ -278,7 +295,7 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     
     workflowInstance.variableInstances = readVariableInstances(dbWorkflowInstance, workflowInstance);
     workflowInstance.work = readWork(dbWorkflowInstance, fields.work, workflowInstance);
-    workflowInstance.asyncWork = readWork(dbWorkflowInstance, fields.asyncWork, workflowInstance);
+    workflowInstance.workAsync = readWork(dbWorkflowInstance, fields.workAsync, workflowInstance);
     
     return workflowInstance;
   }
