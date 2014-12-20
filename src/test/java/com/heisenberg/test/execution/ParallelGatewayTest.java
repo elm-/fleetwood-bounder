@@ -27,7 +27,7 @@ import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -49,30 +49,30 @@ public class ParallelGatewayTest {
     
     WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
 
-    process.newActivity().activityType(new StartEvent()).id("start");
-    process.newActivity().activityType(new ParallelGateway()).id("f1");
-    process.newActivity().activityType(new ParallelGateway()).id("f2");
-    process.newActivity().activityType(new UserTask()).id("t1");
-    process.newActivity().activityType(new UserTask()).id("t2");
-    process.newActivity().activityType(new UserTask()).id("t3");
-    process.newActivity().activityType(new ParallelGateway()).id("j1");
-    process.newActivity().activityType(new ParallelGateway()).id("j2");
-    process.newActivity().activityType(new EndEvent()).id("end");
+    w.newActivity().activityType(new StartEvent()).id("start");
+    w.newActivity().activityType(new ParallelGateway()).id("f1");
+    w.newActivity().activityType(new ParallelGateway()).id("f2");
+    w.newActivity().activityType(new UserTask()).id("t1");
+    w.newActivity().activityType(new UserTask()).id("t2");
+    w.newActivity().activityType(new UserTask()).id("t3");
+    w.newActivity().activityType(new ParallelGateway()).id("j1");
+    w.newActivity().activityType(new ParallelGateway()).id("j2");
+    w.newActivity().activityType(new EndEvent()).id("end");
 
-    process.newTransition().from("start").to("f1");
-    process.newTransition().from("f1").to("f2");
-    process.newTransition().from("f1").to("t3");
-    process.newTransition().from("f2").to("t1");
-    process.newTransition().from("f2").to("t2");
-    process.newTransition().from("t1").to("j1");
-    process.newTransition().from("t2").to("j2");
-    process.newTransition().from("t3").to("j2");
-    process.newTransition().from("j2").to("j1");
-    process.newTransition().from("j1").to("end");
+    w.newTransition().from("start").to("f1");
+    w.newTransition().from("f1").to("f2");
+    w.newTransition().from("f1").to("t3");
+    w.newTransition().from("f2").to("t1");
+    w.newTransition().from("f2").to("t2");
+    w.newTransition().from("t1").to("j1");
+    w.newTransition().from("t2").to("j2");
+    w.newTransition().from("t3").to("j2");
+    w.newTransition().from("j2").to("j1");
+    w.newTransition().from("j1").to("end");
 
-    String processDefinitionId = process.deploy()
+    String processDefinitionId = w.deploy()
       .checkNoErrorsAndNoWarnings()
       .getWorkflowId();
     

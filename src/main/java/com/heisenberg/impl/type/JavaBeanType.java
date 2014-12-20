@@ -19,7 +19,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.plugin.Validator;
+import com.heisenberg.impl.plugin.Validator;
 
 
 /**

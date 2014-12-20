@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.WorkflowEngineConfiguration;
 import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.memory.MemoryTaskService;
+import com.heisenberg.impl.memory.MemoryTaskService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
@@ -31,9 +31,6 @@ import com.mongodb.MongoClient;
  * @author Walter White
  */
 public class MongoWorkflowEngine extends WorkflowEngineImpl {
-  
-  public static final Logger dbLog = LoggerFactory.getLogger(MongoWorkflowEngine.class+".DB");
-  public static final Logger log = LoggerFactory.getLogger(MongoWorkflowEngine.class);
   
   protected DB db;
 
@@ -68,10 +65,6 @@ public class MongoWorkflowEngine extends WorkflowEngineImpl {
     processDefinitions.writeConcernInsertProcessDefinition = processDefinitions.getWriteConcern(configuration.getWriteConcernInsertProcessDefinition());
     configuration.registerService(processDefinitions);
 
-    MongoUpdateConverters mongoUpdateConverters = new MongoUpdateConverters(serviceRegistry);
-    mongoUpdateConverters.jsonService = jsonService;
-    configuration.registerService(mongoUpdateConverters);
-
     MongoWorkflowInstanceStore processInstances = new MongoWorkflowInstanceStore(serviceRegistry);
     DBCollection processInstancesDbCollection = db.getCollection(configuration.getWorkflowInstancesCollectionName());
     processInstances.processEngine = this;
@@ -81,7 +74,6 @@ public class MongoWorkflowEngine extends WorkflowEngineImpl {
     processInstances.dbCollection = db.getCollection("processInstances");
     processInstances.writeConcernStoreProcessInstance = processInstances.getWriteConcern(configuration.getWriteConcernInsertProcessInstance());
     processInstances.writeConcernFlushUpdates = processInstances.getWriteConcern(configuration.getWriteConcernFlushUpdates());
-    processInstances.updateConverters = mongoUpdateConverters;
     configuration.registerService(processInstances);
 
     // TODO

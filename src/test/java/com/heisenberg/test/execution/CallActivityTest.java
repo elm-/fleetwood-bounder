@@ -26,7 +26,7 @@ import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -50,10 +50,10 @@ public class CallActivityTest {
       .startProcessInstance();
     
     ActivityInstance callActivityInstance = findActivityInstanceOpen(superInstance, "call");
-    assertNotNull(callActivityInstance.getCalledProcessInstanceId());
+    assertNotNull(callActivityInstance.getCalledWorkflowInstanceId());
     
     WorkflowInstance subInstance = workflowEngine.newProcessInstanceQuery()
-      .processInstanceId(callActivityInstance.getCalledProcessInstanceId())
+      .processInstanceId(callActivityInstance.getCalledWorkflowInstanceId())
       .get();
     
     assertNotNull(subInstance);

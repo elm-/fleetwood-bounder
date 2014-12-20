@@ -22,12 +22,12 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.task.Task;
 import com.heisenberg.api.task.TaskService;
-import com.heisenberg.plugin.Validator;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.Binding;
-import com.heisenberg.plugin.activities.ConfigurationField;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
-import com.heisenberg.plugin.activities.Label;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.Binding;
+import com.heisenberg.impl.plugin.ConfigurationField;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Label;
+import com.heisenberg.impl.plugin.Validator;
 
 
 /**
@@ -57,7 +57,7 @@ public class UserTask extends AbstractActivityType {
   public void start(ControllableActivityInstance activityInstance) {
     String taskName = activityInstance.getValue(name);
     if (taskName==null) {
-      taskName = activityInstance.getActivityDefinition().getId().toString();
+      taskName = activityInstance.getActivity().getId().toString();
     }
     List<String> taskCandidateIds = activityInstance.getValue(candidates);
     String assigneeId = (taskCandidateIds!=null && taskCandidateIds.size()==1 ? taskCandidateIds.get(0) : null);

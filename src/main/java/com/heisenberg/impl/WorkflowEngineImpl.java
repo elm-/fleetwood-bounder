@@ -45,13 +45,13 @@ import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
 import com.heisenberg.impl.instance.VariableInstanceImpl;
 import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.impl.memory.MemoryJobServiceImpl;
+import com.heisenberg.impl.memory.MemoryTaskService;
+import com.heisenberg.impl.memory.MemoryWorkflowInstanceStore;
+import com.heisenberg.impl.memory.MemoryWorkflowStore;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 import com.heisenberg.impl.util.Exceptions;
 import com.heisenberg.impl.util.Lists;
-import com.heisenberg.memory.MemoryJobServiceImpl;
-import com.heisenberg.memory.MemoryTaskService;
-import com.heisenberg.memory.MemoryWorkflowInstanceStore;
-import com.heisenberg.memory.MemoryWorkflowStore;
-import com.heisenberg.plugin.ServiceRegistry;
 
 /**
  * @author Walter White
@@ -183,7 +183,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
       throw new RuntimeException("Could not find process definition "+start.processDefinitionId+" "+start.processDefinitionName);
     }
     WorkflowInstanceImpl processInstance = createProcessInstance(processDefinition);
-    processInstance.callerProcessInstanceId = start.callerProcessInstanceId;
+    processInstance.callerProcessInstanceId = start.callerWorkflowInstanceId;
     processInstance.callerActivityInstanceId = start.callerActivityInstanceId;
     processInstance.transientContext = start.transientContext;
     setVariableApiValues(processInstance, start);
@@ -200,7 +200,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     lock.setOwner(getId());
     processInstance.setLock(lock);
     workflowInstanceStore.insertWorkflowInstance(processInstance);
-    processInstance.executeOperations();
+    processInstance.executeWork();
     return processInstance;
   }
   
@@ -215,9 +215,9 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
       throw new RuntimeException("Activity instance "+activityInstance+" is already ended");
     }
     log.debug("Signalling "+activityInstance);
-    ActivityImpl activityDefinition = activityInstance.getActivityDefinition();
+    ActivityImpl activityDefinition = activityInstance.getActivity();
     activityDefinition.activityType.message(activityInstance);
-    processInstance.executeOperations();
+    processInstance.executeWork();
     return processInstance;
   }
   
@@ -225,7 +225,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     long wait = 50l;
     long attempts = 0;
     long maxAttempts = 4;
-    long backofFactor = 5;
+    long backoffFactor = 5;
     WorkflowInstanceImpl processInstance = workflowInstanceStore.lockWorkflowInstance(query);
     while ( processInstance==null 
             && attempts <= maxAttempts ) {
@@ -235,7 +235,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
       } catch (InterruptedException e) {
         log.debug("Waiting for lock to be released was interrupted");
       }
-      wait = wait * backofFactor;
+      wait = wait * backoffFactor;
       attempts++;
       processInstance = workflowInstanceStore.lockWorkflowInstance(query);
     }

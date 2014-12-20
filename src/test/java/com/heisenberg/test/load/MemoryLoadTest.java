@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +29,14 @@ import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ScriptTask;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.builder.WorkflowBuilder;
-import com.heisenberg.api.definition.Workflow;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.test.mongo.MongoWorkflowEngineTest;
 
 /**
  * @author Walter White
  */
-// @Ignore
+@Ignore
 public class MemoryLoadTest  {
   
   static {
@@ -47,11 +48,11 @@ public class MemoryLoadTest  {
   @Test
   public void test() {
     WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
-//    String processDefinitionId = MongoProcessEngineTest.createProcess(workflowEngine)
-//            .deploy()
-//            .getProcessDefinitionId();
+    String workflowId = MongoWorkflowEngineTest.createProcess(workflowEngine)
+            .deploy()
+            .getWorkflowId();
     
-    String workflowId = createWorkflow(workflowEngine);
+//     String workflowId = createWorkflow(workflowEngine);
     
     long nbrOfThreads = 4;
     long processExecutionsPerThread = 50000;
@@ -136,14 +137,14 @@ public class MemoryLoadTest  {
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
-//    String subTaskInstanceId = workflowInstance
-//            .findActivityInstanceByActivityDefinitionId("s")
-//            .getId();
-//  
-//    workflowInstance = workflowEngine.newMessage()
-//      .processInstanceId(workflowInstance.getId())
-//      .activityInstanceId(subTaskInstanceId)
-//      .send();
+    String subTaskInstanceId = workflowInstance
+            .findActivityInstanceByActivityDefinitionId("subTask")
+            .getId();
+  
+    workflowInstance = workflowEngine.newMessage()
+      .processInstanceId(workflowInstance.getId())
+      .activityInstanceId(subTaskInstanceId)
+      .send();
     
     assertTrue(workflowInstance.isEnded());
   }

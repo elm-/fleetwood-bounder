@@ -20,7 +20,7 @@ import com.heisenberg.impl.job.Job;
 import com.heisenberg.impl.job.JobService;
 import com.heisenberg.impl.job.JobServiceImpl;
 import com.heisenberg.impl.job.JobType;
-import com.heisenberg.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 
 
 

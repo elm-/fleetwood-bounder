@@ -23,7 +23,7 @@ import javax.script.ScriptException;
 
 import com.heisenberg.api.instance.ScopeInstance;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
-import com.heisenberg.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 
 
 /**

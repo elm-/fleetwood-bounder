@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.StartBuilder;
@@ -37,9 +38,9 @@ import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
-import com.heisenberg.rest.HeisenbergServer;
-import com.heisenberg.rest.ObjectMapperProvider;
-import com.heisenberg.test.mongo.MongoProcessEngineTest;
+import com.heisenberg.server.ObjectMapperResolver;
+import com.heisenberg.server.WorkflowServer;
+import com.heisenberg.test.mongo.MongoWorkflowEngineTest;
 
 /**
  * @author Walter White
@@ -53,25 +54,26 @@ public class LoadTest extends JerseyTest {
   
   public static final Logger log = LoggerFactory.getLogger(LoadTest.class);
   
-  static MeasuringMongoProcessEngine processEngine = null;
+  static MeasuringMongoWorkflowEngine workflowEngine = null;
   
   @Override
   protected Application configure() {
-    return HeisenbergServer.buildRestApplication(getProcessEngine());
+    return WorkflowServer.buildRestApplication(getWorkflowEngine());
   }
 
-  protected WorkflowEngineImpl getProcessEngine() {
-    if (processEngine!=null) {
-      return processEngine;
+  protected WorkflowEngineImpl getWorkflowEngine() {
+    if (workflowEngine!=null) {
+      return workflowEngine;
     }
-    processEngine = new MeasuringMongoProcessEngine(new MongoWorkflowEngineConfiguration()
+    workflowEngine = new MeasuringMongoWorkflowEngine(new MongoWorkflowEngineConfiguration()
     .server("localhost", 27017));
-    return processEngine;
+    return workflowEngine;
   }
   
   @Override
   protected void configureClient(ClientConfig clientConfig) {
-    clientConfig.register(new ObjectMapperProvider(getProcessEngine()));
+    ObjectMapper objectMapper = getWorkflowEngine().getServiceRegistry().getService(ObjectMapper.class);
+    clientConfig.register(new ObjectMapperResolver(objectMapper));
   }
 
   @Test
@@ -111,7 +113,7 @@ public class LoadTest extends JerseyTest {
     log.info(processExecutions+" process executions in "+((end-start)/1000f)+ " seconds");
     log.info(processExecutions+" process executions at "+((processExecutions*1000f)/(float)(end-start))+ " per second");
     
-    processEngine.logReport(1000, testStartMillis);
+    workflowEngine.logReport(1000, testStartMillis);
   }
 
   class ProcessInstanceRunner extends Thread {
@@ -131,7 +133,7 @@ public class LoadTest extends JerseyTest {
   }
 
   protected String deployProcessDefinition() {
-    WorkflowImpl processDefinition = (WorkflowImpl) MongoProcessEngineTest.createProcess(processEngine);
+    WorkflowImpl processDefinition = (WorkflowImpl) MongoWorkflowEngineTest.createProcess(workflowEngine);
     DeployResult deployResponse = target("deploy").request()
             .post(Entity.entity(processDefinition, MediaType.APPLICATION_JSON))
             .readEntity(DeployResult.class);
@@ -160,7 +162,7 @@ public class LoadTest extends JerseyTest {
               .post(Entity.entity(notifyActivityInstanceRequest, MediaType.APPLICATION_JSON))
               .readEntity(WorkflowInstanceImpl.class);
   
-      log.debug("response: " + processEngine.jsonService.objectToJsonStringPretty(processInstance));
+      log.debug("response: " + workflowEngine.jsonService.objectToJsonStringPretty(processInstance));
       assertTrue(processInstance.isEnded());
     }
   }

@@ -17,8 +17,8 @@ package com.heisenberg.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.heisenberg.impl.plugin.ServiceRegistry;
 import com.heisenberg.impl.util.Exceptions;
-import com.heisenberg.plugin.ServiceRegistry;
 
 
 /**

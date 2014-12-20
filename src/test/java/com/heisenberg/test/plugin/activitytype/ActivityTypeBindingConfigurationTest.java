@@ -32,13 +32,13 @@ import com.heisenberg.impl.definition.ActivityImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.definition.WorkflowValidator;
 import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.Binding;
+import com.heisenberg.impl.plugin.ConfigurationField;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Description;
+import com.heisenberg.impl.plugin.Label;
 import com.heisenberg.impl.type.TextType;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.Binding;
-import com.heisenberg.plugin.activities.ConfigurationField;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
-import com.heisenberg.plugin.activities.Description;
-import com.heisenberg.plugin.activities.Label;
 
 
 /**

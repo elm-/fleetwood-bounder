@@ -24,7 +24,7 @@ import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White

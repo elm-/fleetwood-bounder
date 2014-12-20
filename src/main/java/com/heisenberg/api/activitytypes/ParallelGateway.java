@@ -22,10 +22,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.definition.Transition;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.impl.instance.ActivityInstanceImpl;
-import com.heisenberg.plugin.Validator;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Validator;
 
 
 /**
@@ -42,7 +41,7 @@ public class ParallelGateway extends AbstractActivityType {
   
   @Override
   public void validate(Activity activity, Validator validator) {
-    log.debug("validating "+activity.getId());
+    log.debug("Validating "+activity.getId());
     
     // at least one in, at least one out
     List<Transition> incomingTransitions = activity.getIncomingTransitions();
@@ -71,9 +70,10 @@ public class ParallelGateway extends AbstractActivityType {
       if (!siblingActivityInstance.isEnded()) {
         hasOtherUnfinishedActivities = true;
       }
+      
       if ( siblingActivityInstance!=activityInstance
-           && siblingActivityInstance.getActivityDefinition()==activityInstance.getActivityDefinition()
-           && siblingActivityInstance.isJoining() ) {
+           && siblingActivityInstance.getActivity()==activityInstance.getActivity()
+           && activityInstance.isJoining(siblingActivityInstance) ) {
         otherJoiningActivityInstances.add(siblingActivityInstance);
       }
     }
@@ -83,14 +83,13 @@ public class ParallelGateway extends AbstractActivityType {
               || !hasOtherUnfinishedActivities
             )
        ) {
-      log.debug("firing parallel gateway");
+      log.debug("Firing parallel gateway");
       for (ActivityInstance otherJoiningActivityInstance: otherJoiningActivityInstances) {
-        otherJoiningActivityInstance.removeJoining();
+        activityInstance.removeJoining(otherJoiningActivityInstance);
       }
       activityInstance.onwards();
     } else {
-      ActivityInstanceImpl activityInstanceImpl = (ActivityInstanceImpl) activityInstance;
-      activityInstanceImpl.setJoining();
+      activityInstance.setJoining();
     }
   }
 

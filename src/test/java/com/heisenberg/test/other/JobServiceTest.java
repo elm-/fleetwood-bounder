@@ -39,7 +39,7 @@ import com.heisenberg.impl.job.JobController;
 import com.heisenberg.impl.job.JobExecution;
 import com.heisenberg.impl.job.JobService;
 import com.heisenberg.impl.job.JobServiceImpl;
-import com.heisenberg.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 
 /**

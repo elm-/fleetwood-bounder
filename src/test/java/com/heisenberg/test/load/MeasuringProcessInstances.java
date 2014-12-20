@@ -60,7 +60,6 @@ public class MeasuringProcessInstances extends MongoWorkflowInstanceStore {
     this.isPretty = mongoWorkflowInstanceStore.isPretty(); 
     this.processEngine = mongoWorkflowInstanceStore.getProcessEngine();
     this.fields = mongoWorkflowInstanceStore.getFields();
-    this.updateConverters = mongoWorkflowInstanceStore.getUpdateConverters();
     this.writeConcernStoreProcessInstance = mongoWorkflowInstanceStore.getWriteConcernStoreProcessInstance();
     this.writeConcernFlushUpdates = mongoWorkflowInstanceStore.getWriteConcernFlushUpdates();
   }

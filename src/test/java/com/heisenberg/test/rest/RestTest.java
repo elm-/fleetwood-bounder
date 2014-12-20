@@ -30,17 +30,18 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.instance.WorkflowInstanceImpl;
-import com.heisenberg.load.LoadHelper;
+import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
-import com.heisenberg.rest.HeisenbergServer;
-import com.heisenberg.rest.ObjectMapperProvider;
-import com.heisenberg.test.mongo.MongoProcessEngineTest;
+import com.heisenberg.server.ObjectMapperResolver;
+import com.heisenberg.server.WorkflowServer;
+import com.heisenberg.test.mongo.MongoWorkflowEngineTest;
 
 /**
  * @author Walter White
@@ -58,31 +59,32 @@ public class RestTest extends JerseyTest {
 
   public static final Logger log = LoggerFactory.getLogger(RestTest.class);
   
-  static WorkflowEngineImpl processEngine = null;
+  static WorkflowEngineImpl workflowEngine = null;
   
   @Override
   protected Application configure() {
-    return HeisenbergServer.buildRestApplication(getProcessEngine());
+    return WorkflowServer.buildRestApplication(getWorkflowEngine());
   }
 
-  protected WorkflowEngineImpl getProcessEngine() {
-    if (processEngine!=null) {
-      return processEngine;
+  protected WorkflowEngineImpl getWorkflowEngine() {
+    if (workflowEngine!=null) {
+      return workflowEngine;
     }
-    processEngine = (WorkflowEngineImpl) new MongoWorkflowEngineConfiguration()
+    workflowEngine = (WorkflowEngineImpl) new MongoWorkflowEngineConfiguration()
       .server("localhost", 27017)
       .buildProcessEngine();
-    return processEngine;
+    return workflowEngine;
   }
   
   @Override
   protected void configureClient(ClientConfig clientConfig) {
-    clientConfig.register(new ObjectMapperProvider(getProcessEngine()));
+    ObjectMapper objectMapper = getWorkflowEngine().getServiceRegistry().getService(ObjectMapper.class);
+    clientConfig.register(new ObjectMapperResolver(objectMapper));
   }
 
   @Test
   public void test() {
-    WorkflowImpl processDefinition = (WorkflowImpl) MongoProcessEngineTest.createProcess(processEngine);
+    WorkflowImpl processDefinition = (WorkflowImpl) MongoWorkflowEngineTest.createProcess(workflowEngine);
     DeployResult deployResponse = target("deploy").request()
             .post(Entity.entity(processDefinition, MediaType.APPLICATION_JSON))
             .readEntity(DeployResult.class);
@@ -104,29 +106,30 @@ public class RestTest extends JerseyTest {
   }
 
   protected void runProcessInstance() {
-    StartBuilder startProcessInstanceRequest = processEngine.newStart()
+    StartBuilder startProcessInstanceRequest = workflowEngine.newStart()
       .processDefinitionName("load");
     
-    WorkflowInstanceImpl processInstance = target("start").request()
+    WorkflowInstanceImpl workflowInstance = target("start").request()
             .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))
             .readEntity(WorkflowInstanceImpl.class);
 
-    String processInstanceJson = processEngine.jsonService.objectToJsonString(processInstance);
+    String workflowInstanceJson = workflowEngine.jsonService.objectToJsonString(workflowInstance);
     
-    log.debug("response json: " + processInstanceJson);
-    processInstance = LoadHelper.parseJson(processInstanceJson);
-    String processInstanceId = processInstance.getId();
-    String subTaskInstanceId = processInstance.findActivityInstanceByActivityDefinitionId("subTask").getId();
+    log.debug("response json: " + workflowInstanceJson);
+    JsonService jsonService = workflowEngine.getServiceRegistry().getService(JsonService.class);
+    workflowInstance = jsonService.jsonToObject(workflowInstanceJson, WorkflowInstanceImpl.class);
+    String workflowInstanceId = workflowInstance.getId();
+    String subTaskInstanceId = workflowInstance.findActivityInstanceByActivityDefinitionId("subTask").getId();
 
-    MessageBuilder message = processEngine.newMessage()
-      .processInstanceId(processInstanceId)
+    MessageBuilder message = workflowEngine.newMessage()
+      .processInstanceId(workflowInstanceId)
       .activityInstanceId(subTaskInstanceId);
     
-    processInstance = target("message").request()
+    workflowInstance = target("message").request()
             .post(Entity.entity(message, MediaType.APPLICATION_JSON))
             .readEntity(WorkflowInstanceImpl.class);
 
-    log.debug("response: " + processEngine.jsonService.objectToJsonStringPretty(processInstance));
-    assertTrue(processInstance.isEnded());
+    log.debug("response: " + workflowEngine.jsonService.objectToJsonStringPretty(workflowInstance));
+    assertTrue(workflowInstance.isEnded());
   }
 }

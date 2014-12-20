@@ -28,12 +28,12 @@ import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.WorkflowEngineConfiguration;
 import com.heisenberg.api.builder.WorkflowBuilder;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Label;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
-import com.heisenberg.plugin.activities.Label;
 
 
 /**

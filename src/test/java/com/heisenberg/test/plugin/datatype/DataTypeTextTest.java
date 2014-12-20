@@ -24,8 +24,8 @@ import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 import com.heisenberg.impl.type.TextType;
-import com.heisenberg.memory.MemoryWorkflowEngine;
 
 
 /**

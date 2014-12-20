@@ -31,15 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.heisenberg.impl.engine.operation.NotifyEndOperation;
-import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
-import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
-import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
-import com.heisenberg.impl.engine.updates.LockAcquireUpdate;
-import com.heisenberg.impl.engine.updates.LockReleaseUpdate;
-import com.heisenberg.impl.engine.updates.OperationAddUpdate;
-import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
-import com.heisenberg.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 
 
 /**
@@ -59,17 +51,6 @@ public class JacksonJsonService implements JsonService {
       .setVisibility(PropertyAccessor.ALL, Visibility.NONE)
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
       .setSerializationInclusion(Include.NON_EMPTY);
-    
-    objectMapper.registerSubtypes(
-       StartActivityInstanceOperation.class,
-       NotifyEndOperation.class,
-       ActivityInstanceCreateUpdate.class,
-       ActivityInstanceEndUpdate.class,
-       LockAcquireUpdate.class,
-       LockReleaseUpdate.class,
-       OperationAddUpdate.class,
-       OperationRemoveFirstUpdate.class
-       );
     
     SimpleModule module = new SimpleModule();
     module.addSerializer(new LocalDateTimeSerializer());

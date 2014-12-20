@@ -23,9 +23,9 @@ import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.definition.Transition;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.job.JobType;
+import com.heisenberg.impl.plugin.ActivityType;
+import com.heisenberg.impl.plugin.Binding;
 import com.heisenberg.impl.type.DataType;
-import com.heisenberg.plugin.activities.ActivityType;
-import com.heisenberg.plugin.activities.Binding;
 
 
 /**
@@ -50,8 +50,8 @@ public class ActivityImpl extends ScopeImpl implements ActivityBuilder, Activity
   @JsonIgnore
   public TransitionImpl defaultTransition;
   
-  public Binding<List<Object>> forEach;
-  public VariableImpl forEachElement;
+  public Binding<List<Object>> multiInstance; // the collection
+  public VariableImpl multiInstanceElement;   // the instance variable
 
   /// Activity Definition Builder methods ////////////////////////////////////////////////
 
@@ -99,13 +99,17 @@ public class ActivityImpl extends ScopeImpl implements ActivityBuilder, Activity
   }
 
   protected void forEach(String elementVariableId, DataType elementDataType, Binding<List<Object>> collectionBinding) {
-    this.forEachElement = new VariableImpl()
+    this.multiInstanceElement = new VariableImpl()
       .id(elementVariableId)
       .dataType(elementDataType)
       .processEngine(processEngine)
       .processDefinition(processDefinition)
       .parent(this);
-    this.forEach = collectionBinding;
+    this.multiInstance = collectionBinding;
+  }
+  
+  public boolean isMultiInstance() {
+    return multiInstance != null; 
   }
 
   @Override
@@ -137,10 +141,6 @@ public class ActivityImpl extends ScopeImpl implements ActivityBuilder, Activity
 
   public WorkflowPath getPath() {
     return parent.getPath().addActivityDefinitionId(id);
-  }
-
-  public boolean isAsync(ActivityInstanceImpl activityInstance) {
-    return false;
   }
 
   public void visit(WorkflowVisitor visitor, int index) {

@@ -27,16 +27,13 @@ public interface ActivityInstance extends ScopeInstance {
   
   String getId();
 
-  Activity getActivityDefinition();
+  Activity getActivity();
 
   Object getActivityDefinitionId();
 
   ScopeInstance getParent();
 
-  void removeJoining();
-  boolean isJoining();
+  WorkflowInstance getWorkflowInstance();
 
-  WorkflowInstance getProcessInstance();
-
-  String getCalledProcessInstanceId();
+  String getCalledWorkflowInstanceId();
 }

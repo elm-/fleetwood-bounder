@@ -33,13 +33,13 @@ import com.heisenberg.impl.SimpleProcessDefinitionCache;
 import com.heisenberg.impl.SimpleServiceRegistry;
 import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.json.JacksonJsonService;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.plugin.ActivityType;
+import com.heisenberg.impl.plugin.Descriptors;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.type.TextType;
-import com.heisenberg.memory.MemoryWorkflowEngine;
-import com.heisenberg.plugin.Descriptors;
-import com.heisenberg.plugin.ServiceRegistry;
-import com.heisenberg.plugin.activities.ActivityType;
 
 
 /**

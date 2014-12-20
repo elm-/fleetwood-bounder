@@ -24,7 +24,7 @@ import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 /**
  * @author Walter White
@@ -35,23 +35,23 @@ public class MultipleStartActivitiesTest {
   public void testDefaultStartActivitiesParallelExecution() {
     WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
 
-    process.newActivity()
+    w.newActivity()
       .activityType(new UserTask())
       .id("one");
     
-    process.newActivity()
+    w.newActivity()
       .activityType(new UserTask())
       .id("two");
     
-    process.newActivity()
+    w.newActivity()
       .activityType(new UserTask())
       .id("three");
     
-    process.newTransition().from("two").to("three");
+    w.newTransition().from("two").to("three");
     
-    String processDefinitionId = process.deploy()
+    String processDefinitionId = w.deploy()
       .checkNoErrorsAndNoWarnings()
       .getWorkflowId();
     

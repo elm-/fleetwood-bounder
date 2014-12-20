@@ -16,7 +16,7 @@ package com.heisenberg.api.task;
 
 import java.util.List;
 
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
 
 /**

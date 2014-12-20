@@ -18,9 +18,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.Activity;
-import com.heisenberg.plugin.Validator;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Validator;
 
 
 /**
@@ -38,7 +38,7 @@ public class EmbeddedSubprocess extends AbstractActivityType {
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    List<Activity> startActivities = activityInstance.getActivityDefinition().getStartActivities();
+    List<Activity> startActivities = activityInstance.getActivity().getStartActivities();
     if (startActivities!=null && !startActivities.isEmpty()) {
       for (Activity startActivity: startActivities) {
         activityInstance.start(startActivity);

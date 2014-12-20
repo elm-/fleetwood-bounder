@@ -15,7 +15,7 @@
 package com.heisenberg.api.builder;
 
 import com.heisenberg.impl.job.JobType;
-import com.heisenberg.plugin.activities.ActivityType;
+import com.heisenberg.impl.plugin.ActivityType;
 
 
 

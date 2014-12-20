@@ -14,6 +14,9 @@
  */
 package com.heisenberg.impl.instance;
 
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING_MULTI_CONTAINER;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,20 +30,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.ScopeInstance;
-import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.Time;
+import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.definition.ActivityImpl;
-import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.definition.ScopeImpl;
 import com.heisenberg.impl.definition.VariableImpl;
-import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
-import com.heisenberg.impl.engine.updates.ActivityInstanceCreateUpdate;
+import com.heisenberg.impl.definition.WorkflowImpl;
+import com.heisenberg.impl.plugin.Binding;
+import com.heisenberg.impl.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.TypedValue;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
-import com.heisenberg.plugin.ServiceRegistry;
-import com.heisenberg.plugin.TypedValue;
-import com.heisenberg.plugin.activities.Binding;
 
 
 /**
@@ -59,58 +60,50 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
 
   @JsonIgnore
   public Map<Object, VariableInstanceImpl> variableInstancesMap;
-
   @JsonIgnore
-  public WorkflowEngineImpl processEngine;
+  public WorkflowEngineImpl workflowEngine;
   @JsonIgnore
   public WorkflowImpl processDefinition;
   @JsonIgnore
   public ScopeImpl scopeDefinition;
   @JsonIgnore
-  public WorkflowInstanceImpl processInstance;
+  public WorkflowInstanceImpl workflowInstance;
   @JsonIgnore
   public ScopeInstanceImpl parent;
+  @JsonIgnore
+  // As long as the workflow instance is not saved, the updates collection is null.
+  // That means it's not yet necessary to collect the updates. 
+  public ScopeInstanceUpdates updates;
   
-  protected void visitCompositeInstance(WorkflowInstanceVisitor visitor) {
-    visitActivityInstances(visitor);
-    visitVariableInstances(visitor);
-  }
+  public abstract void setEnd(LocalDateTime end); 
+  
+  public abstract void ended(ActivityInstanceImpl activityInstance);
 
-  protected void visitActivityInstances(WorkflowInstanceVisitor visitor) {
-    if (activityInstances!=null) {
-      for (int i=0; i<activityInstances.size(); i++) {
-        ActivityInstanceImpl activityInstance = activityInstances.get(i);
-        visitor.startActivityInstance(activityInstance, i);
-        activityInstance.visit(visitor, i);
-        visitor.endActivityInstance(activityInstance, i);
-      }
-    }
-  }
-  
-  protected void visitVariableInstances(WorkflowInstanceVisitor visitor) {
-    if (variableInstances!=null) {
-      for (int i=0; i<variableInstances.size(); i++) {
-        VariableInstanceImpl variableInstance = variableInstances.get(i);
-        visitor.variableInstance(variableInstance, i);
-      }
-    }
-  }
-  
+  public abstract boolean isProcessInstance();
+
   public void start(Activity activity) {
-    ActivityInstanceImpl activityInstance = createActivityInstance((ActivityImpl) activity);
-    processInstance.addOperation(new StartActivityInstanceOperation(activityInstance));
+    createActivityInstance((ActivityImpl) activity);
   }
 
-  public ActivityInstanceImpl createActivityInstance(ActivityImpl activityDefinition) {
-    ActivityInstanceImpl activityInstance = processEngine.createActivityInstance(this, activityDefinition);
-    activityInstance.processEngine = processEngine;
-    activityInstance.scopeDefinition = activityDefinition;
-    activityInstance.processInstance = processInstance;
-    activityInstance.activityDefinition = activityDefinition;
-    activityInstance.activityDefinitionId = activityDefinition.id;
+  public ActivityInstanceImpl createActivityInstance(ActivityImpl activity) {
+    ActivityInstanceImpl activityInstance = workflowEngine.createActivityInstance(this, activity);
+    activityInstance.workflowEngine = workflowEngine;
+    activityInstance.scopeDefinition = activity;
+    activityInstance.workflowInstance = workflowInstance;
+    activityInstance.activityDefinition = activity;
+    activityInstance.activityDefinitionId = activity.id;
+    if (activity.isMultiInstance()) {
+      activityInstance.setWorkState(STATE_STARTING_MULTI_CONTAINER);
+    } else {
+      activityInstance.setWorkState(STATE_STARTING);
+    }
+    workflowInstance.addWork(activityInstance);
     activityInstance.setStart(Time.now());
+    if (updates!=null) {
+      activityInstance.updates = new ScopeInstanceUpdates();
+      propagateActivityInstanceChange(this);
+    }
     addActivityInstance(activityInstance);
-    processInstance.addUpdate(new ActivityInstanceCreateUpdate(activityInstance));
     activityInstance.initializeVariableInstances();
     log.debug("Created "+activityInstance);
     return activityInstance;
@@ -139,13 +132,18 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
 
   public VariableInstanceImpl createVariableInstance(VariableImpl variableDefinition) {
-    VariableInstanceImpl variableInstance = processEngine.createVariableInstance(this, variableDefinition);
-    variableInstance.processEngine = processEngine;
-    variableInstance.processInstance = processInstance;
+    VariableInstanceImpl variableInstance = workflowEngine.createVariableInstance(this, variableDefinition);
+    variableInstance.processEngine = workflowEngine;
+    variableInstance.processInstance = workflowInstance;
     variableInstance.dataType = variableDefinition.dataType;
     variableInstance.value = variableDefinition.initialValue;
     variableInstance.variableDefinition = variableDefinition;
     variableInstance.variableDefinitionId = variableDefinition.id;
+    if (updates!=null) {
+      variableInstance.updates = new VariableInstanceUpdates();
+      updates.isVariableInstancesChanged = true;
+      propagateActivityInstanceChange(this);
+    }
     addVariableInstance(variableInstance);
     return variableInstance;
   }
@@ -210,6 +208,10 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
       VariableInstanceImpl variableInstance = getVariableInstanceLocal(variableDefinitionId);
       if (variableInstance!=null) {
         variableInstance.setValue(value);
+        if (updates!=null) {
+          updates.isVariableInstancesChanged = true;
+          propagateActivityInstanceChange(parent);
+        }
       }
     }
     if (parent!=null) {
@@ -294,13 +296,50 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     return null;
   }
 
-
-  public WorkflowEngineImpl getProcessEngine() {
-    return processEngine;
+  public ServiceRegistry getServiceRegistry() {
+    return workflowEngine.getServiceRegistry();
   }
 
-  public void setProcessEngine(WorkflowEngineImpl processEngine) {
-    this.processEngine = processEngine;
+  // updates ////////////////////////////////////////////////////////////
+
+  public boolean hasUpdates() {
+    // As long as the workflow instance is not saved, the updates collection is null.
+    // That means it's not yet necessary to collect the updates. 
+    return updates!=null;
+  }
+  
+  public ScopeInstanceUpdates getUpdates() {
+    return updates;
+  }
+  
+  public void trackUpdates() {
+    if (activityInstances!=null) {
+      for (ActivityInstanceImpl activityInstance: activityInstances) {
+        activityInstance.trackUpdates();
+      }
+    }
+    if (variableInstances!=null) {
+      for (VariableInstanceImpl variableInstance: variableInstances) {
+        variableInstance.trackUpdates();
+      }
+    }
+  }
+  
+  protected void propagateActivityInstanceChange(ScopeInstanceImpl scopeInstance) {
+    if (scopeInstance!=null) {
+      scopeInstance.updates.isActivityInstancesChanged = true;
+      propagateActivityInstanceChange(scopeInstance.parent);
+    }
+  }
+
+  // getters and setters ////////////////////////////////////////////////////////////
+
+  public WorkflowEngineImpl getWorkflowEngine() {
+    return workflowEngine;
+  }
+
+  public void setWorkflowEngine(WorkflowEngineImpl processEngine) {
+    this.workflowEngine = processEngine;
   }
 
   public WorkflowImpl getProcessDefinition() {
@@ -319,12 +358,12 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     this.scopeDefinition = scopeDefinition;
   }
   
-  public WorkflowInstanceImpl getProcessInstance() {
-    return processInstance;
+  public WorkflowInstanceImpl getWorkflowInstance() {
+    return workflowInstance;
   }
   
-  public void setProcessInstance(WorkflowInstanceImpl processInstance) {
-    this.processInstance = processInstance;
+  public void setWorkflowInstance(WorkflowInstanceImpl processInstance) {
+    this.workflowInstance = processInstance;
   }
   
   public List<ActivityInstanceImpl> getActivityInstances() {
@@ -359,12 +398,9 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     return end;
   }
   
-  public abstract void setEnd(LocalDateTime end); 
-  
   public boolean isEnded() {
     return end!=null;
   }
-
   
   public Long getDuration() {
     return duration;
@@ -390,11 +426,4 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     this.id = id;
   }
 
-  public abstract void ended(ActivityInstanceImpl activityInstance);
-
-  public abstract boolean isProcessInstance();
-
-  public ServiceRegistry getServiceRegistry() {
-    return processEngine.getServiceRegistry();
-  }
 }

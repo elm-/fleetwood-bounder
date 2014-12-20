@@ -19,12 +19,13 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.Activity;
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Validator;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
-import com.heisenberg.plugin.Validator;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 /**
@@ -63,5 +64,10 @@ public class ScriptTask extends AbstractActivityType {
       } */
     }
     activityInstance.onwards();
+  }
+  
+  @Override
+  public boolean isAsync(ActivityInstance activityInstance) {
+    return true;
   }
 }

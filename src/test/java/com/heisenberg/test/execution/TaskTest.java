@@ -20,8 +20,8 @@ import org.junit.Test;
 
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
-import com.heisenberg.memory.MemoryWorkflowEngine;
-import com.heisenberg.memory.MemoryTaskService;
+import com.heisenberg.impl.memory.MemoryTaskService;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 
 /**

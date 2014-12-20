@@ -24,10 +24,10 @@ import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.api.instance.VariableInstance;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 import com.heisenberg.impl.type.ListType;
 import com.heisenberg.impl.type.TextType;
 import com.heisenberg.impl.util.Lists;
-import com.heisenberg.memory.MemoryWorkflowEngine;
 
 
 /**

@@ -22,12 +22,12 @@ import javax.script.CompiledScript;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.definition.Transition;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Validator;
 import com.heisenberg.impl.script.Script;
 import com.heisenberg.impl.script.ScriptResult;
 import com.heisenberg.impl.script.ScriptService;
-import com.heisenberg.plugin.Validator;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
 
 
 /**
@@ -48,7 +48,7 @@ public class ExclusiveGateway extends AbstractActivityType {
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {
-    Activity activity = activityInstance.getActivityDefinition();
+    Activity activity = activityInstance.getActivity();
     List<Transition> outgoingTransitions = activity.getOutgoingTransitions();
     Transition defaultTransition = activity.getDefaultTransition();
     // if there are less than two edges, ignore the conditions

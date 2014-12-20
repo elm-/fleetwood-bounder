@@ -14,7 +14,7 @@
  */
 package com.heisenberg.api.activitytypes;
 
-import com.heisenberg.plugin.activities.Binding;
+import com.heisenberg.impl.plugin.Binding;
 
 
 /**

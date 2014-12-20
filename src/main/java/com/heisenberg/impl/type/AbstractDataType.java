@@ -14,7 +14,7 @@
  */
 package com.heisenberg.impl.type;
 
-import com.heisenberg.plugin.Validator;
+import com.heisenberg.impl.plugin.Validator;
 
 
 /**

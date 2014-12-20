@@ -22,11 +22,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.WorkflowEngineConfiguration;
 import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.json.JsonService;
+import com.heisenberg.impl.plugin.ConfigurationField;
+import com.heisenberg.impl.plugin.Descriptors;
+import com.heisenberg.impl.plugin.Label;
 import com.heisenberg.impl.type.AbstractDataType;
 import com.heisenberg.impl.type.InvalidValueException;
-import com.heisenberg.plugin.Descriptors;
-import com.heisenberg.plugin.activities.ConfigurationField;
-import com.heisenberg.plugin.activities.Label;
 import com.heisenberg.test.plugin.activitytype.ActivityTypeDescriptorTest;
 
 

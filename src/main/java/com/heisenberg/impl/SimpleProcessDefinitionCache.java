@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.heisenberg.impl.definition.WorkflowImpl;
-import com.heisenberg.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 
 
 /**

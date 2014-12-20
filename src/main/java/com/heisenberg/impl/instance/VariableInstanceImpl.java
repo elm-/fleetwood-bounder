@@ -27,20 +27,21 @@ import com.heisenberg.impl.type.DataType;
 public class VariableInstanceImpl implements VariableInstance {
 
   public String id;
+  public Object value;
+  public String variableDefinitionId;
+
   @JsonIgnore
   public WorkflowEngineImpl processEngine;
   @JsonIgnore
   public ScopeInstanceImpl parent;
   @JsonIgnore
   public WorkflowInstanceImpl processInstance;
-  
   @JsonIgnore
   public VariableImpl variableDefinition;
   @JsonIgnore
   public DataType dataType;
-
-  public Object value;
-  public String variableDefinitionId;
+  @JsonIgnore
+  public VariableInstanceUpdates updates;
 
   public WorkflowEngineImpl getProcessEngine() {
     return processEngine;
@@ -80,6 +81,9 @@ public class VariableInstanceImpl implements VariableInstance {
   
   public void setValue(Object value) {
     this.value = value;
+    if (updates!=null) {
+      updates.isValueChanged = true;
+    }
   }
   
   public VariableImpl getVariableDefinition() {
@@ -115,5 +119,9 @@ public class VariableInstanceImpl implements VariableInstance {
 
   public void setVariableDefinitionId(String variableDefinitionId) {
     this.variableDefinitionId = variableDefinitionId;
+  }
+
+  public void trackUpdates() {
+    updates = new VariableInstanceUpdates();
   }
 }

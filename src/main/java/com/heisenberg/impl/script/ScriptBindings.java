@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
+import com.heisenberg.impl.plugin.TypedValue;
 import com.heisenberg.impl.type.DataType;
-import com.heisenberg.plugin.TypedValue;
 
 
 /**

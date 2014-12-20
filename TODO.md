@@ -1,17 +1,17 @@
 # Topics
 
-- [ ] Rename process to workflow. Consider removing 'Definition' from all definition entities. So that the process builder code looks nicer.
 - [ ] Is the API nicely split from the impl.  SPIs make it hard.  Where should it be improved? 
-- [ ] Is script engine thread safe?
 - [ ] In the data types, InvalidValueException vs ParseContext
 
 # Tasks
 
+- [ ] ensure that events and gateways are performed synchronous, don't trigger flushes and are not stored 
+      (except for excl gateways, for those, the selected outgoing transition has to be recorded)
+- [ ] add timers to scopes and scope instances
+- [ ] move validation from visitor into domain model
 - [ ] Move dataType and id as parameters into newActivity.  Move all required parameters in the constructor.
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
 - [ ] Test if the script engine is thread safe. CompiledScript seems to be tied to a ScriptEngine. It should be investigated if concurrent script execution can overwrite each other's context.
-- [ ] Move activity types to implementation and replace it with builder 
-      methods in the ProcessDefintionBuilder similar to the ProcessDefinitionBuilder.newDataTypeXxx methods
 
 # In progress
 
@@ -34,7 +34,7 @@
      - [x] process level configured data types
      - [x] engine level configured data types
      - [x] inline defined and configured data types
-     - [ ] default types like text, ... 
+     - [x] default types like text, ... 
      - [ ] reference type
   - [ ] data sources
      - [ ] user defined object types (without beans) 

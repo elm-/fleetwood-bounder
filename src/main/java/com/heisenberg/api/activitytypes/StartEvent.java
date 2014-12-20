@@ -15,8 +15,8 @@
 package com.heisenberg.api.activitytypes;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
 
 /**

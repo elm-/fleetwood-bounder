@@ -20,9 +20,9 @@ import java.util.List;
 
 import com.heisenberg.api.WorkflowEngineConfiguration;
 import com.heisenberg.impl.job.JobType;
+import com.heisenberg.impl.plugin.ActivityType;
 import com.heisenberg.impl.type.DataType;
 import com.heisenberg.impl.util.Lists;
-import com.heisenberg.plugin.activities.ActivityType;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -63,6 +63,7 @@ public class MongoWorkflowEngineConfiguration extends WorkflowEngineConfiguratio
     public String end = "end";
     public String duration = "duration";
     public String activityInstances = "activities";
+    public String archivedActivityInstances = "archivedActivities";
     public String variableInstances = "variables";
     public String parent = "parent";
     public String variableId = "variableId";
@@ -72,7 +73,9 @@ public class MongoWorkflowEngineConfiguration extends WorkflowEngineConfiguratio
     public String time = "time";
     public String owner= "owner";
     public String updates = "updates";
-    public String operations = "operations";
+    public String workState = "workState";
+    public String work = "work";
+    public String asyncWork = "asyncWork";
   }
 
   public static class JobFields {

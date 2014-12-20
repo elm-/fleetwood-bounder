@@ -24,7 +24,7 @@ import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.builder.WorkflowBuilder;
-import com.heisenberg.memory.MemoryWorkflowEngine;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 
 /**

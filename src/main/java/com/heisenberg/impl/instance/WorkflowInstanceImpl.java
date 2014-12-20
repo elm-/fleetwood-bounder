@@ -14,7 +14,11 @@
  */
 package com.heisenberg.impl.instance;
 
-import java.util.Iterator;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_NOTIFYING;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING_MULTI_CONTAINER;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING_MULTI_INSTANCE;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,18 +35,12 @@ import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.CallActivity;
 import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.impl.ExecutorService;
+import com.heisenberg.impl.Time;
 import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.WorkflowInstanceQueryImpl;
-import com.heisenberg.impl.Time;
 import com.heisenberg.impl.WorkflowInstanceStore;
 import com.heisenberg.impl.definition.ActivityImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
-import com.heisenberg.impl.engine.operation.Operation;
-import com.heisenberg.impl.engine.updates.LockAcquireUpdate;
-import com.heisenberg.impl.engine.updates.LockReleaseUpdate;
-import com.heisenberg.impl.engine.updates.OperationAddUpdate;
-import com.heisenberg.impl.engine.updates.OperationRemoveFirstUpdate;
-import com.heisenberg.impl.engine.updates.Update;
 
 
 
@@ -57,15 +55,11 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
 
   public String processDefinitionId;
   public LockImpl lock;
-  public Queue<Operation> operations;
-  public Queue<Operation> asyncOperations;
+  public Queue<ActivityInstanceImpl> work;
+  public Queue<ActivityInstanceImpl> asyncWork;
   public String organizationId;
   public String callerProcessInstanceId;
   public String callerActivityInstanceId;
-  
-  // As long as the process instance is not saved, the updates collection is null.
-  // That means it's not yet necessary to collect the updates. 
-  public List<Update> updates;
   
   @JsonIgnore
   public Boolean isAsync;
@@ -77,85 +71,134 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   }
   
   public WorkflowInstanceImpl(WorkflowEngineImpl processEngine, WorkflowImpl processDefinition, String processInstanceId) {
-    setId(processInstanceId);
-    setProcessEngine(processEngine);
-    setOrganizationId(processDefinition.organizationId);
-    setProcessDefinition(processDefinition);
-    setProcessDefinitionId(processDefinition.id);
-    setScopeDefinition(processDefinition);
-    setProcessInstance(this);
-    setStart(Time.now());
+    this.id = processInstanceId;
+    this.workflowEngine = processEngine;
+    this.organizationId = processDefinition.organizationId;
+    this.processDefinition = processDefinition;
+    this.processDefinitionId = processDefinition.id;
+    this.scopeDefinition = processDefinition;
+    this.workflowInstance = this;
+    this.start = Time.now();
     initializeVariableInstances();
-    log.debug("Created "+processInstance);
+    log.debug("Created "+workflowInstance);
   }
   
-  public void addOperation(Operation operation) {
-    OperationAddUpdate update = operation.createUpdate();
-    if (Boolean.TRUE.equals(isAsync) || !operation.isAsync()) {
-      if (operations==null) {
-        operations = new LinkedList<>();
-      }
-      operations.add(operation);
-      addUpdate(update);
+  protected void addWork(ActivityInstanceImpl activityInstance) {
+    if (isWorkAsync(activityInstance)) {
+      addAsyncWork(activityInstance);
     } else {
-      if (asyncOperations==null) {
-        asyncOperations = new LinkedList<>();
-      }
-      asyncOperations.add(operation);
-      update.isAsync = true;
-      addUpdate(update);
+      addSyncWork(activityInstance);
     }
   }
   
-  Operation removeOperation() {
-    Operation operation = operations!=null ? operations.poll() : null;
-    if (operation!=null) {
-      addUpdate(new OperationRemoveFirstUpdate());
+  protected boolean isWorkAsync(ActivityInstanceImpl activityInstance) {
+    // if this workflow instance is already running in an async thread, 
+    // the new work should be done sync in this thread.
+    if (Boolean.TRUE.equals(isAsync)) {
+      return false;
     }
-    return operation; 
+    if (!ActivityInstanceImpl.START_WORKSTATES.contains(activityInstance.workState)) {
+      return false;
+    }
+    return activityInstance.getActivity().activityType.isAsync(activityInstance);
   }
 
-  public void addUpdate(Update update) {
-    // we only must capture the updates after the first save
-    // so the collection is initialized after the save by the process store
-    if (updates!=null) {
-      updates.add(update);
+  protected void addSyncWork(ActivityInstanceImpl activityInstance) {
+    if (work==null) {
+      work = new LinkedList<>();
     }
+    work.add(activityInstance);
+    if (updates!=null) {
+      getUpdates().isWorkChanged = true;
+    }
+  }
+
+  protected void addAsyncWork(ActivityInstanceImpl activityInstance) {
+    if (asyncWork==null) {
+      asyncWork = new LinkedList<>();
+    }
+    asyncWork.add(activityInstance);
+    if (updates!=null) {
+      getUpdates().isAsyncWorkChanged = true;
+    }
+  }
+
+  protected ActivityInstanceImpl getNextWork() {
+    ActivityInstanceImpl nextWork = work!=null ? work.poll() : null;
+    if (nextWork!=null && updates!=null) {
+      getUpdates().isWorkChanged = true;
+    }
+    return nextWork;
   }
 
   // to be called from the process engine
-  public void executeOperations() {
-    WorkflowInstanceStore workflowInstanceStore = processEngine.getWorkflowInstanceStore();
-    while (hasOperations()) {
+  public void executeWork() {
+    WorkflowInstanceStore workflowInstanceStore = workflowEngine.getWorkflowInstanceStore();
+    boolean isFirst = true;
+    while (hasWork()) {
       // in the first iteration, the updates will be empty and hence no updates will be flushed
-      flushUpdates(); // first time round, the 
-      Operation operation = removeOperation();
-      operation.execute(processEngine);
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        flushUpdates(); 
+      }
+      ActivityInstanceImpl activityInstance = getNextWork();
+      ActivityImpl activity = activityInstance.getActivity();
+      
+      if (STATE_STARTING.equals(activityInstance.workState)) {
+        log.debug("Starting "+activityInstance);
+        activity.activityType.start(activityInstance);
+        
+      } else if (STATE_STARTING_MULTI_INSTANCE.equals(activityInstance.workState)) {
+        log.debug("Starting multi instance "+activityInstance);
+        activity.activityType.start(activityInstance);
+        
+      } else if (STATE_STARTING_MULTI_CONTAINER.equals(activityInstance.workState)) {
+        List<Object> values = activityInstance.getValue(activity.multiInstance);
+        if (values!=null && !values.isEmpty()) {
+          log.debug("Starting multi container "+activityInstance);
+          for (Object value: values) {
+            ActivityInstanceImpl elementActivityInstance = activityInstance.createActivityInstance(activity);
+            elementActivityInstance.setWorkState(STATE_STARTING_MULTI_INSTANCE); 
+            elementActivityInstance.initializeForEachElement(activity.multiInstanceElement, value);
+          }
+        } else {
+          log.debug("Skipping empty multi container "+activityInstance);
+          activityInstance.onwards();
+        }
+
+      } else if (STATE_NOTIFYING.equals(activityInstance.workState)) {
+        log.debug("Notifying parent of "+activityInstance);
+        activityInstance.parent.ended(activityInstance);
+        activityInstance.workState = null;
+      }
     }
     if (hasAsyncWork()) {
-      workflowInstanceStore.flush(processInstance);
-      ExecutorService executor = processEngine.getExecutorService();
+      log.debug("Going asynchronous "+workflowInstance);
+      workflowInstanceStore.flush(workflowInstance);
+      ExecutorService executor = workflowEngine.getExecutorService();
       executor.execute(new Runnable(){
         public void run() {
-          operations = asyncOperations;
-          asyncOperations = null;
-          executeOperations();
+          work = asyncWork;
+          asyncWork = null;
+          workflowInstance.isAsync = true;
+          executeWork();
         }});
     } else {
-      workflowInstanceStore.flushAndUnlock(processInstance);
+      workflowInstanceStore.flushAndUnlock(workflowInstance);
     }
   }
   
   boolean hasAsyncWork() {
-    return asyncOperations!=null && !asyncOperations.isEmpty();
+    return asyncWork!=null && !asyncWork.isEmpty();
   }
 
-  boolean hasOperations() {
-    return operations!=null && !operations.isEmpty();
+  boolean hasWork() {
+    return work!=null && !work.isEmpty();
   }
 
   void flushUpdates() {
-    processEngine.getWorkflowInstanceStore().flush(this);
+    workflowEngine.getWorkflowInstanceStore().flush(this);
   }
   
   @Override
@@ -173,25 +216,21 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
       setEnd(Time.now());
       
       if (callerProcessInstanceId!=null) {
-        WorkflowInstanceQueryImpl processInstanceQuery = processEngine.newProcessInstanceQuery()
+        WorkflowInstanceQueryImpl processInstanceQuery = workflowEngine.newProcessInstanceQuery()
          .processInstanceId(callerProcessInstanceId)
          .activityInstanceId(callerActivityInstanceId);
-        WorkflowInstanceImpl callerProcessInstance = processEngine.lockProcessInstanceWithRetry(processInstanceQuery);
+        WorkflowInstanceImpl callerProcessInstance = workflowEngine.lockProcessInstanceWithRetry(processInstanceQuery);
         ActivityInstanceImpl callerActivityInstance = callerProcessInstance.findActivityInstance(callerActivityInstanceId);
         if (callerActivityInstance.isEnded()) {
           throw new RuntimeException("Call activity instance "+callerActivityInstance+" is already ended");
         }
         log.debug("Call activity "+callerActivityInstance+" ends");
-        ActivityImpl activityDefinition = callerActivityInstance.getActivityDefinition();
+        ActivityImpl activityDefinition = callerActivityInstance.getActivity();
         CallActivity callActivity = (CallActivity) activityDefinition.activityType;
         callActivity.calledProcessInstanceEnded(callerActivityInstance, this);
         callerActivityInstance.onwards();
-        callerProcessInstance.executeOperations();
+        callerProcessInstance.executeWork();
       }
-      // Each operation is an extra flush.  So this if limits the number of flushes
-      // if (thisProcessInstanceCouldTriggerNotifications) {
-      //   processInstance.addOperation(new NotifyProcessInstanceEnded(this));
-      // }
     }
   }
 
@@ -199,16 +238,11 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     return "pi("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+")";
   }
 
-  public List<Update> getUpdates() {
-    return updates;
-  }
-
-  public void setUpdates(List<Update> updates) {
-    this.updates = updates;
-  }
-
   public void removeLock() {
     setLock(null);
+    if (updates!=null) {
+      getUpdates().isLockChanged = true;
+    }
   }
 
   public LockImpl getLock() {
@@ -216,37 +250,10 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   }
 
   public void setLock(LockImpl lock) {
-    if (this.lock!=null && lock==null) {
-      addUpdate(new LockReleaseUpdate());
-    }
-    if (this.lock==null && lock!=null) {
-      addUpdate(new LockAcquireUpdate(lock));
-    }
     this.lock = lock;
-  }
-  
-  public Queue<Operation> getOperations() {
-    return operations;
-  }
-
-  public void setOperations(Queue<Operation> operations) {
-    this.operations = operations;
-  }
-  
-  public boolean isAsync() {
-    return isAsync;
-  }
-
-  public void setAsync(boolean isAsync) {
-    this.isAsync = isAsync;
-  }
-
-  public Queue<Operation> getAsyncOperations() {
-    return asyncOperations;
-  }
-
-  public void setAsyncOperations(Queue<Operation> asyncOperations) {
-    this.asyncOperations = asyncOperations;
+    if (updates!=null) {
+      getUpdates().isLockChanged = true;
+    }
   }
   
   public void setProcessDefinitionId(String processDefinitionId) {
@@ -258,62 +265,20 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     if (start!=null && end!=null) {
       this.duration = new Duration(start.toDateTime(), end.toDateTime()).getMillis();
     }
-    // when we add call activity we will need:
-    // addUpdate(new ProcessInstanceEndUpdate(this));
+    if (updates!=null) {
+      getUpdates().isEndChanged = true;
+    }
   }
   
   public Object getTransientContextObject(String key) {
     return transientContext!=null ? transientContext.get(key) : null;
   }
   
-  public void visit(WorkflowInstanceVisitor visitor) {
-    visitor.startProcessInstance(this);
-    visitLock(visitor);
-    visitOperations(visitor);
-    visitAsyncOperations(visitor);
-    visitUpdates(visitor);
-    visitCompositeInstance(visitor);
-    visitor.endProcessInstance(this);
+  @Override
+  public WorkflowInstanceUpdates getUpdates() {
+    return (WorkflowInstanceUpdates) updates;
   }
 
-  protected void visitLock(WorkflowInstanceVisitor visitor) {
-    if (lock!=null) {
-      visitor.lock(lock);
-    }
-  }
-
-  protected void visitOperations(WorkflowInstanceVisitor visitor) {
-    if (operations!=null) {
-      int i=0;
-      Iterator<Operation> iter = operations.iterator();
-      while (iter.hasNext()) {
-        Operation operation = iter.next();
-        visitor.operation(operation, i);
-        i++;
-      }
-    }
-  }
-
-  protected void visitAsyncOperations(WorkflowInstanceVisitor visitor) {
-    if (asyncOperations!=null) {
-      int i=0;
-      Iterator<Operation> iter = asyncOperations.iterator();
-      while (iter.hasNext()) {
-        Operation operation = iter.next();
-        visitor.asyncOperation(operation, i);
-        i++;
-      }
-    }
-  }
-
-  protected void visitUpdates(WorkflowInstanceVisitor visitor) {
-    if (updates!=null) {
-      for (int i =0; i<updates.size(); i++) {
-        Update update = updates.get(i);
-        visitor.update(update, i);
-      }
-    }
-  }
 
   @Override
   public String getWorkflowId() {
@@ -331,5 +296,14 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   
   public void setOrganizationId(String organizationId) {
     this.organizationId = organizationId;
+  }
+
+  public void trackUpdates() {
+    if (updates==null) {
+      updates = new WorkflowInstanceUpdates();
+    } else {
+      updates.reset();
+    }
+    super.trackUpdates();
   }
 }

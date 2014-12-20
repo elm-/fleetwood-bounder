@@ -14,8 +14,9 @@
  */
 package com.heisenberg.api.activitytypes;
 
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.api.instance.ActivityInstance;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
 
 /**
@@ -30,4 +31,9 @@ public abstract class ServiceTask extends AbstractActivityType {
   }
   
   public abstract void invokeService(ControllableActivityInstance activityInstance);
+  
+  @Override
+  public boolean isAsync(ActivityInstance activityInstance) {
+    return true;
+  }
 }

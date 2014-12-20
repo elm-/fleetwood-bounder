@@ -27,7 +27,7 @@ import com.heisenberg.impl.job.JobExecution;
 import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.job.Lock;
 import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCursor;

@@ -19,7 +19,7 @@ import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.WorkflowInstanceQueryImpl;
 import com.heisenberg.impl.WorkflowInstanceStore;
 import com.heisenberg.impl.instance.WorkflowInstanceImpl;
-import com.heisenberg.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.ServiceRegistry;
 
 
 /**

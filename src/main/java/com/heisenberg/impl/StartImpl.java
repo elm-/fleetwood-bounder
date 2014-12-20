@@ -32,7 +32,7 @@ public class StartImpl extends VariableRequestImpl implements StartBuilder {
   public WorkflowEngineImpl processEngine;
   public String processDefinitionId;
   public String processDefinitionName;
-  public String callerProcessInstanceId;
+  public String callerWorkflowInstanceId;
   public String callerActivityInstanceId;
 
   public StartImpl() {

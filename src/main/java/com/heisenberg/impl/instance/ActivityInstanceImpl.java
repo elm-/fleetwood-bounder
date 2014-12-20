@@ -14,6 +14,9 @@
  */
 package com.heisenberg.impl.instance;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -29,12 +32,10 @@ import com.heisenberg.impl.StartImpl;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.definition.ActivityImpl;
 import com.heisenberg.impl.definition.TransitionImpl;
-import com.heisenberg.impl.engine.operation.NotifyEndOperation;
-import com.heisenberg.impl.engine.operation.StartActivityInstanceOperation;
-import com.heisenberg.impl.engine.updates.ActivityInstanceEndUpdate;
 import com.heisenberg.impl.json.JsonService;
-import com.heisenberg.plugin.ServiceRegistry;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.ServiceRegistry;
+import com.heisenberg.impl.util.Lists;
 
 
 /**
@@ -43,14 +44,29 @@ import com.heisenberg.plugin.activities.ControllableActivityInstance;
 @JsonPropertyOrder({"id", "activityDefinitionId", "start", "end", "duration", "activityInstances", "variableInstances"})
 public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityInstance, ControllableActivityInstance {
   
+  // WorkflowInstanceImpl.addWork assumes that all starting states start with "start"
+  
+  public static final String STATE_STARTING = "starting"; 
+  public static final String STATE_STARTING_MULTI_CONTAINER = "startingMultiParent"; 
+  public static final String STATE_STARTING_MULTI_INSTANCE = "startingMultiInstance"; 
+  public static final String STATE_NOTIFYING = "notifying"; 
+  public static final String STATE_JOINING = "joining"; 
+  public static final String STATE_WAITING = "waiting"; 
+
+  /** @see WorkflowInstanceImpl#isWorkAsync(ActivityInstanceImpl) */
+  public static final Set<String> START_WORKSTATES = new HashSet<>(Lists.of(
+    STATE_STARTING,
+    STATE_STARTING_MULTI_CONTAINER,
+    STATE_STARTING_MULTI_INSTANCE));
+
   public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
 
   @JsonIgnore
   public ActivityImpl activityDefinition;
   
   public String activityDefinitionId;
-  public Boolean joining;
-  public String calledProcessInstanceId;
+  public String workState;
+  public String calledWorkflowInstanceId;
 
   public void onwards() {
     log.debug("Onwards "+this);
@@ -81,9 +97,38 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
       }
       setEnd(Time.now());
       if (notifyParent) {
-        processInstance.addOperation(new NotifyEndOperation(this));
+        setWorkState(STATE_NOTIFYING);
+        workflowInstance.addWork(this);
+
+      } else {
+        setWorkState(null); // means please archive me.
       }
     }
+  }
+
+  public void setWorkState(String workState) {
+    this.workState = workState;
+    if (updates!=null) {
+      getUpdates().isWorkStateChanged = true;
+      propagateActivityInstanceChange(parent);
+    }
+  }
+
+  @Override
+  public void setJoining() {
+    setWorkState(STATE_JOINING);
+  }
+  
+  @Override
+  public boolean isJoining(ActivityInstance activityInstance) {
+    ActivityInstanceImpl activityInstanceImpl = (ActivityInstanceImpl) activityInstance;
+    return STATE_JOINING.equals(activityInstanceImpl.workState);
+  }
+  
+  @Override
+  public void removeJoining(ActivityInstance activityInstance) {
+    ActivityInstanceImpl activityInstanceImpl = (ActivityInstanceImpl) activityInstance;
+    activityInstanceImpl.setWorkState(null);
   }
 
   /** Starts the to (destination) activity in the current (parent) scope.
@@ -94,8 +139,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     end(to!=null);
     if (to!=null) {
       log.debug("Taking transition to "+to);
-      ActivityInstanceImpl activityInstance = parent.createActivityInstance(to);
-      processInstance.addOperation(new StartActivityInstanceOperation(activityInstance));
+      parent.createActivityInstance(to);
     }
   }
   
@@ -103,19 +147,6 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   public void ended(ActivityInstanceImpl nestedEndedActivityInstance) {
     activityDefinition.activityType.ended(this, nestedEndedActivityInstance);
   }
-  
-  public void setJoining() {
-    joining = true;
-  }
-
-  public void removeJoining() {
-    joining = null;
-  }
-  
-  public boolean isJoining() {
-    return Boolean.TRUE.equals(joining);
-  }
-
   
   @Override
   public ActivityInstanceImpl findActivityInstance(String activityInstanceId) {
@@ -125,7 +156,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return super.findActivityInstance(activityInstanceId);
   }
 
-  public ActivityImpl getActivityDefinition() {
+  public ActivityImpl getActivity() {
     return activityDefinition;
   }
   
@@ -143,13 +174,10 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     if (start!=null && end!=null) {
       this.duration = new Duration(start.toDateTime(), end.toDateTime()).getMillis();
     }
-    processInstance.addUpdate(new ActivityInstanceEndUpdate(this));
-  }
-
-  public void visit(WorkflowInstanceVisitor visitor, int index) {
-    visitor.startActivityInstance(this, index);
-    visitCompositeInstance(visitor);
-    visitor.endActivityInstance(this, index);
+    if (updates!=null) {
+      updates.isEndChanged = true;
+      propagateActivityInstanceChange(parent);
+    }
   }
 
   public void setActivityDefinitionId(String activityDefinitionId) {
@@ -173,7 +201,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
   
   public Object getTransientContextObject(String key) {
-    return processInstance.getTransientContextObject(key);
+    return workflowInstance.getTransientContextObject(key);
   }
 
   @Override
@@ -181,25 +209,39 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return false;
   }
 
-  public StartBuilder newSubprocessStart(String subprocessId) {
-    JsonService jsonService = processEngine.getServiceRegistry().getService(JsonService.class);
-    StartImpl start = new StartImpl(processEngine, jsonService);
-    start.processDefinitionId = subprocessId;
-    start.callerProcessInstanceId = processInstance.id;
+  public StartBuilder newSubWorkflowStart(String subSubWorkflowId) {
+    JsonService jsonService = workflowEngine.getServiceRegistry().getService(JsonService.class);
+    StartImpl start = new StartImpl(workflowEngine, jsonService);
+    start.processDefinitionId = subSubWorkflowId;
+    start.callerWorkflowInstanceId = workflowInstance.id;
     start.callerActivityInstanceId = id;
     return start;
   }
 
-  public void setCalledProcessInstanceId(String calledProcessInstanceId) {
-    this.calledProcessInstanceId = calledProcessInstanceId;
+  public void setCalledWorkflowInstanceId(String calledWorkflowInstanceId) {
+    this.calledWorkflowInstanceId = calledWorkflowInstanceId;
   }
   
-  public String getCalledProcessInstanceId() {
-    return calledProcessInstanceId;
+  public String getCalledWorkflowInstanceId() {
+    return calledWorkflowInstanceId;
+  }
+
+  @Override
+  public ActivityInstanceUpdates getUpdates() {
+    return (ActivityInstanceUpdates) updates;
   }
 
   @Override
   public ServiceRegistry getServiceRegistry() {
-    return processEngine.getServiceRegistry();
+    return workflowEngine.getServiceRegistry();
+  }
+  
+  public void trackUpdates() {
+    if (updates==null) {
+      updates = new ActivityInstanceUpdates();
+    } else {
+      updates.reset();
+    }
+    super.trackUpdates();
   }
 }

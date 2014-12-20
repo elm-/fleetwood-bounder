@@ -23,9 +23,9 @@ import com.heisenberg.api.definition.Scope;
 import com.heisenberg.api.definition.Transition;
 import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.job.JobType;
+import com.heisenberg.impl.plugin.ActivityType;
+import com.heisenberg.impl.plugin.Validator;
 import com.heisenberg.impl.util.Exceptions;
-import com.heisenberg.plugin.Validator;
-import com.heisenberg.plugin.activities.ActivityType;
 
 
 /**

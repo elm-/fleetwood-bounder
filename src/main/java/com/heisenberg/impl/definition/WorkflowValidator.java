@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.builder.ParseIssue.IssueType;
 import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.impl.plugin.ServiceRegistry;
+import com.heisenberg.impl.plugin.Validator;
 import com.heisenberg.impl.script.ScriptService;
 import com.heisenberg.impl.type.DataType;
-import com.heisenberg.plugin.ServiceRegistry;
-import com.heisenberg.plugin.Validator;
 
 
 /** Validates and wires process definition after it's been built by either the builder api or json deserialization.
@@ -137,8 +137,8 @@ public class WorkflowValidator implements WorkflowVisitor, Validator {
         if (activity.activityType!=null) {
           activity.activityType.validate(activity, this);
         }
-        if (activity.forEach!=null) {
-          activity.forEach.validate(activity, this, activity.activityType.getClass().getName()+".forEach");
+        if (activity.multiInstance!=null) {
+          activity.multiInstance.validate(activity, this, activity.activityType.getClass().getName()+".forEach");
         }
         if (activity.defaultTransitionId!=null) {
           activity.defaultTransition = findTransitionById(activity.outgoingDefinitions, activity.defaultTransitionId);

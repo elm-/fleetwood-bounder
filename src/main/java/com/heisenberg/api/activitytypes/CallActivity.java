@@ -23,12 +23,12 @@ import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.WorkflowInstanceImpl;
-import com.heisenberg.plugin.Validator;
-import com.heisenberg.plugin.activities.AbstractActivityType;
-import com.heisenberg.plugin.activities.Binding;
-import com.heisenberg.plugin.activities.ConfigurationField;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
-import com.heisenberg.plugin.activities.Label;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.Binding;
+import com.heisenberg.impl.plugin.ConfigurationField;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
+import com.heisenberg.impl.plugin.Label;
+import com.heisenberg.impl.plugin.Validator;
 
 
 /**
@@ -64,7 +64,7 @@ public class CallActivity extends AbstractActivityType {
       subProcessId = activityInstance.getValue(subProcessIdBinding);
     } else if (subProcessNameBinding!=null) {
       String subProcessName = activityInstance.getValue(subProcessIdBinding);
-      WorkflowImpl subprocess = activityInstanceImpl.processEngine.newProcessDefinitionQuery()
+      WorkflowImpl subprocess = activityInstanceImpl.workflowEngine.newProcessDefinitionQuery()
         .name(subProcessName)
         .orderByDeployTimeDescending()
         .get();
@@ -75,7 +75,7 @@ public class CallActivity extends AbstractActivityType {
       }
     }
 
-    StartBuilder start = activityInstanceImpl.newSubprocessStart(subProcessId);
+    StartBuilder start = activityInstanceImpl.newSubWorkflowStart(subProcessId);
     
     if (inputMappings!=null) {
       for (CallMapping inputMapping: inputMappings) {
@@ -85,7 +85,7 @@ public class CallActivity extends AbstractActivityType {
     }
     
     WorkflowInstance calledProcessInstance = start.startProcessInstance();
-    activityInstanceImpl.setCalledProcessInstanceId(calledProcessInstance.getId()); 
+    activityInstanceImpl.setCalledWorkflowInstanceId(calledProcessInstance.getId()); 
   }
   
   public void calledProcessInstanceEnded(ControllableActivityInstance activityInstance, WorkflowInstanceImpl calledProcessInstance) {
