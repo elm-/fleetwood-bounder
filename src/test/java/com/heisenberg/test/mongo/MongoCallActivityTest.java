@@ -12,32 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.mongo;
+package com.heisenberg.test.mongo;
 
-import java.util.List;
-
-import com.heisenberg.api.task.Task;
-import com.heisenberg.api.task.TaskService;
-import com.heisenberg.impl.task.TaskImpl;
-import com.heisenberg.impl.task.TaskQueryImpl;
-import com.heisenberg.impl.task.TaskServiceImpl;
+import com.heisenberg.test.execution.CallActivityTest;
 
 
 /**
  * @author Walter White
  */
-public class MongoTaskService extends TaskServiceImpl implements TaskService {
+public class MongoCallActivityTest extends CallActivityTest {
 
-  @Override
-  public void save(TaskImpl task) {
-  }
-
-  @Override
-  public void deleteTask(String taskId) {
-  }
-
-  @Override
-  public List<Task> findTasks(TaskQueryImpl taskQuery) {
-    return null;
+  public MongoCallActivityTest() {
+    useWorkflowEngineMongo();
   }
 }

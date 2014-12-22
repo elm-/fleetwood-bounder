@@ -20,23 +20,20 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.CallActivity;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.test.WorkflowTest;
 
 /**
  * @author Walter White
  */
-public class CallActivityTest {
+public class CallActivityTest extends WorkflowTest {
   
   @Test
   public void testOne() {
-    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
-
     WorkflowBuilder subprocess = workflowEngine.newWorkflow();
     subprocess.newActivity("subtask", new UserTask());
     String subprocessId = subprocess.deploy().getWorkflowId();
@@ -52,7 +49,7 @@ public class CallActivityTest {
     ActivityInstance callActivityInstance = findActivityInstanceOpen(superInstance, "call");
     assertNotNull(callActivityInstance.getCalledWorkflowInstanceId());
     
-    WorkflowInstance subInstance = workflowEngine.newProcessInstanceQuery()
+    WorkflowInstance subInstance = workflowEngine.newWorkflowInstanceQuery()
       .processInstanceId(callActivityInstance.getCalledWorkflowInstanceId())
       .get();
     
@@ -66,7 +63,7 @@ public class CallActivityTest {
       .send();
     assertTrue(subInstance.isEnded());
 
-    superInstance = workflowEngine.newProcessInstanceQuery()
+    superInstance = workflowEngine.newWorkflowInstanceQuery()
             .processInstanceId(superInstance.getId())
             .get();
     assertTrue(superInstance.isEnded());

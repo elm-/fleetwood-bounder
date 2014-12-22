@@ -22,8 +22,12 @@ public class ActivityInstanceUpdates extends ScopeInstanceUpdates {
 
   public boolean isWorkStateChanged;
 
-  public void reset() {
-    super.reset();
+  public ActivityInstanceUpdates(boolean isNew) {
+    this.isNew = isNew;
+  }
+
+  public void reset(boolean isNew) {
+    super.reset(isNew);
     isWorkStateChanged = false;
   }
 }

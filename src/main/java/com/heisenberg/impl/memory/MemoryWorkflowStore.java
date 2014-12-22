@@ -31,13 +31,13 @@ import com.heisenberg.impl.plugin.ServiceRegistry;
  */
 public class MemoryWorkflowStore implements WorkflowStore {
 
-  protected Map<Object, WorkflowImpl> processDefinitions;
+  protected Map<String, WorkflowImpl> workflows;
 
   public MemoryWorkflowStore() {
   }
 
   public MemoryWorkflowStore(ServiceRegistry serviceRegistry) {
-    this.processDefinitions = new ConcurrentHashMap<Object, WorkflowImpl>();
+    this.workflows = new ConcurrentHashMap<String, WorkflowImpl>();
   }
 
   /** ensures that every element in this process definition has an id */
@@ -48,7 +48,7 @@ public class MemoryWorkflowStore implements WorkflowStore {
 
   @Override
   public void insertWorkflow(WorkflowImpl processDefinition) {
-    processDefinitions.put(processDefinition.id, processDefinition);
+    workflows.put(processDefinition.id, processDefinition);
   }
 
   @Override
@@ -56,12 +56,12 @@ public class MemoryWorkflowStore implements WorkflowStore {
     List<WorkflowImpl> result = null;
     if (query.id!=null) {
       result = new ArrayList<WorkflowImpl>();
-      WorkflowImpl processDefinition = processDefinitions.get(query.id);
+      WorkflowImpl processDefinition = workflows.get(query.id);
       if (processDefinition!=null) {
         result.add(processDefinition);
       }
     } else if (result==null) {
-      result = new ArrayList<WorkflowImpl>(processDefinitions.values());
+      result = new ArrayList<WorkflowImpl>(workflows.values());
     }
     if (query.name!=null && !result.isEmpty()) {
       filterByName(result, query.name);
@@ -87,5 +87,10 @@ public class MemoryWorkflowStore implements WorkflowStore {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public void deleteWorkflow(String workflowId) {
+    workflows.remove(workflowId);
   }
 }

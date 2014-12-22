@@ -125,29 +125,14 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     return dataTypes;
   }
 
+  /// Workflow methods //////////////////////////////////////////////////////////// 
+  
   @Override
   public WorkflowBuilder newWorkflow() {
     return new WorkflowImpl(this);
   }
 
-  @Override
-  public StartImpl newStart() {
-    return new StartImpl(this, jsonService);
-  }
-
-  @Override
-  public MessageBuilder newMessage() {
-    return new MessageImpl(this, jsonService);
-  }
-
-  @Override
-  public WorkflowInstanceQueryImpl newProcessInstanceQuery() {
-    return new WorkflowInstanceQueryImpl(workflowInstanceStore);
-  }
-
-  /// Process Definition Builder 
-  
-  public DeployResult deployProcessDefinition(WorkflowBuilder processBuilder) {
+  public DeployResult deployWorkflow(WorkflowBuilder processBuilder) {
     Exceptions.checkNotNull(processBuilder, "processBuilder");
     log.debug("Deploying process");
 
@@ -170,9 +155,53 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     
     return response;
   }
+
+  public WorkflowQueryImpl newWorkflowQuery() {
+    return new WorkflowQueryImpl(this);
+  }
   
+  public List<WorkflowImpl> findWorkflows(WorkflowQueryImpl query) {
+    if (query.onlyIdSpecified()) {
+      WorkflowImpl cachedProcessDefinition = workflowCache.get(query.id);
+      if (cachedProcessDefinition!=null) {
+        return Lists.of(cachedProcessDefinition);
+      }
+    }
+    List<WorkflowImpl> result = workflowStore.loadWorkflows(query);
+    if (Representation.EXECUTABLE==query.representation) {
+      for (WorkflowImpl processDefinition: result) {
+        WorkflowValidator validator = new WorkflowValidator(this);
+        processDefinition.visit(validator);
+        workflowCache.put(processDefinition);
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public void deleteWorkflow(String workflowId) {
+    workflowStore.deleteWorkflow(workflowId);
+  }
+
+  /// Workflow instance methods //////////////////////////////////////////////////////////// 
+  
+  @Override
+  public StartImpl newStart() {
+    return new StartImpl(this, jsonService);
+  }
+
+  @Override
+  public MessageBuilder newMessage() {
+    return new MessageImpl(this, jsonService);
+  }
+
+  @Override
+  public WorkflowInstanceQueryImpl newWorkflowInstanceQuery() {
+    return new WorkflowInstanceQueryImpl(workflowInstanceStore);
+  }
+
   public WorkflowInstance startProcessInstance(StartImpl start) {
-    WorkflowImpl processDefinition = newProcessDefinitionQuery()
+    WorkflowImpl processDefinition = newWorkflowQuery()
       .representation(Representation.EXECUTABLE)
       .id(start.processDefinitionId)
       .name(start.processDefinitionName)
@@ -205,7 +234,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
   }
   
   public WorkflowInstanceImpl sendActivityInstanceMessage(MessageImpl message) {
-    WorkflowInstanceQueryImpl query = newProcessInstanceQuery()
+    WorkflowInstanceQueryImpl query = newWorkflowInstanceQuery()
       .processInstanceId(message.processInstanceId)
       .activityInstanceId(message.activityInstanceId);
     WorkflowInstanceImpl processInstance = lockProcessInstanceWithRetry(query);
@@ -261,27 +290,12 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     }
   }
   
-  public WorkflowQueryImpl newProcessDefinitionQuery() {
-    return new WorkflowQueryImpl(this);
+  @Override
+  public void deleteWorkflowInstance(String workflowInstanceId) {
+    workflowInstanceStore.deleteWorkflowInstance(workflowInstanceId);
+    
   }
-  
-  public List<WorkflowImpl> findProcessDefinitions(WorkflowQueryImpl query) {
-    if (query.onlyIdSpecified()) {
-      WorkflowImpl cachedProcessDefinition = workflowCache.get(query.id);
-      if (cachedProcessDefinition!=null) {
-        return Lists.of(cachedProcessDefinition);
-      }
-    }
-    List<WorkflowImpl> result = workflowStore.loadWorkflows(query);
-    if (Representation.EXECUTABLE==query.representation) {
-      for (WorkflowImpl processDefinition: result) {
-        WorkflowValidator validator = new WorkflowValidator(this);
-        processDefinition.visit(validator);
-        workflowCache.put(processDefinition);
-      }
-    }
-    return result;
-  }
+
 
   protected WorkflowInstanceImpl createProcessInstance(WorkflowImpl processDefinition) {
     String processInstanceId = workflowInstanceStore.createWorkflowInstanceId(processDefinition);

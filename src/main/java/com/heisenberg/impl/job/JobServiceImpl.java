@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -111,17 +112,17 @@ public abstract class JobServiceImpl implements JobService {
 
   public void checkProcessJobs() {
     WorkflowInstanceStore workflowInstanceStore = processEngine.getWorkflowInstanceStore();
-    Iterator<String> processInstanceIds = getProcessInstanceIdsToLockForJobs();
+    Iterator<String> processInstanceIds = getWorkflowInstanceIdsToLockForJobs();
     while (isRunning 
            && processInstanceIds!=null 
            && processInstanceIds.hasNext()) {
       String processInstanceId = processInstanceIds.next();
-      WorkflowInstanceQueryImpl query = processEngine.newProcessInstanceQuery()
+      WorkflowInstanceQueryImpl query = processEngine.newWorkflowInstanceQuery()
         .processInstanceId(processInstanceId);
       WorkflowInstanceImpl lockedProcessInstance = workflowInstanceStore.lockWorkflowInstance(query);
       boolean keepGoing = true;
       while (isRunning && keepGoing) {
-        Job job = lockNextProcessJob(processInstanceId);
+        Job job = lockNextWorkflowJob(processInstanceId);
         if (job != null) {
           executor.execute(new ExecuteJob(job, lockedProcessInstance));
         } else {
@@ -216,15 +217,22 @@ public abstract class JobServiceImpl implements JobService {
       saveJob(job);
     }
   }
+
+  @Override
+  public JobQuery newJobQuery() {
+    return new JobQueryImpl(this);
+  }
+
+  public abstract List<Job> findJobs(JobQueryImpl jobQuery);
   
   /** returns the ids of process instance that have jobs requiring
    * a process instance lock. When a job requires a process instance lock, 
-   * it has to specify {@link Job#processInstanceId} and set {@link Job#lockWorkflowInstance} to true.
+   * it has to specify {@link Job#workflowInstanceId} and set {@link Job#lockWorkflowInstance} to true.
    * This method is allowed to return null. */
-  public abstract Iterator<String> getProcessInstanceIdsToLockForJobs();
+  public abstract Iterator<String> getWorkflowInstanceIdsToLockForJobs();
 
   /** locks a job having the given processInstanceId and retrieves it from the store */
-  public abstract Job lockNextProcessJob(String processInstanceId);
+  public abstract Job lockNextWorkflowJob(String processInstanceId);
 
   /** locks a job not having a {@link Job#lockWorkflowInstance} specified  
    * and retrieves it from the store */

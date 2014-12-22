@@ -24,12 +24,15 @@ import java.util.UUID;
 import com.heisenberg.api.task.Task;
 import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.plugin.ServiceRegistry;
+import com.heisenberg.impl.task.TaskImpl;
+import com.heisenberg.impl.task.TaskQueryImpl;
+import com.heisenberg.impl.task.TaskServiceImpl;
 
 
 /**
  * @author Walter White
  */
-public class MemoryTaskService implements TaskService {
+public class MemoryTaskService extends TaskServiceImpl implements TaskService {
   
   protected Map<Object, TaskImpl> tasks = Collections.synchronizedMap(new LinkedHashMap<Object,TaskImpl>());
 
@@ -41,18 +44,18 @@ public class MemoryTaskService implements TaskService {
   }
 
   @Override
-  public Task newTask() {
-    return new TaskImpl();
+  public void save(TaskImpl task) {
+    TaskImpl t = (TaskImpl) task;
+    t.setId(UUID.randomUUID().toString());
+    tasks.put(t.getId(), t);
+  }
+  
+  @Override
+  public void deleteTask(String taskId) {
   }
 
   @Override
-  public void save(Task task) {
-    TaskImpl t = (TaskImpl) task;
-    t.id = UUID.randomUUID().toString();
-    tasks.put(t.id, t);
-  }
-
-  public List<TaskImpl> getTasks() {
-    return new ArrayList<>(tasks.values());
+  public List<Task> findTasks(TaskQueryImpl taskQuery) {
+    return new ArrayList<Task>(tasks.values());
   }
 }

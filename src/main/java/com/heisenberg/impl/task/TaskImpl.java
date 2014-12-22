@@ -12,10 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.impl.memory;
+package com.heisenberg.impl.task;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.task.Task;
 import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
@@ -25,12 +26,23 @@ import com.heisenberg.impl.plugin.ControllableActivityInstance;
  */
 public class TaskImpl implements Task {
   
-  public String id;
-  public String name;
-  public String assigneeId;
-  public List<String> candidateIds;
-  public Object activityInstanceId;
-  public String processInstanceId;
+  @JsonIgnore
+  protected TaskServiceImpl taskService;
+
+  protected String id;
+  protected String organizationId;
+  protected String name;
+  protected String assigneeId;
+  protected List<String> candidateIds;
+  protected Object activityInstanceId;
+  protected String workflowInstanceId;
+  
+  public TaskImpl() {
+  }
+
+  public TaskImpl(TaskServiceImpl taskService) {
+    this.taskService = taskService;
+  }
 
   @Override
   public Task name(String name) {
@@ -57,7 +69,7 @@ public class TaskImpl implements Task {
   }
 
   
-  public Object getId() {
+  public String getId() {
     return id;
   }
 
@@ -107,12 +119,32 @@ public class TaskImpl implements Task {
   }
 
   
-  public Object getProcessInstanceId() {
-    return processInstanceId;
+  public Object getWorkflowInstanceId() {
+    return workflowInstanceId;
   }
 
   
-  public void setProcessInstanceId(String processInstanceId) {
-    this.processInstanceId = processInstanceId;
+  public void setWorkflowInstanceId(String workflowInstanceId) {
+    this.workflowInstanceId = workflowInstanceId;
+  }
+
+  
+  public String getOrganizationId() {
+    return organizationId;
+  }
+
+  
+  public void setOrganizationId(String organizationId) {
+    this.organizationId = organizationId;
+  }
+
+  
+  public void setActivityInstanceId(Object activityInstanceId) {
+    this.activityInstanceId = activityInstanceId;
+  }
+
+  @Override
+  public void save() {
+    taskService.save(this);
   }
 }

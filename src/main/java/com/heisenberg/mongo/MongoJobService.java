@@ -15,8 +15,10 @@
 package com.heisenberg.mongo;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.heisenberg.impl.job.Job;
+import com.heisenberg.impl.job.JobQueryImpl;
 import com.heisenberg.impl.job.JobService;
 import com.heisenberg.impl.job.JobServiceImpl;
 import com.heisenberg.impl.job.JobType;
@@ -45,11 +47,11 @@ public class MongoJobService extends JobServiceImpl implements JobService {
   }
 
   @Override
-  public Iterator<String> getProcessInstanceIdsToLockForJobs() {
+  public Iterator<String> getWorkflowInstanceIdsToLockForJobs() {
     return jobs.getProcessInstanceIdsToLockForJobs();
   }
 
-  public Job lockNextProcessJob(String processInstanceId) {
+  public Job lockNextWorkflowJob(String processInstanceId) {
     return jobs.lockJob(true);
   }
 
@@ -61,5 +63,15 @@ public class MongoJobService extends JobServiceImpl implements JobService {
   @Override
   public void saveJob(Job job) {
     jobs.saveJob(job);
+  }
+
+  @Override
+  public void deleteJob(String jobId) {
+    jobs.deleteJob(jobId);
+  }
+
+  @Override
+  public List<Job> findJobs(JobQueryImpl jobQuery) {
+    return jobs.findJobs(jobQuery);
   }
 }

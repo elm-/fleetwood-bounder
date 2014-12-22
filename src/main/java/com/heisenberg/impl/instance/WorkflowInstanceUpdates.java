@@ -24,8 +24,12 @@ public class WorkflowInstanceUpdates extends ScopeInstanceUpdates {
   public boolean isWorkChanged;
   public boolean isAsyncWorkChanged;
 
-  public void reset() {
-    super.reset();
+  public WorkflowInstanceUpdates(boolean isNew) {
+    this.isNew = isNew;
+  }
+
+  public void reset(boolean isNew) {
+    super.reset(isNew);
     isLockChanged = false;
     isWorkChanged = false;
     isAsyncWorkChanged = false;

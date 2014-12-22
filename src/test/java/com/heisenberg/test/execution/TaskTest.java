@@ -49,6 +49,6 @@ public class TaskTest {
       .startProcessInstance();
     
     MemoryTaskService taskService = processEngine.getServiceRegistry().getService(MemoryTaskService.class);
-    assertEquals("Task one", taskService.getTasks().get(0).getName());
+    assertEquals("Task one", taskService.newTaskQuery().asList().get(0).getName());
   }
 }

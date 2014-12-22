@@ -44,6 +44,6 @@ public class DeployResource {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   public DeployResult deploy(WorkflowImpl processDefinition) {
-    return processEngine.deployProcessDefinition(processDefinition);
+    return processEngine.deployWorkflow(processDefinition);
   }
 }

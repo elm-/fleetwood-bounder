@@ -24,6 +24,7 @@ import java.util.Map;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.job.Job;
 import com.heisenberg.impl.job.JobExecution;
+import com.heisenberg.impl.job.JobQueryImpl;
 import com.heisenberg.impl.job.JobType;
 import com.heisenberg.impl.job.Lock;
 import com.heisenberg.impl.json.JsonService;
@@ -116,7 +117,7 @@ public class MongoJobs extends MongoCollection {
     job.processId = readId(dbJob, fields.processId);
     job.taskId = readId(dbJob, fields.taskId);
     job.processDefinitionId = readId(dbJob, fields.workflowId);
-    job.processInstanceId = readId(dbJob, fields.workflowInstanceId);
+    job.workflowInstanceId = readId(dbJob, fields.workflowInstanceId);
     job.activityInstanceId = readId(dbJob, fields.activityInstanceId);
     readExecutions(job, readList(dbJob, fields.executions));
     readLock(job, readBasicDBObject(dbJob, fields.lock));
@@ -159,7 +160,7 @@ public class MongoJobs extends MongoCollection {
     writeIdOpt(dbJob, fields.organizationId, job.organizationId);
     writeIdOpt(dbJob, fields.processId, job.processId);
     writeIdOpt(dbJob, fields.activityInstanceId, job.activityInstanceId);
-    writeIdOpt(dbJob, fields.workflowInstanceId, job.processInstanceId);
+    writeIdOpt(dbJob, fields.workflowInstanceId, job.workflowInstanceId);
     writeIdOpt(dbJob, fields.workflowId, job.processDefinitionId);
     writeIdOpt(dbJob, fields.taskId, job.taskId);
     writeExecutions(dbJob, job.executions);
@@ -193,5 +194,13 @@ public class MongoJobs extends MongoCollection {
       writeStringOpt(dbLock, fields.owner, lock.owner);
       dbJob.put(fields.lock, dbLock);
     }
+  }
+
+  public void deleteJob(String jobId) {
+    throw new RuntimeException("TODO");
+  }
+
+  public List<Job> findJobs(JobQueryImpl jobQuery) {
+    throw new RuntimeException("TODO");
   }
 }

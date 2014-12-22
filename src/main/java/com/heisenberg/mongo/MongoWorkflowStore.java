@@ -100,9 +100,12 @@ public class MongoWorkflowStore extends MongoCollection implements WorkflowStore
     return processes;
   }
 
-  
+  @Override
+  public void deleteWorkflow(String workflowId) {
+    BasicDBObject query = new BasicDBObject(fields._id, new ObjectId(workflowId));
+    remove(query);
+  }
 
-  
   public WorkflowImpl readProcessDefinition(BasicDBObject dbProcess) {
     WorkflowImpl process = new WorkflowImpl();
     process.id = readId(dbProcess, fields._id);

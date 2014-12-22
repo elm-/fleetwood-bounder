@@ -20,6 +20,11 @@ package com.heisenberg.impl.instance;
  */
 public class VariableInstanceUpdates {
 
+  public boolean isNew;
   public boolean isValueChanged;
+
+  public VariableInstanceUpdates(boolean isNew) {
+    this.isNew = isNew;
+  }
 
 }

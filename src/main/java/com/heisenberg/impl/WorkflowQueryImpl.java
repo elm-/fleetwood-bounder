@@ -94,6 +94,6 @@ public class WorkflowQueryImpl implements WorkflowQuery {
   }
 
   public List<WorkflowImpl> asList() {
-    return processEngine.findProcessDefinitions(this);
+    return processEngine.findWorkflows(this);
   }
 }

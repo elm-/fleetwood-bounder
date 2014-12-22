@@ -24,9 +24,15 @@ import com.heisenberg.impl.plugin.ControllableActivityInstance;
  */
 public interface Task {
 
+  String getId();
+  String getName();
+
+  // builder methods
+  
   Task name(String name);
   Task assigneeId(String assigneeId);
   Task candidateIds(List<String> candidateIds);
   Task activityInstance(ControllableActivityInstance activityInstance);
+  void save();
 
 }

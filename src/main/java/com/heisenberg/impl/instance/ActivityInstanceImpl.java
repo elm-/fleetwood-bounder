@@ -236,12 +236,12 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     return workflowEngine.getServiceRegistry();
   }
   
-  public void trackUpdates() {
+  public void trackUpdates(boolean isNew) {
     if (updates==null) {
-      updates = new ActivityInstanceUpdates();
+      updates = new ActivityInstanceUpdates(isNew);
     } else {
-      updates.reset();
+      updates.reset(isNew);
     }
-    super.trackUpdates();
+    super.trackUpdates(isNew);
   }
 }

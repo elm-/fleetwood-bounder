@@ -42,4 +42,6 @@ public interface WorkflowInstanceStore {
   void flush(WorkflowInstanceImpl workflowInstance);
 
   void flushAndUnlock(WorkflowInstanceImpl workflowInstance);
+
+  void deleteWorkflowInstance(String workflowInstanceId);
 }

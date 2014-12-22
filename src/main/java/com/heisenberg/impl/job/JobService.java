@@ -16,6 +16,7 @@ package com.heisenberg.impl.job;
 
 
 
+
 /**
  * @author Walter White
  */
@@ -24,4 +25,8 @@ public interface JobService {
   Job newJob(JobType jobType);
 
   void saveJob(Job job);
+
+  JobQuery newJobQuery();
+
+  void deleteJob(String jobId);
 }

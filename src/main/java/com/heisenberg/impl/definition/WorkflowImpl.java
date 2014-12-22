@@ -76,7 +76,7 @@ public class WorkflowImpl extends ScopeImpl implements WorkflowBuilder, Workflow
 
   @Override
   public DeployResult deploy() {
-    return processEngine.deployProcessDefinition(this);
+    return processEngine.deployWorkflow(this);
   }
 
   @Override

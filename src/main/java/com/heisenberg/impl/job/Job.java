@@ -34,7 +34,7 @@ public class Job implements JobBuilder {
   public String organizationId;
   public String processId;
   public String processDefinitionId;
-  public String processInstanceId;
+  public String workflowInstanceId;
   public String activityInstanceId;
   public String taskId;
   
@@ -93,7 +93,7 @@ public class Job implements JobBuilder {
   }
   
   public Job processInstanceId(String processInstanceId) {
-    this.processInstanceId = processInstanceId;
+    this.workflowInstanceId = processInstanceId;
     return this;
   }
   
@@ -121,5 +121,85 @@ public class Job implements JobBuilder {
 
   public void rescheduleFor(LocalDateTime duedate) {
     this.duedate = duedate;
+  }
+
+  
+  public JobService getJobService() {
+    return jobService;
+  }
+
+  
+  public JobType getJobType() {
+    return jobType;
+  }
+
+  
+  public String getId() {
+    return id;
+  }
+
+  
+  public String getKey() {
+    return key;
+  }
+
+  
+  public LocalDateTime getDuedate() {
+    return duedate;
+  }
+
+  
+  public Lock getLock() {
+    return lock;
+  }
+
+  
+  public LinkedList<JobExecution> getExecutions() {
+    return executions;
+  }
+
+  
+  public Long getRetries() {
+    return retries;
+  }
+
+  
+  public Long getRetryDelay() {
+    return retryDelay;
+  }
+
+  
+  public LocalDateTime getDone() {
+    return done;
+  }
+
+  
+  public String getOrganizationId() {
+    return organizationId;
+  }
+
+  
+  public String getProcessId() {
+    return processId;
+  }
+
+  
+  public String getProcessDefinitionId() {
+    return processDefinitionId;
+  }
+
+  
+  public String getWorkflowInstanceId() {
+    return workflowInstanceId;
+  }
+
+  
+  public String getActivityInstanceId() {
+    return activityInstanceId;
+  }
+
+  
+  public String getTaskId() {
+    return taskId;
   }
 }

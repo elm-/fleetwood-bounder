@@ -14,6 +14,9 @@
  */
 package com.heisenberg.api.task;
 
+import com.heisenberg.impl.task.TaskImpl;
+
+
 
 
 /**
@@ -23,6 +26,10 @@ public interface TaskService {
 
   Task newTask();
 
-  void save(Task task);
+  void save(TaskImpl task);
+
+  TaskQuery newTaskQuery();
+
+  void deleteTask(String taskId);
 
 }

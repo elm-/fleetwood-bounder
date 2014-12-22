@@ -31,5 +31,7 @@ public interface WorkflowStore {
 
   List<WorkflowImpl> loadWorkflows(WorkflowQueryImpl workflowQuery);
 
+  void deleteWorkflow(String workflowId);
+
 
 }

@@ -20,7 +20,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.Activity;
-import com.heisenberg.api.task.Task;
 import com.heisenberg.api.task.TaskService;
 import com.heisenberg.impl.plugin.AbstractActivityType;
 import com.heisenberg.impl.plugin.Binding;
@@ -62,13 +61,12 @@ public class UserTask extends AbstractActivityType {
     List<String> taskCandidateIds = activityInstance.getValue(candidates);
     String assigneeId = (taskCandidateIds!=null && taskCandidateIds.size()==1 ? taskCandidateIds.get(0) : null);
     
-    Task task = taskService.newTask()
+    taskService.newTask()
       .name(taskName)
       .assigneeId(assigneeId)
       .candidateIds(taskCandidateIds)
-      .activityInstance(activityInstance);
-    
-    taskService.save(task);
+      .activityInstance(activityInstance)
+      .save();
   }
   
   public UserTask name(String nameValue) {

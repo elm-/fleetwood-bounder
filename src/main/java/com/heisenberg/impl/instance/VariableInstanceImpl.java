@@ -121,7 +121,7 @@ public class VariableInstanceImpl implements VariableInstance {
     this.variableDefinitionId = variableDefinitionId;
   }
 
-  public void trackUpdates() {
-    updates = new VariableInstanceUpdates();
+  public void trackUpdates(boolean isNew) {
+    updates = new VariableInstanceUpdates(isNew);
   }
 }

@@ -100,7 +100,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     workflowInstance.addWork(activityInstance);
     activityInstance.setStart(Time.now());
     if (updates!=null) {
-      activityInstance.updates = new ActivityInstanceUpdates();
+      activityInstance.updates = new ActivityInstanceUpdates(true);
       propagateActivityInstanceChange(this);
     }
     addActivityInstance(activityInstance);
@@ -140,7 +140,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     variableInstance.variableDefinition = variableDefinition;
     variableInstance.variableDefinitionId = variableDefinition.id;
     if (updates!=null) {
-      variableInstance.updates = new VariableInstanceUpdates();
+      variableInstance.updates = new VariableInstanceUpdates(true);
       updates.isVariableInstancesChanged = true;
       propagateActivityInstanceChange(this);
     }
@@ -312,15 +312,15 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     return updates;
   }
   
-  public void trackUpdates() {
+  public void trackUpdates(boolean isNew) {
     if (activityInstances!=null) {
       for (ActivityInstanceImpl activityInstance: activityInstances) {
-        activityInstance.trackUpdates();
+        activityInstance.trackUpdates(isNew);
       }
     }
     if (variableInstances!=null) {
       for (VariableInstanceImpl variableInstance: variableInstances) {
-        variableInstance.trackUpdates();
+        variableInstance.trackUpdates(isNew);
       }
     }
   }

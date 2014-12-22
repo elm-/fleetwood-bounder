@@ -44,7 +44,11 @@ public interface WorkflowEngine {
   /** Use a {@link MessageBuilder message} to end a waiting activity instance in a process instance. */
   MessageBuilder newMessage();
 
-  WorkflowInstanceQuery newProcessInstanceQuery();
+  WorkflowInstanceQuery newWorkflowInstanceQuery();
   
-  WorkflowQuery newProcessDefinitionQuery();
+  WorkflowQuery newWorkflowQuery();
+
+  void deleteWorkflowInstance(String workflowInstanceId);
+
+  void deleteWorkflow(String workflowId);
 }

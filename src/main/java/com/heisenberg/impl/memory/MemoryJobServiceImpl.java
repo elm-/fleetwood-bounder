@@ -25,6 +25,7 @@ import java.util.Set;
 
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.job.Job;
+import com.heisenberg.impl.job.JobQueryImpl;
 import com.heisenberg.impl.job.JobServiceImpl;
 import com.heisenberg.impl.plugin.ServiceRegistry;
 
@@ -34,7 +35,7 @@ import com.heisenberg.impl.plugin.ServiceRegistry;
  */
 public class MemoryJobServiceImpl extends JobServiceImpl {
   
-  protected Set<String> processInstanceIds;
+  protected Set<String> workflowInstanceIds;
   protected LinkedList<Job> jobs;
   protected List<Job> jobsDone;
   protected Map<String,Job> jobsById;
@@ -44,19 +45,19 @@ public class MemoryJobServiceImpl extends JobServiceImpl {
 
   public MemoryJobServiceImpl(ServiceRegistry serviceRegistry) {
     super(serviceRegistry);
-    this.processInstanceIds = new HashSet<>();
+    this.workflowInstanceIds = new HashSet<>();
     this.jobs = new LinkedList<>();
     this.jobsDone = new ArrayList<>();
     this.jobsById = new HashMap<>();
   }
 
   @Override
-  public synchronized Iterator<String> getProcessInstanceIdsToLockForJobs() {
-    return processInstanceIds.iterator();
+  public synchronized Iterator<String> getWorkflowInstanceIdsToLockForJobs() {
+    return workflowInstanceIds.iterator();
   }
 
   @Override
-  public synchronized Job lockNextProcessJob(String processInstanceId) {
+  public synchronized Job lockNextWorkflowJob(String workflowInstanceId) {
     return lockJob(true);
   }
 
@@ -65,13 +66,13 @@ public class MemoryJobServiceImpl extends JobServiceImpl {
     return lockJob(false);
   }
 
-  public synchronized Job lockJob(boolean mustHaveProcessInstance) {
+  public synchronized Job lockJob(boolean mustHaveWorkflowInstance) {
     Iterator<Job> jobIterator = jobs.iterator();
     while (jobIterator.hasNext()) {
       Job job = jobIterator.next();
       if ( ( job.duedate==null || duedateHasPast(job) )
-           && ( (mustHaveProcessInstance && job.processInstanceId!=null)
-                || (!mustHaveProcessInstance && job.processInstanceId==null) )
+           && ( (mustHaveWorkflowInstance && job.workflowInstanceId!=null)
+                || (!mustHaveWorkflowInstance && job.workflowInstanceId==null) )
          ) {
         jobIterator.remove();
         return job;
@@ -96,11 +97,20 @@ public class MemoryJobServiceImpl extends JobServiceImpl {
           jobs.remove(oldJob);
         }
       }
-      if (job.processInstanceId != null) {
-        processInstanceIds.add(job.processInstanceId);
+      if (job.workflowInstanceId != null) {
+        workflowInstanceIds.add(job.workflowInstanceId);
       }
     } else {
       jobsDone.add(job);
     }
+  }
+
+  @Override
+  public List<Job> findJobs(JobQueryImpl jobQuery) {
+    return jobs;
+  }
+
+  @Override
+  public void deleteJob(String jobId) {
   }
 }

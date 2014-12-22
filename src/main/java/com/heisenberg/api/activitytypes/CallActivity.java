@@ -64,7 +64,7 @@ public class CallActivity extends AbstractActivityType {
       subProcessId = activityInstance.getValue(subProcessIdBinding);
     } else if (subProcessNameBinding!=null) {
       String subProcessName = activityInstance.getValue(subProcessIdBinding);
-      WorkflowImpl subprocess = activityInstanceImpl.workflowEngine.newProcessDefinitionQuery()
+      WorkflowImpl subprocess = activityInstanceImpl.workflowEngine.newWorkflowQuery()
         .name(subProcessName)
         .orderByDeployTimeDescending()
         .get();

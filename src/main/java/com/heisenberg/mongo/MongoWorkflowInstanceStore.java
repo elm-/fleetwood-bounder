@@ -81,7 +81,7 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
   public void insertWorkflowInstance(WorkflowInstanceImpl workflowInstance) {
     BasicDBObject dbProcessInstance = writeProcessInstance(workflowInstance);
     insert(dbProcessInstance, writeConcernStoreProcessInstance);
-    workflowInstance.trackUpdates();
+    workflowInstance.trackUpdates(false);
   }
   
   @Override
@@ -177,7 +177,7 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     }
     
     // reset the update tracking as all changes have been saved
-    workflowInstance.trackUpdates();
+    workflowInstance.trackUpdates(false);
   }
 
   @Override
@@ -185,7 +185,7 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     processInstance.lock = null;
     BasicDBObject dbProcessInstance = writeProcessInstance(processInstance);
     saveProcessInstance(dbProcessInstance);
-    processInstance.trackUpdates();
+    processInstance.trackUpdates(false);
   }
 
   @Override
@@ -205,6 +205,7 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     if (processInstanceQuery.activityInstanceId!=null) {
       builder.add(fields.activityInstances+"."+fields._id, new ObjectId(processInstanceQuery.activityInstanceId));
     }
+
     DBObject query = builder 
             .push(fields.lock)
               .add("$exists", false)
@@ -218,11 +219,20 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
             .pop()
           .pop()
           .get();
-    BasicDBObject dbProcessInstance = findAndModify(query, update);
+    DBObject retrieveFields = new BasicDBObject()
+          .append(fields.archivedActivityInstances, false);
+    
+    BasicDBObject dbProcessInstance = findAndModify(query, update, retrieveFields);
     if (dbProcessInstance==null) {
       return null;
     }
     return readProcessInstance(dbProcessInstance);
+  }
+  
+  @Override
+  public void deleteWorkflowInstance(String workflowInstanceId) {
+    BasicDBObject query = new BasicDBObject(fields._id, new ObjectId(workflowInstanceId));
+    remove(query);
   }
 
   public BasicDBObject writeProcessInstance(WorkflowInstanceImpl workflowInstance) {
@@ -262,7 +272,7 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     workflowInstance.workflowEngine = processEngine;
     workflowInstance.organizationId = readString(dbWorkflowInstance, fields.organizationId);
     workflowInstance.processDefinitionId = readId(dbWorkflowInstance, fields.workflowId);
-    WorkflowImpl processDefinition = processEngine.newProcessDefinitionQuery()
+    WorkflowImpl processDefinition = processEngine.newWorkflowQuery()
             .representation(Representation.EXECUTABLE)
             .id(workflowInstance.processDefinitionId)
             .get();
@@ -296,6 +306,8 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     workflowInstance.variableInstances = readVariableInstances(dbWorkflowInstance, workflowInstance);
     workflowInstance.work = readWork(dbWorkflowInstance, fields.work, workflowInstance);
     workflowInstance.workAsync = readWork(dbWorkflowInstance, fields.workAsync, workflowInstance);
+    
+    workflowInstance.trackUpdates(false);
     
     return workflowInstance;
   }

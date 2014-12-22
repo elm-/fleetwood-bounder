@@ -222,7 +222,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
       setEnd(Time.now());
       
       if (callerProcessInstanceId!=null) {
-        WorkflowInstanceQueryImpl processInstanceQuery = workflowEngine.newProcessInstanceQuery()
+        WorkflowInstanceQueryImpl processInstanceQuery = workflowEngine.newWorkflowInstanceQuery()
          .processInstanceId(callerProcessInstanceId)
          .activityInstanceId(callerActivityInstanceId);
         WorkflowInstanceImpl callerProcessInstance = workflowEngine.lockProcessInstanceWithRetry(processInstanceQuery);
@@ -304,12 +304,12 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     this.organizationId = organizationId;
   }
 
-  public void trackUpdates() {
+  public void trackUpdates(boolean isNew) {
     if (updates==null) {
-      updates = new WorkflowInstanceUpdates();
+      updates = new WorkflowInstanceUpdates(isNew);
     } else {
-      updates.reset();
+      updates.reset(isNew);
     }
-    super.trackUpdates();
+    super.trackUpdates(isNew);
   }
 }

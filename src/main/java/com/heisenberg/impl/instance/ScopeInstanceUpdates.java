@@ -26,10 +26,10 @@ public class ScopeInstanceUpdates {
   public boolean isActivityInstancesChanged;
   public boolean isVariableInstancesChanged;
 
-  public void reset() {
-    isNew = false;
-    isEndChanged = false;
-    isActivityInstancesChanged = false;
-    isVariableInstancesChanged = false;
+  public void reset(boolean isNew) {
+    this.isNew = isNew;
+    this.isEndChanged = false;
+    this.isActivityInstancesChanged = false;
+    this.isVariableInstancesChanged = false;
   }
 }

@@ -23,17 +23,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.glassfish.jersey.client.Initializable;
-
+import com.heisenberg.impl.Time;
 import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.WorkflowInstanceQueryImpl;
-import com.heisenberg.impl.Time;
 import com.heisenberg.impl.WorkflowInstanceStore;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.LockImpl;
-import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.impl.instance.ScopeInstanceImpl;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.impl.plugin.ServiceRegistry;
 import com.heisenberg.impl.util.Lists;
 
@@ -43,17 +41,17 @@ import com.heisenberg.impl.util.Lists;
  */
 public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
 
-  protected String processEngineId;
-  protected Map<Object, WorkflowInstanceImpl> processInstances;
-  protected Set<Object> lockedProcessInstances;
+  protected String workflowEngineId;
+  protected Map<String, WorkflowInstanceImpl> workflowInstances;
+  protected Set<String> lockedWorkflowInstances;
   
   public MemoryWorkflowInstanceStore() {
   }
   
   public MemoryWorkflowInstanceStore(ServiceRegistry serviceRegistry) {
-    this.processInstances = new ConcurrentHashMap<>();
-    this.lockedProcessInstances = Collections.synchronizedSet(new HashSet<>());
-    this.processEngineId = serviceRegistry.getService(WorkflowEngineImpl.class).getId();
+    this.workflowInstances = new ConcurrentHashMap<>();
+    this.lockedWorkflowInstances = Collections.synchronizedSet(new HashSet<String>());
+    this.workflowEngineId = serviceRegistry.getService(WorkflowEngineImpl.class).getId();
   }
 
   @Override
@@ -73,7 +71,7 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
 
   @Override
   public void insertWorkflowInstance(WorkflowInstanceImpl processInstance) {
-    processInstances.put(processInstance.getId(), processInstance);
+    workflowInstances.put(processInstance.getId(), processInstance);
   }
 
   @Override
@@ -82,17 +80,17 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
 
   @Override
   public void flushAndUnlock(WorkflowInstanceImpl processInstance) {
-    lockedProcessInstances.remove(processInstance.getId());
+    lockedWorkflowInstances.remove(processInstance.getId());
     processInstance.removeLock();
   }
   
   @Override
   public List<WorkflowInstanceImpl> findWorkflowInstances(WorkflowInstanceQueryImpl processInstanceQuery) {
     if (processInstanceQuery.processInstanceId!=null) {
-      return Lists.of(processInstances.get(processInstanceQuery.processInstanceId));
+      return Lists.of(workflowInstances.get(processInstanceQuery.processInstanceId));
     }
     List<WorkflowInstanceImpl> processInstances = new ArrayList<>();
-    for (WorkflowInstanceImpl processInstance: this.processInstances.values()) {
+    for (WorkflowInstanceImpl processInstance: this.workflowInstances.values()) {
       if (meetsConditions(processInstance, processInstanceQuery)) {
         processInstances.add(processInstance);
       }
@@ -109,13 +107,13 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
     }
     WorkflowInstanceImpl processInstance = processInstances.get(0);
     String processInstanceId = processInstance.getId();
-    if (lockedProcessInstances.contains(processInstanceId)) {
+    if (lockedWorkflowInstances.contains(processInstanceId)) {
       throw new RuntimeException("Process instance "+processInstanceId+" is already locked");
     }
-    lockedProcessInstances.add(processInstanceId);
+    lockedWorkflowInstances.add(processInstanceId);
     LockImpl lock = new LockImpl();
     lock.setTime(Time.now());
-    lock.setOwner(processEngineId);
+    lock.setOwner(workflowEngineId);
     processInstance.setLock(lock);
     // log.debug("Locked process instance: "+jsonService.objectToJsonStringPretty(processInstance));
     return processInstance;
@@ -123,7 +121,7 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
   
   @Override
   public WorkflowInstanceImpl findWorkflowInstanceById(String processInstanceId) {
-    return processInstances.get(processInstanceId);
+    return workflowInstances.get(processInstanceId);
   }
 
   public boolean meetsConditions(WorkflowInstanceImpl processInstance, WorkflowInstanceQueryImpl processInstanceQuery) {
@@ -149,5 +147,10 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
       return true;
     }
     return containsCompositeInstance(activityInstance, activityInstanceId);
+  }
+  
+  @Override
+  public void deleteWorkflowInstance(String workflowInstanceId) {
+    workflowInstances.remove(workflowInstanceId);
   }
 }

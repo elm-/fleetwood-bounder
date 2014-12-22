@@ -70,17 +70,25 @@ public class ClientWorkflowEngine implements WorkflowEngine /* implements Servic
   }
 
   @Override
-  public WorkflowInstanceQuery newProcessInstanceQuery() {
+  public WorkflowInstanceQuery newWorkflowInstanceQuery() {
     return null;
   }
 
   @Override
-  public WorkflowQuery newProcessDefinitionQuery() {
+  public WorkflowQuery newWorkflowQuery() {
     return null;
   }
 
   @Override
   public DataTypes getDataTypes() {
     return null;
+  }
+
+  @Override
+  public void deleteWorkflowInstance(String workflowInstanceId) {
+  }
+
+  @Override
+  public void deleteWorkflow(String workflowId) {
   }
 }

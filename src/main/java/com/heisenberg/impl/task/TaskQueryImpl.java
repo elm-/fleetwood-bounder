@@ -12,32 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.mongo;
+package com.heisenberg.impl.task;
 
 import java.util.List;
 
 import com.heisenberg.api.task.Task;
-import com.heisenberg.api.task.TaskService;
-import com.heisenberg.impl.task.TaskImpl;
-import com.heisenberg.impl.task.TaskQueryImpl;
-import com.heisenberg.impl.task.TaskServiceImpl;
+import com.heisenberg.api.task.TaskQuery;
 
 
 /**
  * @author Walter White
  */
-public class MongoTaskService extends TaskServiceImpl implements TaskService {
+public class TaskQueryImpl implements TaskQuery {
 
-  @Override
-  public void save(TaskImpl task) {
+  TaskServiceImpl taskService;
+  
+  public TaskQueryImpl(TaskServiceImpl taskService) {
+    this.taskService = taskService;
   }
 
   @Override
-  public void deleteTask(String taskId) {
+  public List<Task> asList() {
+    return taskService.findTasks(this);
   }
 
-  @Override
-  public List<Task> findTasks(TaskQueryImpl taskQuery) {
-    return null;
-  }
 }
