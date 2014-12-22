@@ -24,7 +24,7 @@ import com.heisenberg.api.instance.WorkflowInstance;
  */
 public interface WorkflowInstanceQuery {
 
-  WorkflowInstanceQuery processInstanceId(String processInstanceId);
+  WorkflowInstanceQuery workflowInstanceId(String processInstanceId);
   
   WorkflowInstanceQuery activityInstanceId(String activityInstanceId);
   

@@ -41,6 +41,7 @@ import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 import com.heisenberg.server.ObjectMapperResolver;
 import com.heisenberg.server.WorkflowServer;
+import com.heisenberg.test.TestExecutorService;
 import com.heisenberg.test.mongo.MongoWorkflowEngineTest;
 
 /**
@@ -72,6 +73,7 @@ public class RestTest extends JerseyTest {
     }
     workflowEngine = (WorkflowEngineImpl) new MongoWorkflowEngineConfiguration()
       .server("localhost", 27017)
+      .registerService(new TestExecutorService())
       .buildProcessEngine();
     return workflowEngine;
   }

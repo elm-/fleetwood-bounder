@@ -86,26 +86,26 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
   
   @Override
   public List<WorkflowInstanceImpl> findWorkflowInstances(WorkflowInstanceQueryImpl processInstanceQuery) {
-    if (processInstanceQuery.processInstanceId!=null) {
-      return Lists.of(workflowInstances.get(processInstanceQuery.processInstanceId));
+    if (processInstanceQuery.workflowInstanceId!=null) {
+      return Lists.of(workflowInstances.get(processInstanceQuery.workflowInstanceId));
     }
-    List<WorkflowInstanceImpl> processInstances = new ArrayList<>();
+    List<WorkflowInstanceImpl> workflowInstances = new ArrayList<>();
     for (WorkflowInstanceImpl processInstance: this.workflowInstances.values()) {
       if (meetsConditions(processInstance, processInstanceQuery)) {
-        processInstances.add(processInstance);
+        workflowInstances.add(processInstance);
       }
     }
-    return processInstances;
+    return workflowInstances;
   }
 
   @Override
   public WorkflowInstanceImpl lockWorkflowInstance(WorkflowInstanceQueryImpl processInstanceQuery) {
     processInstanceQuery.setMaxResults(1);
-    List<WorkflowInstanceImpl> processInstances = findWorkflowInstances(processInstanceQuery);
-    if (processInstances==null || processInstances.isEmpty()) { 
+    List<WorkflowInstanceImpl> workflowInstances = findWorkflowInstances(processInstanceQuery);
+    if (workflowInstances==null || workflowInstances.isEmpty()) { 
       throw new RuntimeException("Process instance doesn't exist");
     }
-    WorkflowInstanceImpl processInstance = processInstances.get(0);
+    WorkflowInstanceImpl processInstance = workflowInstances.get(0);
     String processInstanceId = processInstance.getId();
     if (lockedWorkflowInstances.contains(processInstanceId)) {
       throw new RuntimeException("Process instance "+processInstanceId+" is already locked");
@@ -119,11 +119,6 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
     return processInstance;
   }
   
-  @Override
-  public WorkflowInstanceImpl findWorkflowInstanceById(String processInstanceId) {
-    return workflowInstances.get(processInstanceId);
-  }
-
   public boolean meetsConditions(WorkflowInstanceImpl processInstance, WorkflowInstanceQueryImpl processInstanceQuery) {
     if (processInstanceQuery.activityInstanceId!=null && !containsCompositeInstance(processInstance, processInstanceQuery.activityInstanceId)) {
       return false;

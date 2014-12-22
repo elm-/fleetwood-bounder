@@ -212,7 +212,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
       throw new RuntimeException("Could not find process definition "+start.processDefinitionId+" "+start.processDefinitionName);
     }
     WorkflowInstanceImpl processInstance = createProcessInstance(processDefinition);
-    processInstance.callerProcessInstanceId = start.callerWorkflowInstanceId;
+    processInstance.callerWorkflowInstanceId = start.callerWorkflowInstanceId;
     processInstance.callerActivityInstanceId = start.callerActivityInstanceId;
     processInstance.transientContext = start.transientContext;
     setVariableApiValues(processInstance, start);
@@ -235,7 +235,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
   
   public WorkflowInstanceImpl sendActivityInstanceMessage(MessageImpl message) {
     WorkflowInstanceQueryImpl query = newWorkflowInstanceQuery()
-      .processInstanceId(message.processInstanceId)
+      .workflowInstanceId(message.processInstanceId)
       .activityInstanceId(message.activityInstanceId);
     WorkflowInstanceImpl processInstance = lockProcessInstanceWithRetry(query);
     // TODO set variables and context
@@ -276,7 +276,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
 
   
   private void setVariableApiValues(ScopeInstanceImpl scopeInstance, VariableRequestImpl variableRequest) {
-    WorkflowImpl processDefinition = scopeInstance.processDefinition;
+    WorkflowImpl processDefinition = scopeInstance.workflow;
     Map<String, Object> variableValues = variableRequest.variableValues;
     if (variableValues!=null) {
       for (Object variableDefinitionId: variableValues.keySet()) {

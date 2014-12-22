@@ -201,6 +201,18 @@ public class MongoJobs extends MongoCollection {
   }
 
   public List<Job> findJobs(JobQueryImpl jobQuery) {
-    throw new RuntimeException("TODO");
+    List<Job> jobs = new ArrayList<Job>();
+    BasicDBObject query = buildQuery(jobQuery);
+    DBCursor jobCursor = find(query);
+    while (jobCursor.hasNext()) {
+      BasicDBObject dbJob = (BasicDBObject) jobCursor.next();
+      Job job = readJob(dbJob);
+      jobs.add(job);
+    }
+    return jobs;
+  }
+
+  public BasicDBObject buildQuery(JobQueryImpl jobQuery) {
+    return null;
   }
 }

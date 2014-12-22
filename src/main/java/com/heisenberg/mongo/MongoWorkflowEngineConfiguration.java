@@ -77,6 +77,9 @@ public class MongoWorkflowEngineConfiguration extends WorkflowEngineConfiguratio
     public String workState = "workState";
     public String work = "work";
     public String workAsync = "workAsync";
+    public String callerWorkflowInstanceId = "callerWorkflowInstanceId";
+    public String callerActivityInstanceId = "callerActivityInstanceId";
+    public String calledWorkflowInstanceId = "calledWorkflowInstanceId";
   }
 
   public static class JobFields {
@@ -116,7 +119,7 @@ public class MongoWorkflowEngineConfiguration extends WorkflowEngineConfiguratio
   protected WriteConcern writeConcernFlushUpdates;
   protected WriteConcern writeConcernJobs;
   protected String workflowInstancesCollectionName = "workflowInstances";
-  protected String workflowsCollectionName = "workflowDefinitions";
+  protected String workflowsCollectionName = "workflows";
   protected String jobsCollectionName = "jobs";
   protected boolean isPretty = true;
   

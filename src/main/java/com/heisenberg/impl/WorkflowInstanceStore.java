@@ -37,8 +37,6 @@ public interface WorkflowInstanceStore {
 
   void insertWorkflowInstance(WorkflowInstanceImpl worklflowInstance);
 
-  WorkflowInstanceImpl findWorkflowInstanceById(String workflowInstanceId);
-
   void flush(WorkflowInstanceImpl workflowInstance);
 
   void flushAndUnlock(WorkflowInstanceImpl workflowInstance);

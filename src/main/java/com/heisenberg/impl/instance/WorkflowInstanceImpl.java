@@ -53,12 +53,12 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   
   public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
 
-  public String processDefinitionId;
+  public String workflowId;
   public LockImpl lock;
   public Queue<ActivityInstanceImpl> work;
   public Queue<ActivityInstanceImpl> workAsync;
   public String organizationId;
-  public String callerProcessInstanceId;
+  public String callerWorkflowInstanceId;
   public String callerActivityInstanceId;
   
   @JsonIgnore
@@ -74,8 +74,8 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     this.id = processInstanceId;
     this.workflowEngine = processEngine;
     this.organizationId = processDefinition.organizationId;
-    this.processDefinition = processDefinition;
-    this.processDefinitionId = processDefinition.id;
+    this.workflow = processDefinition;
+    this.workflowId = processDefinition.id;
     this.scopeDefinition = processDefinition;
     this.workflowInstance = this;
     this.start = Time.now();
@@ -147,11 +147,11 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
       
       if (STATE_STARTING.equals(activityInstance.workState)) {
         log.debug("Starting "+activityInstance);
-        activity.activityType.start(activityInstance);
+        start(activityInstance);
         
       } else if (STATE_STARTING_MULTI_INSTANCE.equals(activityInstance.workState)) {
         log.debug("Starting multi instance "+activityInstance);
-        activity.activityType.start(activityInstance);
+        start(activityInstance);
         
       } else if (STATE_STARTING_MULTI_CONTAINER.equals(activityInstance.workState)) {
         List<Object> values = activityInstance.getValue(activity.multiInstance);
@@ -183,8 +183,10 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
             work = workAsync;
             workAsync = null;
             workflowInstance.isAsync = true;
-            getUpdates().isWorkChanged = true;
-            getUpdates().isAsyncWorkChanged = true;
+            if (updates!=null) {
+              getUpdates().isWorkChanged = true;
+              getUpdates().isAsyncWorkChanged = true;
+            }
             executeWork();
           } catch (Throwable e) {
             e.printStackTrace();
@@ -192,6 +194,14 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
         }});
     } else {
       workflowInstanceStore.flushAndUnlock(workflowInstance);
+    }
+  }
+
+  protected void start(ActivityInstanceImpl activityInstance) {
+    ActivityImpl activity = activityInstance.getActivity();
+    activity.activityType.start(activityInstance);
+    if (ActivityInstanceImpl.START_WORKSTATES.contains(activityInstance.workState)) {
+      activityInstance.setWorkState(ActivityInstanceImpl.STATE_WAITING);
     }
   }
   
@@ -220,17 +230,18 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
         throw new RuntimeException("Can't end this process instance. There are open activity instances: "+this);
       }
       setEnd(Time.now());
+      log.debug("Ends "+this);
       
-      if (callerProcessInstanceId!=null) {
+      if (callerWorkflowInstanceId!=null) {
         WorkflowInstanceQueryImpl processInstanceQuery = workflowEngine.newWorkflowInstanceQuery()
-         .processInstanceId(callerProcessInstanceId)
+         .workflowInstanceId(callerWorkflowInstanceId)
          .activityInstanceId(callerActivityInstanceId);
         WorkflowInstanceImpl callerProcessInstance = workflowEngine.lockProcessInstanceWithRetry(processInstanceQuery);
         ActivityInstanceImpl callerActivityInstance = callerProcessInstance.findActivityInstance(callerActivityInstanceId);
         if (callerActivityInstance.isEnded()) {
           throw new RuntimeException("Call activity instance "+callerActivityInstance+" is already ended");
         }
-        log.debug("Call activity "+callerActivityInstance+" ends");
+        log.debug("Notifying caller "+callerActivityInstance);
         ActivityImpl activityDefinition = callerActivityInstance.getActivity();
         CallActivity callActivity = (CallActivity) activityDefinition.activityType;
         callActivity.calledProcessInstanceEnded(callerActivityInstance, this);
@@ -241,7 +252,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
   }
 
   public String toString() {
-    return "pi("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+")";
+    return "("+(id!=null ? id.toString() : Integer.toString(System.identityHashCode(this)))+"|wi)";
   }
 
   public void removeLock() {
@@ -262,8 +273,8 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     }
   }
   
-  public void setProcessDefinitionId(String processDefinitionId) {
-    this.processDefinitionId = processDefinitionId;
+  public void setWorkflowId(String processDefinitionId) {
+    this.workflowId = processDefinitionId;
   }
 
   public void setEnd(LocalDateTime end) {
@@ -280,6 +291,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     return transientContext!=null ? transientContext.get(key) : null;
   }
   
+  /** getter for casting convenience */ 
   @Override
   public WorkflowInstanceUpdates getUpdates() {
     return (WorkflowInstanceUpdates) updates;
@@ -288,7 +300,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
 
   @Override
   public String getWorkflowId() {
-    return processDefinitionId;
+    return workflowId;
   }
 
   @Override

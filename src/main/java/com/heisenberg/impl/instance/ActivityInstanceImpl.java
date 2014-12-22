@@ -166,7 +166,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   
   public String toString() {
     String activityDefinitionType = activityDefinition.activityType.getClass().getSimpleName();
-    return "ai("+activityDefinition.id+"|"+activityDefinitionType+"|"+id+")";
+    return "("+activityDefinition.id+"|"+activityDefinitionType+"|"+id+"|ai)";
   }
   
   public void setEnd(LocalDateTime end) {

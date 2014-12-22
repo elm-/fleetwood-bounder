@@ -118,7 +118,7 @@ public abstract class JobServiceImpl implements JobService {
            && processInstanceIds.hasNext()) {
       String processInstanceId = processInstanceIds.next();
       WorkflowInstanceQueryImpl query = processEngine.newWorkflowInstanceQuery()
-        .processInstanceId(processInstanceId);
+        .workflowInstanceId(processInstanceId);
       WorkflowInstanceImpl lockedProcessInstance = workflowInstanceStore.lockWorkflowInstance(query);
       boolean keepGoing = true;
       while (isRunning && keepGoing) {

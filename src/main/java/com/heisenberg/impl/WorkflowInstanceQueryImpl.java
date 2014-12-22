@@ -26,7 +26,7 @@ import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 public class WorkflowInstanceQueryImpl implements WorkflowInstanceQuery {
 
   public WorkflowInstanceStore workflowInstanceStore;
-  public String processInstanceId;
+  public String workflowInstanceId;
   public String activityInstanceId;
   public Integer maxResults;
   
@@ -34,8 +34,8 @@ public class WorkflowInstanceQueryImpl implements WorkflowInstanceQuery {
     this.workflowInstanceStore = workflowInstanceStore;
   }
 
-  public WorkflowInstanceQueryImpl processInstanceId(String processInstanceId) {
-    setProcessInstanceId(processInstanceId);
+  public WorkflowInstanceQueryImpl workflowInstanceId(String workflowInstanceId) {
+    setWorkflowInstanceId(workflowInstanceId);
     return this;
   }
   
@@ -53,11 +53,11 @@ public class WorkflowInstanceQueryImpl implements WorkflowInstanceQuery {
   }
   
   public Object String() {
-    return processInstanceId;
+    return workflowInstanceId;
   }
   
-  public void setProcessInstanceId(String processInstanceId) {
-    this.processInstanceId = processInstanceId;
+  public void setWorkflowInstanceId(String processInstanceId) {
+    this.workflowInstanceId = processInstanceId;
   }
   
   public Integer getMaxResults() {
@@ -70,9 +70,9 @@ public class WorkflowInstanceQueryImpl implements WorkflowInstanceQuery {
 
   public WorkflowInstanceImpl get() {
     setMaxResults(1);
-    List<WorkflowInstanceImpl> processInstances = asList();
-    if (processInstances!=null && !processInstances.isEmpty()) {
-      return processInstances.get(0);
+    List<WorkflowInstanceImpl> workflowInstances = asList();
+    if (workflowInstances!=null && !workflowInstances.isEmpty()) {
+      return workflowInstances.get(0);
     }
     return null;
   }

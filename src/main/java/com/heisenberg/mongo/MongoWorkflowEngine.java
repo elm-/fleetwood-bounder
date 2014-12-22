@@ -58,23 +58,20 @@ public class MongoWorkflowEngine extends WorkflowEngineImpl {
     boolean isPretty = configuration.isPretty();
 
     MongoWorkflowStore processDefinitions = new MongoWorkflowStore(serviceRegistry);
-    DBCollection processDefinitionDbCollection = db.getCollection(configuration.getWorkflowsCollectionName());
-    processDefinitions.dbCollection = processDefinitionDbCollection;
+    processDefinitions.dbCollection = db.getCollection(configuration.getWorkflowsCollectionName());
     processDefinitions.isPretty = isPretty;
     processDefinitions.fields = configuration.getProcessDefinitionFields();
     processDefinitions.writeConcernInsertProcessDefinition = processDefinitions.getWriteConcern(configuration.getWriteConcernInsertProcessDefinition());
     configuration.registerService(processDefinitions);
 
-    MongoWorkflowInstanceStore processInstances = new MongoWorkflowInstanceStore(serviceRegistry);
-    DBCollection processInstancesDbCollection = db.getCollection(configuration.getWorkflowInstancesCollectionName());
-    processInstances.processEngine = this;
-    processInstances.dbCollection = processInstancesDbCollection;
-    processInstances.isPretty = isPretty;
-    processInstances.fields = configuration.getProcessInstanceFields();
-    processInstances.dbCollection = db.getCollection("processInstances");
-    processInstances.writeConcernStoreProcessInstance = processInstances.getWriteConcern(configuration.getWriteConcernInsertProcessInstance());
-    processInstances.writeConcernFlushUpdates = processInstances.getWriteConcern(configuration.getWriteConcernFlushUpdates());
-    configuration.registerService(processInstances);
+    MongoWorkflowInstanceStore workflowInstances = new MongoWorkflowInstanceStore(serviceRegistry);
+    workflowInstances.dbCollection = db.getCollection(configuration.workflowInstancesCollectionName);
+    workflowInstances.processEngine = this;
+    workflowInstances.isPretty = isPretty;
+    workflowInstances.fields = configuration.getProcessInstanceFields();
+    workflowInstances.writeConcernStoreProcessInstance = workflowInstances.getWriteConcern(configuration.getWriteConcernInsertProcessInstance());
+    workflowInstances.writeConcernFlushUpdates = workflowInstances.getWriteConcern(configuration.getWriteConcernFlushUpdates());
+    configuration.registerService(workflowInstances);
 
     // TODO
     // MongoTaskService mongoTaskService = new MongoTaskService();

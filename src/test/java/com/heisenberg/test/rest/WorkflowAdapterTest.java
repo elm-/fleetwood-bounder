@@ -16,7 +16,7 @@ package com.heisenberg.test.rest;
 
 import org.junit.Test;
 
-import com.heisenberg.client.datasource.WorkflowAdapter;
+import com.heisenberg.client.adapter.WorkflowAdapter;
 
 
 /**

@@ -63,7 +63,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   @JsonIgnore
   public WorkflowEngineImpl workflowEngine;
   @JsonIgnore
-  public WorkflowImpl processDefinition;
+  public WorkflowImpl workflow;
   @JsonIgnore
   public ScopeImpl scopeDefinition;
   @JsonIgnore
@@ -342,12 +342,12 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     this.workflowEngine = processEngine;
   }
 
-  public WorkflowImpl getProcessDefinition() {
-    return processDefinition;
+  public WorkflowImpl getWorkflow() {
+    return workflow;
   }
 
-  public void setProcessDefinition(WorkflowImpl processDefinition) {
-    this.processDefinition = processDefinition;
+  public void setWorkflow(WorkflowImpl processDefinition) {
+    this.workflow = processDefinition;
   }
   
   public ScopeImpl getScopeDefinition() {

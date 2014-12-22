@@ -50,7 +50,7 @@ public class CallActivityTest extends WorkflowTest {
     assertNotNull(callActivityInstance.getCalledWorkflowInstanceId());
     
     WorkflowInstance subInstance = workflowEngine.newWorkflowInstanceQuery()
-      .processInstanceId(callActivityInstance.getCalledWorkflowInstanceId())
+      .workflowInstanceId(callActivityInstance.getCalledWorkflowInstanceId())
       .get();
     
     assertNotNull(subInstance);
@@ -64,7 +64,7 @@ public class CallActivityTest extends WorkflowTest {
     assertTrue(subInstance.isEnded());
 
     superInstance = workflowEngine.newWorkflowInstanceQuery()
-            .processInstanceId(superInstance.getId())
+            .workflowInstanceId(superInstance.getId())
             .get();
     assertTrue(superInstance.isEnded());
   }

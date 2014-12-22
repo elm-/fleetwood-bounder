@@ -14,6 +14,8 @@
  */
 package com.heisenberg.test;
 
+import static com.heisenberg.test.TestHelper.mongoDeleteAllCollections;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,10 +81,15 @@ public class WorkflowTest {
       }
       workflowEnginesByName.put(workflowEngineName, workflowEngine);
     }
+    if (MONGO.equals(workflowEngineName)) {
+      mongoDeleteAllCollections(workflowEngine);
+    }
   }
 
   @After
   public void cleanUpWorkflowEngine() {
+    log.debug("\n\n###### Test ended, starting cleanup ######################################################## \n");
+
     StringBuilder cleanLog = new StringBuilder();
     cleanLog.append("Cleaning up workflow engine\n");
     
@@ -101,20 +108,6 @@ public class WorkflowTest {
         cleanLog.append(i);
         cleanLog.append(" ---\n");
         cleanLog.append(jsonService.objectToJsonStringPretty(job));
-        cleanLog.append("\n");
-        i++;
-      }
-    }
-    List< ? extends Workflow> workflows = workflowEngine.newWorkflowQuery().asList();
-    if (workflows!=null && !workflows.isEmpty()) {
-      int i = 0;
-      cleanLog.append("\n### workflows ######################################################## \n");
-      for (Workflow workflow : workflows) {
-        workflowEngine.deleteWorkflow(workflow.getId());
-        cleanLog.append("--- Deleted workflow ");
-        cleanLog.append(i);
-        cleanLog.append(" ---\n");
-        cleanLog.append(jsonService.objectToJsonStringPretty(workflow));
         cleanLog.append("\n");
         i++;
       }
@@ -143,6 +136,20 @@ public class WorkflowTest {
         cleanLog.append(i);
         cleanLog.append(" ---\n");
         cleanLog.append(jsonService.objectToJsonStringPretty(workflowInstance));
+        cleanLog.append("\n");
+        i++;
+      }
+    }
+    List< ? extends Workflow> workflows = workflowEngine.newWorkflowQuery().asList();
+    if (workflows!=null && !workflows.isEmpty()) {
+      int i = 0;
+      cleanLog.append("\n### workflows ######################################################## \n");
+      for (Workflow workflow : workflows) {
+        workflowEngine.deleteWorkflow(workflow.getId());
+        cleanLog.append("--- Deleted workflow ");
+        cleanLog.append(i);
+        cleanLog.append(" ---\n");
+        cleanLog.append(jsonService.objectToJsonStringPretty(workflow));
         cleanLog.append("\n");
         i++;
       }
