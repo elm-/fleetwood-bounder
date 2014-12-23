@@ -63,7 +63,7 @@ public class Binding<T> {
   // processEngine and dataType are already initialized when this is called
   public void validate(Activity activity, Validator validator, String bindingFieldName) {
     isInitialized = true;
-    if (value!=null) {
+    if (value!=null && dataType!=null) {
       try {
         dataType.validateInternalValue(value);
       } catch (InvalidValueException e) {
