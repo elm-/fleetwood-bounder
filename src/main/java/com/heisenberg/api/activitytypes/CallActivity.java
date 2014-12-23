@@ -146,6 +146,12 @@ public class CallActivity extends AbstractActivityType {
 
   @Override
   public void validate(Activity activity, Validator validator) {
+    if (subProcessNameBinding!=null) {
+      subProcessNameBinding.validate(null, validator, "subProcessNameBinding");
+    }
+    if (subProcessIdBinding!=null) {
+      subProcessIdBinding.validate(null, validator, "subProcessIdBinding");
+    }
     if (inputMappings!=null) {
       for (CallMapping callMapping: inputMappings) {
         callMapping.validate(validator, "inputMappings");
