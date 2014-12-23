@@ -60,7 +60,7 @@
       <artifactId>mail</artifactId>
       <version>1.4.7</version>
     </dependency>
-
+    
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-jetty-http</artifactId>

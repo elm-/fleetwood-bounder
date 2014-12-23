@@ -14,6 +14,7 @@
  */
 package com.heisenberg.test.rest;
 
+import org.apache.http.client.methods.HttpGet;
 import org.junit.Test;
 
 import com.heisenberg.client.adapter.WorkflowAdapter;
@@ -30,7 +31,6 @@ public class WorkflowAdapterTest {
       .port(11111)
       .registerResource(new TestPingAdapterResource());
     workflowAdapter.start();
-    
     
   }
 }

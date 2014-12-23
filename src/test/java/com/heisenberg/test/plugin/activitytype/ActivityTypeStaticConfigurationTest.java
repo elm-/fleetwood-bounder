@@ -31,6 +31,7 @@ import com.heisenberg.impl.WorkflowEngineImpl;
 import com.heisenberg.impl.definition.ActivityImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.definition.WorkflowValidator;
+import com.heisenberg.impl.instance.WorkflowInstanceImpl;
 import com.heisenberg.impl.json.JsonService;
 import com.heisenberg.impl.plugin.AbstractActivityType;
 import com.heisenberg.impl.plugin.ConfigurationField;
