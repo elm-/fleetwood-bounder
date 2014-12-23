@@ -75,6 +75,9 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
 
   private List<WorkflowInstanceEventListener> listeners;
 
+  protected WorkflowEngineImpl() {
+  }
+
   protected WorkflowEngineImpl(WorkflowEngineConfiguration configuration) {
     this.serviceRegistry = configuration.getServiceRegistry();
     this.serviceRegistry.registerService(this);
@@ -151,11 +154,11 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
 
     if (!issues.hasErrors()) {
       processDefinition.id = workflowStore.createWorkflowId(processDefinition);
-      response.setProcessDefinitionId(processDefinition.id); 
+      response.setProcessDefinitionId(processDefinition.id);
       workflowStore.insertWorkflow(processDefinition);
       workflowCache.put(processDefinition);
     }
-    
+
     return response;
   }
 
