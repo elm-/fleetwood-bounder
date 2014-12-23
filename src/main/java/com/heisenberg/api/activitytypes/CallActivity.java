@@ -146,6 +146,15 @@ public class CallActivity extends AbstractActivityType {
 
   @Override
   public void validate(Activity activity, Validator validator) {
-    super.validate(activity, validator);
+    if (inputMappings!=null) {
+      for (CallMapping callMapping: inputMappings) {
+        callMapping.validate(validator, "inputMappings");
+      }
+    }
+    if (outputMappings!=null) {
+      for (CallMapping callMapping: outputMappings) {
+        callMapping.validate(validator, "inputMappings");
+      }
+    }
   }
 }

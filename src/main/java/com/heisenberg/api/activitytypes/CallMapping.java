@@ -15,6 +15,7 @@
 package com.heisenberg.api.activitytypes;
 
 import com.heisenberg.impl.plugin.Binding;
+import com.heisenberg.impl.plugin.Validator;
 
 
 /**
@@ -33,5 +34,11 @@ public class CallMapping {
   public CallMapping destinationVariableId(String destinationVariableId) {
     this.destinationVariableId = destinationVariableId;
     return this;
+  }
+
+  public void validate(Validator validator, String mappingName) {
+    if (sourceBinding!=null) {
+      sourceBinding.validate(null, validator, mappingName);
+    }
   }
 }
