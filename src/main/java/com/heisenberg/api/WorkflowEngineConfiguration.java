@@ -22,6 +22,7 @@ import com.heisenberg.api.activitytypes.CallActivity;
 import com.heisenberg.api.activitytypes.CallMapping;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
+import com.heisenberg.api.activitytypes.ExclusiveGateway;
 import com.heisenberg.api.activitytypes.HttpServiceTask;
 import com.heisenberg.api.activitytypes.JavaServiceTask;
 import com.heisenberg.api.activitytypes.ParallelGateway;
@@ -39,6 +40,8 @@ import com.heisenberg.impl.plugin.Descriptors;
 import com.heisenberg.impl.plugin.ServiceRegistry;
 import com.heisenberg.impl.script.ScriptServiceImpl;
 import com.heisenberg.impl.type.DataType;
+import com.heisenberg.impl.type.ListType;
+import com.heisenberg.impl.type.NumberType;
 import com.heisenberg.impl.type.TextType;
 
 
@@ -86,6 +89,8 @@ public class WorkflowEngineConfiguration {
     
   protected void initializeDefaultDataTypes() {
     this.registerDataType(new TextType());
+    this.registerDataType(new NumberType());
+    this.registerDataType(new ListType());
     this.registerJavaBeanType(CallMapping.class);
   }
   
@@ -93,6 +98,7 @@ public class WorkflowEngineConfiguration {
     this.registerActivityType(new StartEvent());
     this.registerActivityType(new EndEvent());
     this.registerActivityType(new EmbeddedSubprocess());
+    this.registerActivityType(new ExclusiveGateway());
     this.registerActivityType(new ParallelGateway());
     this.registerActivityType(new CallActivity());
     this.registerActivityType(new ScriptTask());

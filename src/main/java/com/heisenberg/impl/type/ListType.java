@@ -29,8 +29,8 @@ public class ListType extends AbstractDataType implements DataType {
   
   DataType elementDataType;
   
-  /** constructor for json, dataType is a required field. */
-  protected ListType() {
+  /** constructor for json & persistence, dataType is a required field. */
+  public ListType() {
   }
 
   public ListType(DataType elementDataType) {

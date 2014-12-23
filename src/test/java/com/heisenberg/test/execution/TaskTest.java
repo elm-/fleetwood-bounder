@@ -20,35 +20,34 @@ import org.junit.Test;
 
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
-import com.heisenberg.impl.memory.MemoryTaskService;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.api.task.TaskService;
+import com.heisenberg.impl.WorkflowEngineImpl;
+import com.heisenberg.test.WorkflowTest;
 
 
 /**
  * @author Walter White
  */
-public class TaskTest {
+public class TaskTest extends WorkflowTest {
 
   @Test
   public void testTask() throws Exception {
-    MemoryWorkflowEngine processEngine = new MemoryWorkflowEngine();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    WorkflowBuilder process = processEngine.newWorkflow();
-    
-    process.newActivity()
+    w.newActivity()
       .id("Task one")
       .activityType(new UserTask());
     
-    String processDefinitionId = process
+    String processDefinitionId = w
       .deploy()
       .checkNoErrorsAndNoWarnings()
       .getWorkflowId();
     
-    processEngine.newStart()
+    workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .startProcessInstance();
     
-    MemoryTaskService taskService = processEngine.getServiceRegistry().getService(MemoryTaskService.class);
+    TaskService taskService = ((WorkflowEngineImpl)workflowEngine).getServiceRegistry().getService(TaskService.class);
     assertEquals("Task one", taskService.newTaskQuery().asList().get(0).getName());
   }
 }

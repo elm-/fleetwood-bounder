@@ -12,35 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.test.execution.mongo;
 
-import java.util.List;
-
-import org.joda.time.LocalDateTime;
+import com.heisenberg.test.execution.ParallelGatewayTest;
 
 
 /**
  * @author Walter White
  */
-public interface ScopeInstance {
+public class MongoParallelGatewayTest extends ParallelGatewayTest {
 
-  LocalDateTime getStart();
-  
-  LocalDateTime getEnd();
-  
-  boolean isEnded();
-  
-  Long getDuration();
-  
-  List<? extends ActivityInstance> getActivityInstances();
-  
-  List<? extends VariableInstance> getVariableInstances();
-
-  boolean hasOpenActivityInstances();
-
-  /** recurses downward over the nested activities (not over the parent) */
-  ActivityInstance findActivityInstanceByActivityDefinitionId(String activityDefinitionId);
-  
-  Object getVariableValue(String variableId);
-
+  public MongoParallelGatewayTest() {
+    useMongoWorkflowEngine();
+  }
 }

@@ -20,8 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.WorkflowEngine;
-import com.heisenberg.api.WorkflowEngineConfiguration;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ScriptTask;
@@ -29,13 +27,13 @@ import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.test.TestExecutorService;
+import com.heisenberg.test.WorkflowTest;
 
 
 /**
  * @author Walter White
  */
-public class EmbeddedSuprocessTest {
+public class EmbeddedSuprocessTest extends WorkflowTest {
   
   /**          +-------------+
    *           | sub         |
@@ -46,10 +44,6 @@ public class EmbeddedSuprocessTest {
    */ 
   @Test 
   public void testOne() {
-    WorkflowEngine workflowEngine = new WorkflowEngineConfiguration()
-      .registerService(new TestExecutorService())
-      .buildProcessEngine();
-  
     WorkflowBuilder process = workflowEngine.newWorkflow();
   
     process.newActivity()

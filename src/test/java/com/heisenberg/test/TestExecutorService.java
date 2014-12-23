@@ -15,6 +15,7 @@
 package com.heisenberg.test;
 
 import com.heisenberg.impl.ExecutorService;
+import com.heisenberg.impl.WorkflowEngineImpl;
 
 
 /**
@@ -33,6 +34,7 @@ public class TestExecutorService implements ExecutorService {
   
   @Override
   public void execute(Runnable command) {
+    WorkflowEngineImpl.log.debug("TestExecutorService executes command synchronous");
     command.run();
   }
 }

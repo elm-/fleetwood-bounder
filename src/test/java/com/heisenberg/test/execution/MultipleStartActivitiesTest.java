@@ -20,21 +20,18 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.test.WorkflowTest;
 
 /**
  * @author Walter White
  */
-public class MultipleStartActivitiesTest {
+public class MultipleStartActivitiesTest extends WorkflowTest {
   
   @Test
   public void testDefaultStartActivitiesParallelExecution() {
-    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
-
     WorkflowBuilder w = workflowEngine.newWorkflow();
 
     w.newActivity()

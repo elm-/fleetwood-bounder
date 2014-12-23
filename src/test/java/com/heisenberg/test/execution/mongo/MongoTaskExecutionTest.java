@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.test.mongo;
+package com.heisenberg.test.execution.mongo;
 
-import com.heisenberg.test.execution.CallActivityTest;
+import com.heisenberg.test.execution.TaskTest;
 
 
 /**
  * @author Walter White
  */
-public class MongoCallActivityTest extends CallActivityTest {
+public class MongoTaskExecutionTest extends TaskTest {
 
-  public MongoCallActivityTest() {
-    useWorkflowEngineMongo();
+  public MongoTaskExecutionTest() {
+    useMongoWorkflowEngine();
   }
 }

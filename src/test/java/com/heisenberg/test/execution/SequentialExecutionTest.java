@@ -20,21 +20,18 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.test.WorkflowTest;
 
 /**
  * @author Walter White
  */
-public class SequentialExecutionTest {
+public class SequentialExecutionTest extends WorkflowTest {
   
   @Test
   public void testOne() {
-    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
-
     WorkflowBuilder process = workflowEngine.newWorkflow();
 
     process.newActivity()
@@ -72,7 +69,7 @@ public class SequentialExecutionTest {
     
     String twoId = getActivityInstanceId(workflowInstance, "two");
     
-    workflowEngine.newMessage()
+    workflowInstance = workflowEngine.newMessage()
       .activityInstanceId(twoId)
       .send();
 
@@ -81,7 +78,7 @@ public class SequentialExecutionTest {
     
     String threeId = getActivityInstanceId(workflowInstance, "three");
     
-    workflowEngine.newMessage()
+    workflowInstance = workflowEngine.newMessage()
       .activityInstanceId(threeId)
       .send();
 

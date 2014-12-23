@@ -12,35 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.test;
 
-import java.util.List;
-
-import org.joda.time.LocalDateTime;
+import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 
 
 /**
  * @author Walter White
  */
-public interface ScopeInstance {
+public class TestMemoryWorkflowEngine extends MemoryWorkflowEngine {
 
-  LocalDateTime getStart();
-  
-  LocalDateTime getEnd();
-  
-  boolean isEnded();
-  
-  Long getDuration();
-  
-  List<? extends ActivityInstance> getActivityInstances();
-  
-  List<? extends VariableInstance> getVariableInstances();
+  public TestMemoryWorkflowEngine() {
+    super( new WorkflowEngineConfiguration()
+             .registerService(new TestExecutorService())
+    );
+  }
 
-  boolean hasOpenActivityInstances();
-
-  /** recurses downward over the nested activities (not over the parent) */
-  ActivityInstance findActivityInstanceByActivityDefinitionId(String activityDefinitionId);
   
-  Object getVariableValue(String variableId);
-
 }

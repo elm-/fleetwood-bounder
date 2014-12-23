@@ -20,41 +20,39 @@ import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
 import com.heisenberg.impl.util.Lists;
+import com.heisenberg.test.WorkflowTest;
 import com.heisenberg.test.TestHelper;
 
 
 /**
  * @author Walter White
  */
-public class MultiInstanceTest {
+public class MultiInstanceTest extends WorkflowTest {
   
   @Test
   public void testTask() throws Exception {
-    MemoryWorkflowEngine processEngine = new MemoryWorkflowEngine();
+    DataTypes dataTypes = workflowEngine.getDataTypes();
     
-    DataTypes dataTypes = processEngine.getDataTypes();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    WorkflowBuilder process = processEngine.newWorkflow();
-    
-    process.newVariable()
+    w.newVariable()
       .id("reviewers")
       .dataType(dataTypes.list(DataTypes.TEXT));
     
-    process.newActivity()
+    w.newActivity()
       .id("Review")
       .forEach("reviewer", DataTypes.TEXT, "reviewers")
       .activityType(new UserTask()
         .candidateVariable("reviewer")
       );
     
-    String processDefinitionId = process
+    String processDefinitionId = w
       .deploy()
       .checkNoErrorsAndNoWarnings()
       .getWorkflowId();
     
-    WorkflowInstance workflowInstance = processEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
       .variableValue("reviewers", Lists.of("John", "Jack", "Mary"))
       .startProcessInstance();

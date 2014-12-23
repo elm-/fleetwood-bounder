@@ -14,6 +14,7 @@
  */
 package com.heisenberg.api.activitytypes;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,19 +37,38 @@ public class ScriptTask extends AbstractActivityType {
 
   @JsonIgnore
   protected ScriptService scriptService;
+  
   public String script;
-  public Map<String, String> scriptToProcessMappings;
-  public Object resultVariableDefinitionId;
+  public Map<String, String> scriptToWorkflowMappings;
+  public String resultVariableId;
   
   @JsonIgnore
   public Script compiledScript;
+  
+  public ScriptTask script(String script) {
+    this.script = script;
+    return this;
+  }
+  
+  public ScriptTask variableMapping(String scriptVariableName, String workflowVariableId) {
+    if (scriptToWorkflowMappings==null) {
+      scriptToWorkflowMappings = new HashMap<>();
+    }
+    scriptToWorkflowMappings.put(scriptVariableName, workflowVariableId);
+    return this;
+  }
+  
+  public ScriptTask resultVariableId(String resultVariableId) {
+    this.resultVariableId = resultVariableId;
+    return this;
+  } 
   
   @Override
   public void validate(Activity activity, Validator validator) {
     if (script!=null) {
       this.scriptService = validator.getServiceRegistry().getService(ScriptService.class);
       this.compiledScript = scriptService.compile(script);
-      this.compiledScript.scriptToProcessMappings = scriptToProcessMappings;
+      this.compiledScript.scriptToProcessMappings = scriptToWorkflowMappings;
     }
     // TODO if specified, check if the resultVariableDefinitionId exists
   }

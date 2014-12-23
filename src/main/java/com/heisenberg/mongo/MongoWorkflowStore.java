@@ -182,6 +182,7 @@ public class MongoWorkflowStore extends MongoCollection implements WorkflowStore
       scope.transitionDefinitions = new ArrayList<>();
       for (BasicDBObject dbTransition: dbTransitions) {
         TransitionImpl transition = new TransitionImpl();
+        transition.id = readString(dbTransition, fields._id);
         transition.fromId = readString(dbTransition, fields.from);
         transition.toId = readString(dbTransition, fields.to);
         scope.transitionDefinitions.add(transition);
@@ -194,7 +195,7 @@ public class MongoWorkflowStore extends MongoCollection implements WorkflowStore
       for (TransitionImpl transition: scope.transitionDefinitions) {
         BasicDBObject dbParentScope = dbObjectStack.peek(); 
         BasicDBObject dbTransition = new BasicDBObject();
-        writeIdOpt(dbTransition, fields._id, transition.id);
+        writeStringOpt(dbTransition, fields._id, transition.id);
         writeObjectOpt(dbTransition, fields.from, transition.fromId!=null ? transition.fromId : (transition.from!=null ? transition.from.id : null));
         writeObjectOpt(dbTransition, fields.to, transition.toId!=null ? transition.toId : (transition.to!=null ? transition.to.id : null));
         writeListElementOpt(dbParentScope, fields.transitions, dbTransition);

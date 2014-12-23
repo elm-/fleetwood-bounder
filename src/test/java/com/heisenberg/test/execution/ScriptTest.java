@@ -16,50 +16,38 @@ package com.heisenberg.test.execution;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.DataTypes;
-import com.heisenberg.api.WorkflowEngine;
-import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.api.activitytypes.ScriptTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
-import com.heisenberg.impl.plugin.AbstractActivityType;
-import com.heisenberg.impl.plugin.ControllableActivityInstance;
-import com.heisenberg.impl.plugin.Label;
-import com.heisenberg.impl.script.Script;
-import com.heisenberg.impl.script.ScriptResult;
-import com.heisenberg.impl.script.ScriptService;
+import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.test.WorkflowTest;
 
 
 /**
  * @author Walter White
  */
-public class ScriptTest {
+public class ScriptTest extends WorkflowTest {
   
-  public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);
-
   @Test
   public void testScript() {
-    WorkflowEngine workflowEngine = new WorkflowEngineConfiguration()
-      .registerJavaBeanType(Money.class)
-      .registerActivityType(new ScriptActivity())
-      .buildProcessEngine();
-
-    DataTypes dataTypes = workflowEngine.getDataTypes();
-    
     WorkflowBuilder process = workflowEngine.newWorkflow();
     
     process.newVariable()
+      .id("n")
+      .dataType(DataTypes.TEXT);
+  
+    process.newVariable()
       .id("m")
-      .dataType(dataTypes.javaBean(Money.class));
-    
+      .dataType(DataTypes.TEXT);
+  
     process.newActivity()
-      .activityType(new ScriptActivity())
+      .activityType(new ScriptTask()
+        .variableMapping("name", "n")
+        .variableMapping("message", "m")
+        .script("message = 'Hello ' + name;")
+      )
       .id("a");
 
     String processDefinitionId = process
@@ -67,52 +55,11 @@ public class ScriptTest {
       .checkNoErrorsAndNoWarnings()
       .getWorkflowId();
     
-    Map<String,Object> fiveDollars = new HashMap<>();
-    fiveDollars.put("amount", 5d);
-    fiveDollars.put("currency", "USD");
-    
-    workflowEngine.newStart()
+    WorkflowInstance workflowInstance = workflowEngine.newStart()
       .processDefinitionId(processDefinitionId)
-      .variableValue("m", new Money(5, "USD"))
+      .variableValue("n", "World")
       .startProcessInstance();
 
-    assertEquals("It costs 5, which is in USD\nAnd mmmoney is 5 USD", scriptResultMessage);
-  }
-  
-  static String scriptResultMessage = null;
-
-  @JsonTypeName("testScript")
-  @Label("Script")
-  public static class ScriptActivity extends AbstractActivityType {
-    @Override
-    public void start(ControllableActivityInstance activityInstance) {
-      ScriptService scriptService = activityInstance.getServiceRegistry().getService(ScriptService.class);
-      Script script = scriptService.compile(
-             // Each variable is automatically available with it's variableDefinitionName
-             // Individual fields (and on Rhino also properties) can be dereferenced
-             "'It costs '+m.amount+', which is in '+m.currency+'\\n"
-             // Script to process variable mappings can be defined
-             // The toString of the money java object will be used 
-             +"And mmmoney is '+mmmoney")
-        .scriptToProcessMapping("mmmoney", "m");
-      ScriptResult scriptResult = scriptService.evaluateScript(activityInstance, script);
-      scriptResultMessage = (String) scriptResult.getResult();
-      activityInstance.onwards();
-    }
-  }
-  
-  public static class Money {
-
-    public int amount;
-    public String currency;
-
-    public Money(int amount, String currency) {
-      this.amount = amount;
-      this.currency = currency;
-    }
-    
-    public String toString() {
-      return amount+" "+currency;
-    }
+    assertEquals("Hello World", workflowInstance.getVariableValue("m"));
   }
 }

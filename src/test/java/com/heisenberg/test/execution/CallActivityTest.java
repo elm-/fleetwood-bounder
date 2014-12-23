@@ -33,14 +33,14 @@ import com.heisenberg.test.WorkflowTest;
 public class CallActivityTest extends WorkflowTest {
   
   @Test
-  public void testOne() {
-    WorkflowBuilder subprocess = workflowEngine.newWorkflow();
-    subprocess.newActivity("subtask", new UserTask());
-    String subprocessId = subprocess.deploy().getWorkflowId();
+  public void testCallActivity() {
+    WorkflowBuilder subWorkflow = workflowEngine.newWorkflow();
+    subWorkflow.newActivity("subtask", new UserTask());
+    String subprocessId = subWorkflow.deploy().getWorkflowId();
     
-    WorkflowBuilder superprocess = workflowEngine.newWorkflow();
-    superprocess.newActivity("call", new CallActivity().subProcessId(subprocessId));
-    String superprocessId = superprocess.deploy().getWorkflowId();
+    WorkflowBuilder superWorkflow = workflowEngine.newWorkflow();
+    superWorkflow.newActivity("call", new CallActivity().subProcessId(subprocessId));
+    String superprocessId = superWorkflow.deploy().getWorkflowId();
     
     WorkflowInstance superInstance = workflowEngine.newStart()
       .processDefinitionId(superprocessId)

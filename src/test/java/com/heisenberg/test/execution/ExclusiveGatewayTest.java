@@ -19,23 +19,20 @@ import static com.heisenberg.test.TestHelper.assertOpen;
 import org.junit.Test;
 
 import com.heisenberg.api.DataTypes;
-import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.ExclusiveGateway;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.test.WorkflowTest;
 
 /**
  * @author Walter White
  */
-public class ExclusiveGatewayTest {
+public class ExclusiveGatewayTest extends WorkflowTest {
   
   @Test
   public void testExclusiveGateway() {
-    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
-
     WorkflowBuilder p = workflowEngine.newWorkflow();
     
     p.newVariable()

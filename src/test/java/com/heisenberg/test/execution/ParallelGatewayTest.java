@@ -20,19 +20,18 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ParallelGateway;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.test.WorkflowTest;
 
 /**
  * @author Walter White
  */
-public class ParallelGatewayTest {
+public class ParallelGatewayTest extends WorkflowTest {
   
   @Test
   public void testParallelGateway() {
@@ -46,8 +45,6 @@ public class ParallelGatewayTest {
                  |             |
                  +-->[t3]------+ 
     */
-    
-    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
     WorkflowBuilder w = workflowEngine.newWorkflow();
 

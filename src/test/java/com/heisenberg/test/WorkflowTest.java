@@ -14,11 +14,7 @@
  */
 package com.heisenberg.test;
 
-import static com.heisenberg.test.TestHelper.mongoDeleteAllCollections;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.WorkflowEngine;
-import com.heisenberg.api.WorkflowEngineConfiguration;
 import com.heisenberg.api.definition.Workflow;
 import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.api.task.Task;
@@ -39,67 +34,60 @@ import com.heisenberg.impl.plugin.ServiceRegistry;
 import com.heisenberg.mongo.MongoWorkflowEngineConfiguration;
 
 
-/**
+/** Base class that allows to reuse tests and run them on different process engines.
+ *  
  * @author Walter White
  */
 public class WorkflowTest {
   
   public static final Logger log = LoggerFactory.getLogger(WorkflowTest.class);
+  
+  protected static final String MEMORY = "memory";
+  protected static final String MONGO = "mongo";
 
-  static Map<String,WorkflowEngine> workflowEnginesByName = new HashMap<>();
-  
-  public static final String MEMORY = "memory";
-  public static final String MONGO = "mongo";
-  
-  String workflowEngineName = null; // package private cause no need to pollute the test class namespace 
   protected WorkflowEngine workflowEngine = null;
+  protected String workflowEngineId = MEMORY;
   
-  /** by default the memory workflow engine is used */
-  public WorkflowTest() {
-    this.workflowEngineName = MEMORY;
-  }
-  
-  /** to be called in the default constructor of tests that want to use the mongo workflow engine */
-  protected void useWorkflowEngineMongo() {
-    this.workflowEngineName = MONGO;
+  protected void useMongoWorkflowEngine() {
+    workflowEngineId = MONGO;
   }
   
   @Before
-  public void initializeWorkflowEngine() {
-    workflowEngine = workflowEnginesByName.get(workflowEngineName);
-    if (workflowEngine==null) {
-      if (MEMORY.equals(workflowEngineName)) {
-        workflowEngine = new WorkflowEngineConfiguration()
-          .registerService(new TestExecutorService())
-          .buildProcessEngine();
-      } else if (MONGO.equals(workflowEngineName)) {
-        workflowEngine = new MongoWorkflowEngineConfiguration()
-          .registerService(new TestExecutorService())
-          .buildProcessEngine();
-      } else {
-        throw new RuntimeException("Unknown workflow engine name: "+workflowEngineName);
-      }
-      workflowEnginesByName.put(workflowEngineName, workflowEngine);
+  public void before() {
+    if (MEMORY.equals(workflowEngineId)) {
+      workflowEngine = new TestMemoryWorkflowEngine();
+
+    } else if (MONGO.equals(workflowEngineId)) {
+      workflowEngine = new MongoWorkflowEngineConfiguration()
+        .registerService(new TestExecutorService())
+        .buildProcessEngine();
+      TestHelper.mongoDeleteAllCollections(workflowEngine);
+      
+    } else {
+      throw new RuntimeException("Invalid workflow engine id: "+workflowEngineId);
     }
-    if (MONGO.equals(workflowEngineName)) {
-      mongoDeleteAllCollections(workflowEngine);
+  }
+  
+  @After
+  public void after() {
+    if (MONGO.equals(workflowEngineId)) {
+      cleanAndLogMongoContent();
     }
   }
 
-  @After
-  public void cleanUpWorkflowEngine() {
+  protected void cleanAndLogMongoContent() {
     log.debug("\n\n###### Test ended, starting cleanup ######################################################## \n");
 
     StringBuilder cleanLog = new StringBuilder();
     cleanLog.append("Cleaning up workflow engine\n");
-    
-    ServiceRegistry serviceRegistry = ((WorkflowEngineImpl)workflowEngine).getServiceRegistry();
+
+    ServiceRegistry serviceRegistry = ((WorkflowEngineImpl) workflowEngine).getServiceRegistry();
     JsonService jsonService = serviceRegistry.getService(JsonService.class);
     JobService jobService = serviceRegistry.getService(JobService.class);
     TaskService taskService = serviceRegistry.getService(TaskService.class);
-    
+
     List<Job> jobs = jobService.newJobQuery().asList();
-    if (jobs!=null && !jobs.isEmpty()) {
+    if (jobs != null && !jobs.isEmpty()) {
       int i = 0;
       cleanLog.append("\n### jobs ######################################################## \n");
       for (Job job : jobs) {
@@ -113,7 +101,7 @@ public class WorkflowTest {
       }
     }
     List<Task> tasks = taskService.newTaskQuery().asList();
-    if (tasks!=null && !tasks.isEmpty()) {
+    if (tasks != null && !tasks.isEmpty()) {
       int i = 0;
       cleanLog.append("\n### tasks ######################################################## \n");
       for (Task task : tasks) {
@@ -127,7 +115,7 @@ public class WorkflowTest {
       }
     }
     List< ? extends WorkflowInstance> workflowInstances = workflowEngine.newWorkflowInstanceQuery().asList();
-    if (workflowInstances!=null && !workflowInstances.isEmpty()) {
+    if (workflowInstances != null && !workflowInstances.isEmpty()) {
       int i = 0;
       cleanLog.append("\n\n### workflowInstances ################################################ \n");
       for (WorkflowInstance workflowInstance : workflowInstances) {
@@ -141,7 +129,7 @@ public class WorkflowTest {
       }
     }
     List< ? extends Workflow> workflows = workflowEngine.newWorkflowQuery().asList();
-    if (workflows!=null && !workflows.isEmpty()) {
+    if (workflows != null && !workflows.isEmpty()) {
       int i = 0;
       cleanLog.append("\n### workflows ######################################################## \n");
       for (Workflow workflow : workflows) {
