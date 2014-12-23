@@ -29,7 +29,7 @@ public interface ActivityInstance extends ScopeInstance {
 
   Activity getActivity();
 
-  Object getActivityDefinitionId();
+  String getActivityDefinitionId();
 
   ScopeInstance getParent();
 
