@@ -75,7 +75,7 @@ public class MemoryWorkflowStore implements WorkflowStore {
   }
   
   protected void filterByName(List<WorkflowImpl> result, String name) {
-    for (int i=result.size()-1; i<=0; i--) {
+    for (int i=result.size()-1; i>=0; i--) {
       if (!name.equals(result.get(i).name)) {
         result.remove(i);
       }
