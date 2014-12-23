@@ -1,11 +1,11 @@
 package com.heisenberg.api.instance;
 
-import com.heisenberg.api.builder.ProcessInstanceQuery;
-import com.heisenberg.api.definition.TransitionDefinition;
-import com.heisenberg.plugin.activities.ControllableActivityInstance;
+
+import com.heisenberg.api.definition.Transition;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
 public interface WorkflowInstanceEventListener {
   void started(ControllableActivityInstance instance);
   void ended(ControllableActivityInstance instance);
-  void transition(ControllableActivityInstance instance, TransitionDefinition transition);
+  void transition(ControllableActivityInstance instance, Transition transition);
 }

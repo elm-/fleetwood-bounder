@@ -45,7 +45,7 @@ public class WorkflowTest {
   protected static final String MEMORY = "memory";
   protected static final String MONGO = "mongo";
 
-  protected WorkflowEngine workflowEngine = null;
+  protected WorkflowEngineImpl workflowEngine = null;
   protected String workflowEngineId = MEMORY;
   
   protected void useMongoWorkflowEngine() {
