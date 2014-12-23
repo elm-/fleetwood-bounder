@@ -185,7 +185,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
 
   @Override
-  public String getActivityDefinitionId() {
+  public String getActivityId() {
     return activityDefinitionId;
   }
   

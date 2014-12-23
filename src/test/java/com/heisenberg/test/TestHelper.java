@@ -62,7 +62,7 @@ public class TestHelper {
   }
   
   static ActivityInstance findActivityInstanceOpen(ActivityInstance activityInstance, Object activityDefinitionId) {
-    if (activityDefinitionId.equals(activityInstance.getActivityDefinitionId())) {
+    if (activityDefinitionId.equals(activityInstance.getActivityId())) {
       return activityInstance;
     }
     return findActivityInstanceOpen(activityInstance.getActivityInstances(), activityDefinitionId);
@@ -86,7 +86,7 @@ public class TestHelper {
     if (activityInstances!=null) {
       for (ActivityInstance activityInstance : activityInstances) {
         if (!activityInstance.isEnded()) {
-          Object activityId = activityInstance.getActivityDefinitionId();
+          Object activityId = activityInstance.getActivityId();
           Integer count = activityCounts.get(activityId);
           activityCounts.put(activityId.toString(), count != null ? count + 1 : 1);
           scanActivityCounts(activityInstance, activityCounts);
