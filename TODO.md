@@ -13,6 +13,12 @@
 - [ ] Figure out how to secure java script for our own servers:  Check out Rhino's SandboxShutter
 - [ ] Test if the script engine is thread safe. CompiledScript seems to be tied to a ScriptEngine. It should be investigated if concurrent script execution can overwrite each other's context.
 
+
+
+- [ ] static context maps on workflow & activity
+- [ ] 
+ 
+
 # In progress
 
 - [x] simple api 
