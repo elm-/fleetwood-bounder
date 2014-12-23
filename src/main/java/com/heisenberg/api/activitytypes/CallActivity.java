@@ -84,7 +84,7 @@ public class CallActivity extends AbstractActivityType {
       }
     }
     
-    WorkflowInstance calledProcessInstance = start.startProcessInstance();
+    WorkflowInstance calledProcessInstance = start.startWorkflowInstance();
     activityInstanceImpl.setCalledWorkflowInstanceId(calledProcessInstance.getId()); 
   }
   

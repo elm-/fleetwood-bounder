@@ -22,9 +22,9 @@ import com.heisenberg.impl.type.DataType;
  */
 public interface StartBuilder {
 
-  StartBuilder processDefinitionId(String processDefinitionId);
+  StartBuilder workflowId(String workflowId);
 
-  StartBuilder processDefinitionName(String processDefinitionName);
+  StartBuilder workflowName(String workflowName);
 
   StartBuilder variableValue(String variableDefinitionId, Object internalValue);
 
@@ -35,6 +35,6 @@ public interface StartBuilder {
   
   StartBuilder transientContext(String key, Object value);
 
-  WorkflowInstance startProcessInstance();
+  WorkflowInstance startWorkflowInstance();
 
 }

@@ -50,9 +50,9 @@ public class DataTypeTextTest {
       .getWorkflowId();
 
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("v", "Hello World")
-      .startProcessInstance();
+      .startWorkflowInstance();
   
     VariableInstance v = workflowInstance.getVariableInstances().get(0);
     assertEquals("Hello World", v.getValue());

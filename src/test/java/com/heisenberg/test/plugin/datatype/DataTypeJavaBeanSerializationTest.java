@@ -65,7 +65,7 @@ public class DataTypeJavaBeanSerializationTest {
 
     // start a process instance supplying a java bean object as the variable value
     StartBuilder trigger = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("m", startProcessMoney, Money.class);
 
     String triggerJson = jsonService.objectToJsonStringPretty(trigger);
@@ -77,7 +77,7 @@ public class DataTypeJavaBeanSerializationTest {
     triggerImpl.deserialize((WorkflowImpl)process);
     
     WorkflowInstance workflowInstance = triggerImpl
-      .startProcessInstance();
+      .startWorkflowInstance();
   
     VariableInstance m = workflowInstance.getVariableInstances().get(0);
     Money variableInstanceMoney = (Money) m.getValue();

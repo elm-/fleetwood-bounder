@@ -53,9 +53,9 @@ public class MultiInstanceTest extends WorkflowTest {
       .getWorkflowId();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("reviewers", Lists.of("John", "Jack", "Mary"))
-      .startProcessInstance();
+      .startWorkflowInstance();
 
     // TODO make it so that the parent activity 
     // instance doesn't have a name and doesn't have the empty variable declaration

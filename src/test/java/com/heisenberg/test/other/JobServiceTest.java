@@ -107,8 +107,8 @@ public class JobServiceTest {
     p.newActivity("t", new UserTask());
     String processDefinitionId = p.deploy().getWorkflowId();
     String processInstanceId = processEngine.newStart()
-      .processDefinitionId(processDefinitionId)
-      .startProcessInstance()
+      .workflowId(processDefinitionId)
+      .startWorkflowInstance()
       .getId();
     
     jobService.newJob(new TestJob())
@@ -139,8 +139,8 @@ public class JobServiceTest {
      ;
     String processDefinitionId = p.deploy().getWorkflowId();
     String processInstanceId = processEngine.newStart()
-      .processDefinitionId(processDefinitionId)
-      .startProcessInstance()
+      .workflowId(processDefinitionId)
+      .startWorkflowInstance()
       .getId();
     
     jobService.newJob(new TestJob())

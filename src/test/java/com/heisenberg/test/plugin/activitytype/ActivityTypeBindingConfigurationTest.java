@@ -96,9 +96,9 @@ public class ActivityTypeBindingConfigurationTest {
     executedConfigurations.clear();
 
     workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("v", "Hello World")
-      .startProcessInstance();
+      .startWorkflowInstance();
     
     List<String> expectedConfigurations = new ArrayList<>();
     expectedConfigurations.add("hello world");

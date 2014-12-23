@@ -134,8 +134,8 @@ public class MemoryLoadTest  {
 
   void runProcessInstance(WorkflowEngine workflowEngine, String processDefinitionId) {
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
-      .startProcessInstance();
+      .workflowId(processDefinitionId)
+      .startWorkflowInstance();
     
     String subTaskInstanceId = workflowInstance
             .findActivityInstanceByActivityDefinitionId("subTask")

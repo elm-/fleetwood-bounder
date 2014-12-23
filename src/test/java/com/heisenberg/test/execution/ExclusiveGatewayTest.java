@@ -58,23 +58,23 @@ public class ExclusiveGatewayTest extends WorkflowTest {
       .getWorkflowId();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("v", 5)
-      .startProcessInstance();
+      .startWorkflowInstance();
 
     assertOpen(workflowInstance, "t1");
 
     workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("v", 50)
-      .startProcessInstance();
+      .startWorkflowInstance();
 
     assertOpen(workflowInstance, "t2");
 
     workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("v", 500)
-      .startProcessInstance();
+      .startWorkflowInstance();
 
     assertOpen(workflowInstance, "t3");
   }

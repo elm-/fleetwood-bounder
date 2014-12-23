@@ -54,8 +54,8 @@ public class SequentialExecutionTest extends WorkflowTest {
       .getWorkflowId();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
-      .startProcessInstance();
+      .workflowId(processDefinitionId)
+      .startWorkflowInstance();
     
     assertOpen(workflowInstance, "one");
     

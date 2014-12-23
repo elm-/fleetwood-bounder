@@ -45,14 +45,14 @@ public class StartImpl extends VariableRequestImpl implements StartBuilder {
 
 
   @Override
-  public StartImpl processDefinitionId(String processDefinitionId) {
-    this.processDefinitionId = processDefinitionId;
+  public StartImpl workflowId(String workflowId) {
+    this.processDefinitionId = workflowId;
     return this;
   }
 
   @Override
-  public StartImpl processDefinitionName(String processDefinitionName) {
-    this.processDefinitionName = processDefinitionName;
+  public StartImpl workflowName(String workflowName) {
+    this.processDefinitionName = workflowName;
     return this;
   }
 
@@ -81,7 +81,7 @@ public class StartImpl extends VariableRequestImpl implements StartBuilder {
   }
 
   @Override
-  public WorkflowInstance startProcessInstance() {
+  public WorkflowInstance startWorkflowInstance() {
     return processEngine.startProcessInstance(this);
   }
 }

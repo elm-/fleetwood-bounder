@@ -47,7 +47,7 @@ public class ClientWorkflowEngine implements WorkflowEngine /* implements Servic
 //  }
 //
 //  @Override
-//  public ProcessInstance startProcessInstance(StartBuilderImpl processInstance) {
+//  public ProcessInstance startWorkflowInstance(StartBuilderImpl processInstance) {
 //    log.debug("HTTP POST /start");
 //    log.debug("HTTP "+jsonService.objectToJsonStringPretty(processInstance));
 //    return null;

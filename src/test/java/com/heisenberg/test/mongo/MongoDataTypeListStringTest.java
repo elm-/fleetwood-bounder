@@ -59,9 +59,9 @@ public class MongoDataTypeListStringTest {
       .getWorkflowId();
 
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("v", Lists.of(new Money(1,"EUR"), new Money(2,"USD")))
-      .startProcessInstance();
+      .startWorkflowInstance();
   
     VariableInstance v = workflowInstance.getVariableInstances().get(0);
     List<Money> moneyList = (List<Money>) v.getValue();

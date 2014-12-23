@@ -81,8 +81,8 @@ public class EmbeddedSuprocessTest extends WorkflowTest {
     
     WorkflowInstance workflowInstance = workflowEngine
       .newStart()
-      .processDefinitionId(processDefinitionId)
-      .startProcessInstance();
+      .workflowId(processDefinitionId)
+      .startWorkflowInstance();
 
     assertOpen(workflowInstance, "sub", "w1", "w2");
     

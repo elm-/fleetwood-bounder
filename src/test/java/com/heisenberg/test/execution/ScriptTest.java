@@ -56,9 +56,9 @@ public class ScriptTest extends WorkflowTest {
       .getWorkflowId();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("n", "World")
-      .startProcessInstance();
+      .startWorkflowInstance();
 
     assertEquals("Hello World", workflowInstance.getVariableValue("m"));
   }

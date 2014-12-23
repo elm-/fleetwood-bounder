@@ -95,12 +95,12 @@ public class RestTest extends JerseyTest {
     
     runProcessInstance();
 //    for (int i=0; i<20; i++) {
-//      runProcessInstance(processDefinitionId);
+//      runProcessInstance(workflowId);
 //    }
 //    long start = System.currentTimeMillis();
 //    for (int i=20; i<1000; i++) {
 //      log.info("starting "+i);
-//      runProcessInstance(processDefinitionId);
+//      runProcessInstance(workflowId);
 //    }
 //    long end = System.currentTimeMillis();
 //    log.info("1000 process instances in "+((end-start)/1000f)+ " seconds");
@@ -109,7 +109,7 @@ public class RestTest extends JerseyTest {
 
   protected void runProcessInstance() {
     StartBuilder startProcessInstanceRequest = workflowEngine.newStart()
-      .processDefinitionName("load");
+      .workflowName("load");
     
     WorkflowInstanceImpl workflowInstance = target("start").request()
             .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))

@@ -52,9 +52,9 @@ public class DataTypeListTextTest {
       .getWorkflowId();
 
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("v", Lists.of("Hello", "World"))
-      .startProcessInstance();
+      .startWorkflowInstance();
   
     VariableInstance v = workflowInstance.getVariableInstances().get(0);
     assertEquals(Lists.of("Hello", "World"), v.getValue());

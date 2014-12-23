@@ -59,9 +59,9 @@ public class DataTypeJavaBeanTest {
   
     // start a process instance supplying a java bean object as the variable value
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("m", startProcessMoney)
-      .startProcessInstance();
+      .startWorkflowInstance();
   
     VariableInstance m = workflowInstance.getVariableInstances().get(0);
     Money variableInstanceMoney = (Money) m.getValue();

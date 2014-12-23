@@ -48,7 +48,7 @@ import com.heisenberg.impl.definition.WorkflowImpl;
 /**
  * @author Walter White
  */
-@JsonPropertyOrder({"id", "processDefinitionId", "start", "end", "duration", "activityInstances", "variableInstances"})
+@JsonPropertyOrder({"id", "workflowId", "start", "end", "duration", "activityInstances", "variableInstances"})
 public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowInstance {
   
   public static final Logger log = LoggerFactory.getLogger(WorkflowEngine.class);

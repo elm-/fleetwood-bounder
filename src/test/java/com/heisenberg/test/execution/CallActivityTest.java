@@ -43,8 +43,8 @@ public class CallActivityTest extends WorkflowTest {
     String superprocessId = superWorkflow.deploy().getWorkflowId();
     
     WorkflowInstance superInstance = workflowEngine.newStart()
-      .processDefinitionId(superprocessId)
-      .startProcessInstance();
+      .workflowId(superprocessId)
+      .startWorkflowInstance();
     
     ActivityInstance callActivityInstance = findActivityInstanceOpen(superInstance, "call");
     assertNotNull(callActivityInstance.getCalledWorkflowInstanceId());

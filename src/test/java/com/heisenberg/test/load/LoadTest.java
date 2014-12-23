@@ -144,7 +144,7 @@ public class LoadTest extends JerseyTest {
   void runProcessInstance(String... processDefinitionIds) {
     for (String processDefinitionId: processDefinitionIds) {
       StartBuilder startProcessInstanceRequest = new StartImpl()
-        .processDefinitionId(processDefinitionId);
+        .workflowId(processDefinitionId);
       
       WorkflowInstanceImpl processInstance = target("start").request()
               .post(Entity.entity(startProcessInstanceRequest, MediaType.APPLICATION_JSON))

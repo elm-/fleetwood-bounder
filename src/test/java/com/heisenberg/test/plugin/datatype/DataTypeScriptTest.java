@@ -69,9 +69,9 @@ public class DataTypeScriptTest extends WorkflowTest {
     fiveDollars.put("currency", "USD");
     
     workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
+      .workflowId(processDefinitionId)
       .variableValue("m", new Money(5, "USD"))
-      .startProcessInstance();
+      .startWorkflowInstance();
 
     assertEquals("It costs 5, which is in USD\nAnd mmmoney is 5 USD", scriptResultMessage);
   }

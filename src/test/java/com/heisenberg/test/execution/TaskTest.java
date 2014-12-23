@@ -44,8 +44,8 @@ public class TaskTest extends WorkflowTest {
       .getWorkflowId();
     
     workflowEngine.newStart()
-      .processDefinitionId(processDefinitionId)
-      .startProcessInstance();
+      .workflowId(processDefinitionId)
+      .startWorkflowInstance();
     
     TaskService taskService = ((WorkflowEngineImpl)workflowEngine).getServiceRegistry().getService(TaskService.class);
     assertEquals("Task one", taskService.newTaskQuery().asList().get(0).getName());
