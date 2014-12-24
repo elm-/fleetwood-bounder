@@ -32,29 +32,27 @@ public class SequentialExecutionTest extends WorkflowTest {
   
   @Test
   public void testOne() {
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
 
-    process.newActivity()
+    w.newActivity()
       .activityType(new UserTask())
       .id("one");
     
-    process.newActivity()
+    w.newActivity()
       .activityType(new UserTask())
       .id("two");
     
-    process.newActivity()
+    w.newActivity()
       .activityType(new UserTask())
       .id("three");
     
-    process.newTransition().from("one").to("two");
-    process.newTransition().from("two").to("three");
+    w.newTransition().from("one").to("two");
+    w.newTransition().from("two").to("three");
     
-    String processDefinitionId = process.deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
     
     assertOpen(workflowInstance, "one");

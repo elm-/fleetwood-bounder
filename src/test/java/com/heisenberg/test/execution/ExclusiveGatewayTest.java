@@ -33,46 +33,44 @@ public class ExclusiveGatewayTest extends WorkflowTest {
   
   @Test
   public void testExclusiveGateway() {
-    WorkflowBuilder p = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    p.newVariable()
+    w.newVariable()
      .id("v")
      .dataType(DataTypes.NUMBER);
 
-    p.newActivity().activityType(new StartEvent()).id("start");
-    p.newActivity().activityType(new ExclusiveGateway())
+    w.newActivity().activityType(new StartEvent()).id("start");
+    w.newActivity().activityType(new ExclusiveGateway())
       .id("?")
       .defaultTransition("default");
     
-    p.newActivity().activityType(new UserTask()).id("t1");
-    p.newActivity().activityType(new UserTask()).id("t2");
-    p.newActivity().activityType(new UserTask()).id("t3");
+    w.newActivity().activityType(new UserTask()).id("t1");
+    w.newActivity().activityType(new UserTask()).id("t2");
+    w.newActivity().activityType(new UserTask()).id("t3");
 
-    p.newTransition().from("start").to("?");
-    p.newTransition().from("?").to("t1").condition("v < 10");
-    p.newTransition().from("?").to("t2").condition("v < 100");
-    p.newTransition().from("?").to("t3").id("default");
+    w.newTransition().from("start").to("?");
+    w.newTransition().from("?").to("t1").condition("v < 10");
+    w.newTransition().from("?").to("t2").condition("v < 100");
+    w.newTransition().from("?").to("t3").id("default");
 
-    String processDefinitionId = p.deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("v", 5)
       .startWorkflowInstance();
 
     assertOpen(workflowInstance, "t1");
 
     workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("v", 50)
       .startWorkflowInstance();
 
     assertOpen(workflowInstance, "t2");
 
     workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("v", 500)
       .startWorkflowInstance();
 

@@ -47,13 +47,10 @@ public class MultiInstanceTest extends WorkflowTest {
         .candidateVariable("reviewer")
       );
     
-    String processDefinitionId = w
-      .deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("reviewers", Lists.of("John", "Jack", "Mary"))
       .startWorkflowInstance();
 

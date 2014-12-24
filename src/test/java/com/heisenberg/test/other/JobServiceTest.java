@@ -103,11 +103,11 @@ public class JobServiceTest {
   @Test
   public void testProcessJobOK() throws Exception {
     // quickest way to get a processInstanceId
-    WorkflowBuilder p = processEngine.newWorkflow();
-    p.newActivity("t", new UserTask());
-    String processDefinitionId = p.deploy().getWorkflowId();
+    WorkflowBuilder w = processEngine.newWorkflow();
+    w.newActivity("t", new UserTask());
+    String workflowId = w.deploy();
     String processInstanceId = processEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance()
       .getId();
     
@@ -133,19 +133,19 @@ public class JobServiceTest {
   @Test
   public void testRealProcessJobOK() throws Exception {
     // quickest way to get a processInstanceId
-    WorkflowBuilder p = processEngine.newWorkflow();
-    p.newActivity("t", new UserTask())
+    WorkflowBuilder w = processEngine.newWorkflow();
+    w.newActivity("t", new UserTask())
      .newTimer(new TestJob())
      ;
-    String processDefinitionId = p.deploy().getWorkflowId();
-    String processInstanceId = processEngine.newStart()
-      .workflowId(processDefinitionId)
+    String workflowId = w.deploy();
+    String workflowInstanceId = processEngine.newStart()
+      .workflowId(workflowId)
       .startWorkflowInstance()
       .getId();
     
     jobService.newJob(new TestJob())
       .duedate(Time.now())
-      .processInstanceId(processInstanceId)
+      .processInstanceId(workflowInstanceId)
       .save();
     
     assertEquals(0, TestJob.jobExecutions.size());

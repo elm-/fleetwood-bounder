@@ -48,18 +48,16 @@ public class MongoDataTypeListStringTest {
 
     DataTypes dataTypes = workflowEngine.getDataTypes();
     
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newVariable()
+    w.newVariable()
       .id("v")
       .dataType(dataTypes.list(dataTypes.javaBean(Money.class)));
     
-    String processDefinitionId = process.deploy()
-      .checkNoErrors()
-      .getWorkflowId();
+    String workflowId = w.deploy();
 
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("v", Lists.of(new Money(1,"EUR"), new Money(2,"USD")))
       .startWorkflowInstance();
   

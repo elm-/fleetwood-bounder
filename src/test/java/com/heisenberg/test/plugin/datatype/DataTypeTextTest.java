@@ -39,18 +39,16 @@ public class DataTypeTextTest {
   public void testDefaultDataTypeText() {
     WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder workflow = workflowEngine.newWorkflow();
     
-    process.newVariable()
+    workflow.newVariable()
       .id("v")
       .dataType(TextType.INSTANCE);
     
-    String processDefinitionId = process.deploy()
-      .checkNoErrors()
-      .getWorkflowId();
+    String workflowId = workflow.deploy();
 
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("v", "Hello World")
       .startWorkflowInstance();
   

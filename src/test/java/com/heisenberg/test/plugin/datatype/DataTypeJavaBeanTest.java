@@ -45,21 +45,19 @@ public class DataTypeJavaBeanTest {
 
     DataTypes dataTypes = workflowEngine.getDataTypes();
     
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newVariable()
+    w.newVariable()
       .id("m")
       .dataType(dataTypes.javaBean(Money.class));
     
-    String processDefinitionId = process.deploy()
-      .checkNoErrors()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     Money startProcessMoney = new Money(5, "USD");
   
     // start a process instance supplying a java bean object as the variable value
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("m", startProcessMoney)
       .startWorkflowInstance();
   

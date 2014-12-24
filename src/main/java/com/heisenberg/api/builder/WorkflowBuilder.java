@@ -48,7 +48,19 @@ public interface WorkflowBuilder {
   VariableBuilder newVariable();
 
   TimerBuilder newTimer(JobType jobType);
+
+  /** validates and deploys if there are no errors.
+   * @return the validation errors, warnings and if validation had no 
+   *   errors, also the generated workflowId */
+  DeployResult validateAndDeploy();
+
+  /** Deploys if validation succeeds and returns the engine-generated workflowId. 
+   * @returns workflowId
+   * @throws RuntimeException if validation contains errors.  No exception is thrown if 
+   * there are warnings. */
+  String deploy();
   
-  DeployResult deploy();
+  /** Validates and returns parse errors and warnings. */
+  ParseIssues validate();
 
 }

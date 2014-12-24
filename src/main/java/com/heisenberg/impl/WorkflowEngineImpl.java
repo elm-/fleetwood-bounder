@@ -146,28 +146,40 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     return new WorkflowImpl(this);
   }
 
-  public DeployResult deployWorkflow(WorkflowBuilder processBuilder) {
-    Exceptions.checkNotNull(processBuilder, "processBuilder");
-    log.debug("Deploying process");
-
-    DeployResult response = new DeployResult();
-
-    WorkflowImpl processDefinition = (WorkflowImpl) processBuilder;
-    processDefinition.deployedTime = new LocalDateTime();
-    
+  public ParseIssues validateWorkflow(WorkflowImpl workflow) {
+    // throws an exception if there are errors 
     WorkflowValidator validator = new WorkflowValidator(this);
-    processDefinition.visit(validator);
+    workflow.visit(validator);
+    return validator.getIssues();
+  }
+
+  public DeployResult validateAndDeploy(WorkflowImpl workflow) {
+    Exceptions.checkNotNull(workflow, "processBuilder");
+    log.debug("Deploying process");
+    workflow.deployedTime = new LocalDateTime();
+
+    DeployResult deployResult = new DeployResult();
+
+    // throws an exception if there are errors 
+    WorkflowValidator validator = new WorkflowValidator(this);
+    workflow.visit(validator);
     ParseIssues issues = validator.getIssues();
-    response.setIssues(issues);
-
+    deployResult.setIssues(issues);
+    
     if (!issues.hasErrors()) {
-      processDefinition.id = workflowStore.createWorkflowId(processDefinition);
-      response.setProcessDefinitionId(processDefinition.id);
-      workflowStore.insertWorkflow(processDefinition);
-      workflowCache.put(processDefinition);
-    }
+      workflow.id = workflowStore.createWorkflowId(workflow);
+      deployResult.setWorkflowId(workflow.id);
 
-    return response;
+      workflowStore.insertWorkflow(workflow);
+      workflowCache.put(workflow);
+    }
+    
+    return deployResult;
+  }
+
+  public String deployWorkflow(WorkflowImpl workflow) {
+    return validateAndDeploy(workflow)
+            .getWorkflowId();
   }
 
   public WorkflowQueryImpl newWorkflowQuery() {

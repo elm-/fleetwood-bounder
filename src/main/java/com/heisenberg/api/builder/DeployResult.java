@@ -22,14 +22,14 @@ package com.heisenberg.api.builder;
  */
 public class DeployResult extends ParseIssues {
 
-  protected String processDefinitionId;
+  protected String workflowId;
   
   public String getWorkflowId() {
-    return processDefinitionId;
+    return workflowId;
   }
   
-  public void setProcessDefinitionId(String processDefinitionId) {
-    this.processDefinitionId = processDefinitionId;
+  public void setWorkflowId(String workflowId) {
+    this.workflowId = workflowId;
   }
   
   public void setIssues(ParseIssues parseIssues) {

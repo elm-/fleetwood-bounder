@@ -36,11 +36,11 @@ public class CallActivityTest extends WorkflowTest {
   public void testCallActivity() {
     WorkflowBuilder subWorkflow = workflowEngine.newWorkflow();
     subWorkflow.newActivity("subtask", new UserTask());
-    String subprocessId = subWorkflow.deploy().getWorkflowId();
+    String subprocessId = subWorkflow.deploy();
     
     WorkflowBuilder superWorkflow = workflowEngine.newWorkflow();
     superWorkflow.newActivity("call", new CallActivity().subProcessId(subprocessId));
-    String superprocessId = superWorkflow.deploy().getWorkflowId();
+    String superprocessId = superWorkflow.deploy();
     
     WorkflowInstance superInstance = workflowEngine.newStart()
       .workflowId(superprocessId)

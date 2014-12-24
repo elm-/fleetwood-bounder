@@ -50,13 +50,10 @@ public class ScriptTest extends WorkflowTest {
       )
       .id("a");
 
-    String processDefinitionId = process
-      .deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = process.deploy();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("n", "World")
       .startWorkflowInstance();
 

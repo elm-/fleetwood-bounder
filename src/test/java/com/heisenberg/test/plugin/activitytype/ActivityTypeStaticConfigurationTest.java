@@ -74,24 +74,22 @@ public class ActivityTypeStaticConfigurationTest {
       .registerActivityType(new MyConfigurableActivityType())
       .buildProcessEngine();
 
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newActivity()
+    w.newActivity()
       .activityType(new MyConfigurableActivityType("one"))
       .id("a");
   
-    process.newActivity()
+    w.newActivity()
       .activityType(new MyConfigurableActivityType("two"))
       .id("b");
     
-    String processDefinitionId = process.deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     executedConfigurations.clear();
 
     workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
     
     List<String> expectedConfigurations = new ArrayList<>();

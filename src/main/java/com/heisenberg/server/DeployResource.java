@@ -35,15 +35,15 @@ public class DeployResource {
   
   public static final Logger log = LoggerFactory.getLogger(DeployResource.class);
   
-  WorkflowEngineImpl processEngine;
+  WorkflowEngineImpl workflowEngine;
   
-  public DeployResource(WorkflowEngineImpl processEngine) {
-    this.processEngine = processEngine;
+  public DeployResource(WorkflowEngineImpl workflow) {
+    this.workflowEngine = workflow;
   }
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public DeployResult deploy(WorkflowImpl processDefinition) {
-    return processEngine.deployWorkflow(processDefinition);
+  public DeployResult deploy(WorkflowImpl workflow) {
+    return workflowEngine.validateAndDeploy(workflow);
   }
 }

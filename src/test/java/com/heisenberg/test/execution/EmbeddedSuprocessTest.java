@@ -44,13 +44,13 @@ public class EmbeddedSuprocessTest extends WorkflowTest {
    */ 
   @Test 
   public void testOne() {
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
   
-    process.newActivity()
+    w.newActivity()
       .activityType(new ScriptTask())
       .id("start");
     
-    ActivityBuilder subprocess = process.newActivity()
+    ActivityBuilder subprocess = w.newActivity()
       .activityType(EmbeddedSubprocess.INSTANCE)
       .id("sub");
     
@@ -62,26 +62,23 @@ public class EmbeddedSuprocessTest extends WorkflowTest {
       .activityType(new UserTask())
       .id("w2");
   
-    process.newActivity()
+    w.newActivity()
       .activityType(new EndEvent())
       .id("end");
   
-    process.newTransition()
+    w.newTransition()
       .from("start")
       .to("sub");
     
-    process.newTransition()
+    w.newTransition()
       .from("sub")
       .to("end");
   
-    String processDefinitionId = process
-      .deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     WorkflowInstance workflowInstance = workflowEngine
       .newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
 
     assertOpen(workflowInstance, "sub", "w1", "w2");

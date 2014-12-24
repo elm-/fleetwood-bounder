@@ -48,12 +48,10 @@ public class MultipleStartActivitiesTest extends WorkflowTest {
     
     w.newTransition().from("two").to("three");
     
-    String processDefinitionId = w.deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
     
     assertOpen(workflowInstance, "one", "two");

@@ -20,6 +20,7 @@ import org.joda.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.DeployResult;
+import com.heisenberg.api.builder.ParseIssues;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.definition.Workflow;
 import com.heisenberg.impl.WorkflowEngineImpl;
@@ -75,9 +76,20 @@ public class WorkflowImpl extends ScopeImpl implements WorkflowBuilder, Workflow
   }
 
   @Override
-  public DeployResult deploy() {
+  public String deploy() {
     return processEngine.deployWorkflow(this);
   }
+
+  @Override
+  public ParseIssues validate() {
+    return processEngine.validateWorkflow(this);
+  }
+
+  @Override
+  public DeployResult validateAndDeploy() {
+    return processEngine.validateAndDeploy(this);
+  }
+
 
   @Override
   public WorkflowImpl name(String name) {

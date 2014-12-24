@@ -39,24 +39,23 @@ public class ProcessDefinitionValidationExample {
     WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
     
     // cook the process
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newActivity()
+    w.newActivity()
       .activityType(StartEvent.INSTANCE);
 
-    process.newActivity()
+    w.newActivity()
       .id("a");
   
-    process.newActivity()
+    w.newActivity()
       .id("b")
       .activityType(EndEvent.INSTANCE);
     
-    process.newTransition()
+    w.newTransition()
       .from("a")
       .to("non existing");
 
-    String issueReport = process.deploy()
-        .getIssueReport();
+    String issueReport = w.validate().getIssueReport();
     
     log.debug(issueReport);
     
@@ -65,35 +64,4 @@ public class ProcessDefinitionValidationExample {
     assertTextPresent("Transition has an invalid value for 'to' (non existing) : Should be one of [a, b]", issueReport);
   }
   
-//  @Test
-//  public void testActivityDefinitionWithoutName() {
-//    ProcessEngine processEngine = new MemoryProcessEngine()
-//      .registerActivityType(Go.class);
-//    
-//    // cook the process
-//    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
-//    
-//    processBuilder.newActivity()
-//      .activityType(new Go());
-//
-//    TestHelper.assertTextPresent("Activity has no id", processEngine
-//        .deployProcessDefinition(processBuilder)
-//        .getIssueReport());
-//  }
-//
-//  @Test
-//  public void testActivityDefinitionWithoutType() {
-//    ProcessEngine processEngine = new MemoryProcessEngine()
-//      .registerActivityType(Go.class);
-//    
-//    ProcessDefinitionBuilder processBuilder = processEngine.newProcessDefinition();
-//    
-//    processBuilder.newActivity()
-//      .id("a");
-//
-//    TestHelper.assertTextPresent("Activity 'a' has no activityType configured", processEngine
-//        .deployProcessDefinition(processBuilder)
-//        .getIssueReport());
-//  }
-
 }

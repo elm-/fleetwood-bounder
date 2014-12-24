@@ -76,27 +76,25 @@ public class ActivityTypeBindingConfigurationTest {
       .registerActivityType(new MyBindingActivityType())
       .buildProcessEngine();
 
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newVariable()
+    w.newVariable()
       .id("v")
       .dataType(new TextType());
     
     Binding<String> expressionBinding = new Binding<String>()
             .expression("v.toLowerCase()");
     
-    process.newActivity()
+    w.newActivity()
       .activityType(new MyBindingActivityType(expressionBinding))
       .id("a");
   
-    String processDefinitionId = process.deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     executedConfigurations.clear();
 
     workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("v", "Hello World")
       .startWorkflowInstance();
     

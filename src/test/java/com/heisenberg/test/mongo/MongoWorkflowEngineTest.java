@@ -57,14 +57,12 @@ public class MongoWorkflowEngineTest {
       .registerService(new TestExecutorService())
       .buildProcessEngine();
     
-    WorkflowBuilder process = createProcess(workflowEngine);
+    WorkflowBuilder w = createProcess(workflowEngine);
 
-    String processDefinitionId = process.deploy()
-        .checkNoErrorsAndNoWarnings()
-        .getWorkflowId();
+    String workflowId = w.deploy();
       
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
     
     assertOpen(workflowInstance, "sub", "subTask");

@@ -73,27 +73,24 @@ public class EventListenerTest extends WorkflowTest {
     LoggingListener listener = new LoggingListener();
     workflowEngine.addListener(listener);
 
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
 
-    process.newActivity()
+    w.newActivity()
       .activityType(StartEvent.INSTANCE)
       .id("s");
-    process.newActivity()
+    w.newActivity()
       .activityType(new ScriptTask()) // TODO: empty task
       .id("script");
-    process.newActivity()
+    w.newActivity()
       .activityType(StartEvent.INSTANCE)
       .id("e");
 
-    process.newTransition().id("s_script").from("s").to("script");
-    process.newTransition().id("script_e").from("script").to("e");
+    w.newTransition().id("s_script").from("s").to("script");
+    w.newTransition().id("script_e").from("script").to("e");
 
-    String processDefinitionId = process
-      .deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String processDefinitionId = w.deploy();
 
-    WorkflowInstance workflowInstance = workflowEngine.newStart()
+    workflowEngine.newStart()
       .workflowId(processDefinitionId)
       .startWorkflowInstance();
 

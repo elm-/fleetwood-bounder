@@ -69,12 +69,10 @@ public class ParallelGatewayTest extends WorkflowTest {
     w.newTransition().from("j2").to("j1");
     w.newTransition().from("j1").to("end");
 
-    String processDefinitionId = w.deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
 
     assertOpen(workflowInstance, "t1", "t2", "t3");

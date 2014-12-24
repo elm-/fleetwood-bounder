@@ -49,27 +49,24 @@ public class DataTypeScriptTest extends WorkflowTest {
 
     DataTypes dataTypes = workflowEngine.getDataTypes();
     
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newVariable()
+    w.newVariable()
       .id("m")
       .dataType(dataTypes.javaBean(Money.class));
     
-    process.newActivity()
+    w.newActivity()
       .activityType(new ScriptActivity())
       .id("a");
 
-    String processDefinitionId = process
-      .deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     Map<String,Object> fiveDollars = new HashMap<>();
     fiveDollars.put("amount", 5d);
     fiveDollars.put("currency", "USD");
     
     workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("m", new Money(5, "USD"))
       .startWorkflowInstance();
 

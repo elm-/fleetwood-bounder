@@ -49,15 +49,13 @@ public class DataTypeJavaBeanSerializationTest {
     
     DataTypes dataTypes = workflowEngine.getDataTypes();
     
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newVariable()
+    w.newVariable()
       .id("m")
       .dataType(dataTypes.javaBean(Money.class));
     
-    String processDefinitionId = process.deploy()
-      .checkNoErrors()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     Money startProcessMoney = new Money(5, "USD");
 
@@ -65,7 +63,7 @@ public class DataTypeJavaBeanSerializationTest {
 
     // start a process instance supplying a java bean object as the variable value
     StartBuilder trigger = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("m", startProcessMoney, Money.class);
 
     String triggerJson = jsonService.objectToJsonStringPretty(trigger);
@@ -74,7 +72,7 @@ public class DataTypeJavaBeanSerializationTest {
 
     StartImpl triggerImpl = jsonService.jsonToObject(triggerJson, StartImpl.class);
     triggerImpl.processEngine = (WorkflowEngineImpl) workflowEngine;
-    triggerImpl.deserialize((WorkflowImpl)process);
+    triggerImpl.deserialize((WorkflowImpl)w);
     
     WorkflowInstance workflowInstance = triggerImpl
       .startWorkflowInstance();

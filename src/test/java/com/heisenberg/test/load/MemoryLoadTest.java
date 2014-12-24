@@ -49,8 +49,7 @@ public class MemoryLoadTest  {
   public void test() {
     WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
     String workflowId = MongoWorkflowEngineTest.createProcess(workflowEngine)
-            .deploy()
-            .getWorkflowId();
+            .deploy();
     
 //     String workflowId = createWorkflow(workflowEngine);
     
@@ -111,7 +110,7 @@ public class MemoryLoadTest  {
       .activityType(EndEvent.INSTANCE)
       .id("end");
     
-    return w.deploy().getWorkflowId();
+    return w.deploy();
   }
 
   class ProcessInstanceRunner extends Thread {

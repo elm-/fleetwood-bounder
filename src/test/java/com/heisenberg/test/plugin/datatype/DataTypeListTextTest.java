@@ -41,18 +41,16 @@ public class DataTypeListTextTest {
   public void testVariableStoringListOfTexts() {
     WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
 
-    WorkflowBuilder process = workflowEngine.newWorkflow();
+    WorkflowBuilder w = workflowEngine.newWorkflow();
     
-    process.newVariable()
+    w.newVariable()
       .id("v")
       .dataType(new ListType(TextType.INSTANCE));
     
-    String processDefinitionId = process.deploy()
-      .checkNoErrors()
-      .getWorkflowId();
+    String workflowId = w.deploy();
 
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .variableValue("v", Lists.of("Hello", "World"))
       .startWorkflowInstance();
   

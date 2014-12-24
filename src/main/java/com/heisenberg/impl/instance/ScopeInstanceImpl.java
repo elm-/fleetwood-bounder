@@ -100,10 +100,6 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
     workflowInstance.addWork(activityInstance);
     activityInstance.setStart(Time.now());
-    // TODO: this should correspond with the actual start method call, e.g. when the OP is executed (set time as well)?
-    for (WorkflowInstanceEventListener listener : getWorkflowEngine().getListeners()) {
-      listener.started(activityInstance);
-    }
     if (updates!=null) {
       activityInstance.updates = new ActivityInstanceUpdates(true);
       propagateActivityInstanceChange(this);

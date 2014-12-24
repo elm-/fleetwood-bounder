@@ -38,13 +38,10 @@ public class TaskTest extends WorkflowTest {
       .id("Task one")
       .activityType(new UserTask());
     
-    String processDefinitionId = w
-      .deploy()
-      .checkNoErrorsAndNoWarnings()
-      .getWorkflowId();
+    String workflowId = w.deploy();
     
     workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
     
     TaskService taskService = ((WorkflowEngineImpl)workflowEngine).getServiceRegistry().getService(TaskService.class);
