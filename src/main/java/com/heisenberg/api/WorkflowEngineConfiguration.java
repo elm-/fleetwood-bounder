@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heisenberg.api.activitytypes.Call;
 import com.heisenberg.api.activitytypes.CallMapping;
+import com.heisenberg.api.activitytypes.DefaultTask;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ExclusiveGateway;
@@ -103,6 +104,7 @@ public class WorkflowEngineConfiguration {
     this.registerActivityType(new Call());
     this.registerActivityType(new ScriptTask());
     this.registerActivityType(new UserTask());
+    this.registerActivityType(new DefaultTask());
     this.registerActivityType(new JavaServiceTask());
     this.registerActivityType(new HttpServiceTask());
   }
