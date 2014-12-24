@@ -20,6 +20,7 @@ import java.util.List;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.WorkflowInstance;
+import com.heisenberg.impl.StartImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.instance.ActivityInstanceImpl;
 import com.heisenberg.impl.instance.WorkflowInstanceImpl;
@@ -75,7 +76,9 @@ public class Call extends AbstractActivityType {
       }
     }
 
-    StartBuilder start = activityInstanceImpl.newSubWorkflowStart(subProcessId);
+    StartBuilder start = activityInstanceImpl
+            .newSubWorkflowStart(subProcessId)
+            .transientContext(activityInstance.getWorkflowInstance().getTransientContext());
     
     if (inputMappings!=null) {
       for (CallMapping inputMapping: inputMappings) {

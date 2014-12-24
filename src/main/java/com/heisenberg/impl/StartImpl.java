@@ -14,6 +14,8 @@
  */
 package com.heisenberg.impl;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.heisenberg.api.builder.StartBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
@@ -77,6 +79,12 @@ public class StartImpl extends VariableRequestImpl implements StartBuilder {
   @Override
   public StartImpl transientContext(String key, Object value) {
     super.transientContext(key, value);
+    return this;
+  }
+
+  @Override
+  public StartImpl transientContext(Map<String,Object> transientContext) {
+    super.transientContext(transientContext);
     return this;
   }
 

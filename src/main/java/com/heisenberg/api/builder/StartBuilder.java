@@ -14,6 +14,8 @@
  */
 package com.heisenberg.api.builder;
 
+import java.util.Map;
+
 import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.impl.type.DataType;
 
@@ -34,7 +36,9 @@ public interface StartBuilder {
   StartBuilder variableValue(String variableDefinitionId, Object value, Class<?> javaBeanClass);
   
   StartBuilder transientContext(String key, Object value);
+  StartBuilder transientContext(Map<String, Object> transientContext);
 
   WorkflowInstance startWorkflowInstance();
+
 
 }

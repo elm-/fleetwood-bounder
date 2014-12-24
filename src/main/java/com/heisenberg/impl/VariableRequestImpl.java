@@ -97,4 +97,9 @@ public abstract class VariableRequestImpl {
     transientContext.put(key, value);
     return this;
   }
+
+  public VariableRequestImpl transientContext(Map<String, Object> transientContext) {
+    this.transientContext = transientContext;
+    return this;
+  }
 }

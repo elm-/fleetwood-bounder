@@ -14,6 +14,8 @@
  */
 package com.heisenberg.api.instance;
 
+import java.util.Map;
+
 
 
 
@@ -26,5 +28,7 @@ public interface WorkflowInstance extends ScopeInstance {
   String getId();
 
   String getWorkflowId();
+
+  Map<String,Object> getTransientContext();
 
 }

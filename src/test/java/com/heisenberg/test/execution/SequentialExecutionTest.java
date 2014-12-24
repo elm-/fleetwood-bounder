@@ -16,7 +16,7 @@ package com.heisenberg.test.execution;
 
 import static com.heisenberg.test.TestHelper.assertOpen;
 import static com.heisenberg.test.TestHelper.getActivityInstanceId;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -80,6 +80,7 @@ public class SequentialExecutionTest extends WorkflowTest {
       .activityInstanceId(threeId)
       .send();
 
+    // assertEquals(3, workflowInstance.getActivityInstances().size());
     assertTrue(workflowInstance.isEnded());
   }
 }

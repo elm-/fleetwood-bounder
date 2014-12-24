@@ -29,7 +29,7 @@ import com.heisenberg.api.builder.StartBuilder;
 /**
  * @author Walter White
  */
-public class ClientWorkflowEngine implements WorkflowEngine /* implements ServiceLocator */ {
+public class ClientWorkflowEngine implements WorkflowEngine {
   
   public static final Logger log = LoggerFactory.getLogger(ClientWorkflowEngine.class);
 

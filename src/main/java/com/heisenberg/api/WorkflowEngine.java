@@ -19,6 +19,7 @@ import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.builder.WorkflowQuery;
 import com.heisenberg.api.builder.WorkflowInstanceQuery;
 import com.heisenberg.api.builder.StartBuilder;
+import com.heisenberg.api.definition.Workflow;
 
 
 /** Start here.
@@ -37,7 +38,7 @@ public interface WorkflowEngine {
   
   /** Start building a new process, when done, call {@link WorkflowBuilder#deploy()} */
   WorkflowBuilder newWorkflow();
-
+  
   /** Use a {@link StartBuilder trigger} to start a new process instance for a process definition. */
   StartBuilder newStart();
 

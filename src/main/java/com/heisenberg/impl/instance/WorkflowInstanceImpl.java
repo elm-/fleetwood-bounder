@@ -219,4 +219,9 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     }
     super.trackUpdates(isNew);
   }
+
+  @Override
+  public Map<String, Object> getTransientContext() {
+    return transientContext;
+  }
 }
