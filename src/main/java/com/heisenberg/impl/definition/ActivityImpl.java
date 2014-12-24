@@ -158,7 +158,10 @@ public class ActivityImpl extends ScopeImpl implements ActivityBuilder, Activity
     if (outgoingDefinitions==null) {
       outgoingDefinitions = new ArrayList<TransitionImpl>();
     }
-    outgoingDefinitions.add(transitionDefinition);
+    // TODO: check if this is still needed, protection against duplicate validation phase
+    if (! outgoingDefinitions.contains(transitionDefinition)) {
+      outgoingDefinitions.add(transitionDefinition);
+    }
   }
 
   public boolean hasOutgoingTransitionDefinitions() {
@@ -179,7 +182,10 @@ public class ActivityImpl extends ScopeImpl implements ActivityBuilder, Activity
     if (incomingTransitions==null) {
       incomingTransitions = new ArrayList<TransitionImpl>();
     }
-    incomingTransitions.add(transitionDefinition);
+    // TODO: check if this is still needed, protection against duplicate validation phase
+    if (! incomingTransitions.contains(transitionDefinition)) {
+      incomingTransitions.add(transitionDefinition);
+    }
   }
 
   public boolean hasIncomingTransitionDefinitions() {
