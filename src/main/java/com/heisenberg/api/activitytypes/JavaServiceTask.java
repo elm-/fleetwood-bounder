@@ -19,7 +19,7 @@ import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
 
 
-/** Invokes another process.
+/** Invokes a java method.
  * 
  * @author Walter White
  */

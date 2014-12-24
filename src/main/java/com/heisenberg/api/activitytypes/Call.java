@@ -44,8 +44,8 @@ public class Call extends AbstractActivityType {
   @Label("Subprocess id")
   Binding<String> subProcessIdBinding;
   
-  /** specifies which variables of this process (keys) have to be copied to 
-   * variables in the called process (values). */
+  /** specifies which variables of this workflow instance (keys) have to be copied to 
+   * variables in the called workflow instance (values). */
   @ConfigurationField
   @Label("Input variable mappings")
   List<CallMapping> inputMappings;
