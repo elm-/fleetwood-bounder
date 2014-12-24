@@ -92,7 +92,7 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     activityInstance.scopeDefinition = activity;
     activityInstance.workflowInstance = workflowInstance;
     activityInstance.activityDefinition = activity;
-    activityInstance.activityDefinitionId = activity.id;
+    activityInstance.activityId = activity.id;
     if (activity.isMultiInstance()) {
       activityInstance.setWorkState(STATE_STARTING_MULTI_CONTAINER);
     } else {

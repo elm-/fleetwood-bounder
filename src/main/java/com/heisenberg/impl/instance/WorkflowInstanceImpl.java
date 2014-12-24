@@ -14,13 +14,7 @@
  */
 package com.heisenberg.impl.instance;
 
-import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_NOTIFYING;
-import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING;
-import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING_MULTI_CONTAINER;
-import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING_MULTI_INSTANCE;
-
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -32,14 +26,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.heisenberg.api.WorkflowEngine;
-import com.heisenberg.api.activitytypes.CallActivity;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.ExecutorService;
 import com.heisenberg.impl.Time;
 import com.heisenberg.impl.WorkflowEngineImpl;
-import com.heisenberg.impl.WorkflowInstanceQueryImpl;
-import com.heisenberg.impl.WorkflowInstanceStore;
-import com.heisenberg.impl.definition.ActivityImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
 
 
@@ -83,7 +72,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     log.debug("Created "+workflowInstance);
   }
   
-  protected void addWork(ActivityInstanceImpl activityInstance) {
+  public void addWork(ActivityInstanceImpl activityInstance) {
     if (isWorkAsync(activityInstance)) {
       addAsyncWork(activityInstance);
     } else {
@@ -123,7 +112,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     }
   }
 
-  protected ActivityInstanceImpl getNextWork() {
+  public ActivityInstanceImpl getNextWork() {
     ActivityInstanceImpl nextWork = work!=null ? work.poll() : null;
     if (nextWork!=null && updates!=null) {
       getUpdates().isWorkChanged = true;
@@ -131,92 +120,14 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     return nextWork;
   }
 
-  // to be called from the process engine
-  public void executeWork() {
-    WorkflowInstanceStore workflowInstanceStore = workflowEngine.getWorkflowInstanceStore();
-    boolean isFirst = true;
-    while (hasWork()) {
-      // in the first iteration, the updates will be empty and hence no updates will be flushed
-      if (isFirst) {
-        isFirst = false;
-      } else {
-        flushUpdates(); 
-      }
-      ActivityInstanceImpl activityInstance = getNextWork();
-      ActivityImpl activity = activityInstance.getActivity();
-      
-      if (STATE_STARTING.equals(activityInstance.workState)) {
-        log.debug("Starting "+activityInstance);
-        start(activityInstance);
-        
-      } else if (STATE_STARTING_MULTI_INSTANCE.equals(activityInstance.workState)) {
-        log.debug("Starting multi instance "+activityInstance);
-        start(activityInstance);
-        
-      } else if (STATE_STARTING_MULTI_CONTAINER.equals(activityInstance.workState)) {
-        List<Object> values = activityInstance.getValue(activity.multiInstance);
-        if (values!=null && !values.isEmpty()) {
-          log.debug("Starting multi container "+activityInstance);
-          for (Object value: values) {
-            ActivityInstanceImpl elementActivityInstance = activityInstance.createActivityInstance(activity);
-            elementActivityInstance.setWorkState(STATE_STARTING_MULTI_INSTANCE); 
-            elementActivityInstance.initializeForEachElement(activity.multiInstanceElement, value);
-          }
-        } else {
-          log.debug("Skipping empty multi container "+activityInstance);
-          activityInstance.onwards();
-        }
-
-      } else if (STATE_NOTIFYING.equals(activityInstance.workState)) {
-        log.debug("Notifying parent of "+activityInstance);
-        activityInstance.parent.ended(activityInstance);
-        activityInstance.workState = null;
-      }
-    }
-    if (hasAsyncWork()) {
-      log.debug("Going asynchronous "+workflowInstance);
-      workflowInstanceStore.flush(workflowInstance);
-      ExecutorService executor = workflowEngine.getExecutorService();
-      executor.execute(new Runnable(){
-        public void run() {
-          try {
-            work = workAsync;
-            workAsync = null;
-            workflowInstance.isAsync = true;
-            if (updates!=null) {
-              getUpdates().isWorkChanged = true;
-              getUpdates().isAsyncWorkChanged = true;
-            }
-            executeWork();
-          } catch (Throwable e) {
-            e.printStackTrace();
-          }
-        }});
-    } else {
-      workflowInstanceStore.flushAndUnlock(workflowInstance);
-    }
-  }
-
-  protected void start(ActivityInstanceImpl activityInstance) {
-    ActivityImpl activity = activityInstance.getActivity();
-    activity.activityType.start(activityInstance);
-    if (ActivityInstanceImpl.START_WORKSTATES.contains(activityInstance.workState)) {
-      activityInstance.setWorkState(ActivityInstanceImpl.STATE_WAITING);
-    }
-  }
-  
-  boolean hasAsyncWork() {
+  public boolean hasAsyncWork() {
     return workAsync!=null && !workAsync.isEmpty();
   }
 
-  boolean hasWork() {
+  public boolean hasWork() {
     return work!=null && !work.isEmpty();
   }
 
-  void flushUpdates() {
-    workflowEngine.getWorkflowInstanceStore().flush(this);
-  }
-  
   @Override
   public void ended(ActivityInstanceImpl activityInstance) {
     if (!hasOpenActivityInstances()) {
@@ -231,23 +142,7 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
       }
       setEnd(Time.now());
       log.debug("Ends "+this);
-      
-      if (callerWorkflowInstanceId!=null) {
-        WorkflowInstanceQueryImpl processInstanceQuery = workflowEngine.newWorkflowInstanceQuery()
-         .workflowInstanceId(callerWorkflowInstanceId)
-         .activityInstanceId(callerActivityInstanceId);
-        WorkflowInstanceImpl callerProcessInstance = workflowEngine.lockProcessInstanceWithRetry(processInstanceQuery);
-        ActivityInstanceImpl callerActivityInstance = callerProcessInstance.findActivityInstance(callerActivityInstanceId);
-        if (callerActivityInstance.isEnded()) {
-          throw new RuntimeException("Call activity instance "+callerActivityInstance+" is already ended");
-        }
-        log.debug("Notifying caller "+callerActivityInstance);
-        ActivityImpl activityDefinition = callerActivityInstance.getActivity();
-        CallActivity callActivity = (CallActivity) activityDefinition.activityType;
-        callActivity.calledProcessInstanceEnded(callerActivityInstance, this);
-        callerActivityInstance.onwards();
-        callerProcessInstance.executeWork();
-      }
+      workflowEngine.executeWorkflowInstanceEnded(this);
     }
   }
 

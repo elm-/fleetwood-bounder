@@ -42,10 +42,8 @@ import com.heisenberg.impl.util.Lists;
 /**
  * @author Walter White
  */
-@JsonPropertyOrder({"id", "activityDefinitionId", "start", "end", "duration", "activityInstances", "variableInstances"})
+@JsonPropertyOrder({"id", "activityId", "start", "end", "duration", "activityInstances", "variableInstances"})
 public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityInstance, ControllableActivityInstance {
-  
-  // WorkflowInstanceImpl.addWork assumes that all starting states start with "start"
   
   public static final String STATE_STARTING = "starting"; 
   public static final String STATE_STARTING_MULTI_CONTAINER = "startingMultiParent"; 
@@ -65,50 +63,20 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   @JsonIgnore
   public ActivityImpl activityDefinition;
   
-  public String activityDefinitionId;
+  public String activityId;
   public String workState;
   public String calledWorkflowInstanceId;
 
   public void onwards() {
-    log.debug("Onwards "+this);
-    // TODO: need to put this here to be called before transition
-    for (WorkflowInstanceEventListener listener : getWorkflowEngine().getListeners()) {
-      listener.ended(this);
-    }
-    // Default BPMN logic when an activity ends
-    // If there are outgoing transitions (in bpmn they are called sequence flows)
-    if (activityDefinition.hasOutgoingTransitionDefinitions()) {
-      // Ensure that each transition is taken
-      // Note that process concurrency does not require java concurrency
-      for (TransitionImpl transitionDefinition: activityDefinition.outgoingDefinitions) {
-        takeTransition(transitionDefinition);
-      }
-    }
-    // If non of the transitions is taken
-    if (!isEnded()) {
-      // Propagate completion upwards
-      end(true);
-    }
+    workflowEngine.executeOnwards(this);
   }
 
   public void end() {
-    end(true);
+    workflowEngine.executeEnd(this, true);
   }
 
   public void end(boolean notifyParent) {
-    if (this.end==null) {
-      if (hasOpenActivityInstances()) {
-        throw new RuntimeException("Can't end this activity instance. There are open activity instances: " +this);
-      }
-      setEnd(Time.now());
-      if (notifyParent) {
-        setWorkState(STATE_NOTIFYING);
-        workflowInstance.addWork(this);
-
-      } else {
-        setWorkState(null); // means please archive me.
-      }
-    }
+    workflowEngine.executeEnd(this, notifyParent);
   }
 
   public void setWorkState(String workState) {
@@ -188,13 +156,13 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     }
   }
 
-  public void setActivityDefinitionId(String activityDefinitionId) {
-    this.activityDefinitionId = activityDefinitionId;
+  public void setActivityId(String activityDefinitionId) {
+    this.activityId = activityDefinitionId;
   }
 
   @Override
   public String getActivityId() {
-    return activityDefinitionId;
+    return activityId;
   }
   
   @Override
@@ -202,7 +170,7 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
     if (activityDefinitionId==null) {
       return null;
     }
-    if (activityDefinitionId.equals(this.activityDefinitionId)) {
+    if (activityDefinitionId.equals(this.activityId)) {
       return this;
     }
     return super.findActivityInstanceByActivityDefinitionId(activityDefinitionId);

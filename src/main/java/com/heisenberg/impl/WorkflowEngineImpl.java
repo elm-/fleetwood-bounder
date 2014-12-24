@@ -14,6 +14,11 @@
  */
 package com.heisenberg.impl;
 
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_NOTIFYING;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING_MULTI_CONTAINER;
+import static com.heisenberg.impl.instance.ActivityInstanceImpl.STATE_STARTING_MULTI_INSTANCE;
+
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -24,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.heisenberg.api.instance.WorkflowInstanceEventListener;
+
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.WorkflowEngineConfiguration;
+import com.heisenberg.api.activitytypes.CallActivity;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ParseIssues;
@@ -39,6 +46,7 @@ import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.WorkflowInstance;
 import com.heisenberg.impl.WorkflowQueryImpl.Representation;
 import com.heisenberg.impl.definition.ActivityImpl;
+import com.heisenberg.impl.definition.TransitionImpl;
 import com.heisenberg.impl.definition.WorkflowImpl;
 import com.heisenberg.impl.definition.WorkflowValidator;
 import com.heisenberg.impl.definition.VariableImpl;
@@ -235,7 +243,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     lock.setOwner(getId());
     processInstance.setLock(lock);
     workflowInstanceStore.insertWorkflowInstance(processInstance);
-    processInstance.executeWork();
+    processInstance.workflowEngine.executeWork(processInstance);
     return processInstance;
   }
   
@@ -252,7 +260,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     log.debug("Signalling "+activityInstance);
     ActivityImpl activityDefinition = activityInstance.getActivity();
     activityDefinition.activityType.message(activityInstance);
-    processInstance.executeWork();
+    processInstance.workflowEngine.executeWork(processInstance);
     return processInstance;
   }
   
@@ -327,6 +335,11 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     variableInstance.id = workflowInstanceStore.createVariableInstanceId();
     return variableInstance;
   }
+  
+  // process execution methods ////////////////////////////////////////////////////////
+  
+  
+  
 
   public String getId() {
     return id;
@@ -370,5 +383,137 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
 
   public List<WorkflowInstanceEventListener> getListeners() {
     return Collections.unmodifiableList(listeners);
+  }
+
+  public void executeWork(final WorkflowInstanceImpl workflowInstance) {
+    WorkflowInstanceStore workflowInstanceStore = getWorkflowInstanceStore();
+    boolean isFirst = true;
+    while (workflowInstance.hasWork()) {
+      // in the first iteration, the updates will be empty and hence no updates will be flushed
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        workflowInstanceStore.flush(workflowInstance); 
+      }
+      ActivityInstanceImpl activityInstance = workflowInstance.getNextWork();
+      ActivityImpl activity = activityInstance.getActivity();
+      
+      if (STATE_STARTING.equals(activityInstance.workState)) {
+        log.debug("Starting "+activityInstance);
+        executeStart(activityInstance);
+        
+      } else if (STATE_STARTING_MULTI_INSTANCE.equals(activityInstance.workState)) {
+        log.debug("Starting multi instance "+activityInstance);
+        executeStart(activityInstance);
+        
+      } else if (STATE_STARTING_MULTI_CONTAINER.equals(activityInstance.workState)) {
+        List<Object> values = activityInstance.getValue(activity.multiInstance);
+        if (values!=null && !values.isEmpty()) {
+          log.debug("Starting multi container "+activityInstance);
+          for (Object value: values) {
+            ActivityInstanceImpl elementActivityInstance = activityInstance.createActivityInstance(activity);
+            elementActivityInstance.setWorkState(STATE_STARTING_MULTI_INSTANCE); 
+            elementActivityInstance.initializeForEachElement(activity.multiInstanceElement, value);
+          }
+        } else {
+          log.debug("Skipping empty multi container "+activityInstance);
+          activityInstance.onwards();
+        }
+  
+      } else if (STATE_NOTIFYING.equals(activityInstance.workState)) {
+        log.debug("Notifying parent of "+activityInstance);
+        activityInstance.parent.ended(activityInstance);
+        activityInstance.workState = null;
+      }
+    }
+    if (workflowInstance.hasAsyncWork()) {
+      log.debug("Going asynchronous "+workflowInstance.workflowInstance);
+      workflowInstanceStore.flush(workflowInstance.workflowInstance);
+      ExecutorService executor = getExecutorService();
+      executor.execute(new Runnable(){
+        public void run() {
+          try {
+            workflowInstance.work = workflowInstance.workAsync;
+            workflowInstance.workAsync = null;
+            workflowInstance.workflowInstance.isAsync = true;
+            if (workflowInstance.updates!=null) {
+              workflowInstance.getUpdates().isWorkChanged = true;
+              workflowInstance.getUpdates().isAsyncWorkChanged = true;
+            }
+            executeWork(workflowInstance);
+          } catch (Throwable e) {
+            e.printStackTrace();
+          }
+        }});
+    } else {
+      workflowInstanceStore.flushAndUnlock(workflowInstance.workflowInstance);
+    }
+  }
+  
+  public void executeStart(ActivityInstanceImpl activityInstance) {
+    for (WorkflowInstanceEventListener listener : listeners) {
+      listener.started(activityInstance);
+    }
+    ActivityImpl activity = activityInstance.getActivity();
+    activity.activityType.start(activityInstance);
+    if (ActivityInstanceImpl.START_WORKSTATES.contains(activityInstance.workState)) {
+      activityInstance.setWorkState(ActivityInstanceImpl.STATE_WAITING);
+    }
+  }
+
+  public void executeWorkflowInstanceEnded(WorkflowInstanceImpl workflowInstance) {
+    if (workflowInstance.callerWorkflowInstanceId!=null) {
+      WorkflowInstanceQueryImpl processInstanceQuery = newWorkflowInstanceQuery()
+       .workflowInstanceId(workflowInstance.callerWorkflowInstanceId)
+       .activityInstanceId(workflowInstance.callerActivityInstanceId);
+      WorkflowInstanceImpl callerProcessInstance = lockProcessInstanceWithRetry(processInstanceQuery);
+      ActivityInstanceImpl callerActivityInstance = callerProcessInstance.findActivityInstance(workflowInstance.callerActivityInstanceId);
+      if (callerActivityInstance.isEnded()) {
+        throw new RuntimeException("Call activity instance "+callerActivityInstance+" is already ended");
+      }
+      log.debug("Notifying caller "+callerActivityInstance);
+      ActivityImpl activityDefinition = callerActivityInstance.getActivity();
+      CallActivity callActivity = (CallActivity) activityDefinition.activityType;
+      callActivity.calledProcessInstanceEnded(callerActivityInstance, workflowInstance);
+      callerActivityInstance.onwards();
+      executeWork(callerProcessInstance);
+    }
+  }
+
+  public void executeOnwards(ActivityInstanceImpl activityInstance) {
+    log.debug("Onwards "+this);
+    ActivityImpl activity = activityInstance.activityDefinition;
+    // Default BPMN logic when an activity ends
+    // If there are outgoing transitions (in bpmn they are called sequence flows)
+    if (activity.hasOutgoingTransitionDefinitions()) {
+      // Ensure that each transition is taken
+      // Note that process concurrency does not require java concurrency
+      activityInstance.end(false);
+      for (TransitionImpl transitionDefinition: activity.outgoingDefinitions) {
+        activityInstance.takeTransition(transitionDefinition);
+      }
+    } else {
+      // Propagate completion upwards
+      activityInstance.end(true);
+    }
+  }
+  
+  public void executeEnd(ActivityInstanceImpl activityInstance, boolean notifyParent) {
+    if (activityInstance.end==null) {
+      if (activityInstance.hasOpenActivityInstances()) {
+        throw new RuntimeException("Can't end this activity instance. There are open activity instances: " +activityInstance);
+      }
+      activityInstance.setEnd(Time.now());
+      for (WorkflowInstanceEventListener listener : listeners) {
+        listener.ended(activityInstance);
+      }
+      if (notifyParent) {
+        activityInstance.setWorkState(STATE_NOTIFYING);
+        activityInstance.workflowInstance.addWork(activityInstance);
+
+      } else {
+        activityInstance.setWorkState(null); // means please archive me.
+      }
+    }
   }
 }
