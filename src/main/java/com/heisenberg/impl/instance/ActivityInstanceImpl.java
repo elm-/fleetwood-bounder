@@ -108,11 +108,11 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
    * This methods will also end the current activity instance.
    * This method can be called multiple times in one start() */
   public void takeTransition(Transition transition) {
+    ActivityImpl to = (ActivityImpl) transition.getTo();
+    end(to==null);
     for (WorkflowInstanceEventListener listener : getWorkflowEngine().getListeners()) {
       listener.transition(this, transition);
     }
-    ActivityImpl to = (ActivityImpl) transition.getTo();
-    end(to==null);
     if (to!=null) {
       log.debug("Taking transition to "+to);
       parent.createActivityInstance(to);
