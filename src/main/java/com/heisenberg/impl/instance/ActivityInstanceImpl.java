@@ -17,6 +17,7 @@ package com.heisenberg.impl.instance;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.heisenberg.api.instance.WorkflowInstanceEventListener;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -70,13 +71,17 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
 
   public void onwards() {
     log.debug("Onwards "+this);
+    // TODO: need to put this here to be called before transition
+    for (WorkflowInstanceEventListener listener : getWorkflowEngine().getListeners()) {
+      listener.ended(this);
+    }
     // Default BPMN logic when an activity ends
     // If there are outgoing transitions (in bpmn they are called sequence flows)
     if (activityDefinition.hasOutgoingTransitionDefinitions()) {
       // Ensure that each transition is taken
       // Note that process concurrency does not require java concurrency
       for (TransitionImpl transitionDefinition: activityDefinition.outgoingDefinitions) {
-        takeTransition(transitionDefinition);  
+        takeTransition(transitionDefinition);
       }
     }
     // If non of the transitions is taken
@@ -135,6 +140,9 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
    * This methods will also end the current activity instance.
    * This method can be called multiple times in one start() */
   public void takeTransition(Transition transition) {
+    for (WorkflowInstanceEventListener listener : getWorkflowEngine().getListeners()) {
+      listener.transition(this, transition);
+    }
     ActivityImpl to = (ActivityImpl) transition.getTo();
     end(to==null);
     if (to!=null) {

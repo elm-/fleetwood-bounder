@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.heisenberg.api.instance.WorkflowInstanceEventListener;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +100,10 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
     workflowInstance.addWork(activityInstance);
     activityInstance.setStart(Time.now());
+    // TODO: this should correspond with the actual start method call, e.g. when the OP is executed (set time as well)?
+    for (WorkflowInstanceEventListener listener : getWorkflowEngine().getListeners()) {
+      listener.started(activityInstance);
+    }
     if (updates!=null) {
       activityInstance.updates = new ActivityInstanceUpdates(true);
       propagateActivityInstanceChange(this);

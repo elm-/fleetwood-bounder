@@ -17,10 +17,13 @@ package com.heisenberg.impl;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.heisenberg.api.instance.WorkflowInstanceEventListener;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +73,8 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
   public WorkflowStore workflowStore;
   public WorkflowInstanceStore workflowInstanceStore;
 
+  private List<WorkflowInstanceEventListener> listeners;
+
   protected WorkflowEngineImpl() {
   }
 
@@ -84,6 +89,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     this.workflowCache = serviceRegistry.getService(WorkflowCache.class);
     this.workflowStore = serviceRegistry.getService(WorkflowStore.class);
     this.workflowInstanceStore = serviceRegistry.getService(WorkflowInstanceStore.class);
+    this.listeners = new ArrayList<>();
   }
   
   protected void initializeStorageServices(WorkflowEngineConfiguration configuration) {
@@ -145,14 +151,14 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     processDefinition.visit(validator);
     ParseIssues issues = validator.getIssues();
     response.setIssues(issues);
-    
+
     if (!issues.hasErrors()) {
       processDefinition.id = workflowStore.createWorkflowId(processDefinition);
-      response.setProcessDefinitionId(processDefinition.id); 
+      response.setProcessDefinitionId(processDefinition.id);
       workflowStore.insertWorkflow(processDefinition);
       workflowCache.put(processDefinition);
     }
-    
+
     return response;
   }
 
@@ -348,5 +354,21 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
   
   public WorkflowInstanceStore getWorkflowInstanceStore() {
     return workflowInstanceStore;
+  }
+
+  public void addListener(WorkflowInstanceEventListener listener) {
+    synchronized (listener) {
+      listeners.add(listener);
+    }
+  }
+
+  public void removeListener(WorkflowInstanceEventListener listener) {
+    synchronized (listener) {
+      listeners.remove(listener);
+    }
+  }
+
+  public List<WorkflowInstanceEventListener> getListeners() {
+    return Collections.unmodifiableList(listeners);
   }
 }
