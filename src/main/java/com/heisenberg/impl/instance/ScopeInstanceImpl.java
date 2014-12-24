@@ -282,13 +282,13 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
   }
   
   @Override
-  public ActivityInstanceImpl findActivityInstanceByActivityDefinitionId(String activityDefinitionId) {
+  public ActivityInstanceImpl findActivityInstanceByActivityId(String activityDefinitionId) {
     if (activityDefinitionId==null) {
       return null;
     }
     if (activityInstances!=null) {
       for (ActivityInstanceImpl activityInstance: activityInstances) {
-        ActivityInstanceImpl theOne = activityInstance.findActivityInstanceByActivityDefinitionId(activityDefinitionId);
+        ActivityInstanceImpl theOne = activityInstance.findActivityInstanceByActivityId(activityDefinitionId);
         if (theOne!=null) {
           return theOne;
         }

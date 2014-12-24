@@ -82,6 +82,6 @@ public class StartImpl extends VariableRequestImpl implements StartBuilder {
 
   @Override
   public WorkflowInstance startWorkflowInstance() {
-    return processEngine.startProcessInstance(this);
+    return processEngine.startWorkflowInstance(this);
   }
 }

@@ -151,7 +151,7 @@ public class LoadTest extends JerseyTest {
               .readEntity(WorkflowInstanceImpl.class);
   
       String subTaskInstanceId = processInstance
-              .findActivityInstanceByActivityDefinitionId("subTask")
+              .findActivityInstanceByActivityId("subTask")
               .getId();
   
       MessageBuilder notifyActivityInstanceRequest = new MessageImpl()

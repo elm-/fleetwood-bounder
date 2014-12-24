@@ -96,7 +96,7 @@ public class TestHelper {
   }
 
   public static String getActivityInstanceId(WorkflowInstance workflowInstance, String activityDefinitionId) {
-    ActivityInstance activityInstance = workflowInstance.findActivityInstanceByActivityDefinitionId(activityDefinitionId);
+    ActivityInstance activityInstance = workflowInstance.findActivityInstanceByActivityId(activityDefinitionId);
     Assert.assertNotNull("No open activity instance found "+activityDefinitionId+" not found", activityInstance);
     return activityInstance.getId();
   }

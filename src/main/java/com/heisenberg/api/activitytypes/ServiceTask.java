@@ -15,14 +15,13 @@
 package com.heisenberg.api.activitytypes;
 
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.impl.plugin.AbstractActivityType;
 import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
 
 /**
  * @author Walter White
  */
-public abstract class ServiceTask extends AbstractActivityType {
+public abstract class ServiceTask extends DefaultTask {
 
   @Override
   public void start(ControllableActivityInstance activityInstance) {

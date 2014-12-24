@@ -166,14 +166,14 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
   }
   
   @Override
-  public ActivityInstanceImpl findActivityInstanceByActivityDefinitionId(String activityDefinitionId) {
+  public ActivityInstanceImpl findActivityInstanceByActivityId(String activityDefinitionId) {
     if (activityDefinitionId==null) {
       return null;
     }
     if (activityDefinitionId.equals(this.activityId)) {
       return this;
     }
-    return super.findActivityInstanceByActivityDefinitionId(activityDefinitionId);
+    return super.findActivityInstanceByActivityId(activityDefinitionId);
   }
   
   public Object getTransientContextObject(String key) {

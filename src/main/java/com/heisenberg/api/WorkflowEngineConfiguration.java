@@ -18,7 +18,7 @@ import javax.script.ScriptEngineManager;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.heisenberg.api.activitytypes.CallActivity;
+import com.heisenberg.api.activitytypes.Call;
 import com.heisenberg.api.activitytypes.CallMapping;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
@@ -100,7 +100,7 @@ public class WorkflowEngineConfiguration {
     this.registerActivityType(new EmbeddedSubprocess());
     this.registerActivityType(new ExclusiveGateway());
     this.registerActivityType(new ParallelGateway());
-    this.registerActivityType(new CallActivity());
+    this.registerActivityType(new Call());
     this.registerActivityType(new ScriptTask());
     this.registerActivityType(new UserTask());
     this.registerActivityType(new JavaServiceTask());

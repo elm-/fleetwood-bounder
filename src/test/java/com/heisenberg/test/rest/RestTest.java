@@ -121,7 +121,7 @@ public class RestTest extends JerseyTest {
     JsonService jsonService = workflowEngine.getServiceRegistry().getService(JsonService.class);
     workflowInstance = jsonService.jsonToObject(workflowInstanceJson, WorkflowInstanceImpl.class);
     String workflowInstanceId = workflowInstance.getId();
-    String subTaskInstanceId = workflowInstance.findActivityInstanceByActivityDefinitionId("subTask").getId();
+    String subTaskInstanceId = workflowInstance.findActivityInstanceByActivityId("subTask").getId();
 
     MessageBuilder message = workflowEngine.newMessage()
       .processInstanceId(workflowInstanceId)

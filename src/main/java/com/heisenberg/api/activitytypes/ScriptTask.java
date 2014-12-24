@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.definition.Activity;
 import com.heisenberg.api.instance.ActivityInstance;
-import com.heisenberg.impl.plugin.AbstractActivityType;
 import com.heisenberg.impl.plugin.ControllableActivityInstance;
 import com.heisenberg.impl.plugin.Validator;
 import com.heisenberg.impl.script.Script;
@@ -33,7 +32,7 @@ import com.heisenberg.impl.script.ScriptService;
  * @author Walter White
  */
 @JsonTypeName("serviceTask")
-public class ScriptTask extends AbstractActivityType {
+public class ScriptTask extends DefaultTask {
 
   @JsonIgnore
   protected ScriptService scriptService;

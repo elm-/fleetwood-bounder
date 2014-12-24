@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.activitytypes.DefaultTask;
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
 import com.heisenberg.api.activitytypes.ScriptTask;
@@ -86,7 +87,7 @@ public class MongoWorkflowEngineTest {
       .from("start").to("scriptBefore");
     
     process.newActivity()
-      .activityType(new ScriptTask())
+      .activityType(new DefaultTask())
       .id("scriptBefore");
 
     process.newTransition()
@@ -104,7 +105,7 @@ public class MongoWorkflowEngineTest {
       .from("subStart").to("subScript");
 
     embeddedSubprocess.newActivity()
-      .activityType(new ScriptTask())
+      .activityType(new DefaultTask())
       .id("subScript");
 
     embeddedSubprocess.newTransition()
@@ -125,7 +126,7 @@ public class MongoWorkflowEngineTest {
       .from("sub").to("scriptAfter");
 
     process.newActivity()
-      .activityType(new ScriptTask())
+      .activityType(new DefaultTask())
       .id("scriptAfter");
 
     process.newTransition()

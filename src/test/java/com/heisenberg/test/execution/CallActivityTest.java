@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.heisenberg.api.activitytypes.CallActivity;
+import com.heisenberg.api.activitytypes.Call;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.ActivityInstance;
@@ -39,7 +39,7 @@ public class CallActivityTest extends WorkflowTest {
     String subprocessId = subWorkflow.deploy();
     
     WorkflowBuilder superWorkflow = workflowEngine.newWorkflow();
-    superWorkflow.newActivity("call", new CallActivity().subProcessId(subprocessId));
+    superWorkflow.newActivity("call", new Call().subProcessId(subprocessId));
     String superprocessId = superWorkflow.deploy();
     
     WorkflowInstance superInstance = workflowEngine.newStart()

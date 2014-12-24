@@ -12,35 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.heisenberg.api.instance;
+package com.heisenberg.api.activitytypes;
 
-import java.util.List;
+import com.heisenberg.impl.plugin.AbstractActivityType;
+import com.heisenberg.impl.plugin.ControllableActivityInstance;
 
-import org.joda.time.LocalDateTime;
 
-
-/**
+/** this task doesn't do anything, it just continues (aka noop, pass-through).
+ * 
  * @author Walter White
  */
-public interface ScopeInstance {
+public class DefaultTask extends AbstractActivityType {
 
-  LocalDateTime getStart();
-  
-  LocalDateTime getEnd();
-  
-  boolean isEnded();
-  
-  Long getDuration();
-  
-  List<? extends ActivityInstance> getActivityInstances();
-  
-  List<? extends VariableInstance> getVariableInstances();
-
-  boolean hasOpenActivityInstances();
-
-  /** recurses downward over the nested activities (not over the parent) */
-  ActivityInstance findActivityInstanceByActivityId(String activityDefinitionId);
-  
-  Object getVariableValue(String variableId);
+  @Override
+  public void start(ControllableActivityInstance activityInstance) {
+    activityInstance.onwards();
+  }
 
 }

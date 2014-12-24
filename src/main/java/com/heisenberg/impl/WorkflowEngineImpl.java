@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.WorkflowEngine;
 import com.heisenberg.api.WorkflowEngineConfiguration;
-import com.heisenberg.api.activitytypes.CallActivity;
+import com.heisenberg.api.activitytypes.Call;
 import com.heisenberg.api.builder.DeployResult;
 import com.heisenberg.api.builder.MessageBuilder;
 import com.heisenberg.api.builder.ParseIssues;
@@ -226,37 +226,37 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     return new WorkflowInstanceQueryImpl(workflowInstanceStore);
   }
 
-  public WorkflowInstance startProcessInstance(StartImpl start) {
-    WorkflowImpl processDefinition = newWorkflowQuery()
+  public WorkflowInstance startWorkflowInstance(StartImpl start) {
+    WorkflowImpl workflow = newWorkflowQuery()
       .representation(Representation.EXECUTABLE)
       .id(start.processDefinitionId)
       .name(start.processDefinitionName)
       .orderByDeployTimeDescending()
       .get();
     
-    if (processDefinition==null) {
+    if (workflow==null) {
       throw new RuntimeException("Could not find process definition "+start.processDefinitionId+" "+start.processDefinitionName);
     }
-    WorkflowInstanceImpl processInstance = createProcessInstance(processDefinition);
-    processInstance.callerWorkflowInstanceId = start.callerWorkflowInstanceId;
-    processInstance.callerActivityInstanceId = start.callerActivityInstanceId;
-    processInstance.transientContext = start.transientContext;
-    setVariableApiValues(processInstance, start);
-    log.debug("Starting "+processInstance);
-    processInstance.setStart(Time.now());
-    List<Activity> startActivityDefinitions = processDefinition.getStartActivities();
+    WorkflowInstanceImpl workflowInstance = createProcessInstance(workflow);
+    workflowInstance.callerWorkflowInstanceId = start.callerWorkflowInstanceId;
+    workflowInstance.callerActivityInstanceId = start.callerActivityInstanceId;
+    workflowInstance.transientContext = start.transientContext;
+    setVariableApiValues(workflowInstance, start);
+    log.debug("Starting "+workflowInstance);
+    workflowInstance.setStart(Time.now());
+    List<Activity> startActivityDefinitions = workflow.getStartActivities();
     if (startActivityDefinitions!=null) {
       for (Activity startActivityDefinition: startActivityDefinitions) {
-        processInstance.start(startActivityDefinition);
+        workflowInstance.start(startActivityDefinition);
       }
     }
     LockImpl lock = new LockImpl();
     lock.setTime(Time.now());
     lock.setOwner(getId());
-    processInstance.setLock(lock);
-    workflowInstanceStore.insertWorkflowInstance(processInstance);
-    processInstance.workflowEngine.executeWork(processInstance);
-    return processInstance;
+    workflowInstance.setLock(lock);
+    workflowInstanceStore.insertWorkflowInstance(workflowInstance);
+    workflowInstance.workflowEngine.executeWork(workflowInstance);
+    return workflowInstance;
   }
   
   public WorkflowInstanceImpl sendActivityInstanceMessage(MessageImpl message) {
@@ -485,7 +485,7 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
       }
       log.debug("Notifying caller "+callerActivityInstance);
       ActivityImpl activityDefinition = callerActivityInstance.getActivity();
-      CallActivity callActivity = (CallActivity) activityDefinition.activityType;
+      Call callActivity = (Call) activityDefinition.activityType;
       callActivity.calledProcessInstanceEnded(callerActivityInstance, workflowInstance);
       callerActivityInstance.onwards();
       executeWork(callerProcessInstance);

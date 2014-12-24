@@ -44,6 +44,6 @@ public class StartResource {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   public WorkflowInstance startProcessInstance(StartImpl processInstanceBuilder) {
-    return processEngine.startProcessInstance(processInstanceBuilder);
+    return processEngine.startWorkflowInstance(processInstanceBuilder);
   }
 }

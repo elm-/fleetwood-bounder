@@ -34,7 +34,7 @@ import com.heisenberg.impl.plugin.Validator;
 /**
  * @author Walter White
  */
-public class CallActivity extends AbstractActivityType {
+public class Call extends AbstractActivityType {
 
   @ConfigurationField
   @Label("Subprocess name")
@@ -97,28 +97,28 @@ public class CallActivity extends AbstractActivityType {
     }
   }
 
-  public CallActivity subProcessId(String subProcessId) {
+  public Call subProcessId(String subProcessId) {
     return subProcessId(new Binding<String>().value(subProcessId));
   }
 
-  public CallActivity subProcessIdExpression(String subProcessIdExpression) {
+  public Call subProcessIdExpression(String subProcessIdExpression) {
     return subProcessId(new Binding<String>().expression(subProcessIdExpression));
   }
 
-  public CallActivity subProcessIdVariable(String subProcessIdVariableId) {
+  public Call subProcessIdVariable(String subProcessIdVariableId) {
     return subProcessId(new Binding<String>().variableDefinitionId(subProcessIdVariableId));
   }
 
-  public CallActivity subProcessId(Binding<String> subProcessIdBinding) {
+  public Call subProcessId(Binding<String> subProcessIdBinding) {
     this.subProcessIdBinding = subProcessIdBinding;
     return this;
   }
   
-  public CallActivity inputMapping(String callerVariableId, String calledVariableId) {
+  public Call inputMapping(String callerVariableId, String calledVariableId) {
     return inputMapping(new Binding<Object>().variableDefinitionId(callerVariableId), calledVariableId);
   }
 
-  public CallActivity inputMapping(Binding<Object> callerBinding, String calledVariableId) {
+  public Call inputMapping(Binding<Object> callerBinding, String calledVariableId) {
     CallMapping inputMapping = new CallMapping()
       .sourceBinding(callerBinding)
       .destinationVariableId(calledVariableId);
@@ -129,11 +129,11 @@ public class CallActivity extends AbstractActivityType {
     return this;
   }
 
-  public CallActivity outputMapping(String calledVariableId, String callerVariableId) {
+  public Call outputMapping(String calledVariableId, String callerVariableId) {
     return outputMapping(new Binding<Object>().variableDefinitionId(calledVariableId), callerVariableId);
   }
 
-  public CallActivity outputMapping(Binding<Object> calledBinding, String callerVariableId) {
+  public Call outputMapping(Binding<Object> calledBinding, String callerVariableId) {
     CallMapping inputMapping = new CallMapping()
       .sourceBinding(calledBinding)
       .destinationVariableId(callerVariableId);

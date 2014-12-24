@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import com.heisenberg.api.activitytypes.EmbeddedSubprocess;
 import com.heisenberg.api.activitytypes.EndEvent;
-import com.heisenberg.api.activitytypes.ScriptTask;
+import com.heisenberg.api.activitytypes.DefaultTask;
 import com.heisenberg.api.activitytypes.UserTask;
 import com.heisenberg.api.builder.ActivityBuilder;
 import com.heisenberg.api.builder.WorkflowBuilder;
@@ -47,7 +47,7 @@ public class EmbeddedSuprocessTest extends WorkflowTest {
     WorkflowBuilder w = workflowEngine.newWorkflow();
   
     w.newActivity()
-      .activityType(new ScriptTask())
+      .activityType(new DefaultTask())
       .id("start");
     
     ActivityBuilder subprocess = w.newActivity()

@@ -25,12 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.heisenberg.api.WorkflowEngine;
+import com.heisenberg.api.activitytypes.DefaultTask;
 import com.heisenberg.api.activitytypes.EndEvent;
-import com.heisenberg.api.activitytypes.ScriptTask;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.instance.WorkflowInstance;
-import com.heisenberg.impl.memory.MemoryWorkflowEngine;
+import com.heisenberg.test.TestMemoryWorkflowEngine;
 import com.heisenberg.test.mongo.MongoWorkflowEngineTest;
 
 /**
@@ -47,11 +47,13 @@ public class MemoryLoadTest  {
   
   @Test
   public void test() {
-    WorkflowEngine workflowEngine = new MemoryWorkflowEngine();
+    WorkflowEngine workflowEngine = new TestMemoryWorkflowEngine();
+    
     String workflowId = MongoWorkflowEngineTest.createProcess(workflowEngine)
             .deploy();
-    
-//     String workflowId = createWorkflow(workflowEngine);
+//  String workflowId = createWorkflow(workflowEngine);
+
+    runProcessInstance(workflowEngine, workflowId);
     
     long nbrOfThreads = 4;
     long processExecutionsPerThread = 50000;
@@ -100,7 +102,7 @@ public class MemoryLoadTest  {
       .from("start").to("s");
 
     w.newActivity()
-      .activityType(new ScriptTask())
+      .activityType(new DefaultTask())
       .id("s");
 
     w.newTransition()
@@ -131,13 +133,13 @@ public class MemoryLoadTest  {
     }
   }
 
-  void runProcessInstance(WorkflowEngine workflowEngine, String processDefinitionId) {
+  void runProcessInstance(WorkflowEngine workflowEngine, String workflowId) {
     WorkflowInstance workflowInstance = workflowEngine.newStart()
-      .workflowId(processDefinitionId)
+      .workflowId(workflowId)
       .startWorkflowInstance();
     
     String subTaskInstanceId = workflowInstance
-            .findActivityInstanceByActivityDefinitionId("subTask")
+            .findActivityInstanceByActivityId("subTask")
             .getId();
   
     workflowInstance = workflowEngine.newMessage()

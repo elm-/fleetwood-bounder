@@ -16,7 +16,7 @@ package com.heisenberg.test.execution;
 
 import com.heisenberg.api.DataTypes;
 import com.heisenberg.api.WorkflowEngine;
-import com.heisenberg.api.activitytypes.ScriptTask;
+import com.heisenberg.api.activitytypes.DefaultTask;
 import com.heisenberg.api.activitytypes.StartEvent;
 import com.heisenberg.api.builder.WorkflowBuilder;
 import com.heisenberg.api.definition.Transition;
@@ -79,7 +79,7 @@ public class EventListenerTest extends WorkflowTest {
       .activityType(StartEvent.INSTANCE)
       .id("s");
     w.newActivity()
-      .activityType(new ScriptTask()) // TODO: empty task
+      .activityType(new DefaultTask()) // TODO: empty task
       .id("script");
     w.newActivity()
       .activityType(StartEvent.INSTANCE)
