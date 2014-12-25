@@ -41,18 +41,21 @@ public class ParallelGateway extends AbstractActivityType {
   
   @Override
   public void validate(Activity activity, Validator validator) {
-    log.debug("Validating "+activity.getId());
+    if (log.isDebugEnabled())
+      log.debug("Validating "+activity.getId());
     
     // at least one in, at least one out
     List<Transition> incomingTransitions = activity.getIncomingTransitions();
-    log.debug("  incoming "+incomingTransitions.size());
+    if (log.isDebugEnabled())
+      log.debug("  incoming "+incomingTransitions.size());
     if (incomingTransitions==null || incomingTransitions.isEmpty()) {
       validator.addWarning("Parallel gateway '%s' does not have incoming transitions", activity.getId());
     } else {
       nbrOfIncomingTransitions = incomingTransitions.size();
     }
     List<Transition> outgoingTransitions = activity.getOutgoingTransitions();
-    log.debug("  outgoing "+outgoingTransitions.size());
+    if (log.isDebugEnabled())
+      log.debug("  outgoing "+outgoingTransitions.size());
     if (outgoingTransitions==null || outgoingTransitions.isEmpty()) {
       validator.addWarning("Parallel gateway '%s' does not have outgoing transitions", activity.getId());
     } else {
@@ -83,7 +86,8 @@ public class ParallelGateway extends AbstractActivityType {
               || !hasOtherUnfinishedActivities
             )
        ) {
-      log.debug("Firing parallel gateway");
+      if (log.isDebugEnabled())
+        log.debug("Firing parallel gateway");
       for (ActivityInstance otherJoiningActivityInstance: otherJoiningActivityInstances) {
         activityInstance.removeJoining(otherJoiningActivityInstance);
       }

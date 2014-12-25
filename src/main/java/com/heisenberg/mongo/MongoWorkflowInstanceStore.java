@@ -87,7 +87,8 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
 
   @Override
   public void flush(WorkflowInstanceImpl workflowInstance) {
-    log.debug("Flushing...");
+    if (log.isDebugEnabled())
+      log.debug("Flushing...");
     
     WorkflowInstanceUpdates updates = workflowInstance.getUpdates();
     
@@ -101,7 +102,8 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     BasicDBObject update = new BasicDBObject();
 
     if (updates.isEndChanged) {
-      log.debug("  Workflow instance ended");
+      if (log.isDebugEnabled())
+        log.debug("  Workflow instance ended");
       sets.append(fields.end, workflowInstance.end);
       sets.append(fields.duration, workflowInstance.duration);
     }
@@ -111,7 +113,8 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
     // We do archive the ended (and joined) activity instances into a separate collection 
     // that doesn't have to be loaded.
     if (updates.isActivityInstancesChanged) {
-      log.debug("  Activity instances changed");
+      if (log.isDebugEnabled())
+        log.debug("  Activity instances changed");
       List<BasicDBObject> activityInstances = new ArrayList<>();
       List<BasicDBObject> archivedActivityInstances = new ArrayList<>();
       collectActivities(workflowInstance, activityInstances, archivedActivityInstances);
@@ -120,18 +123,22 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
         update.append("$push", new BasicDBObject(fields.archivedActivityInstances, archivedActivityInstances));
       }
     } else {
-      log.debug("  No activity instances changed");
+      if (log.isDebugEnabled())
+        log.debug("  No activity instances changed");
     }
     
     if (updates.isVariableInstancesChanged) {
-      log.debug("  Variable instances changed");
+      if (log.isDebugEnabled())
+        log.debug("  Variable instances changed");
       writeVariables(sets, workflowInstance);
     } else {
-      log.debug("  No variable instances changed");
+      if (log.isDebugEnabled())
+        log.debug("  No variable instances changed");
     }
 
     if (updates.isWorkChanged) {
-      log.debug("  Work changed");
+      if (log.isDebugEnabled())
+        log.debug("  Work changed");
       List<ObjectId> work = writeWork(workflowInstance.work);
       if (work!=null) {
         sets.put(fields.work, work);
@@ -139,11 +146,13 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
         unsets.put(fields.work, 1);
       }
     } else {
-      log.debug("  No work changed");
+      if (log.isDebugEnabled())
+        log.debug("  No work changed");
     }
 
     if (updates.isAsyncWorkChanged) {
-      log.debug("  Aync work changed");
+      if (log.isDebugEnabled())
+        log.debug("  Aync work changed");
       List<ObjectId> workAsync = writeWork(workflowInstance.workAsync);
       if (workAsync!=null) {
         sets.put(fields.workAsync, workAsync);
@@ -151,24 +160,28 @@ public class MongoWorkflowInstanceStore extends MongoCollection implements Workf
         unsets.put(fields.workAsync, 1);
       }
     } else {
-      log.debug("  No async work changed");
+      if (log.isDebugEnabled())
+        log.debug("  No async work changed");
     }
 
     if (!sets.isEmpty()) {
       update.append("$set", sets);
     } else {
-      log.debug("  No sets");
+      if (log.isDebugEnabled())
+        log.debug("  No sets");
     }
     if (!unsets.isEmpty()) {
       update.append("$unset", unsets);
     } else {
-      log.debug("  No unsets");
+      if (log.isDebugEnabled())
+        log.debug("  No unsets");
     }
     
     if (!update.isEmpty()) {
       update(query, update, false, false, writeConcernFlushUpdates);
     } else {
-      log.debug("  Nothing to flush");
+      if (log.isDebugEnabled())
+        log.debug("  Nothing to flush");
     }
     
     // reset the update tracking as all changes have been saved

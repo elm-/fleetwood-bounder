@@ -115,7 +115,8 @@ public class MemoryWorkflowInstanceStore implements WorkflowInstanceStore {
     lock.setTime(Time.now());
     lock.setOwner(workflowEngineId);
     processInstance.setLock(lock);
-    // log.debug("Locked process instance: "+jsonService.objectToJsonStringPretty(processInstance));
+    //if (log.isDebugEnabled())
+    //  log.debug("Locked process instance: "+jsonService.objectToJsonStringPretty(processInstance));
     return processInstance;
   }
   

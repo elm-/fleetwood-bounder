@@ -41,15 +41,19 @@ public class ClientWorkflowEngine implements WorkflowEngine {
   
 //  @Override
 //  public DeployResult deployProcessDefinition(ProcessDefinitionBuilder process) {
-//    log.debug("HTTP POST /deploy");
-//    log.debug("HTTP "+jsonService.objectToJsonStringPretty(process));
+//    if (log.isDebugEnabled())
+//      log.debug("HTTP POST /deploy");
+//    if (log.isDebugEnabled())
+//      log.debug("HTTP "+jsonService.objectToJsonStringPretty(process));
 //    return null;
 //  }
 //
 //  @Override
 //  public ProcessInstance startWorkflowInstance(StartBuilderImpl processInstance) {
-//    log.debug("HTTP POST /start");
-//    log.debug("HTTP "+jsonService.objectToJsonStringPretty(processInstance));
+//    if (log.isDebugEnabled())
+//      log.debug("HTTP POST /start");
+//    if (log.isDebugEnabled())
+//      log.debug("HTTP "+jsonService.objectToJsonStringPretty(processInstance));
 //    return null;
 //  }
 

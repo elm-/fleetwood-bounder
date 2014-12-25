@@ -53,7 +53,8 @@ public class ScriptBindings implements Bindings {
   
   @Override
   public boolean containsKey(Object key) {
-    // log.debug("ScriptBindings.containsKey("+key+")");
+    // if (log.isDebugEnabled())
+   log.debug("ScriptBindings.containsKey("+key+")");
     if (!(key instanceof String)) {
       return false;
     }
@@ -75,7 +76,8 @@ public class ScriptBindings implements Bindings {
 
   @Override
   public Object get(Object key) {
-    // log.debug("ScriptBindings.get("+key+")");
+    // if (log.isDebugEnabled())
+   log.debug("ScriptBindings.get("+key+")");
     if (!(key instanceof String)) {
       return null;
     }
@@ -118,7 +120,8 @@ public class ScriptBindings implements Bindings {
   
   @Override
   public Object put(String scriptVariableName, Object scriptValue) {
-    // log.debug("ScriptBindings.put("+scriptVariableName+","+scriptValue+")");
+    // if (log.isDebugEnabled())
+   log.debug("ScriptBindings.put("+scriptVariableName+","+scriptValue+")");
     if (isIgnored(scriptVariableName)){
       return null;
     }
@@ -136,55 +139,64 @@ public class ScriptBindings implements Bindings {
 
   @Override
   public int size() {
-    log.debug("ScriptBindings.size()");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.size()");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public boolean isEmpty() {
-    log.debug("ScriptBindings.isEmpty()");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.isEmpty()");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public boolean containsValue(Object value) {
-    log.debug("ScriptBindings.containsValue("+value+")");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.containsValue("+value+")");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public void clear() {
-    log.debug("ScriptBindings.clear()");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.clear()");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Set<String> keySet() {
-    log.debug("ScriptBindings.keySet()");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.keySet()");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Collection<Object> values() {
-    log.debug("ScriptBindings.values()");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.values()");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Set<java.util.Map.Entry<String, Object>> entrySet() {
-    log.debug("ScriptBindings.entrySet()");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.entrySet()");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public void putAll(Map< ? extends String, ? extends Object> toMerge) {
-    log.debug("ScriptBindings.putAll("+toMerge+")");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.putAll("+toMerge+")");
     throw new UnsupportedOperationException("Please implement me");
   }
 
   @Override
   public Object remove(Object key) {
-    log.debug("ScriptBindings.remove("+key+")");
+    if (log.isDebugEnabled())
+      log.debug("ScriptBindings.remove("+key+")");
     throw new UnsupportedOperationException("Please implement me");
   }
 }

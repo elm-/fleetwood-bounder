@@ -114,7 +114,8 @@ public class ActivityInstanceImpl extends ScopeInstanceImpl implements ActivityI
       listener.transition(this, transition);
     }
     if (to!=null) {
-      log.debug("Taking transition to "+to);
+      if (log.isDebugEnabled())
+        log.debug("Taking transition to "+to);
       parent.createActivityInstance(to);
     }
   }

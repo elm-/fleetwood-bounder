@@ -106,7 +106,8 @@ public abstract class ScopeInstanceImpl implements ScopeInstance {
     }
     addActivityInstance(activityInstance);
     activityInstance.initializeVariableInstances();
-    log.debug("Created "+activityInstance);
+    if (log.isDebugEnabled())
+      log.debug("Created "+activityInstance);
     return activityInstance;
   }
   

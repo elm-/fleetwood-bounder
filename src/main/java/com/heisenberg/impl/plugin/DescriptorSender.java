@@ -48,10 +48,13 @@ public class DescriptorSender {
 
   public String send() {
     // TODO add HTTP
-    log.debug("Sending process profile over HTTP to the process builder:");
-    log.debug(">>> PUT "+getUrl());
+    if (log.isDebugEnabled())
+      log.debug("Sending process profile over HTTP to the process builder:");
+    if (log.isDebugEnabled())
+      log.debug(">>> PUT "+getUrl());
     // TODO send over HTTP to the server
-    log.debug(">>> "+jsonService.objectToJsonStringPretty(descriptors));
+    if (log.isDebugEnabled())
+      log.debug(">>> "+jsonService.objectToJsonStringPretty(descriptors));
     return "the http response, which is hopefully 200 OK";
   }
   

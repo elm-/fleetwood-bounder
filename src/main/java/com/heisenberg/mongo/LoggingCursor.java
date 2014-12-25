@@ -47,7 +47,8 @@ public class LoggingCursor extends DBCursor {
   @Override
   public DBObject next() {
     DBObject next = cursor.next();
-    if (log.isDebugEnabled()) log.debug("<-"+cursor.getCollection().getName()+"-- "+mongoCollection.toString(next));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("<-"+cursor.getCollection().getName()+"-- "+mongoCollection.toString(next));
     return next;
   }
 

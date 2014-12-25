@@ -155,7 +155,8 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
 
   public DeployResult validateAndDeploy(WorkflowImpl workflow) {
     Exceptions.checkNotNull(workflow, "processBuilder");
-    log.debug("Deploying process");
+    if (log.isDebugEnabled())
+      log.debug("Deploying process");
     workflow.deployedTime = new LocalDateTime();
 
     DeployResult deployResult = new DeployResult();
@@ -242,7 +243,8 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     workflowInstance.callerActivityInstanceId = start.callerActivityInstanceId;
     workflowInstance.transientContext = start.transientContext;
     setVariableApiValues(workflowInstance, start);
-    log.debug("Starting "+workflowInstance);
+    if (log.isDebugEnabled())
+      log.debug("Starting "+workflowInstance);
     workflowInstance.setStart(Time.now());
     List<Activity> startActivityDefinitions = workflow.getStartActivities();
     if (startActivityDefinitions!=null) {
@@ -269,7 +271,8 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     if (activityInstance.isEnded()) {
       throw new RuntimeException("Activity instance "+activityInstance+" is already ended");
     }
-    log.debug("Signalling "+activityInstance);
+    if (log.isDebugEnabled())
+      log.debug("Signalling "+activityInstance);
     ActivityImpl activityDefinition = activityInstance.getActivity();
     activityDefinition.activityType.message(activityInstance);
     processInstance.workflowEngine.executeWork(processInstance);
@@ -285,10 +288,12 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
     while ( processInstance==null 
             && attempts <= maxAttempts ) {
       try {
-        log.debug("Locking failed... retrying");
+        if (log.isDebugEnabled())
+          log.debug("Locking failed... retrying");
         Thread.sleep(wait);
       } catch (InterruptedException e) {
-        log.debug("Waiting for lock to be released was interrupted");
+        if (log.isDebugEnabled())
+          log.debug("Waiting for lock to be released was interrupted");
       }
       wait = wait * backoffFactor;
       attempts++;
@@ -411,35 +416,41 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
       ActivityImpl activity = activityInstance.getActivity();
       
       if (STATE_STARTING.equals(activityInstance.workState)) {
-        log.debug("Starting "+activityInstance);
+        if (log.isDebugEnabled())
+          log.debug("Starting "+activityInstance);
         executeStart(activityInstance);
         
       } else if (STATE_STARTING_MULTI_INSTANCE.equals(activityInstance.workState)) {
-        log.debug("Starting multi instance "+activityInstance);
+        if (log.isDebugEnabled())
+          log.debug("Starting multi instance "+activityInstance);
         executeStart(activityInstance);
         
       } else if (STATE_STARTING_MULTI_CONTAINER.equals(activityInstance.workState)) {
         List<Object> values = activityInstance.getValue(activity.multiInstance);
         if (values!=null && !values.isEmpty()) {
-          log.debug("Starting multi container "+activityInstance);
+          if (log.isDebugEnabled())
+            log.debug("Starting multi container "+activityInstance);
           for (Object value: values) {
             ActivityInstanceImpl elementActivityInstance = activityInstance.createActivityInstance(activity);
             elementActivityInstance.setWorkState(STATE_STARTING_MULTI_INSTANCE); 
             elementActivityInstance.initializeForEachElement(activity.multiInstanceElement, value);
           }
         } else {
-          log.debug("Skipping empty multi container "+activityInstance);
+          if (log.isDebugEnabled())
+            log.debug("Skipping empty multi container "+activityInstance);
           activityInstance.onwards();
         }
   
       } else if (STATE_NOTIFYING.equals(activityInstance.workState)) {
-        log.debug("Notifying parent of "+activityInstance);
+        if (log.isDebugEnabled())
+          log.debug("Notifying parent of "+activityInstance);
         activityInstance.parent.ended(activityInstance);
         activityInstance.workState = null;
       }
     }
     if (workflowInstance.hasAsyncWork()) {
-      log.debug("Going asynchronous "+workflowInstance.workflowInstance);
+      if (log.isDebugEnabled())
+        log.debug("Going asynchronous "+workflowInstance.workflowInstance);
       workflowInstanceStore.flush(workflowInstance.workflowInstance);
       ExecutorService executor = getExecutorService();
       executor.execute(new Runnable(){
@@ -483,7 +494,8 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
       if (callerActivityInstance.isEnded()) {
         throw new RuntimeException("Call activity instance "+callerActivityInstance+" is already ended");
       }
-      log.debug("Notifying caller "+callerActivityInstance);
+      if (log.isDebugEnabled())
+        log.debug("Notifying caller "+callerActivityInstance);
       ActivityImpl activityDefinition = callerActivityInstance.getActivity();
       Call callActivity = (Call) activityDefinition.activityType;
       callActivity.calledProcessInstanceEnded(callerActivityInstance, workflowInstance);
@@ -493,7 +505,8 @@ public abstract class WorkflowEngineImpl implements WorkflowEngine {
   }
 
   public void executeOnwards(ActivityInstanceImpl activityInstance) {
-    log.debug("Onwards "+this);
+    if (log.isDebugEnabled())
+      log.debug("Onwards "+this);
     ActivityImpl activity = activityInstance.activityDefinition;
     // Default BPMN logic when an activity ends
     // If there are outgoing transitions (in bpmn they are called sequence flows)

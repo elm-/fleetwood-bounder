@@ -143,23 +143,29 @@ public class MongoCollection {
   }
 
   protected WriteResult insert(BasicDBObject dbObject, WriteConcern writeConcern) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> insert "+toString(dbObject));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("--"+dbCollection.getName()+"-> insert "+toString(dbObject));
     WriteResult writeResult = dbCollection.insert(dbObject, writeConcern);
-    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
     return writeResult;
   }
   
   protected WriteResult save(BasicDBObject dbObject, WriteConcern writeConcern) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> save "+toString(dbObject));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("--"+dbCollection.getName()+"-> save "+toString(dbObject));
     WriteResult writeResult = dbCollection.save(dbObject, writeConcern);
-    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
     return writeResult;
   }
   
   protected WriteResult update(DBObject query, DBObject update, boolean upsert, boolean multi, WriteConcern writeConcern) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> update q="+toString(query)+" u="+toString(update));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("--"+dbCollection.getName()+"-> update q="+toString(query)+" u="+toString(update));
     WriteResult writeResult = dbCollection.update(query, update, upsert, multi, writeConcern);
-    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
     return writeResult;
   }
 
@@ -168,16 +174,20 @@ public class MongoCollection {
   }
 
   protected BasicDBObject findAndModify(DBObject query, DBObject update, DBObject fields) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> findAndModify q="+toString(query)+" u="+toString(update));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("--"+dbCollection.getName()+"-> findAndModify q="+toString(query)+" u="+toString(update));
     BasicDBObject dbObject = (BasicDBObject) dbCollection.findAndModify( query, fields, null, false, update, true, false );
-    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+(dbObject!=null ? toString(dbObject) : "null"));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("<-"+dbCollection.getName()+"-- "+(dbObject!=null ? toString(dbObject) : "null"));
     return dbObject;
   }
 
   protected BasicDBObject findOne(DBObject query) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> findOne q="+toString(query));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("--"+dbCollection.getName()+"-> findOne q="+toString(query));
     BasicDBObject dbObject = (BasicDBObject) dbCollection.findOne(query);
-    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+toString(dbObject));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("<-"+dbCollection.getName()+"-- "+toString(dbObject));
     return dbObject;
   }
 
@@ -186,14 +196,17 @@ public class MongoCollection {
   }
 
   protected DBCursor find(DBObject query, DBObject fields) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> find q="+toString(query)+(fields!=null ? " f="+toString(fields) :""));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("--"+dbCollection.getName()+"-> find q="+toString(query)+(fields!=null ? " f="+toString(fields) :""));
     return new LoggingCursor(this, dbCollection.find(query, fields));
   }
   
   protected WriteResult remove(DBObject query) {
-    if (log.isDebugEnabled()) log.debug("--"+dbCollection.getName()+"-> remove q="+toString(query));
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("--"+dbCollection.getName()+"-> remove q="+toString(query));
     WriteResult writeResult = dbCollection.remove(query);
-    if (log.isDebugEnabled()) log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
+    if (log.isDebugEnabled()) if (log.isDebugEnabled())
+   log.debug("<-"+dbCollection.getName()+"-- "+writeResult);
     return writeResult;
   }
 

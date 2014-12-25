@@ -69,7 +69,8 @@ public class ExecutorServiceImpl implements ExecutorService {
       if (!((ScheduledExecutorService)executor).isShutdown()) {
         try {
           ScheduledExecutorService scheduledExecutorService = (ScheduledExecutorService) executor;
-          log.debug("shutting down executor "+executor);
+          if (log.isDebugEnabled())
+            log.debug("shutting down executor "+executor);
           scheduledExecutorService.shutdown();
           scheduledExecutorService.awaitTermination(shutdownTimeout, shutdownTimeUnit);
         } catch (InterruptedException e) {

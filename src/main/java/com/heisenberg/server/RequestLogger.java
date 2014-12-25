@@ -92,7 +92,8 @@ public class RequestLogger implements ContainerRequestFilter, ContainerResponseF
       context.setEntityStream(logInboundEntity(logMsg, context.getEntityStream(), MessageUtils.getCharset(context.getMediaType())));
     }
 
-    log.debug(logMsg.toString());
+    if (log.isDebugEnabled())
+      log.debug(logMsg.toString());
   }
 
   @Override
@@ -115,7 +116,8 @@ public class RequestLogger implements ContainerRequestFilter, ContainerResponseF
       requestContext.setProperty(ENTITY_LOGGER_PROPERTY, stream);
       // not calling log(b) here - it will be called by the interceptor
     } else {
-      log.debug(logMsg.toString());
+      if (log.isDebugEnabled())
+        log.debug(logMsg.toString());
     }
   }
 
@@ -154,7 +156,8 @@ public class RequestLogger implements ContainerRequestFilter, ContainerResponseF
     final LoggingStream stream = (LoggingStream) writerInterceptorContext.getProperty(ENTITY_LOGGER_PROPERTY);
     writerInterceptorContext.proceed();
     if (stream != null) {
-      log.debug(stream.getStringBuilder(MessageUtils.getCharset(writerInterceptorContext.getMediaType())).toString());
+      if (log.isDebugEnabled())
+        log.debug(stream.getStringBuilder(MessageUtils.getCharset(writerInterceptorContext.getMediaType())).toString());
     }
   }
 

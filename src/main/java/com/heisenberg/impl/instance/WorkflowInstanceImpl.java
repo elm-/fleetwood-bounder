@@ -69,7 +69,8 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
     this.workflowInstance = this;
     this.start = Time.now();
     initializeVariableInstances();
-    log.debug("Created "+workflowInstance);
+    if (log.isDebugEnabled())
+      log.debug("Created "+workflowInstance);
   }
   
   public void addWork(ActivityInstanceImpl activityInstance) {
@@ -141,7 +142,8 @@ public class WorkflowInstanceImpl extends ScopeInstanceImpl implements WorkflowI
         throw new RuntimeException("Can't end this process instance. There are open activity instances: "+this);
       }
       setEnd(Time.now());
-      log.debug("Ends "+this);
+      if (log.isDebugEnabled())
+        log.debug("Ends "+this);
       workflowEngine.executeWorkflowInstanceEnded(this);
     }
   }
